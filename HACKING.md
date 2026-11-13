@@ -125,7 +125,12 @@ to stay out.
 **A new object type**: `src/objects/foo.{h,cpp}`, a subclass of `Object`
 with a static `luaBind` (copy `sphere.cpp`), registered in `openLua()`'s
 list. Override `renderInLocalFrame` for the screen and `toPOV` for the
-export. Re-run `qmake` so the new files get built.
+export. Its destructor frees the shape and motion state it made with
+`deleteOwnShape(true)`; a shape a script hands in is Lua's (mark it with
+`setShapeFromLua(true)`), and motion states always belong to C++, even a
+script's. `tests/26-ownership.lua` covers the cases, and the sanitizer
+job fails on a leak or a double free. Re-run `qmake` so the new files get
+built.
 
 **A Bullet class or method for scripts**: add it to the matching
 `lua_bullet_N.cpp`.

@@ -49,7 +49,7 @@ Blob::Blob(btScalar threshold, btScalar mass) {
 }
 
 Blob::~Blob() {
-  deleteOwnShape(false);
+  deleteOwnShape(true);
 }
 
 void Blob::addSphereComponent(const btVector3 &center, btScalar radius,

@@ -13,6 +13,7 @@
 
 #include <QColor>
 #include <QTextStream>
+#include <QSet>
 #include <iostream>
 
 #include <btBulletDynamicsCommon.h>
@@ -422,6 +423,20 @@ public:
    * @param fromLua True when a script handed the shape in.
    */
   void setShapeFromLua(bool fromLua) { _shapeFromLua = fromLua; }
+
+  /// True when the object doesn't free #shape: a script's, or one it shares.
+  bool shapeFromLua() const { return _shapeFromLua; }
+
+  /**
+   * @brief Hands over the motion states of its bodies, current and replaced,
+   * leaving each with none: for Viewer::closeScript() to free while Lua is
+   * still open (one a script made keeps a reference into Lua).
+   * @param states Where they go (a set: two bodies may share one).
+   */
+  void takeMotionStates(QSet<btMotionState *> &states);
+
+  /// Every object alive now, the ones Lua owns too (for takeMotionStates()).
+  static const QSet<Object *> &live();
 
   /**
    * @brief Returns the object's collision shape.

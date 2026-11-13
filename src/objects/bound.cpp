@@ -27,6 +27,7 @@ Bound::Bound(btCollisionShape *boundShape, btScalar mass) {
 
   if (m_boundShape) {
     shape = m_boundShape;
+    _shapeFromLua = true;   // (a script's: Lua frees it)
   } else {
     shape = new btSphereShape(1.0);
   }
@@ -47,7 +48,7 @@ Bound::Bound(btCollisionShape *boundShape, btScalar mass) {
 }
 
 Bound::~Bound() {
-  deleteOwnShape(false);
+  deleteOwnShape(true);
 }
 
 void Bound::setBoundShape(btCollisionShape *shape) {

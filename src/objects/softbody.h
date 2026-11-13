@@ -71,7 +71,7 @@ public:
            btScalar mass, int fixeds);
 
   /**
-   * @brief Destroys the soft body, unless Lua already owns it.
+   * @brief Destroys the soft body (always its own: scripts can't make one).
    */
   ~SoftBody();
 
@@ -322,15 +322,6 @@ public:
    */
   RigidSoftContact getContact(int i) const;
 
-  /**
-   * @brief Drops the Bullet pointer without deleting it.
-   *
-   * Drops the raw btSoftBody pointer without deleting it. Mirrors
-   * Mesh::luaRelease(): called by Viewer during teardown after the soft
-   * body has already been removed from the dynamics world and its C++
-   * ownership settled, so ~SoftBody() does not touch a stale pointer.
-   */
-  void luaRelease() { m_softBody = nullptr; }
 
 protected:
   /**

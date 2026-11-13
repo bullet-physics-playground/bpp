@@ -58,6 +58,14 @@ public:
    * @param L The Lua state to register the bindings in.
    */
   static void luaBind(lua_State *L);
+
+  /**
+   * @brief Frees the motion states scripts made that are still alive: those
+   *        of bodies a script made and gave no object. C++ owns them
+   *        (btDefaultMotionState adopts), and each keeps a reference into
+   *        Lua, so Viewer::closeScript() calls this before closing Lua.
+   */
+  static void freeScriptMotionStates();
 signals:
 
 public slots:

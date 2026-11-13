@@ -48,7 +48,7 @@ TrueType::TrueType(const QString &font, const QString &text, btScalar size,
 }
 
 TrueType::~TrueType() {
-  deleteOwnShape(false);
+  deleteOwnShape(true);
 }
 
 void TrueType::luaBind(lua_State *s) {

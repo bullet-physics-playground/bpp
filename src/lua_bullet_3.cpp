@@ -47,6 +47,15 @@ static void luaSetGyroSolved(btRigidBody &b, bool on) {
                 : b.getFlags() & ~BPP_GYRO_MIDPOINT);
 }
 
+// body:setMotionState(ms): the motion state it replaces goes, as obj.pos's
+// does (C++ owns them all, see btDefaultMotionState).
+static void luaSetMotionState(btRigidBody &b, btMotionState *m) {
+  btMotionState *old = b.getMotionState();
+  b.setMotionState(m);
+  if (old != m)
+    delete old;
+}
+
 /**
  * @brief Registers the third quarter of the Bullet API.
  * @param s The Lua state to register in.
@@ -452,7 +461,7 @@ void luaBindBulletPart3(lua_State *s) {
            .def("setNewBroadphaseProxy", &btRigidBody::setNewBroadphaseProxy)
            .def("getMotionState", (btMotionState * (btRigidBody::*)(void)) &
                                       btRigidBody::getMotionState)
-           .def("setMotionState", &btRigidBody::setMotionState,
+           .def("setMotionState", &luaSetMotionState,
                 dependency(_1, _2)) // (kept alive as long as the body)
            .def("setAngularFactor", (void(btRigidBody::*)(const btVector3 &)) &
                                         btRigidBody::setAngularFactor)

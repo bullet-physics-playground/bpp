@@ -47,7 +47,7 @@ SuperQuadric::SuperQuadric(btScalar roundness, btScalar thickness,
 }
 
 SuperQuadric::~SuperQuadric() {
-  deleteOwnShape(false);
+  deleteOwnShape(true);
 }
 
 void SuperQuadric::luaBind(lua_State *s) {

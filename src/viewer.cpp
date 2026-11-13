@@ -2261,6 +2261,18 @@ void Viewer::closeScript() {
   }
   removeLeftoverBodies();
 
+  // The objects' motion states go while Lua is still open: one a script
+  // made keeps a reference into Lua. (C++ owns them all, see
+  // btDefaultMotionState, even those of bodies Lua frees.) Every object's,
+  // the ones Lua owns too, which would otherwise free theirs as Lua closes.
+  {
+    QSet<btMotionState *> motionStates;
+    foreach (Object *o, Object::live())
+      o->takeMotionStates(motionStates);
+    qDeleteAll(motionStates);
+  }
+  LuaBullet::freeScriptMotionStates();   // (those of bodies with no object)
+
   // Release Lua references from the registry BEFORE closing Lua state.
   // These are raw integer refs, not luabind::object instances.
   if (L != nullptr) {
@@ -2272,22 +2284,21 @@ void Viewer::closeScript() {
     L = nullptr;
   }
 
-  // Null out Bullet object pointers that Lua has freed. The C++ Object
-  // destructors (in clear() or the destructor) will skip these null pointers,
-  // avoiding use-after-free and double-free.
+  // Null out Bullet object pointers that Lua has freed: a body or shape a
+  // script handed in. The C++ Object destructors (in clear() or the
+  // destructor) skip these null pointers, avoiding use-after-free and
+  // double-free, and free what the objects made themselves.
   foreach (Object* o, *_objects) {
-    o->body = nullptr;
-    o->shape = nullptr;
+    if (!o->_ownsBody)
+      o->body = nullptr;
+    if (o->shapeFromLua())
+      o->shape = nullptr;
 #ifdef HAS_LIB_ASSIMP
     Mesh *m = dynamic_cast<Mesh *>(o);
     if (m) {
       m->luaRelease();
     }
 #endif
-    SoftBody *sb = dynamic_cast<SoftBody *>(o);
-    if (sb) {
-      sb->luaRelease();
-    }
   }
 
 }

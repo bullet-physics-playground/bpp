@@ -36,6 +36,8 @@ CsgObject::CsgObject(CsgNode *rootNode, btScalar mass) : root(rootNode) {
 CsgObject::~CsgObject() {
   root = nullptr;
   if (compoundShape) {
+    if (shape == compoundShape)
+      shape = nullptr;   // (so deleteOwnShape() doesn't free it again)
     delete compoundShape;
     compoundShape = nullptr;
   }

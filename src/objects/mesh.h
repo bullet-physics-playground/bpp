@@ -44,11 +44,13 @@ public:
         m_comOffset(0, 0, 0) {}
 
   /**
-   * @brief Destroys the entry and the Bullet shape and mesh it holds.
+   * @brief Destroys the entry: the Bullet shape and mesh it holds, and the
+   * assimp scene.
    */
   ~MeshCacheEntry() {
     delete m_shape;
     delete m_mesh;
+    aiReleaseImport(m_scene);
   }
   btGImpactMeshShape *m_shape; ///< Collision shape built from #m_mesh.
   btTriangleMesh *m_mesh;      ///< Triangles read from the file.
@@ -145,16 +147,21 @@ public:
   void setMass(btScalar mass) override;
 
   /**
-   * @brief Drops the Bullet pointers without deleting anything.
+   * @brief Drops the Bullet pointers a script handed in, without deleting
+   *        anything.
    *
-   * Called during teardown once Lua has freed the objects it adopted, so the
-   * destructor does not touch memory that is already gone.
+   * Called during teardown once Lua has freed them, so the destructor does
+   * not touch memory that is already gone; it still frees what the mesh made
+   * itself.
    */
   void luaRelease() {
-    m_shape = nullptr;
-    m_mesh = nullptr;
-    body = nullptr;
-    shape = nullptr;
+    if (m_shapeFromLua)
+      m_shape = nullptr;
+    if (m_meshFromLua)
+      m_mesh = nullptr;
+    if (!_ownsBody)
+      body = nullptr;
+    shape = nullptr;   // (never the Object's to free: see setShape())
   }
 
   /**

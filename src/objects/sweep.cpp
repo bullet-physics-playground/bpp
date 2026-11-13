@@ -91,7 +91,7 @@ Sweep::Sweep(int type, const btVector3 &axis, btScalar length, btScalar mass) {
 }
 
 Sweep::~Sweep() {
-  deleteOwnShape(false);
+  deleteOwnShape(true);
 }
 
 void Sweep::addProfilePoint(btScalar x, btScalar y) {

@@ -25,6 +25,7 @@
 #include "lua_converters.h"
 
 #include <QDebug>
+#include <QSet>
 
 #include <ostream>
 
@@ -156,6 +157,7 @@ struct btDefaultMotionState_wrap : public btDefaultMotionState,
       : btDefaultMotionState(startTrans, centerOfMassOffset),
         btMotionState_wrap(startTrans, centerOfMassOffset) {
     // qDebug() << "btDefaultMotionState_wrap()";
+    live().insert(this);
   }
   /**
    * @brief Constructs the motion state at a transform.
@@ -165,6 +167,14 @@ struct btDefaultMotionState_wrap : public btDefaultMotionState,
   btDefaultMotionState_wrap(const btTransform &startTrans)
       : btDefaultMotionState(startTrans), btMotionState_wrap(startTrans) {
     // qDebug() << "btDefaultMotionState_wrap()";
+    live().insert(this);
+  }
+  ~btDefaultMotionState_wrap() override { live().remove(this); }
+
+  /// The ones alive now, for LuaBullet::freeScriptMotionStates().
+  static QSet<btDefaultMotionState_wrap *> &live() {
+    static QSet<btDefaultMotionState_wrap *> states;
+    return states;
   }
 };
 

@@ -56,6 +56,8 @@ Heightfield::Heightfield(int w, int d, const function<float(float, float)> &heig
 
 Heightfield::~Heightfield() {
   if (m_hfShape) {
+    if (shape == m_hfShape)
+      shape = nullptr;   // (so deleteOwnShape() doesn't free it again)
     delete m_hfShape;
     m_hfShape = nullptr;
   }

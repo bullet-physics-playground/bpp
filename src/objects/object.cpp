@@ -46,8 +46,16 @@ bool operator==(const Object &a, const Object &b) { return &a == &b; }
 
 #include <luabind/operator.hpp>
 
+static QSet<Object *> &liveObjects() {
+  static QSet<Object *> objects;
+  return objects;
+}
+
+const QSet<Object *> &Object::live() { return liveObjects(); }
+
 Object::Object(QObject *parent, btScalar pmass) : QObject(parent) {
   Q_UNUSED(pmass)
+  liveObjects().insert(this);
 
   // qDebug() << "Object::Object()";
 
@@ -77,25 +85,28 @@ Object::Object(QObject *parent, btScalar pmass) : QObject(parent) {
 }
 
 Object::~Object() {
-  if (shape != nullptr) {
-    // delete shape;
-    // FIXME shape = nullptr;
-  }
+  liveObjects().remove(this);
+
+  // (The shape and motion state an object made itself are freed by its own
+  // class's destructor, with deleteOwnShape(): a shape may be a script's or
+  // shared, as a mesh's is.)
 
   if (body != nullptr && _ownsBody) {
     delete body;
     body = nullptr;
   }
 
-  // Bodies and shapes it made itself and then replaced. (A body still in the
-  // world, or a constraint still uses, is left, and so are the shapes, which
-  // it may use; so are motion states, which a script may have handed in.)
+  // Bodies and shapes it made itself and then replaced, with the bodies'
+  // motion states (a script's too: C++ owns those, see btDefaultMotionState).
+  // A body still in the world, or a constraint still uses, is left, and so
+  // are the shapes, which it may use.
   bool keptBody = false;
   for (btRigidBody *b : _retiredBodies) {
     if (b->isInWorld() || b->getNumConstraintRefs() > 0) {
       keptBody = true;
       continue;
     }
+    delete b->getMotionState();
     delete b;
   }
   if (!keptBody)
@@ -733,6 +744,18 @@ void Object::setRigidBody(btRigidBody *b) {
 
 btRigidBody *Object::getRigidBody() const { return body; }
 
+void Object::takeMotionStates(QSet<btMotionState *> &states) {
+  auto take = [&states](btRigidBody *b) {
+    if (b != nullptr && b->getMotionState() != nullptr) {
+      states.insert(b->getMotionState());
+      b->setMotionState(nullptr);
+    }
+  };
+  take(body);
+  for (btRigidBody *b : _retiredBodies)
+    take(b);
+}
+
 void Object::setBoundShape(btCollisionShape *s) { mBoundShape = s; }
 
 void Object::setCollisionShape(btCollisionShape *s) {
@@ -765,8 +788,10 @@ void Object::deleteOwnShape(bool motionStateToo) {
     delete shape;
   shape = nullptr;
   _shapeFromLua = false;
-  if (motionStateToo && body != nullptr && _ownsBody && body->getMotionState())
+  if (motionStateToo && body != nullptr && _ownsBody && body->getMotionState()) {
     delete body->getMotionState();
+    body->setMotionState(nullptr);
+  }
 }
 
 // What a script's obj.body = ... and obj.shape = ... call: the object keeps

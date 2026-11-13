@@ -62,10 +62,13 @@ void luaBindBulletPart1(lua_State *s) {
              .def(const_self == const_self)];
 
   // https://pybullet.org/Bullet/BulletFull/structbtDefaultMotionState.html
+  // (adopt: a motion state a script makes belongs to C++, so the garbage
+  // collector can't free one a body uses; an object deletes its body's)
   module(s)[class_<btDefaultMotionState, btDefaultMotionState *,
                    btDefaultMotionState_wrap, btMotionState>(
                 "btDefaultMotionState")
-                .def(constructor<const btTransform &, const btTransform &>())
+                .def(constructor<const btTransform &, const btTransform &>(),
+                     adopt(result))
                 .def(constructor<const btTransform &>(), adopt(result))
                 .def(tostring(const_self))
                 .def(const_self == const_self)];
@@ -251,3 +254,9 @@ void luaBindBulletPart1(lua_State *s) {
            .def(constructor<btScalar, btScalar>(), adopt(result))
            .def(tostring(const_self))
            .def(const_self == const_self)];}
+
+void LuaBullet::freeScriptMotionStates() {
+  // (a copy: each removes itself from the set as it goes)
+  const QSet<btDefaultMotionState_wrap *> states = btDefaultMotionState_wrap::live();
+  qDeleteAll(states);
+}
