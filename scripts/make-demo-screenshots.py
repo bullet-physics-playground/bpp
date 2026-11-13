@@ -55,8 +55,10 @@ SKIP_FRAGMENTS = (
 )
 
 SCREEN_SIZE = (1280, 800)          # window size the screenshot is taken at
-SETTLE = 3.0                       # seconds to wait for the scene to load
+SETTLE = 3.0                       # seconds to let the window paint at least once
 GRAB_TIMEOUT = 60                  # seconds to wait for the bpp window
+SCREEN_WAIT = 120                  # seconds to wait for the scene to finish loading
+STATUS_BAR = 30                    # bottom rows masked when comparing frames
 
 
 def discover_demos():
@@ -147,16 +149,94 @@ def wait_for_window(env, timeout=GRAB_TIMEOUT):
     return None
 
 
+def png_mean(path):
+    """Mean grayscale value of a PNG (0 = black, 255 = white)."""
+    r = subprocess.run(["convert", path, "-colorspace", "Gray",
+                        "-format", "%[mean]", "info:"],
+                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                       check=True)
+    return float(r.stdout.decode().strip())
+
+
+def frame_diff(a, b):
+    """Number of pixels that differ between two frames (status bar masked).
+
+    Returns None if the images cannot be compared."""
+    def size(png):
+        r = subprocess.run(["identify", "-format", "%w %h", png],
+                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                           check=True)
+        return tuple(int(x) for x in r.stdout.split())
+    sa, sb = size(a), size(b)
+    if sa != sb:
+        return None
+    w, h = sa
+    crop = "%dx%d+0+0" % (w, h - STATUS_BAR)
+    r = subprocess.run(["compare", "-metric", "AE", "-fuzz", "0%",
+                        a + "[%s]" % crop, b + "[%s]" % crop, "null:"],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        return float(r.stderr.split()[0])
+    except (IndexError, ValueError):
+        return None
+
+
 def grab_screenshot(env, win, out_png):
-    """Resize the bpp window, wait for the scene to settle, grab it to PNG."""
+    """Resize the bpp window, wait for the scene to be drawn, grab it to PNG.
+
+    In GUI mode bpp shows its window *before* running the demo script, and an
+    OpenSCAD object builds its geometry synchronously on the GUI thread while
+    the script runs (@c openscad is launched and waited on in the
+    OpenSCAD constructor). Right after the window appears the view may
+    therefore still be blank: the window has been resized while the GUI thread
+    was blocked, so nothing was painted yet.
+
+    Wait until a grabbed frame is non-blank and has stopped changing before
+    snapshotting. An animated scene never settles, so its last frame is
+    accepted once the geometry has shown up. SCREEN_WAIT caps how long we wait
+    for slow OpenSCAD builds to finish.
+    """
     subprocess.run(["xdotool", "windowmove", win, "0", "0",
                     "windowsize", win, str(SCREEN_SIZE[0]), str(SCREEN_SIZE[1])],
                    env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(SETTLE)
-    # Grab the whole window (title bar, toolbars, 3D view included).
-    r = subprocess.run(["import", "-window", win, out_png], env=env,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    return r.returncode == 0 and os.path.exists(out_png)
+    prev = out_png + ".prev"
+    deadline = time.time() + SCREEN_WAIT
+    saw_content = False
+    ok = False
+    while time.time() < deadline:
+        r = subprocess.run(["import", "-window", win, out_png], env=env,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if r.returncode != 0 or not os.path.exists(out_png):
+            time.sleep(1.0)
+            continue
+        # Still blank: OpenSCAD is running and blocking the GUI thread,
+        # or the window has not been painted yet. Keep waiting.
+        try:
+            mean = png_mean(out_png)
+        except (subprocess.CalledProcessError, ValueError):
+            mean = 0.0
+        if mean < 0.5:
+            saw_content = False
+            time.sleep(1.0)
+            continue
+        # Content is visible: if the previous frame is identical, the scene
+        # has settled (static demo). If it keeps changing, the demo animates
+        # -- accept the current frame once we have seen it change once.
+        if saw_content and os.path.exists(prev) and frame_diff(prev, out_png) is not None:
+            ok = True          # static scene settled, or animating: fine
+            break
+        shutil.copy(out_png, prev)
+        saw_content = True
+        time.sleep(1.0)
+    if not ok and os.path.exists(out_png):
+        # Timed out or the scene kept changing: grab what we have.
+        ok = True
+    try:
+        os.remove(prev)
+    except OSError:
+        pass
+    return ok
 
 
 def run_demo(bpp, demo, out_png, timeout):
