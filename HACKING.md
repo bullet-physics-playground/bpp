@@ -66,6 +66,8 @@ The rest of `src/`:
   without a window (what the tests do); otherwise it opens the `Gui`.
 - `geo.cpp`, `demcore.cpp`, `dembed.cpp`: compiled helpers for particular
   demos (Artificial Physics, the Brazil nut).
+- `joystick/`, `spacenavigator/`: gamepads (SDL2) and the 3Dconnexion
+  SpaceNavigator.
 
 ## How a script runs
 

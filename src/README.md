@@ -1,7 +1,5 @@
 # Bullet Physics Playground (BPP) - Source Code
 
-**Version:** 0.3.29
-
 A Qt-based application for creating physics simulations using Lua scripting with the Bullet Physics engine.
 
 ## Overview
@@ -12,38 +10,11 @@ BPP allows you to create 3D physics simulations by writing Lua scripts. The appl
 - POV-Ray animation export for high-quality rendering
 - Interactive debugging and command-line interface
 
-## Directory Structure
+## Where Things Are
 
-```
-src/
-├── main.cpp              # Application entry point, CLI parsing
-├── viewer.cpp/h          # 3D OpenGL viewer + physics world
-├── gui.cpp/h             # Main window (editor, debug, toolbars)
-├── prefs.cpp/h           # Preferences dialog
-├── code.cpp/h            # Lua code editor with line numbers
-├── cmd.cpp/h             # Command line input with history
-├── high.cpp/h            # Lua syntax highlighter
-├── glutils.cpp/h         # OpenGL primitives (cube, sphere, cylinder)
-├── lua_bullet.cpp        # Luabind bindings for Bullet Physics
-├── pch.h                 # Pre-compiled headers
-├── objects/              # Physics object implementations
-│   ├── cube.cpp/h
-│   ├── sphere.cpp/h
-│   ├── cylinder.cpp/h
-│   ├── plane.cpp/h
-│   ├── triangle.cpp/h
-│   ├── mesh.cpp/h        # Assimp-based mesh loading
-│   ├── openscad.cpp/h    # OpenSCAD integration
-│   ├── cam.cpp/h         # Camera class
-│   └── ...
-├── joystick/             # Gamepad/joystick support
-│   ├── joystickinterface*.cpp/h
-│   └── joystickhandler*.cpp/h
-├── spacenavigator/       # 3Dconnexion SpaceNavigator 3D mouse support
-│   ├── spacenavigator.h
-│   └── spacenavigator.cpp
-└── *.ui                  # Qt Designer UI files
-```
+[HACKING.md](../HACKING.md) maps the source: the Viewer and the helpers split
+out of it, the rest of `src/`, how a script runs, and how to add a feature
+with its test.
 
 ## Core Components
 
@@ -65,7 +36,7 @@ Main application window with:
 - Parameters table
 - Menu bar and toolbars
 
-### Lua Bindings (`lua_bullet.cpp`)
+### Lua Bindings (`lua_bullet*.cpp`)
 Exposes Bullet Physics classes to Lua via luabind:
 - Collision shapes (`btSphereShape`, `btBoxShape`, `btGImpactMeshShape`, etc.)
 - Rigid bodies (`btRigidBody`); `body.gyroSolved = true` has the body's
@@ -137,13 +108,14 @@ Configure export settings in Preferences → POV-Ray.
 
 ## Building
 
-Requires CMake and a C++ compiler:
+With qmake (`qmake6` for Qt 6):
 
 ```bash
-mkdir build && cd build
-cmake ..
-make
+qmake CONFIG+=release
+make -j"$(nproc)" release      # gives release/bpp
 ```
+
+See [HACKING.md](../HACKING.md) for the tests and the precompiled header.
 
 ## License
 
