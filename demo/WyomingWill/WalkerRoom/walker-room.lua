@@ -1209,6 +1209,12 @@ local function markBody(w, look)
     shape(string.format("polygon([[0, 0], [%.3f, 0], [0, %.3f]])", t, t), xl, zb, "diag mark")
   end
   if w.unbraced and w.guides then shape(text("G", cs, "right", "bottom"), xr, zb, "G") end
+  -- an arrow at the front end, pointing the way it walks (the end the letters read toward; w.forward, so a
+  -- walker turned to walk reversed has it turned too)
+  local t = 1.5 * cs
+  shape(string.format("polygon([[0, 0], [%.3f, %.3f], [%.3f, %.3f], [%.3f, %.3f], [%.3f, %.3f], [%.3f, %.3f], [%.3f, %.3f]])",
+    -0.55 * t, 0.45 * t, -0.55 * t, 0.15 * t, -1.2 * t, 0.15 * t, -1.2 * t, -0.15 * t, -0.55 * t, -0.15 * t, -0.55 * t, -0.45 * t),
+    xr, 0, "arrow")
 end
 
 -- each marking part to where the body now is, and from then on bpp keeps

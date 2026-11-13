@@ -1,7 +1,8 @@
 -- What the feet meet on the steps (13 November; handover section 4f, steps 7): runs/speedprobe.lua's run and RUN
 -- line, and every second step a trace (to STEP_OUT/<name>_s<seed>.tsv, STEP_OUT a folder set in EXTRA): time, the
 -- body's x, height and pitch, and for each foot its front edge's x, its bottom, its pitch, the ground under its
--- middle and the ground 1 cm past its front edge (the room walks toward +x).
+-- middle and the ground 1 cm past its front edge (the room walks toward +x); then each crank's speed (a share of
+-- its own) and its motor's torque (as speedprobe's).
 local probeDir = STEP_OUT
 local realv, speedPost = v, nil
 v = setmetatable({}, { __index = function(_, k) local x = realv[k]
@@ -23,6 +24,8 @@ local function pitch(b)   -- (about z, across the walk: + toe up when walking to
 end
 local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
 local G = room.groundAt
+local unit = w.totalMass * (GRAVITY or 981) * (STRIDE or 15)
+local lastA = {}
 v:postSim(function(N)
   speedPost(N)
   if N % 2 ~= 0 then return end
@@ -32,6 +35,12 @@ v:postSim(function(N)
     f.body:getAabb(lo, hi)
     local c = f.body:getCenterOfMassPosition()
     row[#row + 1] = string.format("%.3f\t%.3f\t%.3f\t%.2f\t%.3f\t%.3f", hi.x, lo.y, c.z, pitch(f.body), G(c.x, c.z), G(hi.x + 1, c.z))
+  end
+  for i, m in ipairs(w.motors) do   -- (each crank: its speed as a share of its own, and its motor's torque as speedprobe's)
+    local a = m.hinge:getHingeAngle()
+    local d = lastA[i] and (a - lastA[i]) or 0; d = d - 2 * math.pi * math.floor(d / (2 * math.pi) + 0.5)
+    lastA[i] = a
+    row[#row + 1] = string.format("%.3f\t%.4f", d * 30 * m.sign / math.abs(m.speed), math.abs(m.hinge:motorTorque()) / unit)
   end
   fh:write(table.concat(row, "\t"), "\n")
   if N >= (RUN_SECS or 20) * 60 then fh:close() end
