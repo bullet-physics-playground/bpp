@@ -1637,7 +1637,10 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 #endif // USE_VFE
 
 
+  // libQGLViewer leaves the camera setCamera replaces to its caller.
+  qglviewer::Camera *defaultCamera = camera();
   setCamera(new Cam(this));
+  delete defaultCamera;
 
   // POV-Ray properties
   mPreSDL = "";
