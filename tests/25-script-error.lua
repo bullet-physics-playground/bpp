@@ -1,4 +1,4 @@
--- expect-error: ^error: \[string ".*"\]:16: attempt to index upvalue 'nothing' \(a nil value\)$
+-- expect-error: ^error: \[string ".*"\]:16: attempt to index (upvalue 'nothing' \(a nil value\)|a nil value \(upvalue 'nothing'\))$
 -- not-printed: after the error
 -- expect-line: ^\[fails\] \[string ".*"\] \(16\)$
 -- expect-line: ^\[\?\] \[string ".*"\] \(18\)$
