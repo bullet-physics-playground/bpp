@@ -49,15 +49,10 @@ void BezierPatch::init(const std::array<btVector3, 16> &points, btScalar mass) {
 }
 
 BezierPatch::~BezierPatch() {
-  if (m_mesh) {
-    delete m_mesh;
-    m_mesh = nullptr;
-  }
-  if (shape) {
-    delete shape;
-    shape = nullptr;
-  }
+  // The GImpact shape points into the mesh: free the shape first.
   deleteOwnShape(true);
+  delete m_mesh;
+  m_mesh = nullptr;
 }
 
 void BezierPatch::setControlPoint(int u, int v, const btVector3 &point) {
@@ -98,16 +93,9 @@ btVector3 BezierPatch::evaluate(float u, float v) const {
 }
 
 void BezierPatch::buildMesh(int tessellation) {
-  if (m_mesh) {
-    delete m_mesh;
-    m_mesh = nullptr;
-  }
-  if (shape) {
-    delete shape;
-    shape = nullptr;
-  }
-
-  m_mesh = new btTriangleMesh();
+  // Build the new mesh before the old one goes: the GImpact shape points into
+  // its mesh, so a shape must always be freed before the mesh it wraps.
+  btTriangleMesh *newMesh = new btTriangleMesh();
 
   // Clear GL render data
   m_verts.clear();
@@ -152,8 +140,8 @@ void BezierPatch::buildMesh(int tessellation) {
       int i2 = (i + 1) * (tessellation + 1) + j;
       int i3 = (i + 1) * (tessellation + 1) + j + 1;
 
-      m_mesh->addTriangle(verts[i0], verts[i2], verts[i1], true);
-      m_mesh->addTriangle(verts[i1], verts[i2], verts[i3], true);
+      newMesh->addTriangle(verts[i0], verts[i2], verts[i1], true);
+      newMesh->addTriangle(verts[i1], verts[i2], verts[i3], true);
 
       m_idxs.push_back(static_cast<unsigned int>(i0));
       m_idxs.push_back(static_cast<unsigned int>(i2));
@@ -165,37 +153,37 @@ void BezierPatch::buildMesh(int tessellation) {
   }
 
   // Create GImpact shape for collision
-  btGImpactMeshShape *gimpactShape = new btGImpactMeshShape(m_mesh);
+  btGImpactMeshShape *gimpactShape = new btGImpactMeshShape(newMesh);
   gimpactShape->updateBound();
+
+  // Free the old shape first, then the mesh it points into.
+  deleteOwnShape(false);
+  delete m_mesh;
+
+  m_mesh = newMesh;
   shape = gimpactShape;
 
-  btQuaternion qtn;
-  btTransform trans;
-  btDefaultMotionState *motionState = nullptr;
+  if (body == nullptr) {
+    btTransform trans;
+    trans.setIdentity();
+    btDefaultMotionState *motionState = new btDefaultMotionState(trans);
 
-  trans.setIdentity();
-  qtn.setEuler(0.0, 0.0, 0.0);
-  trans.setRotation(qtn);
-  trans.setOrigin(btVector3(0, 0, 0));
-  motionState = new btDefaultMotionState(trans);
-
-  btVector3 inertia;
-  shape->calculateLocalInertia(m_mass, inertia);
-  body = new btRigidBody(m_mass, motionState, shape, inertia);
-  _ownsBody = true;
+    btVector3 inertia;
+    shape->calculateLocalInertia(m_mass, inertia);
+    body = new btRigidBody(m_mass, motionState, shape, inertia);
+    _ownsBody = true;
+  } else {
+    // Keep the body so the patch stays where it is, in the world.
+    const btScalar mass = getMass();
+    btVector3 inertia;
+    shape->calculateLocalInertia(mass, inertia);
+    body->setCollisionShape(shape);
+    body->setMassProps(mass, inertia);
+    body->updateInertiaTensor();
+  }
 }
 
-void BezierPatch::rebuild() {
-  if (m_mesh) {
-    delete m_mesh;
-    m_mesh = nullptr;
-  }
-  if (shape) {
-    delete shape;
-    shape = nullptr;
-  }
-  buildMesh(8);
-}
+void BezierPatch::rebuild() { buildMesh(8); }
 
 void BezierPatch::luaBind(lua_State *s) {
   using namespace luabind;
