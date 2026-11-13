@@ -351,12 +351,14 @@ jobs:
           mingw32-make -j$(nproc) release
 
       # An official Windows snapshot, unpacked into C:\Program Files\OpenSCAD
-      # where bpp looks first. OPENSCAD_SNAPSHOT names the zip; empty takes
-      # the newest one in OpenSCAD's download index and prints its name.
+      # where bpp looks first. OPENSCAD_SNAPSHOT pins the zip, so a new nightly
+      # can't change the results; empty takes the newest one in OpenSCAD's
+      # download index and prints its name (to pin a newer one, or if this
+      # one is ever taken off files.openscad.org).
       - name: Install OpenSCAD (development snapshot)
         shell: pwsh
         env:
-          OPENSCAD_SNAPSHOT: ''
+          OPENSCAD_SNAPSHOT: OpenSCAD-2026.10.05-x86-64.zip
         run: |
           $ErrorActionPreference = 'Stop'
           $base = 'https://files.openscad.org/snapshots'
