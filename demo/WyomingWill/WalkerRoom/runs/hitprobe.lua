@@ -35,6 +35,7 @@ for i, o in ipairs(w.bodies) do
 end
 local fh = io.open(HIT_OUT, "w")
 fh:write(string.format("WALKER %s|weight %.1f|seed %d\n", w.spec.name, weight, SEED))
+for i, o in ipairs(w.bodies) do fh:write(string.format("MASS %d %.4f\n", i, o.mass)) end
 -- the joints that hold the walker's parts to its body: what each holds (its maker), where that part is (x, z, when
 -- built), whether its motor drives it (a crank); each frame, the force each puts on the body (MOUNT, below)
 local mounts = {}
