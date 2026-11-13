@@ -65,8 +65,8 @@ LABELS = {
         "ball goes is chance, yet 150 of them pile up in the same bell, close "
         "to the gold lines fair coins would give: the binomial distribution, "
         "which for many rows becomes the normal curve.\n"
-        "Galton's, made for him in London, ran on lead shot. Here a wheel "
-        "under the hopper lets the balls in one at a time.",
+        "Galton's, made for him in London, ran on lead shot. Here two "
+        "mirror-image wheels under the hopper let the balls in one at a time.",
     ),
     "digicomp": (
         "THE DIGI-COMP II",

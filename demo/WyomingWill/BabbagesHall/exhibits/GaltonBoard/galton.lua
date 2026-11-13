@@ -10,8 +10,9 @@
 -- binomial distribution: 1, 12, 66, 220, 495, 792, 924, ... in 4096. The
 -- lines engraved in the bins are where 150 balls would come to then.
 --
--- A metering wheel at the foot of the hopper, turned by a crank, lets the
--- balls in one at a time, through a small funnel and neck over the first pin; a slide under the bins lets
+-- Two metering wheels at the foot of the hopper, mirror images geared
+-- together and turned by one crank, let the balls in one at a time, through
+-- a funnel and neck over the first pin; a slide under the bins lets
 -- them down into a drawer, and the operator tips the drawer back into the
 -- hopper. The sign beside it (the exhibit's) shows the run, how many balls
 -- are in the bins, their mean bin and their spread (the standard deviation),
@@ -23,12 +24,13 @@
 --   T      the tour: a run, empty and pour back, a second run
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md. The balls, the pins
--- and the walls are the printed board's; the wheel turns by its crank.
+-- and the walls are the printed board's; the wheels turn by the crank.
 --
 -- PHYSICS: 150 steel balls (6 mm, 0.88 g) between a printed back plate and a
 -- clear front sheet 7 mm apart; 4 mm pins 12 mm apart; restitution 0.4 and
 -- friction 0.3, ball on board (the "bounce" and "friction" sliders); 2400
--- steps a second. The hand on the crank is a motor at a steady speed; the
+-- steps a second. The hand on the crank is a motor at a steady speed (the
+-- gears, a lock holding both wheels to the crank's turn); the
 -- operator's other jobs (the slide, the drawer) are done by the drawn hand,
 -- and the pouring moves the balls from the drawer to the hopper's top a few
 -- at a time.
@@ -143,7 +145,7 @@ end
 -- ---------------------------------------------------------------------
 -- sliders, timing, the pause at every start
 -- ---------------------------------------------------------------------
-v:addParam("crank", envnum("GB_CRANK", 1), 0.25, 1.5, 0.05, "the crank's speed, turns a second (a ball a slot, six slots; above 1 the board leans: FINDINGS)")
+v:addParam("crank", envnum("GB_CRANK", 0.5), 0.25, 0.75, 0.05, "the crank's speed, turns a second (twelve slots a turn; faster, two balls can meet over the neck and jam: FINDINGS)")
 v:addParam("bounce", envnum("GB_BOUNCE", 0.4), 0, 0.9, 0.05, "restitution, ball on board")
 v:addParam("friction", envnum("GB_FRICTION", 0.3), 0, 0.8, 0.05, "ball on board")
 v:addParam("speed", 1, 0.05, 2, 0.05, "simulated seconds per real second")
@@ -290,9 +292,14 @@ placeSlide()
 -- the metering wheel: the printed wheel to see; its contact shape the hub
 -- and the six pieces between the slots, from the same sizes
 -- ---------------------------------------------------------------------
-local WHEEL_AT = W3(0, G.WHEEL_Y, G.GAP / 2)
-local wheel = {}
-do
+-- the two wheels (left: side -1, turning clockwise as you face it; right:
+-- side 1, anticlockwise), each a body on a hinge. The gears behind the board
+-- make them turn alike: here each is driven toward the same turn (counted
+-- each in its own sense) as the crank's, which holds them together as the
+-- gears would. The right wheel starts half a slot behind.
+local wheels = {}
+local HALF_SLOT = math.pi / G.SLOTS
+local function makeWheel(side)
   local R, SD, SW = G.WHEEL_R, G.SLOT_D, G.SLOT_W
   local c = btCompoundShape(true)
   local hub = btCylinderShapeZ(btVector3((R - SD) * MM, (R - SD) * MM, G.WHEEL_T / 2 * MM))
@@ -320,10 +327,13 @@ do
     h:setMargin(MARGIN)
     c:addChildShape(btTransform(ident, btVector3(0, 0, 0)), h)
   end
+  local wh = { side = side, turn = 0, last = nil }
   local m = part("wheel()")
   m.col = "#c08a3e"
   local Iz = G.WHEEL_MASS * (R * MM) ^ 2 / 2
-  local tr = btTransform(ident, WHEEL_AT)
+  local at = W3(side * G.WHEEL_X, G.WHEEL_Y, G.GAP / 2)
+  -- (the right wheel half a slot behind: turned clockwise, against its own way)
+  local tr = btTransform(side > 0 and btQuaternion(btVector3(0, 0, 1), -HALF_SLOT) or ident, at)
   local b = btRigidBody(G.WHEEL_MASS, btDefaultMotionState(tr), c, btVector3(Iz / 2, Iz / 2, Iz))
   m.body = b
   m.collides = true                              -- (before it is added: a body's collisions are fixed then)
@@ -332,39 +342,53 @@ do
   b:setCenterOfMassTransform(tr)
   b:setActivationState(4)
   b:setDamping(0, 0.05)
-  wheel.obj, wheel.body = m, b
+  wh.obj, wh.body = m, b
   local anchor = Cube(0.01, 0.01, 0.01, 0)     -- (only for the hinge to hold to: too small to see)
   anchor.collides = false
   v:add(anchor)
-  anchor.trans = tr
-  wheel.hinge = btHingeConstraint(anchor.body, b, btTransform(ident, btVector3(0, 0, 0)), btTransform(ident, btVector3(0, 0, 0)))
-  v:addConstraint(wheel.hinge)
-  pcall(function() v.showConstraints = false end)
-  -- the axle and the crank go round with it (to see)
-  wheel.axle = part("axle()"); wheel.axle.col = "#9a9da3"; v:add(wheel.axle)
-  wheel.crank = part("crank()"); wheel.crank.col = "#2e2a26"; v:add(wheel.crank)
+  anchor.trans = btTransform(ident, at)
+  wh.hinge = btHingeConstraint(anchor.body, b, btTransform(ident, btVector3(0, 0, 0)), btTransform(ident, btVector3(0, 0, 0)))
+  v:addConstraint(wh.hinge)
+  -- the axle and the gear go round with it (to see); the crank on the left
+  wh.axle = part(side < 0 and "axle(true)" or "axle(false)"); wh.axle.col = "#9a9da3"; v:add(wh.axle)
+  wh.gear = part("gear()"); wh.gear.col = "#8a6a3a"; v:add(wh.gear)
+  if side < 0 then wh.crank = part("crank()"); wh.crank.col = "#2e2a26"; v:add(wh.crank) end
+  return wh
 end
+wheels[1], wheels[2] = makeWheel(-1), makeWheel(1)
+pcall(function() v.showConstraints = false end)
+local wheel = wheels[1]                         -- (the one with the crank)
 local CRANK_Z = G.GAP + G.FRONT_T + 0.5           -- the crank's back, in front of the sheet
+local GEAR_Z = -G.BACK_T - 1 - G.GEAR_T           -- the gears' back, behind the back plate
 local function moveRiders()
-  local tr = wheel.body:getCenterOfMassTransform()
-  local a = btTransform(); a:mult(tr, btTransform(ident, btVector3(0, 0, -G.GAP / 2 * MM)))
-  wheel.axle.trans = a
-  local c = btTransform(); c:mult(tr, btTransform(ident, btVector3(0, 0, (CRANK_Z - G.GAP / 2) * MM)))
-  wheel.crank.trans = c
-end
--- the wheel's turn, clockwise (as you face it) positive, unwrapped
-local wheelTurn, wheelLast = 0, nil
-local function wheelAngle()
-  local c = wheel.body:getCenterOfMassTransform():getBasis():getColumn(0)
-  local a = math.atan2(c.y, c.x)
-  if wheelLast then
-    local d = a - wheelLast
-    if d > math.pi then d = d - 2 * math.pi elseif d < -math.pi then d = d + 2 * math.pi end
-    wheelTurn = wheelTurn - d
+  for _, wh in ipairs(wheels) do
+    local tr = wh.body:getCenterOfMassTransform()
+    local a = btTransform(); a:mult(tr, btTransform(ident, btVector3(0, 0, -G.GAP / 2 * MM)))
+    wh.axle.trans = a
+    local g = btTransform(); g:mult(tr, btTransform(ident, btVector3(0, 0, (GEAR_Z - G.GAP / 2) * MM)))
+    wh.gear.trans = g
+    if wh.crank then
+      local c = btTransform(); c:mult(tr, btTransform(ident, btVector3(0, 0, (CRANK_Z - G.GAP / 2) * MM)))
+      wh.crank.trans = c
+    end
   end
-  wheelLast = a
-  return wheelTurn
 end
+-- each wheel's turn in its own sense (the left's clockwise, the right's
+-- anticlockwise), unwrapped
+local function turnOf(wh)
+  local c = wh.body:getCenterOfMassTransform():getBasis():getColumn(0)
+  local a = math.atan2(c.y, c.x)
+  if wh.last then
+    local d = a - wh.last
+    if d > math.pi then d = d - 2 * math.pi elseif d < -math.pi then d = d + 2 * math.pi end
+    wh.turn = wh.turn + (wh.side < 0 and -d or d)
+  end
+  wh.last = a
+  return wh.turn
+end
+local function wheelAngle() return turnOf(wheels[1]) end
+local function spinOf(wh) return wh.body:getAngularVelocity().z * (wh.side < 0 and -1 or 1) end
+for _, wh in ipairs(wheels) do turnOf(wh) end
 
 -- ---------------------------------------------------------------------
 -- the balls
@@ -422,7 +446,7 @@ local function applyContacts()
   -- (Bullet multiplies the two bodies' values: the board's are 1, so the
   -- balls' are ball on board; ball on ball is their square)
   for _, b in ipairs(balls) do b.body:setRestitution(e); b.body:setFriction(f) end
-  for _, b in ipairs({ boardBody, slideBox.body, wheel.body }) do b:setRestitution(1); b:setFriction(1) end
+  for _, b in ipairs({ boardBody, slideBox.body, wheels[1].body, wheels[2].body }) do b:setRestitution(1); b:setFriction(1) end
 end
 applyContacts()
 
@@ -549,10 +573,10 @@ end
 -- ---------------------------------------------------------------------
 local HAND_ON = os.getenv("GB_HAND") ~= "0"
 local hand = { pos = nil, target = nil, SPEED = 40 }
--- (its finger into the board, its palm above and to the right of the
--- finger, over the hopper rather than the pins: its x, y, z to the
--- world's y, z, x)
-local HAND_Q = btQuaternion(btVector3(1, 1, 1), 2 * math.pi / 3)
+-- (its finger into the board, its palm to the left of the finger, away from
+-- the wheels and the pins (the crank is on the left wheel): its x, y, z to
+-- the world's -y, z, -x)
+local HAND_Q = btQuaternion(btVector3(1, -1, -1), 2 * math.pi / 3)
 if HAND_ON then
   hand.obj = part("hand()", HAND_SCAD, HAND_SUM)
   hand.obj.col = "#e0b896"
@@ -563,9 +587,9 @@ end
 local function crankTip()
   -- (the crank's handle along the wheel's own +x)
   local c = wheel.body:getCenterOfMassTransform():getBasis():getColumn(0)
-  return { c.x * G.CRANK_R, G.WHEEL_Y + c.y * G.CRANK_R, CRANK_Z + 22 }
+  return { -G.WHEEL_X + c.x * G.CRANK_R, G.WHEEL_Y + c.y * G.CRANK_R, CRANK_Z + 22 }
 end
-local HAND_HOME = { G.W + 60, G.WHEEL_Y - 40, 60 }
+local HAND_HOME = { -G.W - 60, G.WHEEL_Y - 40, 60 }
 local function slideTip() return { G.W + G.RIM + 8 + slideOut, G.Y_FLOOR - G.SLIDE_T / 2, G.GAP + 6 } end
 local function drawerTip() return { G.W + G.RIM + 7, (G.Y_DRAWER + G.Y_FLOOR) / 2, G.GAP + 6 } end
 local FILL_AT = { 0, G.OUT_Y1 + 30, ZMID }
@@ -608,7 +632,7 @@ end
 local mode = "idle"
 local modeT, quietT = 0, 0
 local cranking, backing = false, 0
-local stallT, backs = 0, 0
+local stallT, backs, knocks = 0, 0, 0
 local tour = (os.getenv("GB_TOUR") or "1") ~= "0" and 1 or nil
 local tourFails, tourRuns = 0, {}
 local t = 0
@@ -663,7 +687,7 @@ local function operate(dt)
     else
       hand.go(crankTip()); hand.pos = crankTip()       -- (the hand turns with it)
       -- jammed? (the wheel held still against the hand): back it half a slot
-      local w = -wheel.body:getAngularVelocity().z
+      local w = math.min(spinOf(wheels[1]), spinOf(wheels[2]))
       if backing <= 0 and w < 0.2 * v:getParam("crank") * 2 * math.pi then stallT = stallT + dt else stallT = 0 end
       if stallT > 0.3 then backing, stallT, backs = 0.15, 0, backs + 1 end
     end
@@ -687,6 +711,30 @@ local function operate(dt)
     if hand.arrived() and slideOut == 0 and c.drawer < NBALLS then setSlideOpen(true) end
     if slideIsOpen then
       if c.drawer < NBALLS and slideOut < 2 * G.W + 10 then slideOut = math.min(2 * G.W + 10, slideOut + 400 * dt) end
+      -- balls left wedged in a bin (a zigzag stack can brace itself against
+      -- the walls when its floor goes): the operator knocks the board. The
+      -- knock is idealised: the balls in the bins get the jolt it would give
+      -- them, a few cm/s up
+      if c.bins > 0 and quietT > 1 and slideOut >= 2 * G.W + 10 then
+        knocks = knocks + 1
+        quietT = 0
+        for _, b in ipairs(balls) do
+          local _, y = boardXY(b.body:getCenterOfMassPosition())
+          if y > G.Y_FLOOR - 1 and y < G.Y_DIV then
+            local lv = b.body:getLinearVelocity()
+            b.body:setLinearVelocity(btVector3(lv.x, lv.y + 15, lv.z))
+          end
+        end
+        if knocks == 1 or LOG then
+          say(string.format("  %d balls wedged in the bins: the operator knocks the board", c.bins))
+          if LOG then
+            for _, b in ipairs(balls) do
+              local x, y = boardXY(b.body:getCenterOfMassPosition())
+              if y > G.Y_FLOOR - 1 and y < G.Y_DIV then say(string.format("    wedged at x %.2f y %.2f (the slide's top %.2f)", x, y, G.Y_FLOOR)) end
+            end
+          end
+        end
+      end
       if c.drawer == NBALLS and quietT > 0.3 then
         setSlideOpen(false)
         mode = "closing"
@@ -792,7 +840,7 @@ local function restPost(dt)
   if resting then return end
   if busy() then restFor = 0; return end
   local mv = lastCensus.maxv
-  local mw = math.abs(wheel.body:getAngularVelocity().z)
+  local mw = math.max(math.abs(spinOf(wheels[1])), math.abs(spinOf(wheels[2])))
   if mv < QUIET_V and mw < 0.05 then restFor = restFor + dt else restFor = 0 end
   if REST_ON and restFor >= REST_S then resting = true; v.timeStep = 0 end
 end
@@ -800,12 +848,19 @@ end
 -- ---------------------------------------------------------------------
 -- stepping
 -- ---------------------------------------------------------------------
+-- the crank's turn: where the gears hold both wheels
+local crankTurn = 0
+local LOCK = 40                                   -- (1/s: how hard the gears hold a wheel to the crank's turn)
 local function crankMotor()
-  local omega = v:getParam("crank") * 2 * math.pi
+  local omega = cranking and v:getParam("crank") * 2 * math.pi or 0
   if backing > 0 then omega = -omega end
-  -- (a hinge's motor speed counts as its angle, clockwise about +z: so a
-  -- positive speed turns the wheel clockwise as you face it)
-  wheel.hinge:enableAngularMotor(true, cranking and omega or 0, (cranking and 5 or 0.05) * STEP * 60)
+  crankTurn = crankTurn + omega * STEP
+  for _, wh in ipairs(wheels) do
+    local w = omega + LOCK * (crankTurn - turnOf(wh))
+    -- (a hinge's motor speed counts as its angle, clockwise about +z: a
+    -- positive speed turns a wheel clockwise as you face it)
+    wh.hinge:enableAngularMotor(true, wh.side < 0 and w or -w, (cranking and 5 or 0.5) * STEP * 60)
+  end
 end
 local started = false
 v:preSim(function(N)
@@ -833,7 +888,7 @@ v:postSim(function(N)
   if LOG and math.floor(t * 60 + 0.5) % 300 == 0 then
     local c = lastCensus
     print(string.format("  t %.0f  %s  hopper %d  on the way %d  bins %d  drawer %d  crank %.1f turns  fastest %.2f cm/s  mean %s  spread %s",
-                        t, mode, c.hopper, c.between, c.bins, c.drawer, wheelTurn / (2 * math.pi), c.maxv,
+                        t, mode, c.hopper, c.between, c.bins, c.drawer, wheels[1].turn / (2 * math.pi), c.maxv,
                         c.mean and string.format("%.2f", c.mean) or "-", c.sd and string.format("%.2f", c.sd) or "-"))
     if LOG == "2" and c.hopper == 0 then
       for i, b in ipairs(balls) do
@@ -899,8 +954,11 @@ if v.onHover then
   KEY[objectKey(boardObj)] = "the Galton board: twelve rows of pins over thirteen bins"
   KEY[objectKey(marksObj)] = "where 150 balls would come to if every pin were a fair coin"
   KEY[objectKey(pinsObj)] = "the pins: 4 mm, 12 mm apart, printed with the board"
-  KEY[objectKey(wheel.obj)] = "the metering wheel: each slot carries one ball from the hopper to the chute over the first pin"
-  KEY[objectKey(wheel.crank)] = "the crank (turned by the operator's hand)"
+  for _, wh in ipairs(wheels) do
+    KEY[objectKey(wh.obj)] = "a metering wheel: each slot carries one ball from the hopper to the funnel over the first pin; the two are mirror images, geared together"
+    KEY[objectKey(wh.gear)] = "the gears behind the board: they turn the wheels alike, opposite ways"
+  end
+  KEY[objectKey(wheels[1].crank)] = "the crank (turned by the operator's hand)"
   KEY[objectKey(slideObj)] = "the slide under the bins: pulled out, the balls drop into the drawer"
   KEY[objectKey(drawerObj)] = "the drawer: tipped into the filling slot at the top, it refills the hopper"
   KEY[objectKey(SIGN.box)] = "the sign (the exhibit's): the run, the balls in the bins, their mean and spread"

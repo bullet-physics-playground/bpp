@@ -10,10 +10,10 @@
 -- y = 0 is the first row's middle pin.
 --
 --   the hopper    holds the balls, its floor two 60-degree slopes down to
---   the wheel     a metering wheel with six slots, turned by a crank: each
---                 slot carries one ball round under its housing and drops it
---                 into a small funnel and a short neck over the first row's
---                 middle pin. A hopper
+--   the wheels    two metering wheels, mirror images geared together and
+--                 turned by one crank: each slot carries one ball round
+--                 under its housing and drops it into a funnel and a short
+--                 neck over the first row's middle pin. A hopper
 --                 emptying through a neck jams in two dimensions, or floods
 --                 the pins and spreads the balls too wide (FINDINGS)
 --   the pins      on a triangular lattice, each centred under the gap above
@@ -59,44 +59,52 @@ local function build(o)
   -- the inner half width: the outer bins as wide as the others
   G.W = G.NBINS / 2 * G.S - G.DIV_T / 2
 
-  -- the metering wheel: SLOTS slots SLOT_W wide and SLOT_D deep in its rim;
-  -- a ball in a slot has its centre at R - SLOT_D + BALL_D / 2. Turned
-  -- clockwise (as you face it): the slots come up its left side empty,
-  -- under the hopper (between INLET_L and INLET_R degrees), down its right
-  -- side each with its ball held in by the housing, which ends at the funnel;
-  -- the ball drops out of the slot into the funnel, bounces between its
-  -- walls, and leaves by a short straight neck onto the middle pin. The
-  -- wheel hands every ball on in the same way: dropped from the slot, or
-  -- through a straight chute alone, nearly every ball went the same way at
-  -- the middle pin, and the board leant half a bin. The funnel's bounces
-  -- make the most of the small differences between one ball and the next;
-  -- the neck takes out the sideways speed they all leave the funnel with
-  -- (without it the board leant whichever way the friction tipped it).
-  -- FINDINGS has the tries.
+  -- the metering wheels: two, mirror images, side by side under the hopper
+  -- (their centres WHEEL_X either side of the middle), geared together
+  -- behind the board, so that the left turns clockwise and the right
+  -- anticlockwise (as you face it), on the one crank. Each has SLOTS slots
+  -- SLOT_W wide and SLOT_D deep in its rim; a ball in a slot has its centre
+  -- at R - SLOT_D + BALL_D / 2. A slot comes up the wheel's outer side
+  -- empty, under the hopper (its opening between INLET_L and INLET_R
+  -- degrees round the wheel), down its inner side with its ball held in by
+  -- the housing, and lets the ball drop at the bottom (between OUT_R and
+  -- OUT_L) into the funnel, which leads both wheels' balls into a straight
+  -- neck over the first row's middle pin. The right wheel's slots are half a
+  -- slot behind the left's, so the balls come from each in turn.
+  -- One wheel hands every ball on in the same way: whichever way it turned,
+  -- the board leant that way (FINDINGS). The pair is symmetric: what one
+  -- wheel's balls do, the other's do mirrored.
   G.WHEEL_R = o.WHEEL_R or 16
   G.SLOTS = o.SLOTS or 6
   G.SLOT_W = o.SLOT_W or 6.8
   G.SLOT_D = o.SLOT_D or 5.0
   G.HOUSING = G.WHEEL_R + (o.CLEAR or 2.0)  -- the housing's inside: a slotted ball clears it, a loose one can't get in
-  G.RING = 2.0                            -- the housing's wall, below the wheel
+  G.RING = 2.0                            -- the housing's wall
   G.BALL_IN_SLOT = G.WHEEL_R - G.SLOT_D + G.BALL_D / 2
-  G.WHEEL_Y = o.WHEEL_Y or 52
-  G.INLET_L, G.INLET_R = o.INLET_L or 120, o.INLET_R or 60    -- the hopper's opening over the wheel (degrees, from +x)
+  G.WHEEL_X = o.WHEEL_X or (G.HOUSING + G.RING + 1)
+  G.WHEEL_Y = o.WHEEL_Y or 60
+  G.INLET_L, G.INLET_R = 120, 60          -- the hopper's opening over each wheel (degrees round it, from +x)
+  G.OUT_R, G.OUT_L = -60, -120            -- the outlet under each wheel
   G.CHUTE = o.CHUTE or 4.0                -- the neck, half its width (a ball and 2 mm)
-  G.CHUTE_TOPW = o.CHUTE_TOPW or 9.0      -- its mouth, under the wheel, half its width
-  G.CHUTE_T = 1.2                         -- its walls
-  G.CHUTE_Y = o.CHUTE_Y or 8              -- the neck's foot: a ball leaving it touches the pin
-  G.CHUTE_X = o.CHUTE_X or 0              -- its middle, from the middle pin's
-  G.NECK_L = o.NECK_L or 8                -- a straight neck under the funnel, this long
-  -- where the chute's walls meet the housing's inside, and the ring's outside
-  local xr, xl = G.CHUTE_X + G.CHUTE_TOPW, G.CHUTE_X - G.CHUTE_TOPW
-  G.OUT_R = -math.deg(math.acos(xr / G.HOUSING))
-  G.OUT_L = -180 + math.deg(math.acos(-xl / G.HOUSING))
-  G.RING_R = -math.deg(math.acos((xr + G.CHUTE_T) / (G.HOUSING + G.RING)))
-  G.RING_L = -180 + math.deg(math.acos(-(xl - G.CHUTE_T) / (G.HOUSING + G.RING)))
-  G.WHEEL_T = 6.0                         -- the wheel's thickness (in the 7 mm space)
+  G.CHUTE_T = 1.2                         -- the funnel's and neck's walls
+  G.CHUTE_Y = 8                           -- the neck's foot: a ball leaving it touches the pin
+  G.NECK_L = o.NECK_L or 8                -- the neck's length
+  G.WHEEL_T = 6.0                         -- the wheels' thickness (in the 7 mm space)
   G.WHEEL_MASS = 0.004                    -- kg (PLA, with its axle)
-  G.CRANK_R = 25                          -- the crank's handle, from the axle (in front of the sheet)
+  G.CRANK_R = 25                          -- the crank's handle, from the left axle (in front of the sheet)
+  -- the gears behind the board: two alike, meshing, on the wheels' axles
+  G.GEAR_Z = 28
+  G.GEAR_M = 2 * G.WHEEL_X / G.GEAR_Z     -- (their pitch circles meet midway)
+  G.GEAR_T = 5
+  -- a point on a circle of r round a wheel (side -1 the left, 1 the right)
+  local function onCircle(r, deg, side)
+    return (side or 1) * G.WHEEL_X + r * cos(rad(deg)), G.WHEEL_Y + r * sin(rad(deg))
+  end
+  G.onCircle = onCircle
+  -- the funnel's mouth: from each outlet's outer edge; its ceiling, between
+  -- the two outlets' inner edges
+  G.MOUTH_X, G.MOUTH_Y = onCircle(G.HOUSING, G.OUT_R, 1)
+  G.CEIL_X = onCircle(G.HOUSING, G.OUT_L, 1)
 
   -- the pins' side walls: on the line through the pins one place beyond
   -- each row's last (x = (r/2 + 1) S at row r), with half pins standing out
@@ -106,42 +114,28 @@ local function build(o)
   G.X0 = (G.TOP / 2 + 1) * G.S
   -- ... down to where they meet the bins' outer walls
   G.Y_SIDE = -(G.W - G.X0) / T30
-  local function onCircle(r, deg) return r * cos(rad(deg)), G.WHEEL_Y + r * sin(rad(deg)) end
-  G.onCircle = onCircle
-  -- ... and up to where they meet the outside of the housing's wall
+  -- ... and up to where they meet the outside of the funnel's wall
   do
-    local R = G.HOUSING + G.RING
-    -- (X0 - y t)^2 + (y - Wy)^2 = R^2, the lower root
-    local a = T30 ^ 2 + 1
-    local b = -2 * G.X0 * T30 - 2 * G.WHEEL_Y
-    local c = G.X0 ^ 2 + G.WHEEL_Y ^ 2 - R ^ 2
-    G.Y_MEET = (-b - sqrt(b * b - 4 * a * c)) / (2 * a)
+    local x1, y1 = G.CHUTE + G.CHUTE_T, G.CHUTE_Y + G.NECK_L
+    local x2, y2 = G.MOUTH_X + G.CHUTE_T, G.MOUTH_Y
+    local k = (x2 - x1) / (y2 - y1)
+    G.Y_MEET = (G.X0 - x1 + k * y1) / (k + T30)
     G.X_MEET = G.X0 - G.Y_MEET * T30
-    G.A_MEET = math.deg(math.atan2(G.Y_MEET - G.WHEEL_Y, G.X_MEET))
-    -- ... unless the funnel's outside wall meets them first (its mouth is
-    -- wider than they are there): then they meet each other
-    local x1, y1 = G.CHUTE_X + G.CHUTE + G.CHUTE_T, G.CHUTE_Y + G.NECK_L
-    local x2 = G.CHUTE_X + G.CHUTE_TOPW + G.CHUTE_T
-    local y2 = G.WHEEL_Y - sqrt(R ^ 2 - x2 ^ 2)
-    G.FUNNEL_MEETS = x2 > G.X_MEET
-    if G.FUNNEL_MEETS then
-      local k = (x2 - x1) / (y2 - y1)
-      G.Y_MEET = (G.X0 - x1 + k * y1) / (k + T30)
-      G.X_MEET = G.X0 - G.Y_MEET * T30
-    end
+    assert(G.Y_MEET > y1 and G.Y_MEET < y2, "the funnel's wall misses the pins' wall")
   end
   -- the dividers stand under the last row's pins, a row below it; the slide
   -- below them
   G.Y_DIV = -(G.ROWS - G.TOP) * G.V
   G.Y_FLOOR = G.Y_DIV - G.BIN_H
   G.SLIDE_T = 3.0                         -- the slide (printed), in a slot through the board
-  G.DRAWER_H = 40                         -- the drawer under it (holds 170 balls)
+  G.DRAWER_H = 46                         -- the drawer under it: 40 mm was too little, the balls heap up in it (FINDINGS)
   G.Y_DRAWER = G.Y_FLOOR - G.SLIDE_T - G.DRAWER_H
-  -- the hopper: from the housing's opening, slopes up at 60 degrees to the
-  -- sides, then straight up
-  local ixL, iyL = onCircle(G.HOUSING, G.INLET_L)
-  local ixR, iyR = onCircle(G.HOUSING, G.INLET_R)
-  G.Y_FUNNEL = iyR + (G.W - ixR) / T30
+  -- the hopper: from the wheels' openings, slopes up at 60 degrees to the
+  -- sides, then straight up; between the openings, a ridge
+  local ixO, iyO = onCircle(G.HOUSING, G.INLET_R, 1)              -- (the right opening's outer edge)
+  local ixI = onCircle(G.HOUSING, G.INLET_L, 1)                   -- (its inner edge)
+  G.Y_RIDGE = iyO + ixI / T30
+  G.Y_FUNNEL = iyO + (G.W - ixO) / T30
   G.Y_TOP = G.Y_FUNNEL + G.RES_H
 
   -- the pins: { x, y }, cut off by the bins' walls. A pin whose middle is
@@ -181,97 +175,74 @@ local function build(o)
   -- anticlockwise). Arcs are cut into segments of about ARC degrees.
   local ARC = 7.5
   -- (t: the wall's thickness behind its face, if not the usual)
-  local function arc(list, r, a0, a1, t)     -- from a0 to a1 degrees, either way
+  local function arc(list, r, a0, a1, side, t)     -- from a0 to a1 degrees, either way
     local n = math.max(1, math.ceil(math.abs(a1 - a0) / ARC))
     local pts = {}
-    for i = 0, n do pts[#pts + 1] = { onCircle(r, a0 + (a1 - a0) * i / n) } end
+    for i = 0, n do pts[#pts + 1] = { onCircle(r, a0 + (a1 - a0) * i / n, side) } end
     for i = 1, n do list[#list + 1] = { pts[i][1], pts[i][2], pts[i + 1][1], pts[i + 1][2], t = t } end
   end
   local function seg(list, x1, y1, x2, y2, t) list[#list + 1] = { x1, y1, x2, y2, t = t } end
   G.walls = {}
   local Wl = G.walls
-  local RO = G.HOUSING + G.RING
-  -- the main space: the slide, the bins, the pins' side walls, the housing's
-  -- wall below the wheel (its outside, clockwise round the bottom), with the
-  -- outlet in it
+  local T, C, ny = G.CHUTE_T, G.CHUTE, G.CHUTE_Y + G.NECK_L
+  -- the main space: the slide, the bins, the pins' side walls, the funnel's
+  -- outside and the neck's, the neck's inside and the funnel's, the ceiling
+  -- between the outlets, and the same down the left side
   seg(Wl, -G.W, G.Y_FLOOR, G.W, G.Y_FLOOR)
   Wl[#Wl].slide = true                    -- (the slide's top: it moves)
   seg(Wl, G.W, G.Y_FLOOR, G.W, G.Y_SIDE)
   seg(Wl, G.W, G.Y_SIDE, G.X_MEET, G.Y_MEET)
-  if not G.FUNNEL_MEETS then arc(Wl, RO, G.A_MEET, G.RING_R, G.RING) end
-  -- the funnel: its walls from the housing's inside down to its neck at
-  -- CHUTE_Y (thin: balls can meet them from either side)
-  local xr, xl, T = G.CHUTE_X + G.CHUTE_TOPW, G.CHUTE_X - G.CHUTE_TOPW, G.CHUTE_T
-  local br, bl = G.CHUTE_X + G.CHUTE, G.CHUTE_X - G.CHUTE          -- (at its foot)
-  local function hy(x) return G.WHEEL_Y - sqrt(G.HOUSING ^ 2 - x ^ 2) end
-  local function ry(x) return G.WHEEL_Y - sqrt(RO ^ 2 - x ^ 2) end
-  -- (the outsides from the ring, or from where they meet the pins' walls)
-  local function outTop(x, side) if G.FUNNEL_MEETS then return side * G.X_MEET, G.Y_MEET end return x, ry(x) end
-  local ox, oy = outTop(xr + T, 1)
-  local ny = G.CHUTE_Y + G.NECK_L                                  -- (the funnel's foot: the neck's top)
-  seg(Wl, ox, oy, br + T, ny, T)                                   -- (the right wall's outside)
-  if G.NECK_L > 0 then seg(Wl, br + T, ny, br + T, G.CHUTE_Y, T); seg(Wl, br, G.CHUTE_Y, br, ny, T) end
-  seg(Wl, br, ny, xr, hy(xr), T)                                   -- (its inside)
-  seg(Wl, xl, hy(xl), bl, ny, T)
-  if G.NECK_L > 0 then seg(Wl, bl, ny, bl, G.CHUTE_Y, T); seg(Wl, bl - T, G.CHUTE_Y, bl - T, ny, T) end
-  ox, oy = outTop(xl - T, -1)
-  seg(Wl, bl - T, ny, ox, oy, T)
-  G.CHUTE_TOP = math.min(hy(xr), hy(xl))
-  if not G.FUNNEL_MEETS then arc(Wl, RO, G.RING_L, -180 - G.A_MEET, G.RING) end
+  seg(Wl, G.X_MEET, G.Y_MEET, C + T, ny, T)
+  seg(Wl, C + T, ny, C + T, G.CHUTE_Y, T)
+  seg(Wl, C, G.CHUTE_Y, C, ny, T)
+  seg(Wl, C, ny, G.MOUTH_X, G.MOUTH_Y, T)
+  seg(Wl, G.CEIL_X, G.MOUTH_Y, -G.CEIL_X, G.MOUTH_Y, 1)        -- (thin: the wheels pass just above its ends)
+  seg(Wl, -G.MOUTH_X, G.MOUTH_Y, -C, ny, T)
+  seg(Wl, -C, ny, -C, G.CHUTE_Y, T)
+  seg(Wl, -C - T, G.CHUTE_Y, -C - T, ny, T)
+  seg(Wl, -C - T, ny, -G.X_MEET, G.Y_MEET, T)
   seg(Wl, -G.X_MEET, G.Y_MEET, -G.W, G.Y_SIDE)
   seg(Wl, -G.W, G.Y_SIDE, -G.W, G.Y_FLOOR)
-  -- the housing's inside, round the wheel (anticlockwise: the wheel's side
-  -- is inside): the right side, from the outlet up to the hopper; the left,
-  -- from the hopper down to the outlet
-  arc(Wl, G.HOUSING, G.OUT_R, G.INLET_R, G.RING)
-  arc(Wl, G.HOUSING, G.INLET_L, 360 + G.OUT_L, G.RING)
-  -- the hopper
-  seg(Wl, ixR, iyR, G.W, G.Y_FUNNEL)
+  -- the housings' insides, round each wheel (anticlockwise: the wheel's
+  -- side is inside): from the outlet up to the opening on its right, from
+  -- the opening down to the outlet on its left
+  for _, side in ipairs({ -1, 1 }) do
+    arc(Wl, G.HOUSING, G.OUT_R, G.INLET_R, side, G.RING)
+    arc(Wl, G.HOUSING, G.INLET_L, 360 + G.OUT_L, side, G.RING)
+  end
+  -- the hopper, and its ridge between the openings
+  local ixO, iyO = onCircle(G.HOUSING, G.INLET_R, 1)
+  local ixI = onCircle(G.HOUSING, G.INLET_L, 1)
+  seg(Wl, ixO, iyO, G.W, G.Y_FUNNEL)
   seg(Wl, G.W, G.Y_FUNNEL, G.W, G.Y_TOP)
   seg(Wl, G.W, G.Y_TOP, -G.W, G.Y_TOP)
   seg(Wl, -G.W, G.Y_TOP, -G.W, G.Y_FUNNEL)
-  seg(Wl, -G.W, G.Y_FUNNEL, ixL, iyL)
+  seg(Wl, -G.W, G.Y_FUNNEL, -ixO, iyO)
+  seg(Wl, -ixI, iyO, 0, G.Y_RIDGE)
+  seg(Wl, 0, G.Y_RIDGE, ixI, iyO)
   -- the drawer, under the slide
   seg(Wl, -G.W, G.Y_DRAWER, G.W, G.Y_DRAWER)
   seg(Wl, G.W, G.Y_DRAWER, G.W, G.Y_FLOOR - G.SLIDE_T)
   seg(Wl, -G.W, G.Y_FLOOR - G.SLIDE_T, -G.W, G.Y_DRAWER)
 
-  -- the ball spaces as outlines, for the print (anticlockwise); the wheel's
-  -- recess, a circle of HOUSING round the wheel, is cut as well. Where an
-  -- outline opens into the recess it runs on along its wall's line well
+  -- the ball spaces as outlines, for the print (anticlockwise); the wheels'
+  -- recesses, circles of HOUSING round them, are cut as well. Where an
+  -- outline opens into a recess it runs on along its wall's line well
   -- inside it, to the wheel's centre (an outline that only touched the
   -- circle left slivers OpenSCAD could not close)
-  local function ring(pts, r, a0, a1)
-    local n = math.max(1, math.ceil(math.abs(a1 - a0) / 3))
-    for i = 0, n do pts[#pts + 1] = { onCircle(r, a0 + (a1 - a0) * i / n) } end
-  end
   local function beyond(x0, y0, x1, y1, d)      -- (x1, y1) moved d further from (x0, y0)
     local L = sqrt((x1 - x0) ^ 2 + (y1 - y0) ^ 2)
     return { x1 + (x1 - x0) / L * d, y1 + (y1 - y0) / L * d }
   end
-  local main = { { -G.W, G.Y_FLOOR }, { G.W, G.Y_FLOOR }, { G.W, G.Y_SIDE } }
-  if G.FUNNEL_MEETS then main[#main + 1] = { G.X_MEET, G.Y_MEET } else ring(main, RO, G.A_MEET, G.RING_R) end
-  -- (round the funnel's walls, into the recess, and back)
-  do
-    local xr, xl, T = G.CHUTE_X + G.CHUTE_TOPW, G.CHUTE_X - G.CHUTE_TOPW, G.CHUTE_T
-    local br, bl = G.CHUTE_X + G.CHUTE, G.CHUTE_X - G.CHUTE
-    local function hy(x) return G.WHEEL_Y - sqrt(G.HOUSING ^ 2 - x ^ 2) end
-    local ny = G.CHUTE_Y + G.NECK_L
-    if G.NECK_L > 0 then main[#main + 1] = { br + T, ny } end
-    main[#main + 1] = { br + T, G.CHUTE_Y }; main[#main + 1] = { br, G.CHUTE_Y }
-    if G.NECK_L > 0 then main[#main + 1] = { br, ny } end
-    main[#main + 1] = beyond(br, ny, xr, hy(xr), 3)
-    main[#main + 1] = { 0, G.WHEEL_Y }
-    main[#main + 1] = beyond(bl, ny, xl, hy(xl), 3)
-    if G.NECK_L > 0 then main[#main + 1] = { bl, ny } end
-    main[#main + 1] = { bl, G.CHUTE_Y }; main[#main + 1] = { bl - T, G.CHUTE_Y }
-    if G.NECK_L > 0 then main[#main + 1] = { bl - T, ny } end
-  end
-  if G.FUNNEL_MEETS then main[#main + 1] = { -G.X_MEET, G.Y_MEET } else ring(main, RO, G.RING_L, -180 - G.A_MEET) end
-  main[#main + 1] = { -G.W, G.Y_SIDE }
-  local hopper = { beyond(-G.W, G.Y_FUNNEL, ixL, iyL, 3), { 0, G.WHEEL_Y }, beyond(G.W, G.Y_FUNNEL, ixR, iyR, 3) }
-  hopper[#hopper + 1] = { G.W, G.Y_FUNNEL }; hopper[#hopper + 1] = { G.W, G.Y_TOP }
-  hopper[#hopper + 1] = { -G.W, G.Y_TOP }; hopper[#hopper + 1] = { -G.W, G.Y_FUNNEL }
+  local XW, WY, MX, MY, CX = G.WHEEL_X, G.WHEEL_Y, G.MOUTH_X, G.MOUTH_Y, G.CEIL_X
+  local main = { { -G.W, G.Y_FLOOR }, { G.W, G.Y_FLOOR }, { G.W, G.Y_SIDE }, { G.X_MEET, G.Y_MEET },
+    { C + T, ny }, { C + T, G.CHUTE_Y }, { C, G.CHUTE_Y }, { C, ny },
+    beyond(C, ny, MX, MY, 3), { XW, WY }, { CX + 3, MY }, { -CX - 3, MY }, { -XW, WY }, beyond(-C, ny, -MX, MY, 3),
+    { -C, ny }, { -C, G.CHUTE_Y }, { -C - T, G.CHUTE_Y }, { -C - T, ny },
+    { -G.X_MEET, G.Y_MEET }, { -G.W, G.Y_SIDE } }
+  local hopper = { beyond(-G.W, G.Y_FUNNEL, -ixO, iyO, 3), { -XW, WY }, beyond(0, G.Y_RIDGE, -ixI, iyO, 3), { 0, G.Y_RIDGE },
+    beyond(0, G.Y_RIDGE, ixI, iyO, 3), { XW, WY }, beyond(G.W, G.Y_FUNNEL, ixO, iyO, 3),
+    { G.W, G.Y_FUNNEL }, { G.W, G.Y_TOP }, { -G.W, G.Y_TOP }, { -G.W, G.Y_FUNNEL } }
   G.spaces = { main = main, hopper = hopper }
 
   -- the wheel's slots: each straight-sided, SLOT_W wide and SLOT_D deep,
@@ -289,7 +260,7 @@ local function build(o)
   -- printed in three tiles, each under 200 mm, cut at these heights and
   -- joined by a splice plate glued across the back of each joint (and the
   -- front sheet's screws along the rim)
-  G.CUTS = { 5, -190 }
+  G.CUTS = { 5, -191 }
   G.SCREW_PITCH = 50
   G.SCREW_D = 2.5                         -- (pilot holes for M3 screws in the rim)
   G.AXLE_D = 3.0                          -- the wheel's axle, a 3 mm steel rod

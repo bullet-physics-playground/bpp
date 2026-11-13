@@ -249,338 +249,52 @@ there, in `release/`, or on the path; or set `BPP`.
   up an arch or a zigzag column; taps (rocking the board) did not clear it.
   A neck wide enough flooded the pins, and the crowded balls spread far too
   wide. A slotted wheel metering one ball at a time is what worked.
-- **A mechanism hands every ball on the same way:** the wheel's balls all
-  went the same way at the first pin (the board leant half a bin, and moving
-  the chute 1.5 mm flipped the lean). A small funnel whose bounces amplify
-  the small differences between balls made the first pin a coin again, and
-  a straight neck under it took out the sideways speed they all left it
-  with. Check the first decision of anything fed by a mechanism
-  (`GB_LOG=3`).
-- **A smooth 60-degree wall is a ramp:** a ball at the edge of a pin
-  lattice slid down it, squeezing past pins through gaps 0.5 mm too small
-  (Bullet's soft contacts let it). Half pins standing out of the wall stop
-  it. And a pin a little more than a ball's radius from a wall cradles a
-  ball against it: leave it out and put a half pin on the wall.
-- **Tall stacks of balls jitter** at 20 solver passes (5 to 6 cm/s at the
-  bottom of 36 balls, the solver's, not a movement; 60 passes bring it to
-  1): call such balls still below 8 cm/s rather than pay for more passes.
-- **OpenSCAD outlines** that only touch a circle that is cut too (an outline
-  run along a circle 1 mm inside it) leave slivers, and the extrusion "is not
-  closed" (the walls of a whole tile went missing, silently, in an STL that
-  was still watertight). Run such an outline well inside the circle, and
-  check each tile's thickness, not only that it is watertight. Check the
-  outlines for self-intersection when a size changes (a wider funnel's
-  mouth went outside the walls it should meet).
-- **`HALL_START`** lands on an exhibit's own view, not its first stop (the
-  lectern); Shift+Tab from there goes to the previous exhibit. To see a first
-  stop, start at the exhibit before and Tab (seen 2026-11-12 with the
-  Pascaline and the Galton board alike).
-
-## 6. How to make an exhibit
-
-1. Pick it from `MACHINES.md`; it goes in the bay its interest says (the
-   walk rises), which may move others along (`hall.lua` EXHIBITS; README
-   table; PDF subtitles in `make-pdfs.sh`).
-2. Prototype the mechanism in a scratch script first and measure it.
-3. `exhibits/<Name>/`: the script runs on its own and in the hall
-   (find its folder with the `DIR` loop the others use; `hallPath` for
-   OpenSCAD's full path), uses `exhibit-table.lua` (the machine's footprint),
-   the start hold, resting, a tour that prints `RESULT ... PASS/FAIL`,
-   sliders, keys, help text and hover text.
-4. `parts/*.scad` as the single source of geometry (or, as the Pascaline,
-   a Lua geometry file that writes the SCAD); `make-stls.sh` with each part
-   turned to print; check the STLs and overlaps.
-5. Sweep friction and speed, record it in `FINDINGS.md`; `README.md` with
-   the parts table, what to buy, assembly; both PDFs; a `make-pdfs.sh` line.
-6. In the hall: its EXHIBITS entry (`floorY = -100`), placard lettering
-   (`make-labels.py`), `tools/check-all.sh` (add it there), screenshots.
-7. **Make it show its working in the 3D view from the start**, not only in
-   the console and tooltips: William watches in the GUI. Lehmer's sieve
-   first showed nothing of N, x or the answer, and its probe's depth was
-   hidden; it got a board of number drums (the exhibit's, said so) and a
-   printed depth scale. When a machine runs on by itself, pause between
-   steps so each reading can be seen (the sieve's "through" drum was
-   cleared in the frame it was set). Say what the machine computes and
-   what the script does for the operator (the sieve only says "maybe";
-   the square test is Lua's).
-
-## 7. Where things stand and what's next
-
-- **Done (2026-10-21): Lehmer's number sieve** (east 1): four Geneva stars
-  of 9, 8, 7 and 5 places on one axle, driven from one shaft, detents to
-  centre them, pegged holes, a cam-lifted probe; it factors 1241 (and 1679,
-  1157, 2813: `N`) by Fermat's way. **2026-10-25:** William found it hard
-  to see what it computed: now a board beside it (the exhibit's) shows N,
-  x, each wheel's hole under the probe (green open, red pegged), the depth,
-  and at a stop x*x - N, the verdict and the factors; a printed depth
-  scale on the probe's guide reads how far the probe went; `T` runs the
-  tour for the number `N` chose. The wheels' colours and the see-through
-  cam are still first guesses. **2026-10-26:** the depth now stays on the
-  board between turns, and the camera is further back; William's window
-  is narrower than the virtual screen (about 1450 px of 3D view, not
-  1658), so frame views with room to spare. He asked whether the cam is
-  one print: it is (one watertight solid); only the simulation's contact
-  shape is 72 convex wedges. Offered, not done: finer cam steps (5 degree
-  flats now). It is the dearest exhibit to step (a 25 s tour took about
-  three minutes here, headless): if it is slow on his computer,
-  `LS_HZ=1200` halves that and still passes.
-- **Done (2026-10-26): the Digi-Comp II, step 1, the counter** (then west 3, now west 4):
-  three printed rockers, tipped over by the balls alone, and a feeder
-  wheel. **The same day, step 2a, the accumulator,** which replaces it.
-  William asked for the rest of the real machine; its manual (Evil Mad
-  Scientist's copy, cdn.evilmadscientist.com/KitInstrux/DCII-manual.pdf)
-  gives the registers: accumulator 7 flip-flops, memory 4 bits, MQ 3,
-  distributor 3 (a ring counter), mode flip-flops T1 to T6 and complement
-  CF1, CF2; switches MULTIPLY, CLEAR, COUNT, COMPLEMENT, OVERFLOW
-  (run/halt) and AUTO/MANUAL; the ball's path INPUT, MULTIPLY, CLEAR, COUNT,
-  then down the accumulator. Built now: a **two-level** board (balls that
-  are done drop through holes to the lower level and roll to the
-  collector), the 7-bit accumulator (each rocker has a foot on the lower
-  level for CLEAR: a wedge a clear ball pushes back to 0), hand-set
-  **switches** (flaps) for CLEAR and COUNT, and START (the feeder wheel,
-  turned by hand). Keys: Space START, C and N the switches, 1 to 7 set a
-  bit by hand. Board 322 x 878 mm, 10 upper and 10 lower tiles; table
-  100 x 150.
-- **Done (2026-10-26, while William slept): step 2b, add and multiply.**
-  The memory (four hand-set switches beside A1 to A4: 1 sends the ball
-  into that flip-flop's funnel, by a long left wall the carry doesn't
-  cross; 0 drops it), the MQ (three flip-flops read the other way, so a
-  ball takes one away; a borrow out of it drops through STOP and the hand
-  stops), the distributor (a tree of three flip-flops: the MQ and M4, M1,
-  M3, M2 by turns; the manual's is a ring) and MULTIPLY, all thirteen
-  flip-flops the same part. CLEAR's "on" outlet is on its right now (the
-  memory's lane needs A1's left). Tour: count, clear, 37 + 11 = 48,
-  13 x 3 = 39, every ball checked; the hand puts balls back from the
-  collector. Keys: M, C, N; 1 to 7; H J K L the memory; 8 9 0 the MQ; D the
-  distributor. Board 424 x 1216 mm, 14 + 14 tiles; table 110 x 180. Not
-  yet seen by William.
-- **2026-10-27:** William asked for an illustrated manual of every
-  operation, now and to come, and which parts each needs (for building
-  part of the machine): `exhibits/DigiComp2/MANUAL.md`. Its figures are
-  drawn from the geometry. Keep it up to date as steps are added; its
-  section 6 (complement, subtract, divide, AUTO) gives E.S.R.'s ways and
-  this board's.
-- **Done the same night: the narrated tour.** Before each ball a yellow
-  dashed line on the board shows the way it will go, and the sign's THIS
-  BALL says what it will do and what A was and will be (`route()`,
-  `preview()` in `digicomp2.lua`; also on `Space`). `DC_STEP` starts the
-  tour at a later step, for testing.
-- **Done (2026-10-27): step 2c, the complement: subtract and divide.**
-  William chose the longer board (more visible) over a lower-level
-  inverting lane. Not E.S.R.'s T1 to T6, CF1, CF2: under each of A1 to
-  A6's done holes a **done lane** runs on into the next flip-flop's funnel,
-  and six **shutters** (one bar, high over the walls: the COMPLEMENT
-  switch, `X`) cover the holes, so a ball goes on through every flip-flop
-  to A7 and turns each over. Complement = two balls, the hand moving
-  COMPLEMENT between them (CF1 and CF2's job). Dividing: MQ 7, the hand
-  watches OVERFLOW and stops at the end of that cycle; quotient and
-  remainder from the cycles and A (MANUAL section 6; FINDINGS says why the
-  end of the cycle). A's steps are 14.75 cm apart now (`G.ADZ`), all its
-  funnels have both walls long. Tour adds the complement of 25, 12 - 4 and
-  13 / 5 (about 27 600 frames; check-all allows 29 000). Board 424 x 1573
-  mm, 18 + 18 tiles; table 110 x 220. `tests/complement.lua`. The camera
-  stands farther back for the longer board.
-- **Done (2026-10-28): the hall loads a bit at a time.** William found the
-  hall slow to start. It is shown at once now, a sheet over each exhibit's
-  bay, and the exhibits load one a frame (the one you're at first); the
-  status bar says which. The time is OpenSCAD making parts on a cold cache
-  (94 s for all five here; 1.8 s cached). The Digi-Comp's sign letters are
-  in `parts/sign.scad` now, so changing its geometry no longer remakes them.
-- **Done the same night: programs.** William saw that the procedures are
-  the operator's part (the machine has no stored program: its switches are
-  control lines, each ball a clock tick, the operator its control unit)
-  and asked for them as scripts the exhibit reads and runs line by line,
-  with a library. `programs/*.dc2` (listed in `programs/LIBRARY`): the
-  keys, plus `SET`, `UNTIL STOP|OVERFLOW|CYCLE`, `CHECK`; the "program"
-  slider and `G` run one, the listing on the program board behind (`B`),
-  the line in the status bar; `DC_PROGRAM=all` runs the library (53 000 frames, 12
-  minutes here).
-  MANUAL section 9. (The hall's and the exhibits' status lines were never
-  shown: bpp's `statusText` is a property, not a `setStatusText` method;
-  the hall passes it on now.)
-- **Then: the program board.** A board on a stand behind the machine
-  shows the program, its line lit, scrolling with it; `B` flies the camera
-  to it and back (set the camera's up vector, then its place, then its
-  look, as separate statements: Lua's multiple assignment has no order).
-- **Then: the tour is the library, the meter is off.** William asked for
-  the tour to run the programs (so what starts by itself is a program, line
-  by line), and for the hall's cost meter to be off unless asked for (the
-  "Hall: meter" slider at the views, or `HALL_METER=1`; the freeze log goes
-  with it). The Digi-Comp's tour is now ~53 000 frames; check-all allows
-  56 000 (and no longer runs the library separately).
-- **Then: AUTO (step 2d).** The escapement is on the board (the knob is
-  gone: the weight, a torque, turns the wheel, the fly caps its speed, the
-  anchor holds it; Space pushes the START lever). Every ball goes down a
-  trip channel at the bottom right, under a trip lever (an arm trailing
-  down the slope from an axle: a ball can only lift it; its underside
-  stays high near the axle, so a ball meets it far out), to the store.
-  The axle comes out through the rim; an arm hangs from it beside the
-  board, and a thread from its foot runs up beside the board to an eye and
-  across to the START lever, which it pulls as the hand does. AUTO (`U`):
-  the thread hooked in; MANUAL: off. STOP's ball drops into a pocket and
-  trips nothing. Programs have `AUTO`, `MANUAL` and `RUN` (each ball
-  checked at the lever, the next in flight); `multiply-auto.dc2` does 13 x
-  5 in 21 balls from one START. The library (the tour) is ~81 000 frames;
-  check-all allows 86 000. FINDINGS, step 2d, has the tries: a lever
-  reaching up the slope jammed; a push rod up the board worked but was too
-  heavy to push unless balanced, and William pointed out a thin rod 1.5 m
-  long can pull but hardly push, hence the thread. In the simulation the
-  thread is inextensible and pull-only (impulses each step, `trip.pull`).
-  The weight and fly as parts are not done.
-- **Then: OVERFLOW's halt (step 2e).** OVERFLOW is a shutter over the
-  overflow hole (key `O`, program step `OVERFLOW HALT|RUN`): RUN, the
-  carry out of A7 rolls over it to the collector; HALT, it drops into a
-  pocket and trips nothing, so AUTO stops. `count-out-auto.dc2` and
-  `divide-auto.dc2` run E.S.R.'s way. A halt mid-cycle can leave A = 0
-  when a division isn't exact (11 / 5): the manual says to finish the
-  cycle by hand. **Checked whole (2026-10-31):** check-all's eight
-  runs of the other exhibits and `check-lua52.sh` passed, but both
-  Digi-Comp runs gave no RESULT: the tour had not ended. Run with its log,
-  every program was right and the tour ended at frame 98 292, past the
-  96 000 check-all allowed (it had been put at ~88 000). check-all now
-  allows 110 000 (110 600 in the hall), still two hours a run; each took
-  about an hour here, two at a time on two cores.
-- **Done (2026-10-31): the weight and the fly as parts (step 2f).** The
-  wheel is glued on a 3 mm steel axle down through the plate and the board.
-  Under the board (not in the lower level as planned: there it could not be
-  wound, and the damper and ratchet had no room): a ratchet on the axle,
-  the drum on the axle with two pawls in it, a coupler, and the **FRT-G2-200**
-  damper screwed to a bracket. The cord runs up under the board to a pulley
-  just out past the top edge and down to a printed cup of **eight** balls (74 g
-  with the cup: torque 2.9 mN m, the old 30 kg cm^2/s^2); 57 balls from wound
-  up to the table. `G.DRIVE` in the geometry; `drive` in the script (the cup
-  a body, the cord pull-only as the thread, the damper a drag c w,
-  `DC_DAMP` scaling it, `DC_CUP` the balls). The hand winds the weight when
-  fewer than 25 balls are left and nothing moves; `R` leaves it as it is.
-  The library passed at the damper's rating (on its own and in the hall)
-  and at 0.65 and 1.35 of it (its tolerance), the hand winding three times
-  a tour. Found: the anchor's second finger comes off its pin slowly
-  against the damper (up to 1.8 s at its rating, 3.6 s at 1.35, where the hand's
-  3 s wait for the anchor was too short and readings came a ball early: it
-  waits 8 s now); at 0.65 the wheel runs past the damper's 50 rpm. The
-  damper's mount is drawn from our reading of an unlabelled datasheet
-  drawing: measure its shaft before printing the coupler. FINDINGS, step
-  2f. **Not seen by William yet.**
-- A possible tighter rule for dividing in AUTO (A = 0 at a halt is exact
-  only if M's bits still to come in that cycle are all 0) was offered to
-  William, not yet taken.
-- **Done (2026-10-31, evening): each program with only its parts.**
-  William asked for it on the full board, the parts "really absent" (out
-  of the simulation, not only hidden). Every wall and peg has a `part` in
-  the geometry (A, CLEAR, COUNT, MULTIPLY with D, MQ and STOP, MEMORY,
-  COMPLEMENT, OVERFLOW, AUTO; BOARD and FEEDER always), the script tags
-  the moving parts, and each program has a `PARTS` line; a step needing a
-  part it doesn't name is an error when it is read. A program's start
-  takes the rest off (`parts` in the script: fixed things moved far below
-  the floor, moving ones frozen, untouchable and moved there too); they
-  stay off after it, keys for them refuse, `R` by hand puts all back.
-  `manual/fig-parts.png` is drawn from the same tags. Found by it: the
-  clear lane's walls also steer A's done balls into the trip channel
-  (without them AUTO stopped), and the done lanes' first stretch is the
-  done holes' backstop (without it a fast carry skipped A2's hole and
-  rolled off the plate): both are A's now. Watching OVERFLOW needs only
-  A's hole and pocket; its shutter is for halting AUTO. **Not seen by
-  William yet.** He pointed to a replica:
-  www.instructables.com/Digi-Comp-II-Replica/ (only its summary could be
-  fetched here).
-- **Done (2026-11-01): the hand, shown.** William asked to see it: a
-  drawn pointing hand (`parts/hand.scad`, its own file so the machine's parts
-  aren't remade) that goes to everything the operator does (switches,
-  flip-flops, knobs, START, the thread's hook, carrying balls from the
-  store and pockets to the top, winding under the board) and does it on
-  arrival; `hand` in the script, a queue of jobs, the machine busy while
-  it has any. The tour takes 23% longer (it ends near frame 121 000);
-  check-all allows 135 000. FINDINGS, "The hand, shown". Seen by William
-  (2026-11-03): he asked to lose the forearm and keep the palm off the
-  fingertip (done), and for `Q`, the hand off (done: at once and unseen,
-  as before; `DC_HAND=0`).
-- **Slow? Check POV-Ray export first (2026-11-03).** The machine crawled
-  in William's hall, 2 s a frame of "physics" on the hall's meter: bpp's
-  POV-Ray export was on (toolbar button or `P`; a cyan dot top right).
-  It runs every frame before the steps, so the meter counts it as
-  physics. A fix to bpp's export (format a mesh only when its `.inc` is
-  missing) went to Jakob separately. FINDINGS, "How fast it runs".
-- **The Shortcuts pane (2026-11-04):** William found he had to scroll to
-  the keys. Every exhibit's pane now has its KEYS first, under one line of
-  the hall's (Tab, Shift+Tab; where its sliders are moved to the end); the
-  Digi-Comp's no longer lists its library or the program (one line names
-  it; the listing is on the program board, which the "program" slider now
-  shows too). Resting the mouse on a table says what its placard says
-  (`EXHIBIT_TABLE.parts`): the placards are low down and seldom in view.
-  A new bpp pane was considered and set aside (screen room; bpp's C++).
-- **Lecterns (2026-11-05):** a museum label on a brass post just right of
-  an exhibit's table and beyond it, its card tilted up: the name, a line, a
-  few sentences (`make-lecterns.py` writes the card as a PNG; the hall
-  puts it on a thin box as a texture and builds the lectern when the card
-  is there). `I` looks at it close up and back; the mouse on it says what
-  the placard says. The Differential has one, which William chose (A) over
-  a smaller card on the table beside the machine (B: in the exhibit's own
-  view, but the view is tight round the machine, so it was cut off and
-  crowded it). Where it stands went round three times: in front of the
-  table (out of the exhibit's view); beyond the table's back right corner
-  (turned 35 degrees to the aisle: away from the viewer; then turned to
-  the camera, but far back, and it would be farther still at the
-  Digi-Comp). William's idea settled it, **two stops at an exhibit with a
-  lectern**: the first Tab walks up to it, a view the hall works out from
-  the table and the lectern (eyes 162 cm up, square to the table, back far
-  enough for both: `g.approach`), the lectern at the table's right front
-  corner (`LECTERN`: 12 cm past its right edge, 14 cm before its front)
-  turned to face that view; the next Tab steps in, to the exhibit's own
-  view; then on. Shift+Tab the same, back (`steppedIn` in `hall.lua`).
-  Stepping in or back flies straight (at first it went by the aisle, the
-  way between bays, and William saw it back out and come in again).
-  The exhibit is awake from the first stop (its tour, keys, pane). Only
-  exhibits with a card have the two stops. Two camera faults found on
-  the way, both old: the hall stood the camera upright before every
-  flight, which turned it level, so a flight began by looking up (William
-  saw stepping in pan up and back down); and an exhibit loading in the
-  background still reached the real camera (standing it upright as it
-  loaded), which now and then left you looking level where you were.
-  Flights now start from the way the camera looks, and a loading exhibit
-  touches the camera only to set its own view (the camera's pitch logged
-  every frame: steady). All five exhibits then on show have a card
-  (2026-11-06; wording William read first; the Domino Half Adder's names
-  Matt Parker's 10,000-domino computer, Manchester Science Festival,
-  October 2012, which adds two four-bit numbers: Think Maths' own page).
-  `make-lecterns.py` shrinks a title or line too wide for the card and
-  says if the text runs off its foot. Each exhibit's first stop seen in
-  the window: the table, the lectern and the placard in view; the
-  Domino Half Adder's big table puts its card farther off (zoom, or `I`).
-  An exhibit added later gets the two stops by getting a card.
-  **2026-11-11:** walked to with Tab, the sieve had no lectern: an exhibit
-  loading while you're at another has that one's world in use, and its
-  lectern went there (the Differential's showed only because it loads
-  first; starting at the sieve hid it). The lecterns are the hall's now,
-  in world 0 like the placards.
+- **A mechanism hands every ball on the same way,** and the result leans
+  its way: the Galton board's one metering wheel made the first pin a switch
+  (moving a chute 1.5 mm flipped the lean); a funnel and neck hid it, until
+  the bounce was changed and the lean changed sides. William asked whether
+  the setup was asymmetric: turning the wheel the other way swapped every
+  lean. Two mirror-image wheels, geared, fixed it (the mean within about 0.3
+  of 6 from a bounce of 0.3 to 0.55). If a result depends on a parameter
+  that should only change its spread, look for an asymmetry; test by
+  mirroring (`GB_LOG=3` shows how the balls leave the neck).
+- **A full container looks like a jam:** balls left at the slide's level
+  were sitting on a heaped, full drawer, and knocking did nothing. Size a
+  container for a heap, not for flat packing.
 - **Checked against bpp's new Params and ScriptKeys (2026-11-11):**
   `tools/check-all.sh` all passed on Jakob's rewrite, and in the window
   Tab, the panes and the sliders work.
-- **Done (2026-11-12): the Galton board** (east 2), in a new row of bays:
-  the hall has ten now, the planimeter's covered bay (west 2) before it (by
-  rank, 14 and 13), and everything after it one row on, on the same side
-  (Pascaline west 3, Domino Half Adder east 3, Digi-Comp II west 4, tide
-  predictor east 4, Differential Analyser west 5, Difference Engine east 5;
-  the READMEs' bay numbers and the PDF subtitles with them). 150 steel balls
-  (6 mm), 4 mm pins 12 mm apart, twelve rows from the first pin, thirteen
-  bins with the binomial's heights for 150 engraved in gold; a hopper, a
-  six-slot **metering wheel** turned by a crank (the hand, a motor), a small
-  funnel and a straight neck onto the first pin; a slide under the bins, a drawer, the hand
-  tipping the drawer back into the hopper (the pouring moves the balls, as
-  the Digi-Comp's hand does). A sign (the exhibit's) shows the run, the balls
-  in the bins, the mean bin and the spread against 6.00 and 1.73. The tour:
-  a run, empty and pour, a run (~2.5 min headless; check-all allows 5000
-  frames, 5600 in the hall). It took far longer than "balls and pins" (see
-  its FINDINGS: the neck that jams, the diagonals, the walls, the cradles,
-  the first pin that wasn't a coin). Over six runs the mean bin was 6.31 (it
-  leans a third of a bin right; at a bounce of 0.3 it leant left) and the spread 2.03, a little wider than fair coins (6.00,
-  1.73). The bounce (0.4,
-  ball on board) is a guess: no figure for steel on printed PLA was found,
-  and below about 0.3 the funnel stops randomising the first pin and the
-  board leans left; FINDINGS says how to measure it (drop a ball on a
-  tile). Printed in three tiles under 200 mm, a stand, an acrylic front
-  sheet; every STL checked watertight, and no two parts overlap at rest.
-  `tools/check-all.sh` (now twelve runs, the Galton board's two added)
-  all passed on the new hall. **Not seen by William yet.**
+- **Done (2026-11-12, revised 2026-11-13): the Galton board** (east 2),
+  in a new row of bays: the hall has ten now, the planimeter's covered bay
+  (west 2) before it (by rank, 14 and 13), and everything after it one row
+  on, on the same side (Pascaline west 3, Domino Half Adder east 3,
+  Digi-Comp II west 4, tide predictor east 4, Differential Analyser west 5,
+  Difference Engine east 5; the READMEs' bay numbers and the PDF subtitles
+  with them). 150 steel balls (6 mm), 4 mm pins 12 mm apart, twelve rows
+  from the first pin, thirteen bins with the binomial's heights for 150
+  engraved in gold; a hopper, **two mirror-image metering wheels** geared
+  together behind the board and turned by one crank (the hand, a motor; the
+  gears, a lock holding both to the crank's turn), a funnel under both and a
+  straight neck onto the first pin; a slide under the bins, a drawer, the
+  hand tipping the drawer back into the hopper (the pouring moves the
+  balls, as the Digi-Comp's hand does), and knocking the board if balls
+  stay wedged (idealised; not needed since the drawer was made deeper). A
+  sign (the exhibit's) shows the run, the balls in the bins, the mean bin
+  and the spread against 6.00 and 1.73. The tour: a run, empty and pour, a
+  run (about 4 min headless; check-all allows 6000 frames, 6600 in the
+  hall). The first patch (2026-11-12) had one wheel, and the board leant
+  whichever way the bounce tipped it: William spotted the asymmetry; the
+  second patch replaces the wheel with the pair. Over six runs at the usual
+  settings the mean bin was 5.97 and the spread 1.94 (fair coins: 6.00,
+  1.73); fair from a bounce of 0.3 to 0.55 and at friction 0.15 and 0.45. At
+  a bounce of 0.7 the spread passes the tour's 2.6. The bounce (0.4, ball on
+  board) is a guess (no figure for steel on printed PLA was found); FINDINGS
+  says how to measure it. Keep the crank to 0.75 turns a second: faster, two
+  balls meet over the neck and jam. Printed in three tiles under 200 mm,
+  two gears, a stand, an acrylic front sheet; every STL checked watertight,
+  and no two parts overlap at rest. `tools/check-all.sh` (twelve runs, the
+  Galton board's two included) all passed on the revised board.
+  **Not seen by William in the GUI yet.**
 - **Next (William to choose):** **Amsler's planimeter** (its bay is ready,
   west 2; quick and clear), **Kelvin's tide predictor** (the next covered
   bay of the original list), or the **Antikythera mechanism** (the most

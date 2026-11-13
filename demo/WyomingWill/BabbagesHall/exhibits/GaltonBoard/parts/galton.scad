@@ -31,7 +31,7 @@ module wallsPlan() difference() {
   outside();
   polygon(MAIN);
   polygon(HOPPER);
-  translate([0, WHEEL_Y]) circle(r = HOUSING, $fn = 120);
+  for (sx = [-1, 1]) translate([sx * WHEEL_X, WHEEL_Y]) circle(r = HOUSING, $fn = 120);
   bay();
   slideSlot();
   translate([-FILL_W / 2, Y_TOP - 1]) square([FILL_W, RIM + 2]);     // the filling slot
@@ -53,7 +53,7 @@ module board() difference() {
       translate([x, Y_DIV, 0]) cylinder(d = DIV_T, h = GAP, $fn = 12);
     }
   }
-  translate([0, WHEEL_Y, -BACK_T - 1]) cylinder(d = AXLE_D + 0.2, h = BACK_T + 2, $fn = 16);
+  for (sx = [-1, 1]) translate([sx * WHEEL_X, WHEEL_Y, -BACK_T - 1]) cylinder(d = AXLE_D + 0.2, h = BACK_T + 2, $fn = 16);
   for (s = SCREWS) translate([s[0], s[1], -1]) cylinder(d = SCREW_D, h = GAP + 2, $fn = 12);
   // the expected heights in the bins, engraved 0.6 mm in the back plate
   marksCut();
@@ -92,8 +92,23 @@ module wheel() difference() {
   }
   cylinder(d = AXLE_D - 0.1, h = WHEEL_T + 2, center = true, $fn = 16);   // (a press fit on the axle)
 }
-// the axle: through the back plate, the wheel and the front sheet
-module axle() translate([0, 0, -BACK_T - 2]) cylinder(d = AXLE_D, h = THICK + 12, $fn = 16);
+// an axle: from its gear behind the back plate, through the plate and its
+// wheel, and (the left one, the crank's) through the front sheet
+// (long: the crank's, out through the front sheet; short: the right one, ending in its wheel)
+module axle(long = true) translate([0, 0, -BACK_T - GEAR_T - 2])
+  cylinder(d = AXLE_D, h = long ? THICK + GEAR_T + 14 : BACK_T + GEAR_T + 2 + GAP - 0.5, $fn = 16);
+// a gear (its back at z = 0, its centre at the origin): GEAR_Z teeth of
+// module GEAR_M, so that the two meet at their pitch circles; plain
+// trapezoid teeth, pressed onto the axle behind the back plate
+module gear() difference() {
+  linear_extrude(GEAR_T) {
+    circle(r = GEAR_Z * GEAR_M / 2 - 1.25 * GEAR_M, $fn = 96);
+    for (k = [0 : GEAR_Z - 1]) rotate(k * 360 / GEAR_Z)
+      polygon([[GEAR_Z * GEAR_M / 2 - 1.3 * GEAR_M, -0.85 * GEAR_M], [GEAR_Z * GEAR_M / 2 + GEAR_M, -0.35 * GEAR_M],
+               [GEAR_Z * GEAR_M / 2 + GEAR_M, 0.35 * GEAR_M], [GEAR_Z * GEAR_M / 2 - 1.3 * GEAR_M, 0.85 * GEAR_M]]);
+  }
+  translate([0, 0, -1]) cylinder(d = AXLE_D - 0.1, h = GEAR_T + 2, $fn = 16);
+}
 // the crank, in front of the sheet (its hub on the axle at z = 0)
 module crank() {
   difference() {
@@ -121,7 +136,7 @@ module drawer() {
 // the front sheet (bought: clear acrylic), drawn
 module front() translate([0, 0, GAP]) difference() {
   translate([-OUT_W / 2, FRONT_Y0, 0]) cube([OUT_W, OUT_Y1 - FRONT_Y0, FRONT_T]);
-  translate([0, WHEEL_Y, -1]) cylinder(d = AXLE_D + 0.5, h = FRONT_T + 2, $fn = 16);
+  translate([-WHEEL_X, WHEEL_Y, -1]) cylinder(d = AXLE_D + 0.5, h = FRONT_T + 2, $fn = 16);     // (the crank's axle)
 }
 // the stand: the board's foot stands on its foot, between a lip in front
 // and one behind; two gussets behind hold the back lip
@@ -174,6 +189,7 @@ if (PART == "print-tile-middle") translate([0, 0, BACK_T]) tile(1);
 if (PART == "print-tile-bottom") translate([0, 0, BACK_T]) tile(0);
 if (PART == "print-splice") splice();
 if (PART == "print-wheel") translate([0, 0, WHEEL_T / 2]) wheel();
+if (PART == "print-gear") gear();
 if (PART == "print-crank") crank();
 if (PART == "print-slide") rotate([90, 0, 0]) translate([0, SLIDE_T / 2 + 6, 0]) slide();
 if (PART == "print-drawer") translate([0, -Y_DRAWER, DRAWER_WALL]) drawer();

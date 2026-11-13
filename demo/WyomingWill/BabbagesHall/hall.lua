@@ -101,8 +101,8 @@ EXHIBITS = EXHIBITS or {
     prefix = "Galton: ", floorY = -100,
     about = "The Galton board (1873): 150 balls fall through twelve rows of pins, going\n" ..
             "left or right at each, and pile up in the bins in the bell of the normal curve;\n" ..
-            "the gold lines are where fair coins would put them. A wheel under the hopper\n" ..
-            "lets them in one at a time. Space: turn the crank; E: empty the bins and pour\n" ..
+            "the gold lines are where fair coins would put them. Two mirror-image wheels\n" ..
+            "under the hopper let them in one at a time. Space: turn the crank; E: empty the bins and pour\n" ..
             "them back; T: the tour." },
   { dir = "exhibits/Pascaline/", file = "pascaline.lua", name = "the Pascaline", label = "pascaline",
     prefix = "Pascaline: ", floorY = -100,

@@ -84,14 +84,14 @@ the bottom of a throat, as wide as the stream: 2.08; as a crowd from a wide
 neck: 2.68. The board needs its balls one at a time, and a neck can't do
 that without jamming.
 
-**The metering wheel** can. Six slots in a wheel 32 mm across, under the
+**A metering wheel** can. Six slots in a wheel 32 mm across, under the
 hopper, turned by a crank: each slot picks up one ball from the bottom of
 the pile and carries it round under its housing (2 mm clear of the wheel: a
 slotted ball passes, a loose one can't get in). The hopper's downstream wall
 meets the wheel square on, so it scrapes off any ball half in a slot rather
-than pinching it. Five or six balls a turn; at one turn a second, 150 balls
-in 27 seconds. In every run here (over forty) it never jammed, and the hand
-never had to turn it back.
+than pinching it. Five or six balls a turn. In every run here (well over
+fifty, with one wheel and with two) no wheel ever jammed, and the hand never
+had to turn the crank back.
 
 ## 4. The first pin wasn't a coin
 
@@ -118,50 +118,81 @@ trouble.
   the friction: at 0.15, 80% went left (means 5.19 to 5.65); at 0.45, two
   thirds went right (6.22 to 6.35).
 - **A funnel and a straight neck** under it (8 mm wide, 8 mm long): the
-  balls leave the neck at 0 plus or minus 1 cm/s, and the board cares less
-  about the friction (section 5). This is the board's. Over six runs at the
-  usual friction the means were 6.09 to 6.45 (6.31 on average) and the
-  spreads 1.91 to 2.12 (2.03): it leans about a third of a bin to the right.
-  Which way it leans, and how far, depends most on the bounce (section 5).
-  Probably spin: the balls roll down the funnel's left wall into the neck,
-  and a ball spinning that way kicks off the pin under it; not measured.
-  That is a real board's kind of fault, and it is left as it is: moving the
-  neck a little to one side would cancel it here, but only for the bounce
-  and friction guessed.
+  balls left the neck at 0 plus or minus 1 cm/s on average, but still
+  0.6 mm left of centre. Over six runs the means were 6.09 to 6.45 (6.31 on
+  average): a lean of a third of a bin to the right; at a bounce of 0.3 it
+  leant left instead (5.33 to 5.69). I first put that down to the bounce.
+  It was the wheel. **Turned the other way,** every lean changed sides: at a
+  bounce of 0.4, means 5.97 and 5.61; at 0.3, 6.63 and 6.66; and the balls
+  left the neck 0.6 mm right of centre (1.1 mm at 0.3). The pins and bins
+  are symmetric (one ball at a time from rest, section 1, they gave the
+  binomial's spread); the feed was not: the slot hands each ball on moving
+  sideways, and spinning, and how that comes out at the first pin depends on
+  the bounce.
+- **Releasing the ball where the slot moves straight down** (3 o'clock)
+  doesn't help: tried with the wheel alone, the ball rides the slot's lower
+  side, which tilts as the wheel turns, and rolls out about 40 degrees below
+  level, moving sideways at 7 cm/s and spinning at 41 radians a second,
+  every ball exactly alike.
+- **Two wheels, mirror images,** geared together so that they turn opposite
+  ways on the one crank, each dropping its balls into one funnel over the
+  neck, the right wheel's slots half a slot behind the left's: the machine
+  is symmetric, so whatever one wheel's balls do, the other's do mirrored.
+  The balls left the neck at 0.0 plus or minus 0.1 mm from centre. This is
+  the board's; section 5 has what it gives.
+- **Two balls over the neck jam.** At one turn a second the pair drops a ball
+  every twelfth of a second, from opposite sides, and two can meet over the
+  neck: once 16 balls piled up and arched over it, the funnel a small hopper
+  again. At half a turn a second (a ball every sixth of a second) it has not
+  happened; the crank goes up to 0.75.
+- **The drawer was too small.** Pulling the slide, a few balls stayed at the
+  slide's level, and knocking the board (below) did nothing: they were
+  sitting on the heap in a full drawer. 40 mm deep holds 150 balls only if
+  they lie flat, and they pour in heaped up in the middle; one wheel had got
+  through by the luck of the packing. The drawer is 46 mm deep now.
+- **The knock.** If balls stay wedged in a bin when the slide is out (a
+  zigzag stack can brace itself against a bin's walls), the operator knocks
+  the board (idealised: the balls in the bins get a jolt of 15 cm/s
+  upward). Since the deeper drawer it has not been needed.
 
 The tour checks each run: every ball in a bin, the mean within 0.6 of 6, the
 spread between 1.4 and 2.6.
 
 ## 5. Bounce, friction and speed
 
-The finished board, each setting changed alone (three runs each; six at
-the usual settings):
+The finished board (the pair), each setting changed alone, three runs each
+(six at the usual settings: bounce 0.4, friction 0.3, the crank at half a
+turn a second); beside it, the one wheel and neck before (crank at one turn
+a second):
 
-| setting | means | spreads | tour |
-|---|---|---|---|
-| usual (bounce 0.4, friction 0.3, crank 1 turn a second) | 6.09, 6.25, 6.31, 6.35, 6.41, 6.45 | 1.91 to 2.12 | pass |
-| bounce 0.3 | 5.33, 5.54, 5.69 | 1.96 to 1.99 | fail (leans left) |
-| bounce 0.55 | 6.07, 6.22, 6.51 | 2.44 to 2.50 | pass |
-| bounce 0.7 | 6.05, 6.18, 6.42 | 2.39 to 2.44 | pass |
-| friction 0.15 | 5.51, 5.93, 6.10 | 2.09 to 2.16 | pass |
-| friction 0.45 | 6.09, 6.11, 6.18 | 1.80 to 1.89 | pass |
-| crank 0.5 turn a second | 6.17, 6.33 | 2.05 to 2.10 | (the third run ran out of frames) |
-| crank 1.5 turns a second | 5.48 | 1.64 | (the second run did not finish in the frames allowed; not traced) |
+| setting | means, the pair | spreads, the pair | tour | means, one wheel |
+|---|---|---|---|---|
+| usual | 5.70, 5.81, 5.99, 6.06, 6.11, 6.17 (5.97) | 1.77 to 2.04 | pass | 6.09 to 6.45 (6.31) |
+| bounce 0.3 | 5.89, 5.97, 6.11 | 1.93 to 2.11 | pass | 5.33 to 5.69 (fail) |
+| bounce 0.55 | 5.64, 5.91, 6.30 | 2.35 to 2.56 | pass | 6.07 to 6.51 |
+| bounce 0.7 | 6.13, 6.35, 6.41 | 2.46 to 2.76 | fail (the spread) | 6.05 to 6.42 |
+| friction 0.15 | 5.99, 6.03, 6.13 | 2.01 to 2.13 | pass | 5.51 to 6.10 |
+| friction 0.45 | 5.81, 5.82, 5.83 | 1.86 to 1.93 | pass | 6.09 to 6.18 |
+| crank 0.75 | 5.78, 5.94, 6.19 | 1.87 to 2.11 | pass | |
 
-So the bounce sets the spread (2.0 at 0.4, 2.45 above 0.5) and, with the
-crank's speed, which way the board leans. At 1.5 turns a second the balls
-come too close together for the funnel and neck to settle each one (they
-left the neck moving left at 6.8 cm/s) and the board leant left: keep the
-crank to a turn a second or less. In every run that finished every ball reached a bin,
-and the crank was never turned back.
+With one wheel the bounce chose the lean; with the pair the mean stays
+within about 0.3 of 6 from a bounce of 0.3 to 0.55, at either friction, and
+at three quarters of a turn a second. At 0.7 the means come out a little
+high (6.30 on average; one run's mean scatters by about 0.2 at that
+spread, so it may be chance or a small lean) and the spread reaches 2.76,
+past the tour's 2.6. The bounce sets the spread: about 1.9 at 0.3 and 0.4,
+about 2.5 above 0.5, where the balls jump pins. At one turn a second (a
+ball every twelfth of a second) the spread was wider too, up to 2.3: the
+balls crowd. In every run that finished, every ball reached a bin, no
+wheel jammed and the crank was never turned back.
 
 The bounce is the number least known. No published coefficient of
 restitution for a steel ball on printed PLA at these speeds (a few tenths
 of a metre a second) was found; 0.4 is a guess. It is easy to measure: drop
 a ball from 100 mm onto a printed tile lying on a hard table, and see how
 high it comes back (a phone filming against a ruler); the bounce is the
-square root of that height over 100 mm. The board's fairness depends on it:
-below about 0.3, the funnel stops making the first pin a fair coin.
+square root of that height over 100 mm. With the pair, the bounce no longer
+decides which way the board leans; it decides how wide the bins spread.
 
 ## 6. Settling, and resting
 
@@ -175,16 +206,17 @@ rests (stops stepping) until the next key.
 ## 7. How fast it runs
 
 While the balls are running, about 2.5 s of computing a simulated second
-here (headless, on one core); the tour, two runs with the emptying and
-pouring between, about two and a half minutes. At rest, nothing.
+here (headless, on one core); the tour, two runs of 28 s with the emptying
+and pouring between, about four minutes. At rest, nothing.
 
 ## 8. The printed parts
 
-- Three tiles, each under 200 mm (166 x 200, 195 and 194 mm), joined by
+- Three tiles, each under 200 mm (166 x 171, 196 and 199 mm), joined by
   splices glued across the back.
 - Every STL is one watertight solid, and the parts at rest don't overlap
-  (every pair of the board, wheel, slide, drawer, front sheet, crank and
-  stand: checked with manifold3d).
+  (all 45 pairs of the board, both wheels, both gears, the slide, drawer,
+  front sheet, crank and stand: checked with manifold3d). The two gears
+  mesh at their pitch circles, the right one turned half a tooth.
 - Found on the way: where an outline only touched a circle that is cut as
   well (the wheel's recess), OpenSCAD left slivers, the extruded walls "were
   not closed", and a whole tile's walls went missing, in an STL that was

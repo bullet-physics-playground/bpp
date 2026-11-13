@@ -18,10 +18,11 @@ part tile-middle.stl  -D 'PART="print-tile-middle"'
 part tile-bottom.stl  -D 'PART="print-tile-bottom"'
 part splice.stl       -D 'PART="print-splice"'
 part wheel.stl        -D 'PART="print-wheel"'
+part gear.stl         -D 'PART="print-gear"'
 part crank.stl        -D 'PART="print-crank"'
 part slide.stl        -D 'PART="print-slide"'
 part drawer.stl       -D 'PART="print-drawer"'
 part stand.stl        -D 'PART="print-stand"'
 part cut-front.svg    -D 'PART="cut-front"'
-echo "Print: the three tiles, splice x2, and one each of the wheel, crank, slide, drawer and stand."
+echo "Print: the three tiles, splice x2, wheel x2, gear x2, and one each of the crank, slide, drawer and stand."
 echo "Cut the front sheet from 3 mm clear acrylic: stl/cut-front.svg (drill its screw holes through the rim's)."

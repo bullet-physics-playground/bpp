@@ -30,19 +30,23 @@ would come to.
 
 Real balls are not fair coins: they bounce, and now and then one jumps a
 pin. Here the bins come out a little wider than fair coins' (a spread of
-about 2.0), and the board leans about a third of a bin to the right (a mean
-of about 6.3; which way and how far depends most on how the balls bounce).
-See `FINDINGS.md`.
+about 1.9, wider still if the balls bounce more), and the mean bin within
+about 0.3 of 6. See `FINDINGS.md`.
 
 ## The board
 
 - **The hopper,** at the top, holds the 150 balls on two 60-degree slopes.
-- **The metering wheel** under it, turned by the **crank** in front: six
-  slots in its rim, each of which carries one ball from the bottom of the
-  hopper round under its housing, and lets it drop into a small **funnel**.
-  The ball bounces between the funnel's walls and leaves by a straight
-  **neck**, 8 mm wide and 8 mm long, just over the first pin. A turn of the crank lets in up to six
-  balls; at one turn a second the 150 take about 27 seconds.
+- **Two metering wheels** under it, mirror images side by side, geared
+  together behind the board and turned by the one **crank** in front: the
+  left turns clockwise, the right anticlockwise. Each has six slots in its
+  rim; a slot comes up the wheel's outer side, picks up one ball from the
+  bottom of the hopper, carries it down the wheel's inner side under its
+  housing, and lets it drop into the **funnel** under both wheels. The ball
+  leaves by a straight **neck**, 8 mm wide and 8 mm long, just over the
+  first pin. The right wheel's slots are half a slot behind the left's, so
+  the balls come from each in turn. A turn of the crank lets in up to
+  twelve balls; at half a turn a second (the usual) the 150 take about 28
+  seconds. Faster, a ball from each side can meet over the neck and jam.
 - **The pins,** 4 mm, 12 mm apart on a triangular lattice, each centred
   under the gap above it: twelve rows from the first pin down. The side walls
   run where the next pin out would be, with half pins standing out of them,
@@ -53,14 +57,16 @@ See `FINDINGS.md`.
   drawer**, and the operator tips the drawer into the filling slot at the
   top, back into the hopper.
 
-Why a wheel, and not the hopper emptying through a neck as on most Galton
-boards: in two dimensions a neck narrow enough to let the balls in one at a
-time jams, and one wide enough not to jam floods the pins, and the balls,
-knocking each other, spread far too wide. Why the funnel: the wheel hands
-every ball on in the same way, and dropped straight from the slot nearly
-every one went the same way at the first pin; the funnel's bounces make the
-small differences between balls count, and the neck takes out the sideways
-speed they all leave the funnel with. `FINDINGS.md` has the tries.
+Why wheels, and not the hopper emptying through a funnel as on Galton's
+own (his ran on small lead shot, likely several deep behind the glass): in
+two dimensions, one 6 mm ball deep, a neck narrow enough to let the balls
+in one at a time jams, and one wide enough not to jam floods the pins, and
+the balls, knocking each other, spread far too wide. Why two: one wheel
+hands every ball on in the same way, sideways and spinning, and the board
+leant whichever way the wheel turned (turned the other way, the lean
+changed sides). A mirrored pair makes the machine symmetric, so whatever
+one wheel's balls do, the other's do the mirror image. `FINDINGS.md` has
+the tries.
 
 ## Using it
 
@@ -74,7 +80,7 @@ speed they all leave the funnel with. `FINDINGS.md` has the tries.
 lines. **The sign** beside the board (the exhibit's, not the machine's: it
 is what an operator would write up) shows the run, how many balls are in
 the bins, their mean bin and their spread, against 6.00 and 1.73 for fair
-coins. Rest the mouse on the board, the wheel, a ball or the sign to see
+coins. Rest the mouse on the board, a wheel, a ball or the sign to see
 each bin's count and the fair coins' counts beside them. The console prints
 each run's counts.
 
@@ -82,7 +88,7 @@ each run's counts.
 turns the crank, pulls and pushes the slide, and carries the drawer up to
 the filling slot and tips it.
 
-Sliders: `crank` (turns a second, 0.25 to 1.5; checked at 0.5 and 1, and above 1 the board leans left), `bounce` (the restitution,
+Sliders: `crank` (turns a second, 0.25 to 0.75; 0.5 usual), `bounce` (the restitution,
 ball on board), `friction` (ball on board), `speed`.
 
 ## Running it
@@ -112,16 +118,22 @@ computes.
   parts. What is printed is what is simulated.
 - **Bodies.** The board is one fixed body: its back plate and front sheet
   (boxes), its pins and half pins (cylinders), its walls (boxes along the
-  outlines, the housing's in short straight pieces). The wheel is one body
+  outlines, the housings' in short straight pieces). Each wheel is one body
   on a hinge: its hub and the six pieces between its slots. The slide is a
   fixed box that, pulled out, touches nothing. The balls are 150 spheres,
   6 mm, 0.88 g.
-- **The hand on the crank** is a motor on the wheel's hinge at a steady
-  speed. If the wheel stops against it (a ball caught), the hand turns it
-  back a little and on again (it has not been needed in any run here).
-- **Idealised:** the pouring. The drawer is drawn going up and tipping, and
-  the balls are moved from it to the top of the hopper a few at a time, as
-  pouring would put them. The drawer's walls stay with the board's.
+- **The hand on the crank** is a steady speed, and **the gears** a lock:
+  each wheel's hinge motor drives it toward the crank's turn (counted in its
+  own sense), which holds the two together as meshing gears would. If a
+  wheel stops (a ball caught), the hand turns the crank back a little and on
+  again (it has not been needed in any run here).
+- **Idealised:** the pouring, and the knock. The drawer is drawn going up
+  and tipping, and the balls are moved from it to the top of the hopper a
+  few at a time, as pouring would put them; the drawer's walls stay with the
+  board's. If balls stay wedged in a bin when the slide is out (a zigzag
+  stack can brace itself against the bin's walls), the operator knocks the
+  board: the balls in the bins get the small jolt upward a knock would give
+  them.
 - **The sign** is the exhibit's display, not the machine's.
 
 ## Printing and building
@@ -132,14 +144,15 @@ turned to lie on the bed. The board is printed in three tiles, each under
 
 | Part | Print | Size (mm) | Notes |
 |---|---|---|---|
-| `tile-top.stl` | 1 | 166 x 200 x 11 | the hopper, the wheel's recess, the funnel and neck; on its back |
-| `tile-middle.stl` | 1 | 166 x 195 x 11 | the pins and the tops of the bins; on its back |
-| `tile-bottom.stl` | 1 | 166 x 194 x 11 | the bins, with their gold lines engraved 0.6 mm (paint them), the slide's slot and the drawer's bay |
+| `tile-top.stl` | 1 | 166 x 171 x 11 | the hopper, the wheels' recesses, the funnel and neck; on its back |
+| `tile-middle.stl` | 1 | 166 x 196 x 11 | the pins and the tops of the bins; on its back |
+| `tile-bottom.stl` | 1 | 166 x 199 x 11 | the bins, with their gold lines engraved 0.6 mm (paint them), the slide's slot and the drawer's bay |
 | `splice.stl` | 2 | 146 x 30 x 3 | glued across the back of each joint |
-| `wheel.stl` | 1 | 32 x 31 x 6 | a press fit on the axle; PLA, 100% infill |
+| `wheel.stl` | 2 | 32 x 31 x 6 | a press fit on its axle; PLA, 100% infill. Fit the right one half a slot (30 degrees) behind the left |
+| `gear.stl` | 2 | 45 x 45 x 5 | 28 teeth, module 1.5; pressed onto the axles behind the back plate, meshing |
 | `crank.stl` | 1 | 34 x 10 x 18 | a press fit on the axle's front end |
 | `slide.stl` | 1 | 170 x 15 x 7 | |
-| `drawer.stl` | 1 | 168 x 41 x 9 | it slides into its bay through the back plate, under the front sheet |
+| `drawer.stl` | 1 | 168 x 47 x 9 | it slides into its bay through the back plate, under the front sheet |
 | `stand.stl` | 1 | 196 x 91 x 68 | the board's foot stands between its lips |
 
 The pins are printed with the board, standing up from the back plate. Print
@@ -148,20 +161,23 @@ the tiles at 0.2 mm layers with four walls, so the pins are solid.
 **Also needed**
 
 - **Steel balls,** 6 mm, 150 (and a few spare): bearing balls.
-- **Clear acrylic,** 3 mm, 167 x 539 mm, the front sheet (it stops just
+- **Clear acrylic,** 3 mm, 167 x 510 mm, the front sheet (it stops just
   above the slide, so the drawer can slide in under it):
-  `stl/cut-front.svg` has its outline and the axle's hole. Drill its 22
-  screw holes through the rim's holes, 3.2 mm.
+  `stl/cut-front.svg` has its outline and the crank's axle's hole. Drill
+  its 22 screw holes through the rim's holes, 3.2 mm.
 - **22 M3 x 12 screws** (self-tapping into the 2.5 mm holes in the rim).
-- **3 mm steel rod,** 25 mm, the wheel's axle.
-- Glue for the splices; a little dry PTFE on the wheel and its housing.
+- **3 mm steel rod:** 33 mm (the left axle, with the crank) and 18 mm (the
+  right).
+- Glue for the splices; a little dry PTFE on the wheels and their housings.
 
 **Assembly.** Glue the three tiles together with a splice across each joint
 at the back, checking with a straight edge that the tiles' faces are flush
-(the balls roll across the joints). Press the axle into the wheel, so it
-stands 2 mm out of the wheel's back, and fit it into the hole in the back
-plate. Lay the front sheet on, the axle through its hole, and screw it down
-all round the rim. Press the crank onto the axle's front. Put the slide in
+(the balls roll across the joints). Press each axle into its wheel and fit
+it into its hole in the back plate, the long one on the left; at the back,
+press the gears onto them, meshing, with the right wheel's slots half a
+slot behind the left's. Lay the front sheet on, the left axle through its
+hole, and screw it down all round the rim. Press the crank onto the left
+axle's front. Put the slide in
 its slot from the right, and the drawer into its bay under it. Stand the
 board in the stand. Pour the balls in at the filling slot at the top, and
 turn the crank.
