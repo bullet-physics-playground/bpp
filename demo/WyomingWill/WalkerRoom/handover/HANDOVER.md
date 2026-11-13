@@ -885,6 +885,19 @@ the same runs would flatter the picks: in a small trial, a gait picked on two se
 `BEST_GAITS` (set by test-ranking.lua, room-four.lua and walker-room.lua on its own) each walker is built with its
 gait for the ground from `lib/gaits.lua`, and says so in the output pane.
 
+**The result (William's machine, 13 November; chosen on seeds 1-16, ranked on fresh seeds 17-32):** 37 gaits chosen,
+none worse than its trot on the fresh seeds (with five seeds to choose, four of 41 had been: lucky picks on the
+roughest grounds); the four slightly below their trot there were taken out, leaving 33 in `lib/gaits.lua`, and
+`lib/boards.lua` is now these boards (each walker at its best gait, no wheels, 16 seeds). The gaits that matter:
+Spears 4-bar's 4-beat walk 0-90-180-270 on flat, random 1-2, logs 1 and steps 1-4 (+0.8 to +1.45 cm/s; on flat 10.44,
+the fastest of all); lift 62 diag's pairs 90-150 degrees apart on waves 3-6 (+1.2 to +1.5) and lift 51 diag's on
+waves 4-5 (+0.98 on waves 5); Hoecken-Spears slider diag's at 90 on the low obstacles (+0.2 to +0.3). Klann, Jansen,
+Hoecken slider and Hoecken 4-bar diag trot everywhere. The order (mean rank over the 33): Klann 3.2, Chebyshev-Spears
+diag 3.7, Chebyshev-Spears lift 51 diag 3.8 (the fastest on average, 7.64 cm/s), Spears 4-bar 4.5, Hoecken-Spears
+4-bar diag 4.5, Hoecken-Spears slider diag 4.9, lift 62 diag 6.4, Jansen 7.1, Hoecken slider diag 7.9, Hoecken
+4-bar diag 9.5, Chebyshev diag 10.7. Spears 4-bar wins smooth and gently rough ground, Klann rolling ground of any
+height, the high-lift Spears walkers logs and steps from 4 up.
+
 This is the original task's step 2, never yet done on the new geometry. William approved doing it; **he has not yet seen the timing below. Show it to him and get a yes before starting.**
 
 **Section 4a settles open issues 1–3** (the diag builds and the low brace), and adds three test-track changes to make first.

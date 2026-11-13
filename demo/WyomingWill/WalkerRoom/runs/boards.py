@@ -24,6 +24,7 @@ for a in sys.argv[1:]:
     else: only.add(a)
 if not sources: fail("give a folder of runs (or a boards .lua file) first")
 rows = collections.defaultdict(dict)   # board -> build -> (mean, se, runs)
+seeds_seen = set()                     # (the runs' seeds, for the header)
 for src in sources:
     new = collections.defaultdict(dict)
     if src.endswith(".lua"):   # (an earlier boards file: its rows as they are)
@@ -41,7 +42,8 @@ for src in sources:
             if not m: continue
             name = newName(m.group(1))
             if only and name not in only: continue
-            ter = os.path.basename(f)[:-4].rsplit("_", 2)[1]
+            ter, seed = os.path.basename(f)[:-4].rsplit("_", 2)[1:]
+            seeds_seen.add(int(seed[1:]))
             t = re.match(r"([a-z]+)([\d.]+)", ter); key = f"{t.group(1)} {round(float(t.group(2)))}"
             speeds[key][name].append(float(m.group(2)))
         for key in speeds:
@@ -58,7 +60,17 @@ def label(s):
     s = s.rstrip("/")
     return os.path.basename(s) if s.endswith(".lua") else os.path.basename(os.path.dirname(s)) + "/" + os.path.basename(s)
 print("-- The viewer's ranking boards (made by runs/boards.py from " + ", then ".join(label(s) for s in sources) + ":")
-print("-- the fast setting, the 8 m track, normal ground, seeds 1-5; mean speed from 5 s to 20 s, cm/s)")
+def seed_list(ss):   # 1 2 3 5 -> "1-3, 5"
+    out, run = [], []
+    for x in sorted(ss):
+        if run and x == run[-1] + 1: run.append(x)
+        else:
+            if run: out.append(f"{run[0]}-{run[-1]}" if len(run) > 1 else str(run[0]))
+            run = [x]
+    if run: out.append(f"{run[0]}-{run[-1]}" if len(run) > 1 else str(run[0]))
+    return ", ".join(out)
+seeds_text = ("seeds " + seed_list(seeds_seen)) if seeds_seen else "the seeds of the file it started from"
+print("-- the fast setting, the 8 m track, normal ground, " + seeds_text + "; mean speed from 5 s to 20 s, cm/s)")
 print("BOARDS = {")
 for key in sorted(rows, key=lambda k: (["flat", "waves", "random", "logs", "steps"].index(k.split()[0]), int(k.split()[1]))):
     if not rows[key]: continue
