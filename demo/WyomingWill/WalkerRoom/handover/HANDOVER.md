@@ -479,6 +479,17 @@ William: their foot paths are nearly the same, so they should do about as well. 
 
 So when Chebyshev-Spears' foot is stopped, its motors take the push (at their limit, the cranks nearly stall) and the body stays; when the slider's is, its cranks keep turning on little torque and the push moves the body back instead (on the stuck seeds its torque's 95th percentile over the whole run is 0.14–0.20, against Chebyshev-Spears' 0.50). Where the face's push goes -- into the crank or into the body -- depends on the leg's leverage at that point of the swing and on how firmly the body stands; which of those it is was not measured. Why the motor at speed 0 doesn't hold Chebyshev-Spears diag's second pair was not looked into either (the slider's holds, and the pair offset and crank lock were not running).
 
+**The forces (13 November; `runs/stepprobe.lua` now also writes, from `v:eachContact`, the normal force on each foot and on the rest of the walker from the ground, as shares of the walker's weight W; on flat they add up to 1.02–1.03 W, as they should; friction isn't in it).** Over the half second after each front-foot hit on steps 7, 8 seeds:
+
+| | Up that swing | Shoved | Face's push back on the foot: peak, mean, impulse | Weight on the other three feet: before, during, least |
+|---|---|---|---|---|
+| Chebyshev-Spears diag | 45% | 1.7 cm | 0.75 W, 0.22 W, 0.12 W·s | 0.92, 0.78, 0.27 W |
+| Hoecken-Spears slider diag | 6% | 5.3 cm | 1.85 W, 0.40 W, 0.21 W·s | 0.90, 0.57, −0.05 W |
+| Chebyshev-Spears diag, cranks at 0.6 | 46% | 2.0 cm | 0.57 W, 0.19 W, 0.10 W·s | 0.95, 0.83, 0.45 W |
+| Hoecken-Spears slider diag, cranks at 0.6 | 29% | 3.9 cm | 1.23 W, 0.29 W, 0.16 W·s | 0.93, 0.72, −0.02 W |
+
+The face pushes the slider's foot back about twice as hard (peak 2.5 times), and for a moment the slider's other feet carry nothing: the hit lifts the walker off them, which is why it slides back whatever the friction. Slower cranks (`CRANK_SCALE = 0.6`) soften the slider's hits, and it gets up a face 29% of the time (6% at full speed), is never stuck (seeds 2 and 7: 3.5 and 3.6 cm/s) and averages 3.72 cm/s against Chebyshev-Spears' 4.07 at that speed (at full speed 3.44 against 6.04); Chebyshev-Spears gets up as often as at full speed. But even hitting at 48 cm/s the slider is pushed harder (1.23 W peak) than Chebyshev-Spears at 59 (0.75 W). Leverage is not it: the feet move about as far per radian of crank where they meet the faces (forward 13–25 and 16–22 cm, up 8–10 and 11 cm, at 3–4 cm up, Chebyshev-Spears and the slider). **Not settled:** why the same hit pushes the slider harder. The motors can't say: each diag build's braced pair has a motor on each crank joined by a rigid brace, so held still the two fight (with 100 times the hold, torques of thousands, opposite signs) -- which is also why Chebyshev-Spears diag's held pair creeps -- and per-motor torques in the tables above are this fight plus the load.
+
 ## 4g. The logs are uneven; the slider's toes (29 October)
 
 **Answer first.** Hoecken-Spears slider diag's back feet come down early at the front of their swing and travel the last 2–3 cm low, so on logs 7 a flat toe runs into the log's side and is tipped toe-down (56% of hits, against Chebyshev-Spears diag's 12%), and the walker is pushed back. Its feet's ends turned up 1.0 cm at 30° (`spec.footTips`, a builder's tweak for this walker; William: fair, as a builder would) take it from 0.49 to 2.76 cm/s on logs 7 and from 6.19 to 6.57 over the nine rough terrains, with nothing lost on flat or waves 4.

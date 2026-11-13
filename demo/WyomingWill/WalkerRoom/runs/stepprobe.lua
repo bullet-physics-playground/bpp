@@ -2,7 +2,9 @@
 -- line, and every second step a trace (to STEP_OUT/<name>_s<seed>.tsv, STEP_OUT a folder set in EXTRA): time, the
 -- body's x, height and pitch, and for each foot its front edge's x, its bottom, its pitch, the ground under its
 -- middle and the ground 1 cm past its front edge (the room walks toward +x); then each crank's speed (a share of
--- its own) and its motor's torque (as speedprobe's).
+-- its own) and its motor's torque (as speedprobe's); then, from the contacts (v:eachContact; the last physics step's
+-- impulses over FIXED), the normal force on each foot from anything not of the walker, along x and up, as shares of
+-- the walker's weight, and the same summed over the rest of the walker (links, braces, body). Friction isn't in it.
 local probeDir = STEP_OUT
 local realv, speedPost = v, nil
 v = setmetatable({}, { __index = function(_, k) local x = realv[k]
@@ -26,6 +28,10 @@ local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
 local G = room.groundAt
 local unit = w.totalMass * (GRAVITY or 981) * (STRIDE or 15)
 local lastA = {}
+local weight = w.totalMass * (GRAVITY or 981)
+local mine, footOf = {}, {}
+for _, o in ipairs(w.bodies) do mine[o] = true end
+for i, f in ipairs(feet) do footOf[f] = i end
 v:postSim(function(N)
   speedPost(N)
   if N % 2 ~= 0 then return end
@@ -42,6 +48,17 @@ v:postSim(function(N)
     lastA[i] = a
     row[#row + 1] = string.format("%.3f\t%.4f", d * 30 * m.sign / math.abs(m.speed), math.abs(m.hinge:motorTorque()) / unit)
   end
+  local F = {}
+  for i = 1, #feet + 1 do F[i] = { 0, 0 } end
+  v:eachContact(function(a, b, px, py, pz, nx, ny, nz, dist, imp)
+    if imp <= 0 or (mine[a] and mine[b]) or not (mine[a] or mine[b]) then return end
+    local o, sgn = a, 1                     -- (the normal is B's, toward A: A is pushed along it)
+    if mine[b] then o, sgn = b, -1 end
+    local k = footOf[o] or (#feet + 1)
+    local f = imp / FIXED / weight
+    F[k][1], F[k][2] = F[k][1] + sgn * nx * f, F[k][2] + sgn * ny * f
+  end)
+  for i = 1, #feet + 1 do row[#row + 1] = string.format("%.4f\t%.4f", F[i][1], F[i][2]) end
   fh:write(table.concat(row, "\t"), "\n")
   if N >= (RUN_SECS or 20) * 60 then fh:close() end
 end)
