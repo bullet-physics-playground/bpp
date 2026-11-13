@@ -38,7 +38,8 @@ if EXTRA_WALKERS == nil then
   SOLVER_ITERATIONS = SOLVER_ITERATIONS or 40; FIXED = FIXED or 1 / 1920
   MOTOR_STRENGTH = MOTOR_STRENGTH or 2; GRAVITY = GRAVITY or 981; YAW_DAMP = YAW_DAMP or 1
   ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
-  LINK_WIDTH = LINK_WIDTH or 1.0; GAIT = GAIT or { 0, 180, 180, 0 }; DIAG_OUTSIDE = true
+  LINK_WIDTH = LINK_WIDTH or 1.0; DIAG_OUTSIDE = true
+  if GAIT == nil then GAIT = { 0, 180, 180, 0 }; GAIT_DEFAULT = true end   -- (a trot, unless set by hand)
   dofile("lib/trotting-walkers.lua"); dofile("lib/spears-lift-walkers.lua")
   local BUILDABLE = { "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62 diag", "Chebyshev-Spears diag",
                       "Hoecken-Spears 4-bar diag", "Hoecken-Spears slider diag", "Klann", "Jansen",
@@ -377,7 +378,10 @@ PAIR_OFFSET = PAIR_OFFSET or nil
 -- boards, "waves 4"), { offset = degrees } for a diag build (as
 -- PAIR_OFFSET) or { gait = { four phases } } for Jansen, Klann or Spears
 -- 4-bar (as GAIT); a walker or ground it doesn't name: a trot, as before.
+-- GAIT or PAIR_OFFSET set by hand wins over it (GAIT_DEFAULT: the
+-- launcher's own trot, which doesn't).
 BEST_GAITS = BEST_GAITS or false
+local GAIT_BY_HAND, OFFSET_BY_HAND = GAIT ~= nil and not GAIT_DEFAULT, PAIR_OFFSET ~= nil
 if BEST_GAITS and GROUND_GAITS == nil then pcall(dofile, "lib/gaits.lua") end
 local DIAG_PAIRS = {   -- (each diag parts file's crank motors, in the order it builds them: the second pair's)
   ["Chebyshev_diag_parts.lua"] = { [2] = true, [3] = true },          -- (phases 0, 180, 180, 0)
@@ -1334,6 +1338,7 @@ local function addWalker(spec, x, z, heading)
   if unbraced then opts.noBraces = true; opts.legGuides = true end
   w.unbraced = unbraced
   local best = BEST_GAITS and GROUND_GAITS and GROUND_GAITS[spec.name] and GROUND_GAITS[spec.name][boardKey()]
+  if best and ((best.gait and GAIT_BY_HAND) or (best.offset and OFFSET_BY_HAND)) then best = nil end   -- (a hand setting wins)
   w.bestGait = best
   if best then print(spec.name .. ", " .. boardKey() .. ": " .. (best.offset and string.format("its diagonal pairs %d degrees apart", best.offset)
     or ("crank phases " .. table.concat(best.gait, "/"))) .. ", its best gait here (lib/gaits.lua)") end

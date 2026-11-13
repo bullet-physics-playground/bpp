@@ -44,7 +44,8 @@ v:setSolver("si-warm"); v:setSolverInfo("residual", 0.01)
 SOLVER_ITERATIONS = 40; FIXED = 1 / 1920
 MOTOR_STRENGTH = 2; GRAVITY = 981; YAW_DAMP = 1
 ANKLE_SPRING = { stiffness = 42000, damping = 4200 }
-LINK_WIDTH = 1.0; GAIT = { 0, 180, 180, 0 }; DIAG_OUTSIDE = true
+LINK_WIDTH = 1.0; DIAG_OUTSIDE = true
+if GAIT == nil then GAIT = { 0, 180, 180, 0 }; GAIT_DEFAULT = true end   -- (a trot, unless set by hand: then it wins over lib/gaits.lua)
 
 dofile("lib/trotting-walkers.lua")      -- (the Hoecken diag builds and the sliders' diag builds)
 dofile("lib/spears-lift-walkers.lua")   -- (the Chebyshev-Spears lift builds and their diag builds)
