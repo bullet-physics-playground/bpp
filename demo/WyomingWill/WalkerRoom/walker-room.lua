@@ -372,6 +372,15 @@ GAIT = GAIT or nil
 -- most LOCK_MAX rad/s off its speed). 180 + x and 180 - x are the same walk
 -- with the sides swapped.
 PAIR_OFFSET = PAIR_OFFSET or nil
+-- PAIR_MOTOR (a test, default off; 13 November, handover 4y): a diag build's
+-- two cranks on one braced pair are tied by the brace, so with a motor on
+-- each, two motors drive one movement. With PAIR_MOTOR one crank of each
+-- pair (the first built) has the motor, at twice the torque (the walker's
+-- motors give as much in all), and the other is geared 1:1 to it (a
+-- btGearConstraint: a shaft or chain between them); "free": no gear, the
+-- brace alone carries the other crank round. The crank lock keeps the two
+-- driven cranks in step.
+PAIR_MOTOR = PAIR_MOTOR or false
 -- BEST_GAITS (false; the viewers and rooms set it): each walker built with
 -- the best gait for the ground it is on -- GROUND_GAITS[name][ground]
 -- (lib/gaits.lua, from runs/best-gaits.sh; the ground named as on the
@@ -1033,7 +1042,7 @@ local function easeReverse(w)          -- (each frame, from preSim)
   w.revK = (w.revGoal > w.revK) and math.min(w.revGoal, w.revK + step) or math.max(w.revGoal, w.revK - step)
   for _, m in ipairs(w.motors) do
     m.speed = m.base * w.revK
-    if not LOCK_CRANKS then m.hinge:enableAngularMotor(true, m.speed, math.max(0, (m.impulse or 0) - (m.friction or 0))) end
+    if not LOCK_CRANKS and not m.free then m.hinge:enableAngularMotor(true, m.speed, math.max(0, (m.impulse or 0) - (m.friction or 0))) end
   end
 end
 local trackLo, trackHi = btVector3(0, 0, 0), btVector3(0, 0, 0)   -- (the test track's air measure)
@@ -1559,6 +1568,25 @@ local function addWalker(spec, x, z, heading)
     for _, m in ipairs(w.motors) do
       m.impulse = torque * FIXED
       m.hinge:enableAngularMotor(true, m.speed, m.impulse)
+    end
+    if PAIR_MOTOR and second and #w.motors == 4 and not unbraced then   -- (pairs: motors 1 with 4, 2 with 3)
+      local function crankOf(m)   -- (the hinge's other body than the walker's; luabind gives one body different userdata)
+        for _, j in ipairs(joints) do if rawequal(j[4], m.hinge) then return (tostring(j[1]) == tostring(built.cube.body)) and j[2] or j[1] end end
+      end
+      local across = built.cube.body:getCenterOfMassTransform():getBasis():getColumn(2)   -- (every crank turns about it)
+      local function axisIn(b)
+        local R = b:getCenterOfMassTransform():getBasis()
+        return btVector3(R:getColumn(0):dot(across), R:getColumn(1):dot(across), R:getColumn(2):dot(across))
+      end
+      for i, m in ipairs(w.motors) do
+        if i >= 3 then
+          m.free = true; m.hinge:enableAngularMotor(false, 0, 0)
+          if PAIR_MOTOR ~= "free" then   -- (the free crank geared 1:1 to its pair's driven one: they turn together)
+            local a, b = crankOf(w.motors[5 - i]), crankOf(m)
+            opts.addConstraint(btGearConstraint(a, b, axisIn(a), axisIn(b), -1))
+          end
+        else m.impulse = 2 * m.impulse; m.hinge:enableAngularMotor(true, m.speed, m.impulse) end
+      end
     end
   end
   if SOLVER_ITERATIONS or spec.solverIterations then
@@ -2370,7 +2398,7 @@ local function jointFriction(w)
       f.con:setLinearMotor(0, true, 0, mu * mag)
     elseif f.motor then
       f.motor.friction = mu * r * mag * FIXED
-      if not LOCK_CRANKS then f.motor.hinge:enableAngularMotor(true, f.motor.speed, math.max(0, f.motor.impulse - f.motor.friction)) end
+      if not LOCK_CRANKS and not f.motor.free then f.motor.hinge:enableAngularMotor(true, f.motor.speed, math.max(0, f.motor.impulse - f.motor.friction)) end
     else
       f.con:enableAngularMotor(true, 0, mu * r * mag * FIXED)
     end
@@ -2386,12 +2414,12 @@ local function lockCranks(w)
     local d = a - m.last
     if d > math.pi then d = d - 2 * math.pi elseif d < -math.pi then d = d + 2 * math.pi end
     m.turned, m.last = m.turned + d * m.sign, a
-    sum = sum + m.turned - m.offset
+    if m.free then n = n - 1 else sum = sum + m.turned - m.offset end   -- (PAIR_MOTOR: only the driven cranks)
   end
   for _, m in ipairs(w.motors) do
     local mean = sum / n
     local nudge = math.max(-LOCK_MAX, math.min(LOCK_MAX, LOCK_GAIN * (mean + m.offset - m.turned)))
-    m.hinge:enableAngularMotor(true, m.speed + m.sign * nudge, math.max(0, m.impulse - (m.friction or 0)))
+    if not m.free then m.hinge:enableAngularMotor(true, m.speed + m.sign * nudge, math.max(0, m.impulse - (m.friction or 0))) end
   end
 end
 
