@@ -258,6 +258,15 @@ there, in `release/`, or on the path; or set `BPP`.
   of 6 from a bounce of 0.3 to 0.55). If a result depends on a parameter
   that should only change its spread, look for an asymmetry; test by
   mirroring (`GB_LOG=3` shows how the balls leave the neck).
+- **Fair is not independent** (the Galton board, `FINDINGS.md` section 6):
+  each pin split the balls 50/50, yet the bins came out wider than the
+  binomial. William guessed why: a ball leaving a pin carries a bias to the
+  next. Recording each ball's path (`GB_PATHS`, `paths.py`) measured it: the
+  same way again two times in three, the first pair 98%. A deader ball
+  remembered more (damping would have been the wrong fix), and taller rows
+  forgot but let balls jump pins; no setting tried beat the equilateral
+  lattice. When a count is wrong but every single step looks fair, measure
+  the correlations between steps.
 - **A full container looks like a jam:** balls left at the slide's level
   were sitting on a heaped, full drawer, and knocking did nothing. Size a
   container for a heap, not for flat packing.
@@ -290,7 +299,13 @@ there, in `release/`, or on the path; or set `BPP`.
   a bounce of 0.7 the spread passes the tour's 2.6. The bounce (0.4, ball on
   board) is a guess (no figure for steel on printed PLA was found); FINDINGS
   says how to measure it. Keep the crank to 0.75 turns a second: faster, two
-  balls meet over the neck and jam. Printed in three tiles under 200 mm,
+  balls meet over the neck and jam. Why wider than fair coins (2026-11-13,
+  a third patch): each pin is fair but remembers the last (the same way again
+  two times in three; FINDINGS section 6, with the bounce, friction and
+  row-spacing sweeps); the board was left as it is, the instrument kept
+  (`GB_PATHS`, `paths.py`, and `GB_GEO="V=..."` for the rows). Left to
+  try: feeding the first pin a little off-centre, since the first pair
+  goes together 98% of the time. Printed in three tiles under 200 mm,
   two gears, a stand, an acrylic front sheet; every STL checked watertight,
   and no two parts overlap at rest. `tools/check-all.sh` (twelve runs, the
   Galton board's two included) all passed on the revised board.

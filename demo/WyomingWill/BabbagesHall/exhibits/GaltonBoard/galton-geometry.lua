@@ -40,7 +40,7 @@ local function build(o)
   -- in the bins is the binomial's at 12 mm; narrower at 11, far wider at 13
   -- (FINDINGS).
   G.S = o.S or 12.0
-  G.V = G.S * sqrt(3) / 2                 -- the rows' spacing (an equilateral lattice)
+  G.V = o.V or G.S * sqrt(3) / 2          -- the rows' spacing (an equilateral lattice)
   G.ROWS = o.ROWS or 14                   -- the lattice's rows, counted from its apex
   G.TOP = 2                               -- the first row printed: three pins, the middle one under the wheel
   G.DIV_T = 1.6                           -- a bin's divider

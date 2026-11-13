@@ -28,10 +28,14 @@ root of 12 over 2, 1.73. With more rows the binomial becomes the normal
 curve. A gold line engraved in each bin marks where its share of 150 balls
 would come to.
 
-Real balls are not fair coins: they bounce, and now and then one jumps a
-pin. Here the bins come out a little wider than fair coins' (a spread of
-about 1.9, wider still if the balls bounce more), and the mean bin within
-about 0.3 of 6. See `FINDINGS.md`.
+Real balls are not fair coins. Each pin here is fair (a ball goes right
+about half the time), but the pins are not independent: a ball leaves a
+pin still moving sideways and meets the next one off-centre on the same
+side, so it goes the same way again two times in three. Now and then one
+jumps a pin. The bins come out a little wider than fair coins' (a spread of
+about 1.9 to 2.0, against 1.73), with the mean bin within about 0.3 of 6.
+A deader ball remembers more, and taller rows let it jump more; no setting
+tried does much better than this board. See `FINDINGS.md`, section 6.
 
 ## The board
 
@@ -103,8 +107,10 @@ tour, 2), `GB_BALLS`, `GB_CRANK`, `GB_BOUNCE`, `GB_FRICTION`, `GB_ITER`
 (solver passes, 20), `GB_LOG=1` (a line every 5 seconds; `=2` also where
 the fastest ball is; `=3` also how the balls leave the funnel and go at the
 first pin), `GB_REST=0` (never rest), `GB_HAND=0` (no hand), `GB_GEO`
-(sizes to try, as `GB_GEO="S=13 PIN_D=3"`: they are not written to the
-printed parts).
+(sizes to try, as `GB_GEO="S=13 PIN_D=3"` or `"V=11.95"` for the rows'
+spacing: they are not written to the printed parts), `GB_PATHS=<file>`
+(each ball's path through the pins, appended at the end of each run, for
+`python3 paths.py <file>`, which measures how independent the pins are).
 
 Once the operator is done and nothing moves, it rests: it stops stepping
 until the next key, which saves the processor and changes nothing it

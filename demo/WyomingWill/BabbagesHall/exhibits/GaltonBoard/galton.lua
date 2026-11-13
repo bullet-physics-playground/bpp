@@ -39,7 +39,8 @@
 -- galton-geometry.lua).
 -- Headless: GB_TOUR=0 (no tour), GB_BALLS (how many), GB_CRANK (turns a
 -- second), GB_BOUNCE, GB_FRICTION, GB_LOG=1 (a line every 5 s), GB_REST=0
--- (never rest), GB_HAND=0 (no hand drawn).
+-- (never rest), GB_HAND=0 (no hand drawn), GB_PATHS=<file> (each ball's
+-- path through the pins, for paths.py: FINDINGS section 6).
 --
 
 local common = require "common"
@@ -479,6 +480,45 @@ local function census()
   c.sd = n > 1 and math.sqrt(math.max(0, s2 / n - (s1 / n) ^ 2)) or nil
   return c
 end
+-- GB_PATHS=<file>: each ball's path through the pins, for testing whether
+-- its choices are independent. At the level halfway below each row, the gap
+-- it passes, in half-pitches from the middle (u = 2 x / S), at its first
+-- downward crossing; written out at the end of each run, a line a ball
+local PATHS = os.getenv("GB_PATHS")
+local paths = {}
+local levels = {}
+for r = G.TOP, G.ROWS - 1 do levels[#levels + 1] = -(r - G.TOP) * G.V - G.V / 2 end
+local function trackPaths()
+  for i, b in ipairs(balls) do
+    local p = b.body:getCenterOfMassPosition()
+    local x, y = (p.x - BASE.x) / MM, (p.y - BASE.y) / MM
+    local rec = paths[i]
+    if not rec then rec = { n = 0, u = {} }; paths[i] = rec end
+    if rec.py and rec.n < #levels then
+      local L = levels[rec.n + 1]
+      if rec.py >= L and y < L then
+        local t = (rec.py - L) / (rec.py - y)
+        rec.n = rec.n + 1
+        rec.u[rec.n] = 2 * (rec.px + (x - rec.px) * t) / G.S
+      end
+    end
+    if y > G.CHUTE_Y + G.NECK_L + 5 then rec.n = 0; rec.u = {} end      -- (back above the pins: a new path)
+    rec.px, rec.py = x, y
+  end
+end
+local function writePaths()
+  local f = io.open(PATHS, "a")
+  if not f then return end
+  for i = 1, #balls do
+    local rec = paths[i]
+    if rec and rec.n == #levels then
+      local t = {}
+      for k = 1, rec.n do t[k] = string.format("%.2f", rec.u[k]) end
+      f:write(table.concat(t, " "), "\n")
+    end
+  end
+  f:close()
+end
 local FAIR_MEAN, FAIR_SD = G.DECISIONS / 2, math.sqrt(G.DECISIONS) / 2
 
 -- ---------------------------------------------------------------------
@@ -664,6 +704,7 @@ local function endOfRun(c)
   say(string.format("  %d of %d balls in the bins; mean bin %.2f (fair: %.2f), spread %.2f (fair: %.2f); %d backs of the crank; %.1f s",
                     c.bins, NBALLS, c.mean or 0, FAIR_MEAN, c.sd or 0, FAIR_SD, backs, modeT))
   say(ok and "    as expected" or "    NOT AS EXPECTED")
+  if PATHS then writePaths() end
   if chuteLog.n > 0 then
     say(string.format("  leaving the chute: %d balls, mean x %.2f mm, mean vx %.2f cm/s; past the middle pin: %d of %d to the left",
                       chuteLog.n, chuteLog.x / chuteLog.n, chuteLog.vx / chuteLog.n, chuteLog.left, chuteLog.m or 0))
@@ -870,6 +911,7 @@ v:preSim(function(N)
   for k = 1, NSTEPS do
     crankMotor()
     v:stepSimulation(STEP, 0, STEP)
+    if PATHS then trackPaths() end
   end
 end)
 v:postSim(function(N)

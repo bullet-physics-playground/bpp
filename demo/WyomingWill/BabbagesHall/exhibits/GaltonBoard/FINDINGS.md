@@ -32,7 +32,8 @@ Dropping the balls one at a time, 4 mm above the first pin (a random 2 to
 
 At 11 mm the balls zigzag (alternate bins are favoured: each choice undoes
 the last a little), at 13 mm they jump pins. 12 mm gives the binomial's own
-spread, and is the board's.
+spread, and is the board's. (That is for single balls dropped gently. Fed
+by the wheels, the same lattice gives about 1.95: section 6.)
 
 ## 2. The side walls
 
@@ -193,8 +194,101 @@ a ball from 100 mm onto a printed tile lying on a hard table, and see how
 high it comes back (a phone filming against a ruler); the bounce is the
 square root of that height over 100 mm. With the pair, the bounce no longer
 decides which way the board leans; it decides how wide the bins spread.
+Section 6 says why.
 
-## 6. Settling, and resting
+## 6. The pins are fair, but not independent
+
+Six runs at the usual settings, pooled (900 balls): mean 5.97, spread 1.95
+(1.73 for fair coins; its own uncertainty about 0.05). Against the
+binomial, pooling the outer three bins at each end, chi-square is 44.6 on 8
+degrees of freedom, where 20 would already be one in a hundred: not chance.
+The tails hold 56 balls against 34.7, and the even bins are favoured (the
+middle bin 222 against 203, bins 5 and 7 below their share).
+
+Recording each ball's path (`GB_PATHS`, with `paths.py`): at the level
+halfway below each row, which gap it passed. Four runs, 600 balls, 7,200
+decisions, the usual settings:
+
+| | measured | fair coins |
+|---|---|---|
+| P(right), row by row | 0.48 to 0.54 | 0.5 |
+| P(the same way as at the last pin) | 0.661 (+-0.006) | 0.5 |
+| the same, first pair alone | 0.98 | 0.5 |
+| the same, from the third row on | 0.63 | 0.5 |
+| correlation, decisions 1, 2, 3 rows apart | +0.34, -0.21, -0.10 | 0 |
+| jumped pins | 0.6% | 0 |
+
+Each pin is fair; the pins are not independent. A ball leaves a pin still
+moving sideways and meets the next one off-centre on the same side. At the
+top it is nearly certain: a ball comes out of the neck straight down, the
+first pin throws it hard to one side and the second sends it on the same
+way. Two rows apart the sign turns: after twice the same way a ball is a
+little likelier to turn back, which partly cancels the persistence. The
+spread of the paths, built up from its parts (the variances add):
+
+| | spread |
+|---|---|
+| each decision alone (fair, but with the jumps) | 1.77 |
+| + the first pair going together | 1.91 |
+| + the neighbouring pins further down | 2.28 |
+| + pins two and three rows apart (negative) | 2.04 |
+
+So of the excess over fair coins, about a seventh is the jumps, about four
+tenths the first pair, and the rest the memory further down, net of its
+turning back. (The paths' bins are the logged bins, ball for ball; these
+four runs came out a little wider than the six above.)
+
+What takes the memory away? Each setting four runs, 600 balls (450 where
+marked), the same instrument; V is the rows' spacing, 10.39 mm (S sin 60)
+on the board:
+
+| setting | P(same) | corr. 1, 2 rows | jumps | spread |
+|---|---|---|---|---|
+| bounce 0.1 (450) | 0.91 | +0.83, +0.63 | 0.1% | 4.21 |
+| bounce 0.2 | 0.81 | +0.63, +0.22 | 0.1% | 2.87 |
+| bounce 0.3 | 0.70 | +0.41, -0.15 | 0.0% | 2.14 |
+| **usual (bounce 0.4)** | 0.66 | +0.34, -0.21 | 0.6% | 2.04 |
+| bounce 0.55 | 0.68 | +0.41, +0.01 | 1.8% | 2.55 |
+| friction 0.15 | 0.66 | +0.33, -0.15 | 0.5% | 2.10 |
+| friction 0.45 | 0.64 | +0.30, -0.22 | 0.8% | 2.01 |
+| friction 0.7 | 0.63 | +0.29, -0.23 | 0.8% | 1.86 |
+| bounce 0.1, friction 0.7 | 0.84 | +0.69, +0.34 | 0.0% | 3.05 |
+| V 8.3 (rows flatter) | | | | balls perch in the pins; no run finished |
+| V 9.35 | 0.84 | +0.69, +0.37 | 0.5% | 3.24 |
+| V 11.2 | 0.56 | +0.19, -0.14 | 3.1% | 2.13 |
+| V 11.95 | 0.51 | +0.15, -0.05 | 6.3% | 2.64 |
+| V 11.95, pins 5 mm | 0.42 | 0.00, -0.03 | 9.3% | 2.60 |
+| V 11.95, bounce 0.25 | 0.68 | +0.37, -0.23 | 0.1% | 1.96 |
+| V 11.2, bounce 0.25 (450) | 0.70 | +0.41, -0.17 | 0.2% | 2.06 |
+| V 11.95, bounce 0.15 (450) | 0.83 | +0.66, +0.29 | 0.3% | 3.25 |
+
+- **A deader ball remembers more, not less.** Damping the pins (silicone
+  sleeves, say) would make it worse. A ball that barely bounces rolls round
+  a pin, leaves it moving sideways, and lands on the next pin's same
+  side: at 0.1 it runs down a diagonal nine times in ten. K. Judd found
+  the same in a model of Galton's quincunx ("Galton's quincunx: random
+  walk or chaos?", 2006): at some restitutions every shot settles into
+  moving steadily left or right, and even where the fraction looks fair the
+  transitions are correlated.
+- **Taller rows forget, but jump.** With more fall between rows the ball
+  meets the next pin with less of its sideways speed, and the memory nearly
+  goes (at 11.95 mm with 5 mm pins the correlation is nil). But a bounce now
+  has room to carry a ball past the next pin: one decision in eleven a
+  jump, and the spread is as wide as ever. Flatter rows are worse both
+  ways, and at 8.3 mm balls perch.
+- **Every way of losing the memory buys jumps.** A deader ball in taller
+  rows comes back to where the board is (1.96). Only more friction helped
+  a little on its own (1.86 at 0.7, a high figure for steel on PLA).
+
+So the board as built, with its equilateral lattice (Galton's, apparently)
+and a bounce of 0.4, is already at about the narrowest spread these knobs
+give. The part that is not the lattice's is the first pair: a ball that
+reached the first pin moving a little sideways, rather than straight down
+out of the neck, might not repeat 98% of the time. That is left to try.
+The bounce of real balls on printed pins matters here more than anywhere
+(section 5 says how to measure it).
+
+## 7. Settling, and resting
 
 The balls low in a tall stack (36 balls in the middle bin) jitter at 5 or 6
 cm/s at 20 solver passes: the solver's, not a movement (60 passes bring it
@@ -203,13 +297,13 @@ under 8 cm/s; the run is over when the hopper is empty, nothing is on its
 way and everything has been still for half a second. The exhibit then
 rests (stops stepping) until the next key.
 
-## 7. How fast it runs
+## 8. How fast it runs
 
 While the balls are running, about 2.5 s of computing a simulated second
 here (headless, on one core); the tour, two runs of 28 s with the emptying
 and pouring between, about four minutes. At rest, nothing.
 
-## 8. The printed parts
+## 9. The printed parts
 
 - Three tiles, each under 200 mm (166 x 171, 196 and 199 mm), joined by
   splices glued across the back.
