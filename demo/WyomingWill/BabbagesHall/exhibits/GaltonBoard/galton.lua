@@ -87,6 +87,7 @@ local HAND_SCAD = fullPath(DIR .. "parts/hand.scad")
 
 -- geometry.scad: the sizes, for OpenSCAD (written from the geometry when it
 -- has changed; make-stls.sh uses it too)
+local GEO_TEXT
 do
   local L = { "// made by galton.lua from galton-geometry.lua: do not edit (millimetres)" }
   local keys = {}
@@ -134,6 +135,11 @@ do
     f = io.open(path, "w")
     if f then f:write(text); f:close() end
   end
+  -- (a board that doesn't write its sizes file, as the splitter board's
+  -- other walls, hands its sizes to OpenSCAD in each part's text, after the
+  -- include: the last assignment wins, so what is drawn is its own walls,
+  -- not the default's. Before, its drawing was the default board's)
+  if BOARD.noWrite and old ~= text then GEO_TEXT = text:gsub("^[^\n]*\n", "") end
 end
 
 -- (bpp keeps each OpenSCAD part by the text asked for, not by what the
@@ -160,7 +166,8 @@ end
 local HAND_SUM = checksum({ HAND_SCAD })
 -- (only to see: the contact shapes are the simulation's own, from the same sizes)
 local function part(call, file, sum)
-  local m = OpenSCAD("// " .. (sum or SCAD_SUM) .. "\ninclude <" .. (file or SCAD) .. ">\nscale(0.1) " .. call .. ";\n", 0, false)
+  local m = OpenSCAD("// " .. (sum or SCAD_SUM) .. "\ninclude <" .. (file or SCAD) .. ">\n" .. ((not file and GEO_TEXT) or "") ..
+                     "scale(0.1) " .. call .. ";\n", 0, false)
   m.collides = false
   return m
 end
@@ -583,7 +590,14 @@ do
     drums[name] = d
   end
   label("RUN", 8, 1); digits("run", 70, 1, 2)
-  if G.tubes then     -- (a splitter board: the balls caught, on each side or in the first tube; the survivors)
+  if G.signRows then  -- (a splitter board with reflecting walls: bins against fair coins)
+    for i, row in ipairs(G.signRows) do
+      local e = 0
+      for _, k in ipairs(row[2]) do e = e + G.expected(NBALLS, k) end
+      label(row[1], 8, i + 1, 6); digits("row" .. i, 100, i + 1, 3)
+      label(string.format("FAIR: %.0f", e), 140, i + 1, 5)
+    end
+  elseif G.tubes then     -- (a splitter board: the balls caught, on each side or in the first tube; the survivors)
     local eL, eR, eS = 0, 0, 0
     for n, w in pairs(G.exactLeft) do eL = eL + w end
     for n, w in pairs(G.exactRight) do eR = eR + w end
@@ -662,6 +676,14 @@ local function sides(c)
 end
 local function showStats(c)
   showNumber("run", runNo > 0 and runNo or nil)
+  if G.signRows then
+    for i, row in ipairs(G.signRows) do
+      local n = 0
+      for _, k in ipairs(row[2]) do n = n + (c.counts[k] or 0) end
+      showNumber("row" .. i, n)
+    end
+    return
+  end
   if G.tubes then
     local L, Rt = sides(c)
     local two = G.WALL_L > 0 and G.WALL_R > 0
@@ -798,8 +820,13 @@ local function splitterVerdict(c)
   local crit = CHI1[math.max(1, math.min(#CHI1, df))]
   say("  " .. table.concat(shown, ", "))
   local L, Rt = sides(c)
+  if #G.tubes == 0 then   -- (no walls, or walls that reflect: every ball in the bins)
+    say(string.format("  %d in the bins, of %d; chi-square %.1f on %d degrees of freedom (1%% level %.1f); %d backs of the crank; %.1f s",
+                      c.bins, NBALLS, chi, df, crit, backs, modeT))
+  else
   say(string.format("  caught %d left, %d right, %d survived, of %d; chi-square %.1f on %d degrees of freedom (1%% level %.1f); %d backs of the crank; %.1f s",
                     L, Rt, c.bins, NBALLS, chi, df, crit, backs, modeT))
+  end
   return n == NBALLS and chi < crit
 end
 local function endOfRun(c)

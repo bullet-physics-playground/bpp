@@ -53,6 +53,7 @@ modular wheels asks far more of a visitor than adding does.
 **Changes (2026-11-14):** the list is in walking order (below); the
 splitter board is added (built); the Domino Half Adder is scored 3 for
 interest, not 4 (it does one thing once).
+Later the same day the splitter board got walls that send balls back.
 
 **Changes since the first list:** the Galton board, built, is scored 2 for
 complexity, not 1: feeding the balls in without a jam, and without a lean,
@@ -95,7 +96,7 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 | 23 | 2 | Marble adders (Turing Tumble, Wandel's) | modern | marbles flip levers to add binary numbers | contact and gravity; very like the Digi-Comp II | 4 | 2 |  |
 | 24 | 2 | Dr. Nim | 1965 | a marble machine that plays Nim, and wins | a few flip-flops and marbles: a little cousin of the Digi-Comp II | 4 | 2 |  |
 | 25 | 3 | Galton board | 1873 | balls falling through pins pile up into the normal curve | built: 150 steel balls, twelve rows of printed pins, thirteen bins; the balls metered in one at a time by two mirror-image slotted wheels (a neck jams in two dimensions, or floods the pins; one wheel made the board lean its way); first scored 1 for complexity, it took more than balls and pins | 4 | 2 | built |
-| 26 | 3 | Splitter board | 2026 | a Galton board whose pins are made independent coins (a neck over every pin), with walls that swallow balls: first passage, the reflection principle, gambler's ruin, exactly | built: the Galton board's machine, twelve rows of splitters (a steel pin carrying a printed tooth), exit blocks, ramps and a tube for each row a ball can be caught at; the teeth come in sets matched to the balls' bounce (SPLITTERS.md) | 4 | 3 | built |
+| 26 | 3 | Splitter board | 2026 | a Galton board whose pins are made independent coins (a neck over every pin), with walls that swallow balls (first passage, the reflection principle, gambler's ruin) or send them back (the pile folds, or goes flat), exactly | built: the Galton board's machine, twelve rows of splitters (a steel pin carrying a printed tooth), exit blocks, ramps and a tube for each row a ball can be caught at, or half teeth for walls that send balls back; the teeth come in sets matched to the balls' bounce (SPLITTERS.md) | 4 | 3 | built |
 | 27 | 3 | Jacquard's card reader | 1804 | punched cards choose which hooks lift: the first stored program | needles, cards and hooks; a reader for a programmable exhibit | 3 | 3 |  |
 | 28 | 3 | Automatic Totalisator | 1913 | racetrack betting: a great shaft adder of differentials counts tickets and sets the odds | differentials (built) chained; the first real-time computer, the Science Museum says | 4 | 3 |  |
 | 29 | 3 | Lehmer's number sieve | 1926 / 1932 | factors numbers: loops of different lengths (bicycle chains, later toothed wheels) turn until gaps line up, and a ball or pin drops through to stop it | built: four Geneva-driven wheels of 9, 8, 7 and 5 places with pegged holes, and a cam-lifted probe; factors by Fermat's way | 4 | 3 | built |

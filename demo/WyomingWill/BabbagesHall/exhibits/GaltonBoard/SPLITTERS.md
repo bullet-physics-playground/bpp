@@ -276,6 +276,97 @@ quarters: about 37, 75 and 112 of 150 balls). So a gambler's-ruin board
 would have its walls 4 places (two pitches) apart, with the feed, or the
 walls, moved between runs.
 
+## Reflecting walls: the pile folds, or goes flat
+
+A wall that sends a ball back instead of swallowing it. In the
+mathematics, a ball at the wall's place goes back inward for certain. On a
+board the pins sit at alternate places in alternate rows, so the wall
+zigzags. In the rows where a ball can stand at the wall's place, the tooth
+there is a **half tooth**: only its inner slope, into the inner neck. In
+the rows between, the outer tooth stays whole, its inner side being the
+outer wall of the neck beside the wall. (The Galton board's half pins are
+the same idea.)
+
+**What the mathematics says.** With one reflecting wall, the outermost
+place a ball can reach being -a, a ball's place is the free walk's folded
+over at the wall: -a + |S + a|. So every place u past the wall has the free
+binomial's chance plus that of its mirror image -2a - u, and the wall's
+own place only its own. With the wall at an odd place and the last row
+even, the wall stands on a divider and **every bin holds its binomial
+count plus its mirror image's**. That is the reflection principle the
+other way round: a swallowing wall leaves the survivors the binomial
+*minus* the mirror image. For 150 balls and a wall at 3: 47, 42, 31, 19, 8,
+2 from the wall outward. With two walls the images repeat, and the pile
+**goes flat**: with both walls at odd places, the even places all end
+equal. How soon goes as the width squared:
+
+| walls (12 rows, 150 balls) | after 6 rows | after 12 rows |
+|---|---|---|
+| ±3 (three bins) | 49.2, 51.6, 49.2 | 50.0, 50.0, 50.0 |
+| ±5 (five bins) | 16, 35, 47, 35, 16 | 26, 31.5, 35, 31.5, 26 |
+| ±7 (seven bins) | 2, 14, 35, 47, 35, 14, 2 | 10.5, 19, 29, 34, 29, 19, 10.5 |
+
+Walls 4 places apart (±2) end at 37.5, 75, 37.5: with the walls at the
+bins' parity, the bins at the walls get half as many.
+
+**The half tooth must keep its pin.** `splitter-test.lua` takes
+`SP_REFL_L` and `SP_REFL_R` (the wall's place), and `walls.py` takes a
+wall written `3r` as reflecting: it checks every path keeps to the walls
+and is sent back at them, compares the pile with the exact counts, and
+measures what balls do at the splitter just after the wall (on inward or
+back to the wall: it should be half and half, as anywhere else). The first
+half tooth was the tooth's inner slope run on up to the neck's foot above
+(`SP_REFL_PIN=0`): a ball dropped onto the slope instead of a pin. It went
+back to the wall nearly three times in four, and the walls hoarded balls.
+How a ball meets the part decides, again. On a splitter it lands on the
+pin's round top, bounces up and rolls off; on a 60-degree slope it keeps
+most of its fall as speed down the slope, comes to the next neck fast, and
+crosses it once more. So the half tooth keeps its steel pin, set
+`SP_REFL_D` mm outward of the place, and the outer neck's wall runs on down
+to the pin, so a ball can only land on the pin's inner shoulder and roll
+off it inward, as a ball does that goes inward off a splitter. (The wall
+on that side also keeps the ball from being cradled between pin and wall.)
+Twelve rows, bounce 0.4, 10 mm teeth, 2,000 balls each:
+
+| half tooth | after the wall, on inward (fair 0.5, +-0.015) | one wall at 3: chi-square (6 df; 1% level 16.8) | two walls at ±3: bins (exact 659 each), chi-square (2 df; 9.2) |
+|---|---|---|---|
+| the slope run up, no pin | 0.28 | 23.4 | 707, 511, 759: 52.1 |
+| pin 1.0 mm out | 0.45 | 1.7 | 1.2 |
+| **pin 2.5 mm out** | **0.49** (two walls: 0.50, 0.47) | **3.3** | **676, 636, 665: 1.3** |
+| pin 4.0 mm out | 0.47 | 5.3 | 2.8 |
+
+Between 1 and 4 mm the pin's place hardly matters (0.44 to 0.50 in all the
+runs); 2.5 mm is the board's. Walls at ±5: 0.42 and 0.47 on inward, bins
+337, 409, 447, 433, 351 against 345, 415, 458, 415, 345 (chi-square 1.4).
+No path broke the rules in any run.
+
+With the other sets of teeth, at their bounces (pin 2.5 mm out):
+
+| bounce, teeth | after the wall, on inward | one wall at 3 | two walls at ±3 |
+|---|---|---|---|
+| 0.3, 20 mm | 0.55 (two walls: 0.55, 0.54) | 60.9: fails, the teeth's fault (below) | 0.4 |
+| 0.4, 10 mm | 0.49 | 3.3 | 1.3 |
+| 0.5, 12 mm | 0.50 (0.50, 0.52) | 3.7 | 5.4 |
+| 0.6, 10 mm | 0.52 (0.51, 0.48) | 9.2 | 1.6 |
+
+The half tooth's lean is within 0.06 of fair at every bounce, about what
+the tuned splitters themselves leave. At 0.3 the one-wall pile failed by
+its far tail (places 8 to 12, out of the wall's reach: 80 balls against
+38), and the free board fails the same way: **the 20 mm teeth at a bounce
+of 0.3 are not independent over twelve rows.** Their memory grows down the
+board (-0.09 at the first rows to +0.13 at rows 9 to 11), and two and three
+rows apart the correlations are +0.08 and +0.05; the spread comes out 1.97
+against 1.73, chi-square 114 on 10. The table above measured 8 rows. That
+set wants tuning again over twelve rows before a board at 0.3 is trusted;
+not done.
+
+**A wall's tooth is the neck's wall too.** The first runs left out the
+tooth at the wall's place in the rows above where any ball can reach it
+(row 1, for a wall at 3). That took away the outer wall of the neck beside
+it, and every ball that came to place -2 after the second row went on to
+the wall (425 of 425). The tooth is whole there now. (HANDOFF section 5:
+taking parts away finds hidden jobs.)
+
 ## The exhibit
 
 `splitter-board.lua` builds the whole board on the Galton board's machine
@@ -292,6 +383,10 @@ exact counts:
 | gambler's ruin, start 1 | 37 out right (37.5) | 5.6 (18.5) |
 | gambler's ruin, start 2 | 70 out right, 76 left (73, 73) | 8.1 (20.1) |
 | gambler's ruin, start 3 | 112 out right (112.5) | 11.9 (18.5) |
+| reflecting, one wall at 3, four runs | by the wall 44, 46, 58, 50 (47) | 2.7, 2.9, 7.5, 8.6 (13.3) |
+| reflecting, one wall at 2, two runs | by the wall 25, 25 (29) | 1.8, 3.3 (13.3) |
+| reflecting, two walls at ±3, four runs | 52, 43, 55; 55, 45, 50; 52, 48, 50; 46, 47, 57 (50 each) | 1.6, 1.0, 0.2, 1.5 (9.2) |
+| reflecting, two walls at ±5, six runs | 17, 41, 32, 35, 25; 20, 43, 40, 27, 20; 30, 39, 27, 31, 23; 33, 34, 29, 25, 29; 23, 33, 31, 38, 25; 19, 26, 43, 33, 29 (26, 31, 35, 31, 26) | 6.8, 8.6, 4.5, 4.5, 2.3, 5.3 (13.3) |
 
 Two things the whole board needed that the test bed did not. A ball
 coming off a ramp meets its tube's outer wall and bounces back: with the
@@ -301,6 +396,26 @@ tube's inner wall now rises to just under its own ramp's end. And with a
 wall an odd number of places from the start, the bins' dividers have to
 stand at the odd places, not counted from the wall (they stood in the
 middle of the bins, and balls came to rest on them).
+
+The reflecting walls (`SB_WALLS=reflect`, one wall; `flat`, two; `SB_REFL`
+their place, 3 by default) are the test bed's half teeth on the board: the
+half tooth is printed with its set of teeth, on its steel pin, and the
+wall beside it is the board's. With no tubes, the sign counts bins: by the
+wall, the next and the rest, or the left, middle and right bins. With the
+walls at ±5 the bin at -2 came high in the first three runs (123 against
+93, about three standard deviations) while its mirror bin at +2 was right,
+yet the test bed at ±5 was clean. Six runs (the first three the same again,
+the board being deterministic) settled it: 34, 33 and 26 in the next three
+(31 fair), and over all six 142, 216, 202, 189, 151 against 157, 189, 208,
+189, 157, chi-square 5.8 on 4. Chance.
+
+Making these, it turned out that the walls other than the default (`ruin`,
+`none`) had always been *drawn* as the default board: only the default
+writes `parts/splitter-geometry.scad`, and the others' contact shapes were
+their own but their drawing was not. Now a board that doesn't write the
+file hands its sizes to OpenSCAD in each part's own text, after the
+include (the last assignment wins). The default board's part text is
+unchanged to the byte, so its runs are too.
 
 ## What it means
 
@@ -317,3 +432,10 @@ middle of the bins, and balls came to rest on them).
   twelve rows in 0.45 m.
 - Nothing jammed in the plain necks (over 70,000 balls in all), though
   the balls came one at a time; a full feed is still to try.
+- A wall can send balls back as exactly as it can swallow them, with a
+  half tooth that keeps its pin: one wall folds the binomial onto itself,
+  two make the pile go flat. Without the pin a ball lands on a slope, not
+  a pin, and the wall hoards balls.
+- The 20 mm teeth, for a bounce of 0.3, fail over twelve rows (their
+  memory grows down the board): measure every set over the board's whole
+  height, not eight rows.

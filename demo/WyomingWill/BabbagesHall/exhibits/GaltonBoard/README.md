@@ -195,8 +195,8 @@ See `FINDINGS.md` for how the sizes were arrived at.
 ## The splitter board
 
 A second board on the same machine (`splitter-board.lua`), built so that
-its pins are independent fair coins, and with walls that swallow balls,
-to show the mathematics of fair coins exactly where the Galton board shows
+its pins are independent fair coins, and with walls that swallow balls or
+send them back, to show the mathematics of fair coins exactly where the Galton board shows
 it roughly. The hopper, the mirror-image wheels, the crank, the slide and
 drawer, the hand and the sign are the Galton board's, and `galton.lua`
 runs it; what is its own is in `splitter-geometry.lua` and
@@ -223,15 +223,34 @@ The walls (`SB_WALLS`):
   places from the left one (1, 2 or 3): gambler's ruin. A quarter, a half
   or three quarters of the balls go out on the right.
 - `none`: no walls, the binomial exactly.
+- `reflect`: a wall that sends balls back, the outermost place a ball can
+  reach `SB_REFL` places left of the start (3 by default). Where a ball
+  can stand at that place the tooth is a half tooth: its steel pin, set
+  2.5 mm outward, and only the inner slope, so the ball always rolls back
+  inward; beside it the board's wall. Each bin holds its binomial count
+  plus its mirror image's in the wall: for 150 balls 47, 42, 31, 19, 8, 2
+  from the wall out (the reflection principle the other way round from
+  `first`'s, which takes the mirror image away).
+- `flat`: two such walls, `SB_REFL` places either side. The pile goes
+  flat: 50, 50, 50 with the walls at 3. With `SB_REFL=5`, five bins, not
+  yet flat after twelve rows (26, 31.5, 35, 31.5, 26), as the mathematics
+  has it: the rows it takes grow as the width squared.
+
+The half teeth are printed with their set of teeth (they are tuned with
+it); `SPLITTERS.md`, "Reflecting walls", has why the half tooth keeps its
+pin (without it the walls hoarded balls).
 
 The sign counts the balls caught (or out on the left), those in the first
-tube (or out on the right), and the survivors, each against fair coins.
+tube (or out on the right), and the survivors, each against fair coins;
+with reflecting walls, the bins by the wall, next and the rest (or the
+left, middle and right bins).
 The tour judges each run by a chi-square of the tubes and bins against
 the exact counts (cells under 5 pooled), at the 1% level.
 
     bpp -f splitter-board.lua                       # first passage
     SB_WALLS=ruin SB_START=1 bpp -f splitter-board.lua
+    SB_WALLS=flat bpp -f splitter-board.lua         # the pile goes flat
     GB_TOUR=1 GB_RUNS=3 bpp -f splitter-board.lua -n 10500
 
-The board is 400 by 788 mm. Its printed parts and the hall's bay for it
-are still to come.
+The board is 400 by 788 mm. It stands in the hall's east bay 3, facing
+the Galton board; its printed parts are still to come.

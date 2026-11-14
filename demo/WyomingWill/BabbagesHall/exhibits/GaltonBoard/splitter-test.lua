@@ -21,9 +21,9 @@
 -- gap) and contacts (bounce 0.4, friction 0.3) as the Galton board. All
 -- can be set from the environment (SP_<NAME>); also mixing chambers
 -- (SP_CHAMBERS) and leaning necks (SP_SHEAR, SP_LAND, SP_ALT), both tried
--- and set aside, fixed-height teeth (SP_TOTAL), and swallowing walls
--- (SP_WALL_L, SP_WALL_R, SP_CAUGHT; walls.py compares them with the exact
--- formulas): SPLITTERS.md.
+-- and set aside, fixed-height teeth (SP_TOTAL), swallowing walls
+-- (SP_WALL_L, SP_WALL_R, SP_CAUGHT) and reflecting walls (SP_REFL_L,
+-- SP_REFL_R); walls.py compares both with the exact counts: SPLITTERS.md.
 --
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local MM = 0.1
@@ -124,14 +124,62 @@ local function hull(pts, x, y)
   h:recalcLocalAabb()
   add(h, x, y, zc)
 end
-local nTeeth = 0
+-- reflecting walls (SP_REFL_L, SP_REFL_R: the places, from the start, of
+-- the outermost place a ball can reach; 0 for none). A ball at that place
+-- is sent back: in place of the tooth there is a half tooth, a solid whose
+-- top is the tooth's inner slope run on up to the neck's foot above, so a
+-- ball dropping out of the neck lands on it and rolls inward. Beyond it
+-- there are no teeth but the next one out, whose inner side is the neck's
+-- outer wall: the wall zigzags. SPLITTERS.md, "Reflecting walls".
+P.REFL_L, P.REFL_R = envnum("SP_REFL_L", 0), envnum("SP_REFL_R", 0)
+assert((P.REFL_L == 0 and P.REFL_R == 0) or (P.CHAMBERS == 0 and P.SHEAR == 0),
+  "splitter-test: reflecting walls are for plain teeth")
+-- SP_REFL_PIN=0: the plain half tooth, its slope run on up (a ball lands
+-- on the slope, not a pin, leaves it fast and turns back to the wall two
+-- times in three). SP_REFL_PIN=1 (the default): the half tooth keeps its
+-- pin, set SP_REFL_D mm outward, and the neck's outer wall runs on down
+-- to it, so a ball always lands on the pin's inner shoulder and rolls off
+-- it as a ball going inward off a splitter does.
+P.REFL_PIN = envnum("SP_REFL_PIN", 1)
+P.REFL_D = envnum("SP_REFL_D", 2.5)
+local function reflector(x, y, s)               -- s = -1 a left wall (sends right), +1 a right one
+  local pieces
+  if P.REFL_PIN == 0 then
+    local k = H / HW
+    local xs = HW - (H + P.FOOT) / k             -- where the slope meets the neck's foot above
+    local xl = math.min(-HW, xs - 1)
+    pieces = { { { xl, P.FOOT }, { xs, P.FOOT }, { HW, -H }, { HW, -H - NECKS }, { xl, -H - NECKS } } }
+  else
+    local d, wx = P.REFL_D, -P.NECK_W / 2         -- the pin's offset; the neck's outer wall
+    local k = H / (HW + d)
+    pieces = {
+      { { -HW, P.FOOT }, { wx, P.FOOT }, { wx, -H - NECKS }, { -HW, -H - NECKS } },
+      { { -d, 0 }, { HW, -H }, { HW, -H - NECKS }, { wx, -H - NECKS }, { wx, (wx + d) * -k } } }
+  end
+  for _, q in ipairs(pieces) do
+    if s > 0 then for _, p in ipairs(q) do p[1] = -p[1] end end
+    hull(q, x, y)
+  end
+  if P.REFL_PIN ~= 0 then
+    add(btCylinderShapeZ(btVector3(P.PIN_D / 2 * MM, P.PIN_D / 2 * MM, P.GAP / 2 * MM)), x + s * P.REFL_D, y, zc)
+  end
+end
+local nTeeth, nRefl = 0, 0
 for r = 0, P.ROWS - 1 do
   local y = rowY(r)
   for j = -P.ROWS, P.ROWS do
     local x0 = (j + (r % 2) / 2) * P.S
     local x = x0 + offs[r]
     local sh = lean(r) * TS
-    if math.abs(x0) <= (r / 2 + 1) * P.S then     -- the triangle the balls can reach, and one more each side
+    local u = 2 * j + r % 2                       -- the tooth's place
+    -- (a half tooth only where a ball can reach the wall: above that the
+    -- tooth stays whole, as the outer wall of the neck beside it; left out,
+    -- balls left that neck still moving outward, and all went on to the wall)
+    if ((P.REFL_L > 0 and u == -P.REFL_L) or (P.REFL_R > 0 and u == P.REFL_R)) and math.abs(u) <= r then
+      reflector(x, y, u < 0 and -1 or 1); nRefl = nRefl + 1
+    elseif (P.REFL_L > 0 and u < -P.REFL_L - 1) or (P.REFL_R > 0 and u > P.REFL_R + 1) then
+      -- (beyond the wall: nothing)
+    elseif math.abs(x0) <= (r / 2 + 1) * P.S then -- the triangle the balls can reach, and one more each side
       add(btCylinderShapeZ(btVector3(P.PIN_D / 2 * MM, P.PIN_D / 2 * MM, P.GAP / 2 * MM)), x, y, zc)
       if P.CHAMBERS == 0 and P.SHEAR == 0 and not os.getenv("SP_SLICED") then
         -- one pentagon. (Built from two slices instead, with a seam at the neck's
@@ -274,8 +322,8 @@ local function track(b)
   end
 end
 
-print(string.format("SPLITTER TEST: pitch %.1f, pins %.1f, necks %.1f wide and %.1f long, sides %.0f deg, %d chambers (%.1f wide, %.1f long, post %.1f), lean %.0f deg (%s), landing +%.1f, row to row %.1f mm, %d rows (%d teeth), bounce %.2f, friction %.2f",
-  P.S, P.PIN_D, P.NECK_W, NECKS, P.SLOPE, P.CHAMBERS, P.CHAMBER_W, P.CHAMBER_L, P.POST_D, P.SHEAR, P.ALT == 1 and "alternating" or "all one way", P.LAND, V, P.ROWS, nTeeth, P.BOUNCE, P.FRICTION))
+print(string.format("SPLITTER TEST: pitch %.1f, pins %.1f, necks %.1f wide and %.1f long, sides %.0f deg, %d chambers (%.1f wide, %.1f long, post %.1f), lean %.0f deg (%s), landing +%.1f, row to row %.1f mm, %d rows (%d teeth, %d half teeth), bounce %.2f, friction %.2f",
+  P.S, P.PIN_D, P.NECK_W, NECKS, P.SLOPE, P.CHAMBERS, P.CHAMBER_W, P.CHAMBER_L, P.POST_D, P.SHEAR, P.ALT == 1 and "alternating" or "all one way", P.LAND, V, P.ROWS, nTeeth, nRefl, P.BOUNCE, P.FRICTION))
 local reported = false
 v:preSim(function(N)
   for k = 1, NSTEPS - 1 do v:stepSimulation(STEP, 0, STEP) end

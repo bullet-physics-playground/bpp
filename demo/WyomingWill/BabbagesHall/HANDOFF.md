@@ -311,6 +311,34 @@ there, in `release/`, or on the path; or set `BPP`.
   lectern); Shift+Tab from there goes to the previous exhibit. To see a first
   stop, start at the exhibit before and Tab (seen 2026-11-12 with the
   Pascaline and the Galton board alike).
+- **A part that stands in for another must meet the ball as it does**
+  (the splitter board's reflecting walls, `SPLITTERS.md`). A half tooth
+  that was only a slope sent balls back to the wall three times in four:
+  a ball dropping onto a 60-degree slope keeps its fall as speed, where
+  one landing on a pin's round top loses it. Kept on its pin, with the
+  neck's wall carried down so the ball lands on the pin's inner shoulder,
+  it is fair. When a special part sits among ordinary ones, measure what
+  balls do at the ordinary part *after* it.
+- **A wall's piece can be a neck's wall too.** Leaving out the tooth at a
+  reflecting wall's place in the rows no ball can reach yet took away the
+  outer wall of the neck beside it, and every ball there went on to the
+  wall. Build the special part only where it is needed; elsewhere keep
+  the ordinary one.
+- **A sizes file written from a table takes every number in it:** new
+  options added as numbers to the splitter board's `G` went into
+  `parts/splitter-geometry.scad`, which would have changed the default
+  board's checksum, its parts and so its (chaotic) runs. Keep options that
+  the default doesn't use in a sub-table (`G.refl`), and check with `git
+  status` that a generated file is unchanged when its meaning is.
+- **A board's other modes were drawn as the default** (found 2026-11-14):
+  only the splitter board's default writes its sizes file, so `ruin` and
+  `none` collided with their own walls but were drawn with the default's.
+  `galton.lua` now hands such a board's sizes to OpenSCAD in the part's
+  text, after the include (OpenSCAD's last assignment wins).
+- **Don't edit files a background check is running.** check-all's
+  splitter run, started before the reflecting walls, read the geometry
+  half-edited (it passed, and rewrote the sizes file). Run check-all again
+  on the finished code before sending.
 
 ## 6. How to make an exhibit
 
@@ -669,12 +697,7 @@ there, in `release/`, or on the path; or set `BPP`.
   reflection principle and gambler's ruin (SPLITTERS.md). Still to do, in
   the order suggested (each in `splitter-test.lua` first, against the
   exact counts, then as a wall mode or a board of its own):
-  1. **Reflecting walls: the pile goes flat** (moderate, about a session).
-     A wall that sends a ball back: it must zigzag, half teeth on it, as
-     the pins sit at alternate places in alternate rows (the Galton board's
-     half pins are the same idea). The pile flattens only after about the
-     width squared in rows: walls 4 places apart want 16 to 20 rows, the
-     board has 12 (37 mm a row: 0.6 to 0.75 m of rows), or narrower walls.
+  1. **Reflecting walls: done (2026-11-14), below.**
   2. **Galton's two-stage board: conditional distributions** (moderate,
      about a session). His own 1877 design: one tall board, a row of
      compartments halfway down with a slide under them. Open all and the
@@ -694,6 +717,32 @@ there, in `release/`, or on the path; or set `BPP`.
   so that the mathematics shows, not a construct). The arcsine law has no
   mechanism yet. **The splitter board is not seen by William in the GUI
   yet.**
+- **Done (2026-11-14, later): reflecting walls on the splitter board.**
+  Tested first in `splitter-test.lua` (`SP_REFL_L`, `SP_REFL_R`; `walls.py`
+  takes a wall as `3r`), then two wall modes on the board: `SB_WALLS=reflect`
+  (one wall, `SB_REFL` places left, 3 by default: each bin holds its
+  binomial count plus its mirror image's, 47, 42, 31, 19, 8, 2 for 150)
+  and `SB_WALLS=flat` (two: 50, 50, 50 at ±3; `SB_REFL=5` gives five bins,
+  not flat yet in twelve rows, as the mathematics has it: the rows needed
+  grow as the width squared, so the board stays at twelve rows and the
+  walls narrow). The wall zigzags: a half tooth where a ball can stand at
+  the wall's place, the ordinary outer tooth (the neck's wall) between.
+  The half tooth keeps its steel pin, 2.5 mm outward, with the neck's wall
+  carried down to it (without the pin: 0.28 of the balls went on inward
+  after the wall, the walls hoarded balls; with it 0.47 to 0.50 at a
+  bounce of 0.4, within 0.06 of fair at 0.3 to 0.6). Every board run
+  passed by chi-square (SPLITTERS.md, "Reflecting walls" and "The
+  exhibit"); the sign counts bins (by the wall, next, the rest; or left,
+  middle, right). Found on the way: the 20 mm teeth (for a bounce of 0.3)
+  fail over twelve rows with no walls at all (memory growing to +0.13 by
+  rows 9 to 11; the earlier table had 8 rows): to be tuned again, not
+  done. And the other wall modes are now drawn as they are (section 5).
+  Not done: the half teeth's STLs (the splitter board's printed parts are
+  all still to come), the hall's tour of the splitter board is still the
+  default (first passage); the reflecting modes are run with `SB_WALLS`.
+  Offered: filling the wall solid between the half teeth (the outer teeth
+  between them are whole, their outer halves doing nothing), for the look
+  and the print. **Not seen by William in the GUI.**
 - **Next (William, 2026-11-14): build the machines from the start of the
   list on.** Open: whether the first four (the abacus, the slide rule,
   Napier's bones, the combination lock: little or nothing to simulate) get
@@ -723,6 +772,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step: the splitter board's reflecting walls, or the first machine on
-> MACHINES.md's list]. Deliver each step as a patch on test-harness, with
+> step: Galton's two-stage board on the splitter board, or the first
+> machine on MACHINES.md's list]. Deliver each step as a patch on test-harness, with
 > its documents and PDFs, and the git commands.

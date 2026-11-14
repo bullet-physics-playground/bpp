@@ -23,7 +23,7 @@ comes to life.
 | west 2 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
 | east 2 | Amsler's planimeter | in preparation |
 | west 3 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
-| east 3 | **The splitter board**: a Galton board whose pins are independent coins, with a wall that swallows balls (first passage, exactly) | `exhibits/GaltonBoard/` |
+| east 3 | **The splitter board**: a Galton board whose pins are independent coins, with a wall that swallows balls (first passage, exactly), or walls that send them back | `exhibits/GaltonBoard/` |
 | west 4 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
 | east 4 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
 | west 5 | Kelvin's tide predictor | in preparation |

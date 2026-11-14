@@ -21,6 +21,16 @@
 -- so it empties them with the bins. The first tube is the outermost and
 -- highest; each ramp passes over the later, lower tubes.
 --
+-- Reflecting walls (REFL_L, REFL_R: the outermost place a ball can reach,
+-- from the start; 0 for none; not with swallowing walls). A ball there is
+-- sent back: in place of the tooth there is a half tooth on its steel pin,
+-- the pin 2.5 mm outward of the place, its slope to the inner neck only,
+-- and the outer neck's wall carried down to the pin, so a ball always
+-- lands on the pin's inner shoulder (SPLITTERS.md, "Reflecting walls"). The
+-- half tooth is printed with the set of teeth; the wall beside it is the
+-- board's. One wall: each bin holds its binomial count plus its mirror
+-- image's in the wall. Two: the pile goes flat.
+--
 -- Places: a ball's place after n decisions is u (n's parity), at x = u S/2;
 -- row r's pins (y = -r V) are at the places of r's parity.
 
@@ -51,8 +61,14 @@ local function build(o)
   G.DECISIONS = o.DECISIONS or 12
   G.ROWS = G.DECISIONS
   G.TOP = 0
-  G.WALL_L = o.WALL_L or 2
+  G.WALL_L = o.WALL_L or ((o.REFL_L or o.REFL_R) and 0 or 2)   -- (the default: first passage)
   G.WALL_R = o.WALL_R or 0
+  -- (in a table of their own: the sizes file takes G's numbers, and the
+  -- default board's must not change, or its runs would: HANDOFF section 5)
+  G.refl = { L = o.REFL_L or 0, R = o.REFL_R or 0,
+             D = 2.5 }                    -- a half tooth's pin, outward of its place
+  assert((G.refl.L == 0 and G.refl.R == 0) or (G.WALL_L == 0 and G.WALL_R == 0),
+    "the splitter board: walls that swallow or walls that reflect, not both")
   G.EXIT_TOP = 20                         -- an exit block's top, degrees down outward
   G.RAMP = 6                              -- the ramps to the tubes, degrees
   G.RAMP_T = 2.0
@@ -73,7 +89,10 @@ local function build(o)
   G.Y_SIDE = G.Y_FLOOR                    -- (not used: no slanting side walls)
 
   local a, b = G.WALL_L, G.WALL_R
-  local function alive(u, n) return math.abs(u) <= n and (a == 0 or u > -a) and (b == 0 or u < b) end
+  local ra, rb = G.refl.L, G.refl.R
+  local function alive(u, n) return math.abs(u) <= n and (a == 0 or u > -a) and (b == 0 or u < b)
+                                    and (ra == 0 or u >= -ra) and (rb == 0 or u <= rb) end
+  local function reflAt(u, n) return alive(u, n) and ((ra > 0 and u == -ra) or (rb > 0 and u == rb)) end
   local function exitAt(u, n) return math.abs(u) <= n and ((a > 0 and u == -a) or (b > 0 and u == b)) end
   local function neckLive(v, r) return alive(v, r + 1) or exitAt(v, r + 1) end
 
@@ -85,8 +104,12 @@ local function build(o)
     for n = 1, G.DECISIONS do
       local q = {}
       for u, w in pairs(p) do
-        q[u - 1] = (q[u - 1] or 0) + w / 2
-        q[u + 1] = (q[u + 1] or 0) + w / 2
+        if ra > 0 and u == -ra then q[u + 1] = (q[u + 1] or 0) + w          -- (sent back)
+        elseif rb > 0 and u == rb then q[u - 1] = (q[u - 1] or 0) + w
+        else
+          q[u - 1] = (q[u - 1] or 0) + w / 2
+          q[u + 1] = (q[u + 1] or 0) + w / 2
+        end
       end
       G.exactLeft[n], G.exactRight[n] = 0, 0
       local keep = {}
@@ -109,7 +132,18 @@ local function build(o)
     for u = -G.DECISIONS, G.DECISIONS do
       if (u - r) % 2 == 0 then
         local x, y = u * G.PLACE, rowY(r)
-        if r >= 1 and exitAt(u, r) then
+        if r >= 1 and r < G.DECISIONS and reflAt(u, r) then
+          -- a half tooth (in the teeth, printed with them) and the wall beside
+          -- it (a solid, the board's), mirrored for a right wall
+          local s = u < 0 and -1 or 1     -- the wall's side
+          local d, wx = G.refl.D, -G.NECK_W / 2
+          local k = G.TH / (G.HW + d)
+          local function m(q) for _, p in ipairs(q) do p[1] = x - s * p[1]; p[2] = y + p[2] end; return q end
+          G.teeth[#G.teeth + 1] = m({ { -d, 0 }, { G.HW, -G.TH }, { G.HW, -G.TOTAL }, { wx, -G.TOTAL }, { wx, (wx + d) * -k } })
+          G.solids[#G.solids + 1] = m({ { -G.HW, G.FOOT }, { wx, G.FOOT }, { wx, -G.TOTAL }, { -G.HW, -G.TOTAL } })
+          G.pins[#G.pins + 1] = { x + s * d, y }
+          G.refl.halfTeeth = (G.refl.halfTeeth or 0) + 1
+        elseif r >= 1 and exitAt(u, r) then
           local s = u < 0 and -1 or 1     -- the wall's side; inward is -s
           local d = -s
           local q = { { x + d * G.HW, y - 1 }, { x + d * G.HW, y - G.TOTAL }, { x - d * G.HW, y - G.TOTAL },
@@ -207,6 +241,22 @@ local function build(o)
   function G.binOf(x)
     local k = math.floor(x / G.S + (G.NBINS - 1) / 2 + 0.5) + 1
     return math.max(1, math.min(G.NBINS, k))
+  end
+  -- (reflecting walls: no tubes; the sign counts bins instead, each row a
+  -- label and its bins: by the wall, the next, the rest; or with two walls
+  -- the outer bins and the middle one)
+  if ra > 0 or rb > 0 then
+    local live = {}
+    for u = -N, N, 2 do if alive(u, N) then live[#live + 1] = (u + N) / 2 + 1 end end
+    if ra > 0 and rb > 0 then
+      G.signRows = { { "LEFT BIN", { live[1] } }, { "MIDDLE BIN", { live[math.floor((#live + 1) / 2)] } },
+                     { "RIGHT BIN", { live[#live] } } }
+    else
+      if rb > 0 then local r = {}; for i = #live, 1, -1 do r[#r + 1] = live[i] end; live = r end
+      local rest = {}
+      for i = 3, #live do rest[#rest + 1] = live[i] end
+      G.signRows = { { "BY THE WALL", { live[1] } }, { "NEXT BIN", { live[2] } }, { "THE REST", rest } }
+    end
   end
   -- the count expected in bin k of n balls, and in tube i
   function G.expected(n, k) return n * (G.exactPile[2 * (k - 1) - G.DECISIONS] or 0) end
