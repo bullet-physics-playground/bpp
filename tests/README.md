@@ -178,9 +178,11 @@ Only demos that give the same numbers on every run belong in
 writes a solid with its triangles in a different order each run; for some
 demos (gears, pulley, spirals) that changes collisions, so they are left
 out, while for others it does not matter and they stay. Demos that seed
-`math.random` from the clock are left out too. The harness removes the
-run-to-run noise bpp itself adds: object order in the export (bpp keeps
-objects in a `QSet`), mesh file names, the date line and cache paths.
+`math.random` from the clock are left out too. Objects are exported in
+the order the script added them (bpp keeps them in an `OrderedSet`,
+`src/orderedset.h`), and compared in that order, so a change of order
+fails. The harness removes the run-to-run noise that remains: mesh file
+names, the date line and cache paths.
 Each mesh is compared by its triangle and vertex counts, bounds and area,
 within 1e-3: OpenSCAD splits some faces differently from run to run and
 varies a vertex's last printed digit.

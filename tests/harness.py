@@ -274,11 +274,10 @@ def show_diff(expected, got, name, limit=40):
 # POV-Ray export: canonical form and tolerant comparison
 # --------------------------------------------------------------------------
 #
-# A frame's .inc lists every object with its transform. Two things in it vary
-# from run to run without the program behaving differently, so the canonical
-# form takes them out:
-#   - the order of the objects: bpp keeps them in a QSet, which iterates in
-#     pointer-hash order. Blocks are sorted, and compared as a multiset.
+# A frame's .inc lists every object with its transform, in the order the
+# script added them (Viewer keeps them in an OrderedSet), and blocks are
+# compared in that order. One thing in it varies from run to run without
+# the program behaving differently, so the canonical form takes it out:
 #   - mesh include names, a hash of the mesh's vertices in the order they
 #     come. OpenSCAD writes the same solid differently each run (triangles
 #     in another order, some faces split along the other diagonal, the last
@@ -330,7 +329,7 @@ def _blocks(text):
     the braces balance (it also puts blank lines inside some objects).
     Returns (blocks, balanced). In a file whose braces do not balance, a
     block also ends at a blank line followed by a new object, so one bad
-    object does not swallow the (randomly ordered) objects after it."""
+    object does not swallow the objects after it."""
     depth, low = 0, 0
     for line in text.splitlines():
         depth += line.count("{") - line.count("}")
@@ -386,8 +385,8 @@ def _key_nums(block):
 def canon_export(scene_dir, cache, frames):
     """Canonical text of an export directory: the scene, the .ini, the
     given frames and any sound track, with meshes named by their geometry.
-    Blocks within a file are sorted by their text with the numbers taken
-    out, then by the numbers. Raises ValueError if a file is missing."""
+    Blocks stay in the order bpp wrote them. Raises ValueError if a file is
+    missing."""
     name = os.path.basename(scene_dir)
     files = [name + ".pov", name + ".ini"] + ["%05d.inc" % f for f in frames]
     meshes = set()
@@ -408,7 +407,6 @@ def canon_export(scene_dir, cache, frames):
         text = text.replace(cache, "$CACHE/bpp")
         text = MESH.sub(mesh_name, text)
         blocks, balanced = _blocks(text)
-        blocks = sorted(blocks, key=lambda b: (_key_nums(b)[0], _key_nums(b)[1]))
         out.append("== " + fn)
         if not balanced:
             out.append(UNBALANCED)
@@ -460,18 +458,23 @@ def _close(expected, got, atol, rtol):
 
 def compare_canon(expected, got, atol, rtol):
     """Problems found comparing two canonical exports (empty: same within
-    tolerance). Blocks of the same shape are paired by nearest numbers."""
+    tolerance). Blocks are compared in order, except in the meshes section,
+    where blocks of the same shape are paired by nearest numbers (its
+    order follows OpenSCAD's run-to-run noise)."""
     problems = []
     e_files, g_files = _parse_canon(expected), _parse_canon(got)
     for fn in sorted(set(e_files) | set(g_files)):
         if fn not in e_files or fn not in g_files:
             problems.append("%s: only in %s" % (fn, "got" if fn in g_files else "expected"))
             continue
+        if fn != "meshes":
+            problems += _compare_in_order(fn, e_files[fn], g_files[fn], atol, rtol)
+            continue
         groups = {}
         for side, blocks in (("e", e_files[fn]), ("g", g_files[fn])):
             for key, nums in blocks:
                 groups.setdefault(key, {"e": [], "g": []})[side].append(nums)
-        a, r = (max(atol, MESH_TOL), max(rtol, MESH_TOL)) if fn == "meshes" else (atol, rtol)
+        a, r = max(atol, MESH_TOL), max(rtol, MESH_TOL)
         worst, off = (0.0, None), 0
         for key, sides in groups.items():
             es, gs = sides["e"], sides["g"]
@@ -502,6 +505,26 @@ def compare_canon(expected, got, atol, rtol):
             problems.append("%s: %d value%s off; worst: %s"
                             % (fn, off, "" if off == 1 else "s", worst[1]))
     return problems
+
+
+def _compare_in_order(fn, es, gs, atol, rtol):
+    """Problems comparing one file's blocks, (key, nums) each, in order."""
+    if len(es) != len(gs):
+        return ["%s: %d objects, expected %d" % (fn, len(gs), len(es))]
+    for i, ((ek, _), (gk, _)) in enumerate(zip(es, gs)):
+        if ek != gk:
+            return ["%s: object %d is '%s', expected '%s'" % (fn, i + 1, _label(gk), _label(ek))]
+    worst, off = (0.0, None), 0
+    for (key, en), (_, gn) in zip(es, gs):
+        for i, (x, y) in enumerate(zip(en, gn)):
+            if not _close(x, y, atol, rtol):
+                off += 1
+                d = abs(x - y)
+                if d > worst[0]:
+                    worst = (d, "'%s' value #%d is %g, expected %g" % (_label(key), i, y, x))
+    if worst[1]:
+        return ["%s: %d value%s off; worst: %s" % (fn, off, "" if off == 1 else "s", worst[1])]
+    return []
 
 
 # --------------------------------------------------------------------------
