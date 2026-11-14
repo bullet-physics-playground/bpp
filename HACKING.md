@@ -30,6 +30,7 @@ it holds as a member:
 | `viewer_lua.cpp` | | `Viewer::luaBind`: the `Viewer` class as scripts see it (`v:add`, `v:preSim`, `v:addParam` ...) |
 | `viewermedia.cpp` | | music, sound effects and tones (`v:playSound`, `v:setTone`), `v:ask`, `v:download`, `v:dataDir` |
 | `viewerworlds.cpp` | | the physics worlds (`v:newWorld`, `useWorld`, `placeWorld`), the solver (`v:setSolver`, `tau`, `erp`, `cfm` ...) and threads (`v:setThreads`); the step itself |
+| `viewertiming.cpp` | | the drawing timer (`v.drawTiming`, `v:drawTimingReport`) and frame timing (`BPP_FRAME_TIMING`) |
 | `restskipping.cpp` | | `RestSkippingDispatcher`, every world's collision dispatcher: it skips pairs at rest, on threads too |
 | `params.cpp` | `_params` | the script's parameters (`v:addParam`), which the GUI shows as sliders, check boxes and cells |
 | `scriptkeys.cpp` | `_keys` | the script's `v:onKey` hook and `v:addShortcut` shortcuts |
