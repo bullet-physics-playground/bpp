@@ -283,9 +283,9 @@ mathematics, a ball at the wall's place goes back inward for certain. On a
 board the pins sit at alternate places in alternate rows, so the wall
 zigzags. In the rows where a ball can stand at the wall's place, the tooth
 there is a **half tooth**: only its inner slope, into the inner neck. In
-the rows between, the outer tooth stays whole, its inner side being the
-outer wall of the neck beside the wall. (The Galton board's half pins are
-the same idea.)
+the rows between, the outer tooth's inner side is the outer wall of the
+neck beside the wall, and only that half of it is ever met. (The Galton
+board's half pins are the same idea.)
 
 **What the mathematics says.** With one reflecting wall, the outermost
 place a ball can reach being -a, a ball's place is the free walk's folded
@@ -360,6 +360,18 @@ against 1.73, chi-square 114 on 10. The table above measured 8 rows. That
 set wants tuning again over twelve rows before a board at 0.3 is trusted;
 not done.
 
+**The wall made solid.** The first board had the outer teeth whole in the
+rows between the half teeth, so the wall read as a row of teeth whose
+outer halves did nothing, and looked like part of the path. Now only their
+inner halves stand (printed with the set of teeth, as the half teeth are),
+and the board's wall fills everything outward, beside the half teeth too.
+The surfaces that changed are all beyond the outer teeth's tops, where no
+path in any run went. In the test bed (`SP_REFL_FILL`, 1 by default; 0 the
+wall as it was) one wall at 3 gave the same run to the ball, 2,000 balls
+(no ball touched what changed); two walls at ±3 went their own chaotic way
+to the same result: 0.49 and 0.46 on inward after the walls, bins 670, 629,
+678, chi-square 2.1 (before 676, 636, 665: 1.3). The board's tours, below.
+
 **A wall's tooth is the neck's wall too.** The first runs left out the
 tooth at the wall's place in the rows above where any ball can reach it
 (row 1, for a wall at 3). That took away the outer wall of the neck beside
@@ -396,6 +408,12 @@ tube's inner wall now rises to just under its own ramp's end. And with a
 wall an odd number of places from the start, the bins' dividers have to
 stand at the odd places, not counted from the wall (they stood in the
 middle of the bins, and balls came to rest on them).
+
+With the wall made solid (above) every reflecting run was made again, and
+all passed: one wall at 3, by the wall 49, 42, 55, 52, chi-square 1.9,
+1.6, 3.0, 2.5; at 2, 36, 34, 3.5, 4.1; two walls at ±3, 43, 56, 51; 59, 49,
+42; 50, 50, 50; 54, 49, 47, chi-square 1.7, 2.9, 0.0, 0.5; at ±5, 0.4, 2.5,
+9.9 (the bin at -2: 33, 34, 26).
 
 The reflecting walls (`SB_WALLS=reflect`, one wall; `flat`, two; `SB_REFL`
 their place, 3 by default) are the test bed's half teeth on the board: the

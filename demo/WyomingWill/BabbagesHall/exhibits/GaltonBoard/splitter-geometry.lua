@@ -140,9 +140,23 @@ local function build(o)
           local k = G.TH / (G.HW + d)
           local function m(q) for _, p in ipairs(q) do p[1] = x - s * p[1]; p[2] = y + p[2] end; return q end
           G.teeth[#G.teeth + 1] = m({ { -d, 0 }, { G.HW, -G.TH }, { G.HW, -G.TOTAL }, { wx, -G.TOTAL }, { wx, (wx + d) * -k } })
-          G.solids[#G.solids + 1] = m({ { -G.HW, G.FOOT }, { wx, G.FOOT }, { wx, -G.TOTAL }, { -G.HW, -G.TOTAL } })
+          -- (the wall runs out to the outer tooth's outer edge, half a pitch
+          -- and a half tooth beyond the place)
+          G.solids[#G.solids + 1] = m({ { -G.HW - G.PLACE, G.FOOT }, { wx, G.FOOT }, { wx, -G.TOTAL }, { -G.HW - G.PLACE, -G.TOTAL } })
           G.pins[#G.pins + 1] = { x + s * d, y }
           G.refl.halfTeeth = (G.refl.halfTeeth or 0) + 1
+        elseif r < G.DECISIONS and ((ra > 0 and u == -ra - 1) or (rb > 0 and u == rb + 1)) and
+               (neckLive(u - 1, r) or neckLive(u + 1, r)) then
+          -- the outer tooth, in the rows between the half teeth: only its inner
+          -- half is ever met (its slope, and the wall of the neck beside the
+          -- wall's place), so that half is printed with the set of teeth and
+          -- the board's wall fills the rest, outward of its top: the wall is
+          -- solid, not a row of teeth whose outer halves do nothing
+          local s = u < 0 and -1 or 1
+          local function m(q) for _, p in ipairs(q) do p[1] = x - s * p[1]; p[2] = y + p[2] end; return q end
+          G.teeth[#G.teeth + 1] = m({ { 0, 0 }, { G.HW, -G.TH }, { G.HW, -G.TOTAL }, { 0, -G.TOTAL } })
+          G.solids[#G.solids + 1] = m({ { -G.HW, G.FOOT }, { 0, G.FOOT }, { 0, -G.TOTAL }, { -G.HW, -G.TOTAL } })
+          G.refl.outerHalves = (G.refl.outerHalves or 0) + 1
         elseif r >= 1 and exitAt(u, r) then
           local s = u < 0 and -1 or 1     -- the wall's side; inward is -s
           local d = -s

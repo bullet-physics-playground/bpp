@@ -142,6 +142,12 @@ assert((P.REFL_L == 0 and P.REFL_R == 0) or (P.CHAMBERS == 0 and P.SHEAR == 0),
 -- it as a ball going inward off a splitter does.
 P.REFL_PIN = envnum("SP_REFL_PIN", 1)
 P.REFL_D = envnum("SP_REFL_D", 2.5)
+-- SP_REFL_FILL=1 (the default): the wall is solid, as on the board. The
+-- outer tooth in the rows between the half teeth keeps only its inner
+-- half (no pin), and the wall fills the rest, beside the half teeth too,
+-- out to that tooth's outer edge. SP_REFL_FILL=0: the outer tooth whole,
+-- on its pin, and the wall beside a half tooth only HW wide.
+P.REFL_FILL = envnum("SP_REFL_FILL", 1)
 local function reflector(x, y, s)               -- s = -1 a left wall (sends right), +1 a right one
   local pieces
   if P.REFL_PIN == 0 then
@@ -153,7 +159,8 @@ local function reflector(x, y, s)               -- s = -1 a left wall (sends rig
     local d, wx = P.REFL_D, -P.NECK_W / 2         -- the pin's offset; the neck's outer wall
     local k = H / (HW + d)
     pieces = {
-      { { -HW, P.FOOT }, { wx, P.FOOT }, { wx, -H - NECKS }, { -HW, -H - NECKS } },
+      { { P.REFL_FILL ~= 0 and -HW - P.S / 2 or -HW, P.FOOT }, { wx, P.FOOT }, { wx, -H - NECKS },
+        { P.REFL_FILL ~= 0 and -HW - P.S / 2 or -HW, -H - NECKS } },
       { { -d, 0 }, { HW, -H }, { HW, -H - NECKS }, { wx, -H - NECKS }, { wx, (wx + d) * -k } } }
   end
   for _, q in ipairs(pieces) do
@@ -164,7 +171,7 @@ local function reflector(x, y, s)               -- s = -1 a left wall (sends rig
     add(btCylinderShapeZ(btVector3(P.PIN_D / 2 * MM, P.PIN_D / 2 * MM, P.GAP / 2 * MM)), x + s * P.REFL_D, y, zc)
   end
 end
-local nTeeth, nRefl = 0, 0
+local nTeeth, nRefl, nFill = 0, 0, 0
 for r = 0, P.ROWS - 1 do
   local y = rowY(r)
   for j = -P.ROWS, P.ROWS do
@@ -179,6 +186,16 @@ for r = 0, P.ROWS - 1 do
       reflector(x, y, u < 0 and -1 or 1); nRefl = nRefl + 1
     elseif (P.REFL_L > 0 and u < -P.REFL_L - 1) or (P.REFL_R > 0 and u > P.REFL_R + 1) then
       -- (beyond the wall: nothing)
+    elseif P.REFL_FILL ~= 0 and ((P.REFL_L > 0 and u == -P.REFL_L - 1) or (P.REFL_R > 0 and u == P.REFL_R + 1))
+           and math.abs(x0) <= (r / 2 + 1) * P.S then
+      -- (the outer tooth: its inner half, and the wall outward of its top)
+      local s = u < 0 and -1 or 1
+      for _, q in ipairs({ { { 0, 0 }, { HW, -H }, { HW, -H - NECKS }, { 0, -H - NECKS } },
+                           { { -HW, P.FOOT }, { 0, P.FOOT }, { 0, -H - NECKS }, { -HW, -H - NECKS } } }) do
+        for _, p in ipairs(q) do p[1] = -s * p[1] end
+        hull(q, x, y)
+      end
+      nTeeth, nFill = nTeeth + 1, nFill + 1
     elseif math.abs(x0) <= (r / 2 + 1) * P.S then -- the triangle the balls can reach, and one more each side
       add(btCylinderShapeZ(btVector3(P.PIN_D / 2 * MM, P.PIN_D / 2 * MM, P.GAP / 2 * MM)), x, y, zc)
       if P.CHAMBERS == 0 and P.SHEAR == 0 and not os.getenv("SP_SLICED") then
@@ -322,8 +339,8 @@ local function track(b)
   end
 end
 
-print(string.format("SPLITTER TEST: pitch %.1f, pins %.1f, necks %.1f wide and %.1f long, sides %.0f deg, %d chambers (%.1f wide, %.1f long, post %.1f), lean %.0f deg (%s), landing +%.1f, row to row %.1f mm, %d rows (%d teeth, %d half teeth), bounce %.2f, friction %.2f",
-  P.S, P.PIN_D, P.NECK_W, NECKS, P.SLOPE, P.CHAMBERS, P.CHAMBER_W, P.CHAMBER_L, P.POST_D, P.SHEAR, P.ALT == 1 and "alternating" or "all one way", P.LAND, V, P.ROWS, nTeeth, nRefl, P.BOUNCE, P.FRICTION))
+print(string.format("SPLITTER TEST: pitch %.1f, pins %.1f, necks %.1f wide and %.1f long, sides %.0f deg, %d chambers (%.1f wide, %.1f long, post %.1f), lean %.0f deg (%s), landing +%.1f, row to row %.1f mm, %d rows (%d teeth, %d half teeth, %d outer teeth halved; %d pieces), bounce %.2f, friction %.2f",
+  P.S, P.PIN_D, P.NECK_W, NECKS, P.SLOPE, P.CHAMBERS, P.CHAMBER_W, P.CHAMBER_L, P.POST_D, P.SHEAR, P.ALT == 1 and "alternating" or "all one way", P.LAND, V, P.ROWS, nTeeth, nRefl, nFill, #items, P.BOUNCE, P.FRICTION))
 local reported = false
 v:preSim(function(N)
   for k = 1, NSTEPS - 1 do v:stepSimulation(STEP, 0, STEP) end

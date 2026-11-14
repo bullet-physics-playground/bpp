@@ -740,9 +740,14 @@ there, in `release/`, or on the path; or set `BPP`.
   Not done: the half teeth's STLs (the splitter board's printed parts are
   all still to come), the hall's tour of the splitter board is still the
   default (first passage); the reflecting modes are run with `SB_WALLS`.
-  Offered: filling the wall solid between the half teeth (the outer teeth
-  between them are whole, their outer halves doing nothing), for the look
-  and the print. **Not seen by William in the GUI.**
+  **Then, at William's word: the wall made solid.** The outer teeth
+  between the half teeth (whole at first, their outer halves doing
+  nothing, so the wall looked like part of the path) are now only their
+  inner halves, printed with the set, and the board's wall fills the rest
+  out to their outer edge. Nothing a ball meets changed: the test bed
+  (`SP_REFL_FILL`) gave one wall's run identical to the ball, and two
+  walls the same counts; every board tour passed again. **Not seen by
+  William in the GUI.**
 - **Next (William, 2026-11-14): build the machines from the start of the
   list on.** Open: whether the first four (the abacus, the slide rule,
   Napier's bones, the combination lock: little or nothing to simulate) get

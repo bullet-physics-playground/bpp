@@ -227,7 +227,9 @@ The walls (`SB_WALLS`):
   reach `SB_REFL` places left of the start (3 by default). Where a ball
   can stand at that place the tooth is a half tooth: its steel pin, set
   2.5 mm outward, and only the inner slope, so the ball always rolls back
-  inward; beside it the board's wall. Each bin holds its binomial count
+  inward. In the rows between, the outer tooth is only its inner half
+(the wall of the neck beside the wall). Both kinds of half tooth stand
+on a solid wall, the board's. Each bin holds its binomial count
   plus its mirror image's in the wall: for 150 balls 47, 42, 31, 19, 8, 2
   from the wall out (the reflection principle the other way round from
   `first`'s, which takes the mirror image away).
