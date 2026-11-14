@@ -211,6 +211,42 @@ the binomial's, so 10% too wide is about +0.1 and 10% too narrow about
 -0.1. A pile of 300 balls measures the spread to about 4%. Try the next set
 the table suggests, and keep the one closest.
 
+## A swallowing wall: first passage and the reflection principle
+
+On a board, a swallowing wall is an exit in place of one column's necks: a
+ball reaching that column drops through a hole into its own tube, one tube
+for each row it can be caught at. Every pin a ball meets on the way is an
+ordinary splitter. So the test is whether tuned splitters give the exact
+mathematics. `splitter-test.lua` takes `SP_WALL_L` and `SP_WALL_R` (places
+from the start; the row each ball is caught at goes to `SP_CAUGHT`), and
+`walls.py` compares the counts with the formulas:
+
+- a ball is first caught after n rows with probability
+  (a/n) C(n, (n+a)/2) / 2^n, for a wall a places away (first passage);
+- a survivor of all N rows ends at place u with probability
+  [C(N, (N+u)/2) - C(N, (N+u+2a)/2)] / 2^N (the reflection principle: the
+  paths that touched the wall pair off with the mirror images of paths
+  ending at -2a-u).
+
+Twelve rows, a wall 2 places to the left of the start, 3,000 balls, at a
+bounce of 0.4 (expected counts in brackets):
+
+| teeth | caught at row 2, 4, 6, 8, 10, 12 | survivors at place 0, 2, 4, 6, 8, 10+ | chi-square (12 df; 1% level 26.2) |
+|---|---|---|---|
+| tuned (10 mm necks, memory +0.01) | 720, 368, 233, 176, 128, 86 (750, 375, 234, 164, 123, 97) | 321, 402, 332, 168, 60, 6 (314, 419, 314, 152, 48, 10) | **11.9** |
+| mistuned (4 mm necks, memory +0.53) | 1182, 255, 160, 128, 109, 74 | 134, 193, 217, 182, 176, 190 | 9,927 |
+
+With tuned teeth the board gives first passage and the reflection
+principle as the formulas do. Mistuned, it is plain at the first tube: the
+first two pins go together, so 1,182 balls are caught at row 2 instead of
+750, and the survivors spread to the far side. No ball stopped.
+
+For the exhibit, with 150 balls a run, a wall 2 places from the start
+fills the tubes with about 37, 19, 12, 8, 6 and 5 balls (a long thin tail:
+the average time to be caught is infinite), and about 63 balls survive,
+piled away from the wall (16, 21, 16, 8, 2). A wall 3 places away: 19, 14,
+11, 8, 7, and 92 survivors.
+
 ## What it means
 
 - A neck above every pin can cut the memory to nothing, but only at a

@@ -21,7 +21,9 @@
 -- gap) and contacts (bounce 0.4, friction 0.3) as the Galton board. All
 -- can be set from the environment (SP_<NAME>); also mixing chambers
 -- (SP_CHAMBERS) and leaning necks (SP_SHEAR, SP_LAND, SP_ALT), both tried
--- and set aside, and fixed-height teeth (SP_TOTAL): SPLITTERS.md.
+-- and set aside, fixed-height teeth (SP_TOTAL), and swallowing walls
+-- (SP_WALL_L, SP_WALL_R, SP_CAUGHT; walls.py compares them with the exact
+-- formulas): SPLITTERS.md.
 --
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local MM = 0.1
@@ -201,6 +203,13 @@ for i = 1, P.POOL do
   idle[#idle + 1] = b
 end
 
+-- swallowing walls (SP_WALL_L, SP_WALL_R: places from the start, 0 for
+-- none): a ball reaching that column drops out (on a board, through a hole
+-- in the neck into its tube). The row it was caught at goes to SP_CAUGHT.
+P.WALL_L, P.WALL_R = envnum("SP_WALL_L", 0), envnum("SP_WALL_R", 0)
+local caughtFile = os.getenv("SP_CAUGHT")
+local ch = caughtFile and io.open(caughtFile, "a")
+local caught = 0
 local out = os.getenv("SP_PATHS")
 local LOG = os.getenv("SP_LOG")
 local fh = out and io.open(out, "a")
@@ -229,6 +238,15 @@ local function track(b)
     if b.py >= L and y < L then
       local f = (b.py - L) / (b.py - y)
       b.u[n + 1] = 2 * (b.px + (x - b.px) * f - offs[n]) / P.S
+      local place = math.floor(b.u[n + 1] + 0.5)
+      if (P.WALL_L > 0 and place <= -P.WALL_L) or (P.WALL_R > 0 and place >= P.WALL_R) then
+        if ch then ch:write(string.format("%d %d\n", n + 1, place < 0 and -1 or 1)); ch:flush() end
+        caught = caught + 1
+        done = done + 1
+        b.px, b.py = x, y
+        park(b)
+        return
+      end
     end
   end
   if LOG and n >= 1 and n < P.ROWS and b.py then
@@ -268,6 +286,6 @@ v:postSim(function(N)
   for _, b in ipairs(balls) do if b.live then track(b) end end
   if not reported and done + stuck >= P.NBALLS then
     reported = true
-    print(string.format("SPLITTER DONE: %d balls through, %d stopped, %.0f s", done, stuck, t))
+    print(string.format("SPLITTER DONE: %d balls through (%d caught by the walls), %d stopped, %.0f s", done, caught, stuck, t))
   end
 end)

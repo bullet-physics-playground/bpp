@@ -317,7 +317,10 @@ there, in `release/`, or on the path; or set `BPP`.
   printed splitter's memory. The plan (a sixth patch): the whole printed
   tooth is what swaps, in variants of one height so the rows stay put;
   four sets (necks 10, 12, 14, 20 mm) cover bounces 0.3 to 0.6 within
-  0.07, tuned on the built board by the pile's spread. Next: the splitter
+  0.07, tuned on the built board by the pile's spread. A swallowing wall
+  in the test bed (walls.py) gives first passage and the reflection
+  principle as the formulas do with tuned teeth (chi-square 11.9 on 12 df,
+  3,000 balls), and fails plainly mistuned. Next: the splitter
   board in bpp, with swappable wall panels (plain; swallowing, for first
   passage and the reflection principle; both, for gambler's ruin). Both
   boards are to be kept. Printed in three tiles under 200 mm,
