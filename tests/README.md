@@ -150,6 +150,18 @@ MinGW64 shell with QGLViewer's DLL on `PATH`:
 python tests/harness.py --bpp release/bpp.exe unit smoke
 ```
 
+## macOS
+
+`test-macos` builds bpp on an Apple Silicon Mac as the release's disk
+image is built (Homebrew, Qt 5, without POV-Ray built in) and runs the
+same two suites, with an OpenSCAD snapshot. Homebrew's Lua is 5.4, not
+the 5.1 of Linux and Windows. While the job is new a failure in it leaves
+the run green (`continue-on-error`). To run them on a Mac:
+
+```sh
+python3 tests/harness.py --bpp release/bpp.app/Contents/MacOS/bpp unit smoke
+```
+
 ## Euler's Gallery against theory
 
 `theory/checks.txt` turns the checks of the gallery's physics-fidelity

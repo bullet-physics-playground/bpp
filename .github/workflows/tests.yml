@@ -397,3 +397,82 @@ jobs:
           name: test-output-windows
           path: '*.log'
           if-no-files-found: ignore
+
+  # The macOS build, as the release's arm64 disk image is built (Homebrew,
+  # Qt 5, luabind and libQGLViewer from source) but without POV-Ray built
+  # in, and the unit tests and the smoke run, as on Windows (the other
+  # suites' expected files are made on Linux). Homebrew's Lua is 5.4, where
+  # Linux and Windows have 5.1, as the release's disk images do.
+  # continue-on-error while this job is new, as the Windows job was: a
+  # failure here shows on the job but leaves the run green. Drop it once
+  # the job has passed for a while.
+  test-macos:
+    name: macOS build (Apple Silicon)
+    runs-on: macos-15
+    timeout-minutes: 90
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build dependencies (Homebrew)
+        run: brew install qt@5 assimp cmake bullet lua boost sdl2 sdl2_mixer
+
+      # Into the Homebrew prefix and /Library/Frameworks, where bpp.pro's mac
+      # block looks. The same libQGLViewer commit as the Qt 6 and Windows
+      # jobs.
+      - name: Build luabind and libQGLViewer
+        run: |
+          set -e
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          cd "$(dirname "$GITHUB_WORKSPACE")"
+          git clone -q --depth=1 https://github.com/bullet-physics-playground/luabind
+          (cd luabind && mkdir build && cd build &&
+           cmake -DCMAKE_POLICY_VERSION_MINIMUM="3.5" -DCMAKE_INSTALL_PREFIX="$(brew --prefix)" .. &&
+           make -j"$(sysctl -n hw.ncpu)" && sudo make install)
+          git clone -q https://github.com/GillesDebunne/libQGLViewer
+          cd libQGLViewer && git checkout -q da4bfad && cd QGLViewer
+          qmake
+          make -j"$(sysctl -n hw.ncpu)"
+          sudo make install
+
+      - name: Build
+        id: build
+        run: |
+          set -e
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          qmake CONFIG+=release
+          make -j"$(sysctl -n hw.ncpu)" release
+
+      # An official macOS snapshot (universal), copied to /Applications where
+      # bpp looks first. Pinned, as the Windows job's is; macOS snapshots
+      # come less often, so this is the one nearest that job's.
+      - name: Install OpenSCAD (development snapshot)
+        env:
+          OPENSCAD_SNAPSHOT: OpenSCAD-2026.10.11.dmg
+        run: |
+          set -e
+          curl -fsSL -o "$RUNNER_TEMP/openscad.dmg" "https://files.openscad.org/snapshots/$OPENSCAD_SNAPSHOT"
+          hdiutil attach -nobrowse -quiet -mountpoint "$RUNNER_TEMP/openscad" "$RUNNER_TEMP/openscad.dmg"
+          cp -R "$RUNNER_TEMP/openscad/OpenSCAD.app" /Applications/
+          hdiutil detach -quiet "$RUNNER_TEMP/openscad"
+          /Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD --version
+
+      - name: Unit tests
+        run: |
+          set -eo pipefail
+          python3 tests/harness.py --bpp release/bpp.app/Contents/MacOS/bpp unit 2>&1 | tee unit.log
+
+      - name: Smoke run of every demo
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          set -eo pipefail
+          python3 tests/harness.py --bpp release/bpp.app/Contents/MacOS/bpp smoke 2>&1 | tee smoke.log
+
+      - name: Upload what failed
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-output-macos
+          path: '*.log'
+          if-no-files-found: ignore
