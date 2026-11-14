@@ -205,7 +205,6 @@ void luaBindBulletPart3(lua_State *s) {
            .def("merge", &btAABB::merge)
            .def(tostring(const_self))
            .def(const_self == const_self)
-       // XXX
   ];
 
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtVector4.html

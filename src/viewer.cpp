@@ -3595,8 +3595,6 @@ void Viewer::postDraw() {
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
     stopScreenCoordinatesSystem();
-    // restore foregroundColor
-    // XXXqglColor(foregroundColor());
   }
 
   if (_simulate) {
@@ -3611,8 +3609,6 @@ void Viewer::postDraw() {
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
     stopScreenCoordinatesSystem();
-    // restore foregroundColor
-    // XXXqglColor(foregroundColor());
   }
 
   if (_savePOV) {
@@ -3627,8 +3623,6 @@ void Viewer::postDraw() {
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
     stopScreenCoordinatesSystem();
-    // restore foregroundColor
-    // XXXqglColor(foregroundColor());
   }
 
   if (_deactivation) {
@@ -3643,8 +3637,6 @@ void Viewer::postDraw() {
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
     stopScreenCoordinatesSystem();
-    // restore foregroundColor
-    // XXXqglColor(foregroundColor());
   }
 
 #if USE_VFE

@@ -516,10 +516,7 @@ void Object::renderInLocalFramePre(btVector3 &oaabbmin, btVector3 &oaabbmax) {
       isfinite(oaabbmax[0]) && isfinite(oaabbmax[1]) && isfinite(oaabbmax[2])) {
     // qDebug() << toString() << (body->getMotionState());
 
-    if (body != nullptr && body->getMotionState() != nullptr
-        //&& typeid(body->getMotionState()) == typeid(btDefaultMotionState)
-        ////XXX
-    ) {
+    if (body != nullptr && body->getMotionState() != nullptr) {
       body->getMotionState()->getWorldTransform(trans);
       trans.getOpenGLMatrix(matrix);
       glPushMatrix();
@@ -1083,9 +1080,7 @@ QString Object::toPOV() const {
 
   btTransform trans;
 
-  if (body != nullptr && body->getMotionState() != nullptr
-      //&& typeid(body->getMotionState()) == typeid(btDefaultMotionState) //XXX
-  ) {
+  if (body != nullptr && body->getMotionState() != nullptr) {
     body->getMotionState()->getWorldTransform(trans);
     if (placed)               // (in a world drawn elsewhere: moved there, as on the screen)
       trans = place * trans;

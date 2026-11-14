@@ -178,8 +178,6 @@ void luaBindBulletPart1(lua_State *s) {
            .property("hasBoxSet", &btGImpactShapeInterface::hasBoxSet)
            .def(tostring(const_self))
            .def(const_self == const_self)
-
-       // XXX
   ];
 
   module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtGImpactMeshShape.html
