@@ -2323,6 +2323,56 @@ void Viewer::openLua() {
       "if type(math) == 'table' and type(math.atan2) ~= 'function' then "
       "math.atan2 = function(y, x) return math.atan(y, x) end end\n"
       "if atan2 == nil then atan2 = math.atan2 end");
+  // Lua 5.2 and later dropped these 5.1 names; bpp's scripts are written
+  // for 5.1 (Linux and Windows), but Homebrew's Lua (macOS) is 5.4. Each is
+  // defined only where it is missing, so on 5.1 this changes nothing. (5.1
+  // syntax only: it is parsed on every build. sinh, cosh and tanh agree with
+  // the C library's to a few units in the last place: exp(x) - 1 is taken
+  // the way Kahan gave, without the loss near 0, and past 22 both sinh and
+  // cosh are e^x / 2 as h * (h / 2), h = e^(x/2), finite as far as theirs.)
+  luaL_dostring(L,
+      "unpack = unpack or table.unpack\n"
+      "loadstring = loadstring or load\n"
+      "local m = math\n"
+      "m.pow = m.pow or function(x, y) return x ^ y end\n"
+      "m.log10 = m.log10 or function(x) return m.log(x, 10) end\n"
+      "m.ldexp = m.ldexp or function(x, e)\n"
+      "  local h = m.floor(e / 2) -- (in two steps: 2^e alone can overflow)\n"
+      "  return x * 2.0 ^ h * 2.0 ^ (e - h)\n"
+      "end\n"
+      "m.frexp = m.frexp or function(x)\n"
+      "  if x == 0 or x ~= x or x == m.huge or x == -m.huge then return x, 0 end\n"
+      "  local e = m.floor(m.log(m.abs(x), 2)) + 1\n"
+      "  local f = m.ldexp(x, -e)\n"
+      "  if m.abs(f) >= 1 then f, e = f / 2, e + 1\n"
+      "  elseif m.abs(f) < 0.5 then f, e = f * 2, e - 1 end\n"
+      "  return f, e\n"
+      "end\n"
+      "local function expm1(x)\n"
+      "  local u = m.exp(x)\n"
+      "  if u == 1 then return x end\n"
+      "  if u - 1 == -1 then return -1 end\n"
+      "  return (u - 1) * x / m.log(u)\n"
+      "end\n"
+      "local function halfexp(a) local h = m.exp(a / 2); return h * (h / 2) end\n"
+      "m.cosh = m.cosh or function(x)\n"
+      "  local a = m.abs(x)\n"
+      "  if a > 22 then return halfexp(a) end\n"
+      "  local e = m.exp(a)\n"
+      "  return (e + 1 / e) / 2\n"
+      "end\n"
+      "m.sinh = m.sinh or function(x)\n"
+      "  local a, s = m.abs(x)\n"
+      "  if a > 22 then s = halfexp(a)\n"
+      "  else local u = expm1(a); s = (u + u / (u + 1)) / 2 end\n"
+      "  return x < 0 and -s or s\n"
+      "end\n"
+      "m.tanh = m.tanh or function(x)\n"
+      "  if x ~= x then return x end\n"
+      "  local a = m.abs(x)\n"
+      "  local t = a > 22 and 1 or expm1(2 * a) / (expm1(2 * a) + 2)\n"
+      "  return x < 0 and -t or t\n"
+      "end\n");
   luaL_dostring(L, "printf = function(s,...) print(s:format(...)) end");
 
   // Build Lua package.path: search script directory first (if console mode), then CWD/demo, then installed
