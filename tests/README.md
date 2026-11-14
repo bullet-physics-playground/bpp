@@ -21,8 +21,14 @@ tests/harness.py golden -k constraint   # one suite, only matching tests
 | `screens` | Still scenes in `screens/*.lua`, opened in the GUI on a virtual screen, match pixel for pixel (outside the frame counter) | `screens/expected/*.png`, `screens/expected-qt6/` for a Qt 6 build |
 | `theory`  | Only when named. Euler's Gallery's exhibits, run as their physics report ran them; what each prints agrees with the theory it stands for, within a tolerance (`--slow` adds the two that take many minutes) | `theory/checks.txt` |
 
-Every bpp run gets its own empty HOME, settings, mesh cache and export
-directory, so your preferences never affect a result. Demos run from their
+Every bpp run gets its own empty HOME and `BPP_USER_DIR`, the one folder
+bpp then keeps its settings (`bpp.ini`), mesh cache, `v:dataDir` and
+renders in (`src/appenv.h`), and its own export directory, so your
+preferences never affect a result and no run touches your own files. A
+run that writes where bpp would without `BPP_USER_DIR` (`~/.config`,
+`~/.cache`, the desktop) fails; on Windows, where bpp would use the
+registry and AppData, the harness compares those before and after the
+whole run and fails if they changed. Demos run from their
 own directory, as the GUI runs them; the unit tests from the top of the
 checkout, as before. Numbers are compared with a tolerance of 1e-5 (bpp
 prints six digits): on the same platform runs match exactly.

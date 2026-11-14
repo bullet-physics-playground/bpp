@@ -32,9 +32,11 @@ Suites (run all of them with no arguments, or name the ones you want):
   do that only for a change in behaviour that is meant, and commit the
   result with the change that caused it.
 
-Each bpp run gets its own empty HOME, XDG config and cache, so the
+Each bpp run gets its own empty HOME, XDG folders and BPP_USER_DIR (bpp's
+settings, mesh cache, data and renders, see src/appenv.h), so the
 developer's preferences, mesh cache and export directory never leak into a
-result.
+result, nor a run's into the developer's: on Windows too, where bpp would
+otherwise use the registry and AppData.
 
 Usage:
   tests/harness.py [--bpp release/bpp] [--update] [--jobs N] [-k PATTERN]
@@ -90,15 +92,85 @@ class Run:
         return [l for l in self.out.splitlines() if not NOISE.match(l)]
 
 
+def user_dir(workdir):
+    """A run's BPP_USER_DIR: bpp.ini, cache/, data/, renders/."""
+    return os.path.join(workdir, "user")
+
+
+# Where bpp would write in HOME without BPP_USER_DIR (Linux names). A run that leaves any of these has a path that skips
+# src/appenv.h, which on Windows writes into the developer's own profile.
+# (Qt's own OpenGL shader cache, qtshadercache-*, also goes in the cache
+# folder; bpp can't move it, and it holds nothing of bpp's.)
+STRAY = [os.path.join(".config", "bullet-physics-playground.github.io"),
+         os.path.join(".config", "Unknown Organization"),
+         os.path.join(".cache", "bpp"),
+         os.path.join(".local", "share", "bpp"),
+         "Desktop"]
+
+
+def stray_files(workdir):
+    home = os.path.join(workdir, "home")
+    out = []
+    for rel in STRAY:
+        path = os.path.join(home, rel)
+        if os.path.isdir(path):
+            out += [os.path.join(rel, f) for f in sorted(os.listdir(path))
+                    if not f.startswith("qtshadercache")]
+        elif os.path.exists(path):
+            out.append(rel)
+    return out
+
+
+def profile_state():
+    """On Windows, where a run's HOME moves nothing: bpp's registry keys
+    (when each was last written) and every file in its AppData folders
+    (when each was last changed), to compare before and after a whole
+    harness run. None elsewhere, where stray_files sees the same in each
+    run's own HOME."""
+    if not sys.platform.startswith("win"):
+        return None
+    import winreg
+    state = {}
+
+    def walk(key):     # (a key's time changes with its own values only)
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key) as k:
+                n, _, when = winreg.QueryInfoKey(k)
+                subs = [winreg.EnumKey(k, i) for i in range(n)]
+        except OSError:
+            return
+        state["HKEY_CURRENT_USER\\" + key] = when
+        for sub in subs:
+            walk(key + "\\" + sub)
+
+    walk(r"Software\bullet-physics-playground.github.io\bpp")
+    walk(r"Software\Unknown Organization\bpp")
+    for var in ("LOCALAPPDATA", "APPDATA"):
+        base = os.environ.get(var)
+        for d, ds, fs in os.walk(os.path.join(base, "bpp")) if base else ():
+            ds[:] = [x for x in ds if not x.startswith("qtshadercache")]
+            for f in fs:
+                try:
+                    state[os.path.join(d, f)] = os.stat(os.path.join(d, f)).st_mtime_ns
+                except OSError:
+                    pass
+    return state
+
+
 def isolated_env(workdir, display=None):
-    """Environment for one bpp run: its own HOME, settings and cache under
+    """Environment for one bpp run: its own HOME and BPP_USER_DIR under
     workdir, with POV-Ray exports going to workdir/export."""
     home = os.path.join(workdir, "home")
-    conf = os.path.join(home, ".config", "bullet-physics-playground.github.io", "bpp.conf")
-    if not os.path.exists(conf):
-        write(conf, "[povray]\nexport=%s\n" % os.path.join(workdir, "export"))
+    user = user_dir(workdir)
+    ini = os.path.join(user, "bpp.ini")
+    if not os.path.exists(ini):
+        # (Qt reads a backslash in an INI value as an escape: forward
+        # slashes, which Windows takes too.)
+        write(ini, "[povray]\nexport=%s\n" % os.path.join(workdir, "export").replace("\\", "/"))
+    os.makedirs(home, exist_ok=True)
     env = dict(os.environ)
     env.update(
+        BPP_USER_DIR=user,
         HOME=home,
         XDG_CONFIG_HOME=os.path.join(home, ".config"),
         XDG_CACHE_HOME=os.path.join(home, ".cache"),
@@ -150,8 +222,11 @@ def run_bpp(bpp, args, workdir, timeout, cwd, env=None):
             stderr=subprocess.STDOUT,
             timeout=timeout,
         )
-        return Run(p.returncode, p.stdout.decode("utf-8", "replace"),
-                   time.time() - start, workdir, False)
+        out = p.stdout.decode("utf-8", "replace")
+        # (worded so lua_errors, which every suite asks, sees it)
+        for f in stray_files(workdir):
+            out += "\nerror: bpp wrote %s outside BPP_USER_DIR\n" % f
+        return Run(p.returncode, out, time.time() - start, workdir, False)
     except subprocess.TimeoutExpired as e:
         out = (e.stdout or b"").decode("utf-8", "replace")
         return Run(None, out, time.time() - start, workdir, True)
@@ -305,7 +380,7 @@ def _key_nums(block):
     return key, nums
 
 
-def canon_export(scene_dir, home, frames):
+def canon_export(scene_dir, cache, frames):
     """Canonical text of an export directory: the scene, the .ini, the
     given frames and any sound track, with meshes named by their geometry.
     Blocks within a file are sorted by their text with the numbers taken
@@ -325,7 +400,9 @@ def canon_export(scene_dir, home, frames):
             raise ValueError("the export has no %s" % fn)
         text = read(path)
         text = HEADER.sub("", text)
-        text = text.replace(os.path.join(home, ".cache"), "$CACHE")
+        # (named as it was when the cache was ~/.cache/bpp, as the
+        # expected files have it)
+        text = text.replace(cache, "$CACHE/bpp")
         text = MESH.sub(mesh_name, text)
         blocks, balanced = _blocks(text)
         blocks = sorted(blocks, key=lambda b: (_key_nums(b)[0], _key_nums(b)[1]))
@@ -583,13 +660,13 @@ def suite_render(ctx):
     stand-in tests/render/standin/povray, first on PATH, writes how it was
     called. bpp's own side of a quick render is checked against that:
     which program, the options (the default preview's), the size (the
-    view's: 640x480 headless), the PNG on the desktop (made if missing)
-    named after the scene and frame, POV-Ray's clock, the scene file, the
+    view's: 640x480 headless), the PNG in renders/ (the desktop, without
+    BPP_USER_DIR; made if missing) named after the scene and frame, POV-Ray's clock, the scene file, the
     extra options (one argument each), and the folder (the scene's
     export, holding the .pov). The
     Ubuntu POV-Ray is 3.7, which won't read bpp's 3.8 scenes, so nothing
     is rendered."""
-    wd = ctx.workdir("render")      # (its home has no Desktop: bpp makes it)
+    wd = ctx.workdir("render")      # (it has no renders/ yet: bpp makes it)
     env = {"PATH": os.path.join(RENDER, "standin") + os.pathsep + os.environ.get("PATH", "")}
     r = run_bpp(ctx.bpp, ["-f", "quick.lua", "-n", "4"], wd, 120, RENDER, env)
     home = os.path.join(wd, "home")
@@ -609,8 +686,9 @@ def suite_render(ctx):
             got = f.read().split("\n")[:-1]
         folder, args = got[0], got[1:]
         export = os.path.join(wd, "export", "quick")
-        cache = os.path.join(home, ".cache", "bpp")
-        png = re.compile(re.escape("+O" + os.path.join(home, "Desktop")) +
+        cache = os.path.join(user_dir(wd), "cache")
+        renders = os.path.join(user_dir(wd), "renders")
+        png = re.compile(re.escape("+O" + renders) +
                          r"/bpp-\d{8}-\d{6}-quick-00002\.png$")
         want = ["+L" + cache, "+L" + os.path.join(RENDER, "includes"),
                 "-c", "+d", "-A", "+p", "+Q11", "+GA", "+FN10",
@@ -625,7 +703,7 @@ def suite_render(ctx):
             ok = w.match(g) if hasattr(w, "match") else g == w
             if not ok:
                 why.append("argument %d: %r, not %r" % (i + 1, g, getattr(w, "pattern", w)))
-        if not why and not glob.glob(os.path.join(home, "Desktop", "bpp-*-quick-00002.png")):
+        if not why and not glob.glob(os.path.join(renders, "bpp-*-quick-00002.png")):
             why.append("the PNG asked for was not written")
     print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "quick.lua", r.seconds))
     for w in why:
@@ -759,7 +837,7 @@ def golden_canon(ctx, bpp, demo, tag):
     name = os.path.splitext(os.path.basename(demo))[0]
     scene = os.path.join(wd, "export", name)
     try:
-        text = canon_export(scene, os.path.join(wd, "home"),
+        text = canon_export(scene, os.path.join(user_dir(wd), "cache"),
                             [1, GOLDEN_FRAMES // 2, GOLDEN_FRAMES])
     except ValueError as e:
         return None, str(e)
@@ -890,6 +968,14 @@ def grab(ctx, display, scene, out_png):
     either, the screen under the window is grabbed, so a tooltip shows
     too."""
     wd = ctx.workdir("screens-" + os.path.basename(scene))
+    why = _grab(ctx, display, scene, out_png, wd)
+    strays = stray_files(wd)
+    if why is None and strays:
+        why = "bpp wrote %s outside BPP_USER_DIR" % ", ".join(strays)
+    return why
+
+
+def _grab(ctx, display, scene, out_png, wd):
     env = isolated_env(wd, display)
     fonts = pinned_fonts(wd)
     if fonts:
@@ -1212,6 +1298,7 @@ def main():
     ctx = Ctx(a)
     suites = a.suites or ALL_SUITES
     total, start = 0, time.time()
+    profile = profile_state()
     for s in ALL_SUITES + EXTRA_SUITES:
         if s not in suites:
             continue
@@ -1226,6 +1313,13 @@ def main():
             n = globals()["suite_" + s](ctx)
         print("   (%s: %d failed, %.0fs)" % (s, n, time.time() - t), flush=True)
         total += n
+    after = profile_state()
+    if after != profile:
+        print("== profile\n   FAIL: bpp wrote to your own profile, not to BPP_USER_DIR:")
+        for k in sorted(set(profile) | set(after)):
+            if profile.get(k) != after.get(k):
+                print("     " + k)
+        total += 1
     if a.keep:
         print("temporary files kept in %s" % ctx.tmp)
     else:
