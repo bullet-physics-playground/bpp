@@ -218,8 +218,8 @@ ball reaching that column drops through a hole into its own tube, one tube
 for each row it can be caught at. Every pin a ball meets on the way is an
 ordinary splitter. So the test is whether tuned splitters give the exact
 mathematics. `splitter-test.lua` takes `SP_WALL_L` and `SP_WALL_R` (places
-from the start; the row each ball is caught at goes to `SP_CAUGHT`), and
-`walls.py` compares the counts with the formulas:
+from the start; the row each ball is caught at, and the side, go to
+`SP_CAUGHT`), and `walls.py` compares the counts with the exact chances:
 
 - a ball is first caught after n rows with probability
   (a/n) C(n, (n+a)/2) / 2^n, for a wall a places away (first passage);
@@ -231,10 +231,10 @@ from the start; the row each ball is caught at goes to `SP_CAUGHT`), and
 Twelve rows, a wall 2 places to the left of the start, 3,000 balls, at a
 bounce of 0.4 (expected counts in brackets):
 
-| teeth | caught at row 2, 4, 6, 8, 10, 12 | survivors at place 0, 2, 4, 6, 8, 10+ | chi-square (12 df; 1% level 26.2) |
+| teeth | caught at row 2, 4, 6, 8, 10, 12 | survivors at place 0, 2, 4, 6, 8, 10+ | chi-square (11 df; 1% level 24.7) |
 |---|---|---|---|
-| tuned (10 mm necks, memory +0.01) | 720, 368, 233, 176, 128, 86 (750, 375, 234, 164, 123, 97) | 321, 402, 332, 168, 60, 6 (314, 419, 314, 152, 48, 10) | **11.9** |
-| mistuned (4 mm necks, memory +0.53) | 1182, 255, 160, 128, 109, 74 | 134, 193, 217, 182, 176, 190 | 9,927 |
+| tuned (10 mm necks, memory +0.01) | 720, 368, 233, 176, 128, 86 (750, 375, 234, 164, 123, 97) | 321, 402, 332, 168, 60, 6 (314, 419, 314, 152, 48, 10) | **11.6** |
+| mistuned (4 mm necks, memory +0.53) | 1182, 255, 160, 128, 109, 74 | 134, 193, 217, 182, 176, 190 | 4,354 |
 
 With tuned teeth the board gives first passage and the reflection
 principle as the formulas do. Mistuned, it is plain at the first tube: the
@@ -246,6 +246,35 @@ fills the tubes with about 37, 19, 12, 8, 6 and 5 balls (a long thin tail:
 the average time to be caught is infinite), and about 63 balls survive,
 piled away from the wall (16, 21, 16, 8, 2). A wall 3 places away: 19, 14,
 11, 8, 7, and 92 survivors.
+
+## Two swallowing walls: gambler's ruin
+
+With a wall on each side, a ball leaves by the right one with probability
+a/(a+b) in the long run, for walls a places left and b places right of the
+start: a fair game cannot be beaten, so the chance is a straight line in
+where the ball starts. `walls.py` takes both walls and works the exact
+chances out row by row (for one wall they are the formulas above). Twelve
+rows, walls 6 places apart, tuned teeth, 2,000 balls each:
+
+| start (places from the left wall) | went right, of those caught (exact in 12 rows; long run) | caught left, right, survived (exact) | chi-square (12 df; 1% level 26.2) |
+|---|---|---|---|
+| 1 | 0.135 (0.122; 0.167) | 1545, 242, 213 (1548, 215, 237) | 15.3 |
+| 2 | 0.310 (0.297; 0.333) | 1142, 513, 345 (1155, 489, 356) | 7.8 |
+| 3 | 0.506 (0.500; 0.500) | 767, 787, 446 (763, 763, 475) | 7.3 |
+
+(The chi-squares are over the rows caught at on each side and the
+survivors' places.) Gambler's ruin as the mathematics has it. In all three
+slightly fewer balls survived than the exact count (1,004 against 1,068,
+about two standard deviations), as a slight memory left in the teeth
+would spread the balls a little faster; too little to show on a board.
+
+For the exhibit the long-run line shows only if nearly every ball is
+caught. Walls 6 apart leave 12 to 24% of the balls alive after 12 rows;
+walls 4 apart only 2%, and the shares come to 0.246, 0.500 and 0.754 for
+starts 1, 2 and 3 places from the left wall (a quarter, a half, three
+quarters: about 37, 75 and 112 of 150 balls). So a gambler's-ruin board
+would have its walls 4 places (two pitches) apart, with the feed, or the
+walls, moved between runs.
 
 ## What it means
 
