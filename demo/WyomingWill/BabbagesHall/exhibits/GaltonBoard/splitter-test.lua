@@ -21,7 +21,7 @@
 -- gap) and contacts (bounce 0.4, friction 0.3) as the Galton board. All
 -- can be set from the environment (SP_<NAME>); also mixing chambers
 -- (SP_CHAMBERS) and leaning necks (SP_SHEAR, SP_LAND, SP_ALT), both tried
--- and set aside: SPLITTERS.md.
+-- and set aside, and fixed-height teeth (SP_TOTAL): SPLITTERS.md.
 --
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local MM = 0.1
@@ -43,6 +43,15 @@ local P = {
 math.randomseed(envnum("SP_SEED", 1))
 local HW = P.S / 2 - P.NECK_W / 2                 -- a wedge's half-width
 local H = HW * math.tan(math.rad(P.SLOPE))        -- its slope's drop
+-- fixed-height teeth (SP_TOTAL, mm from a pin's centre to its necks' foot):
+-- the slope takes what the neck leaves, so every variant fits the same
+-- rows. 29.05 is the 60-degree, 10 mm tooth's.
+P.TOTAL = envnum("SP_TOTAL", 0)
+if P.TOTAL > 0 then
+  H = P.TOTAL - P.NECK_L
+  assert(H > 2, "splitter-test: the neck is longer than the tooth")
+  P.SLOPE = math.deg(math.atan(H / HW))
+end
 assert(HW > 1, "splitter-test: the necks are wider than the pitch allows")
 -- mixing chambers in each neck (SP_CHAMBERS, 0 for none): the neck widens
 -- at 45 degrees to CHAMBER_W around a post on its centre line, runs

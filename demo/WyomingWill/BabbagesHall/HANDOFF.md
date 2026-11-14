@@ -314,9 +314,13 @@ there, in `release/`, or on the path; or set `BPP`.
   tried to take the bounce out (mixing chambers, leaning necks): neither
   did, and the memory turned out to hang on how a ball meets the neck's
   mouth (a seam there moved it by 0.13), so no simulation can promise a
-  printed splitter's memory. The plan: necks as inserts in a few lengths,
-  tuned on the built board from SPLITTERS.md's table (bounce against neck
-  length). Both boards are to be kept. Printed in three tiles under 200 mm,
+  printed splitter's memory. The plan (a sixth patch): the whole printed
+  tooth is what swaps, in variants of one height so the rows stay put;
+  four sets (necks 10, 12, 14, 20 mm) cover bounces 0.3 to 0.6 within
+  0.07, tuned on the built board by the pile's spread. Next: the splitter
+  board in bpp, with swappable wall panels (plain; swallowing, for first
+  passage and the reflection principle; both, for gambler's ruin). Both
+  boards are to be kept. Printed in three tiles under 200 mm,
   two gears, a stand, an acrylic front sheet; every STL checked watertight,
   and no two parts overlap at rest. `tools/check-all.sh` (twelve runs, the
   Galton board's two included) all passed on the revised board.

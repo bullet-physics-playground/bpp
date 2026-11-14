@@ -174,18 +174,55 @@ under +0.4). Where the memory is strong it reaches two rows (at 0.3 with
 6 mm necks, +0.37 two rows apart). The table says where to start; the
 board says where to stop.
 
+## Teeth of one height: tuning without moving the rows
+
+The table above changes the rows' spacing with the neck. A printed board
+needs its rows fixed, so the part to swap is the whole printed tooth (the
+wedge and its neck walls, keyed onto its steel pin), in variants of one
+height: 29 mm from the pin's centre to the necks' foot, the slope taking
+what the neck leaves (`SP_TOTAL=29.05`). Rows stay 37 mm apart whatever the
+teeth. Memory, spread (8 rows; fair 1.414) and the correlation two rows
+apart, 800 balls each:
+
+| bounce | neck 4 (66°) | 6 (64°) | 8 (62°) | 10 (60°) | 12 (57°) | 14 (54°) | 16 (50°) | 18 (45°) | 20 (39°) | 22 (35°) | 24 (30°) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0.3 | +0.84, 3.23 | +0.50, 2.19 | +0.62, 2.52 | +0.41, 2.02 | +0.41, 2.01 | +0.31, 1.95 | +0.36, 1.93 | +0.15, 1.65 | **0.00, 1.50** | +0.36, 1.87 | +0.37, 1.98 |
+| 0.4 | +0.53, 2.32 | -0.24, 1.12 | +0.09, 1.52 | **+0.01, 1.48** | +0.11, 1.63 | **+0.02, 1.46** | +0.22, 1.68 | +0.24, 1.73 | +0.13, 1.51 | +0.12, 1.51 | +0.06, 1.50 |
+| 0.5 | -0.29, 1.12 | -0.32, 0.97 | -0.26, 1.11 | -0.30, 1.13 | **-0.07, 1.37** | +0.09, 1.49 | +0.07, 1.53 | +0.28, 1.75 | | | |
+| 0.6 | -0.44, 0.93 | -0.18, 1.23 | -0.34, 0.99 | **-0.04, 1.32** | +0.08, 1.57 | +0.21, 1.61 | +0.22, 1.74 | +0.33, 1.87 | | | |
+
+(Two rows apart the correlation stays under 0.08 wherever the memory is
+under 0.3.) The 12 mm tooth with friction 0.2 or 0.45 instead of 0.3, at a
+bounce of 0.4: -0.17 and +0.10; at 0.5: -0.08 and +0.05.
+
+- **Every bounce has a tooth near nothing,** within 0.07: 0.3 the 20 mm
+  neck, 0.4 the 10 mm (or 14), 0.5 the 12 mm, 0.6 the 10 mm.
+- **Neighbours can differ wildly** (at 0.3: 20 mm 0.00, 22 mm +0.36), as
+  the corner predicted. The tuning is by trial, not by reading between
+  rows of the table.
+- **The friction moves it about as much as a step of bounce,** so the
+  choice is made on the board, not from the table.
+
+So a splitter board comes with four sets of teeth: necks of 10, 12, 14 and
+20 mm. Start from the measured bounce (the set the table marks), pour a few
+hundred balls, and compare the pile's spread with the binomial's (engraved
+in the bins): with a memory m the spread is about sqrt((1+m)/(1-m)) times
+the binomial's, so 10% too wide is about +0.1 and 10% too narrow about
+-0.1. A pile of 300 balls measures the spread to about 4%. Try the next set
+the table suggests, and keep the one closest.
+
 ## What it means
 
 - A neck above every pin can cut the memory to nothing, but only at a
   shape that suits the bounce, and how a ball meets the neck's mouth moves
   that shape. No passive mixer tried (chambers, a lean) took the bounce out.
-- So a splitter board is to be tuned as built: necks as inserts in a few
-  lengths (and the bounce measured first, `FINDINGS.md` section 5, to
-  choose where to start from the table above). Watching a few hundred balls
+- So a splitter board is to be tuned as built: four sets of teeth of one
+  height (necks of 10, 12, 14 and 20 mm), the bounce measured first
+  (`FINDINGS.md` section 5) to choose where to start. Watching a few hundred balls
   with `GB_PATHS`-style counting, or simply the spread of the pile against
   its engraved curve, says which way to go: too wide, the balls keep on
   (longer or shorter necks, by the table); too narrow, they turn back.
-- Short necks keep the board's height reasonable (37 mm a row at a 30 mm
-  pitch and 10 mm necks: twelve rows in 0.45 m; 20 mm necks, 0.57 m).
+- With teeth of one height the rows are 37 mm apart whatever the set:
+  twelve rows in 0.45 m.
 - Nothing jammed in the plain necks (over 70,000 balls in all), though
   the balls came one at a time; a full feed is still to try.
