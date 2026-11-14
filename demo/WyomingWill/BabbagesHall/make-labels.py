@@ -64,6 +64,7 @@ jobs = [
  ("digicomp", "DIGI-COMP II", 4.2, 0.5),
  ("lehmer", "LEHMER’S NUMBER SIEVE", 4.2, 0.5),
  ("galton", "THE GALTON BOARD", 4.2, 0.5),
+ ("splitter", "THE SPLITTER BOARD", 4.2, 0.5),
  ("planimeter", "AMSLER’S PLANIMETER", 4.2, 0.5),
  ("reserved", "RESERVED", 4.2, 0.5),
  ("in-preparation", "IN PREPARATION", 2.4, 0.4),

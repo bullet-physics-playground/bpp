@@ -68,6 +68,18 @@ LABELS = {
         "Galton's, made for him in London, ran on lead shot. Here two "
         "mirror-image wheels under the hopper let the balls in one at a time.",
     ),
+    "splitter": (
+        "THE SPLITTER BOARD",
+        "Fair coins, made exact",
+        "On the Galton board opposite, each pin is fair, but a ball keeps "
+        "moving sideways and goes the same way at the next pin two times in "
+        "three. Here every pin is a splitter: a neck drops each ball straight "
+        "onto it, and the choice it makes is a fresh coin.\n"
+        "A wall on the left swallows the balls that reach it, each into the "
+        "tube for its row. A quarter are caught at the first chance; the rest "
+        "hold out longer and longer, and on a board without end the average "
+        "wait would be infinite.",
+    ),
     "digicomp": (
         "THE DIGI-COMP II",
         "A computer of rolling balls, 1965",

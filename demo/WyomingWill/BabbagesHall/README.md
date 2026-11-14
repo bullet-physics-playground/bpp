@@ -9,28 +9,30 @@ be 3D printed and built**: each exhibit's folder holds its OpenSCAD sources,
 a script that makes its STL files, and a README saying what else to buy and
 how to put it together. What is printed is what is simulated.
 
-The machines get **more interesting as you walk on**, from the Differential at
+The machines **ask more of you as you walk on**, from the Domino Half Adder at
 the entrance to Babbage's own Difference Engine at the far end: a bay on the
-west side, then the one facing it on the east, and on. The bays still waiting for their machines stand covered,
+west side, then the one facing it on the east, and on (`MACHINES.md` says
+how they are ordered). The bays still waiting for their machines stand covered,
 "in preparation". When an exhibit's script turns up in its folder, its bay
 comes to life.
 
 | Bay | Exhibit | |
 |---|---|---|
-| west 1 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
-| east 1 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
-| west 2 | Amsler's planimeter | in preparation |
-| east 2 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
-| west 3 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
-| east 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
-| west 4 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
-| east 4 | Kelvin's tide predictor | in preparation |
-| west 5 | The Differential Analyser | in preparation |
-| east 5 | The Difference Engine | in preparation |
+| west 1 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
+| east 1 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
+| west 2 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
+| east 2 | Amsler's planimeter | in preparation |
+| west 3 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
+| east 3 | **The splitter board**: a Galton board whose pins are independent coins, with a wall that swallows balls (first passage, exactly) | `exhibits/GaltonBoard/` |
+| west 4 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
+| east 4 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
+| west 5 | Kelvin's tide predictor | in preparation |
+| east 5 | The Differential Analyser | in preparation |
+| west 6 | The Difference Engine | in preparation |
 
 `HANDOFF.md` is where a new chat starts: how to work, build and test, and
-what's next. `MACHINES.md` lists every machine considered for the hall (47 of them),
-ranked by interest, with how each would be simulated and printed.
+what's next. `MACHINES.md` lists every machine considered for the hall (48 of them),
+in the order the hall walks them, with how each would be simulated and printed.
 
 ## Running it
 

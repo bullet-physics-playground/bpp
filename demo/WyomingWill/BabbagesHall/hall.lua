@@ -71,8 +71,9 @@ local LABELS = dofile(MESH .. "labels.lua")
 
 -- ---------------------------------------------------------------------
 -- the exhibits, in the order you walk past them (a bay on the west side,
--- then the one facing it on the east, and on): the least interesting first,
--- each more so than the last, the hall's namesake at the end
+-- then the one facing it on the east, and on): in MACHINES.md's order,
+-- from what asks least of a visitor (one idea, little mechanism) to what
+-- asks most, the hall's namesake at the end
 -- ---------------------------------------------------------------------
 --   dir, file  the script (dir from this folder). Not there: a covered bay.
 --   name       what the header and Tab call it
@@ -82,17 +83,21 @@ local LABELS = dofile(MESH .. "labels.lua")
 --              is where the hall's floor goes
 --   about      what the placard says when the mouse rests on it
 EXHIBITS = EXHIBITS or {
+  { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
+    prefix = "Dominoes: ", floorY = -100,
+    about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..
+            "Waves meeting head-on stop each other; a branch is taken only by a wave\n" ..
+            "running toward it; a wave can cut another line. That is enough for XOR and AND." },
   { dir = "exhibits/Differential/", file = "differential.lua", name = "the Differential", label = "differential",
     prefix = "Differential: ", floorY = -100,
     about = "The Differential: gears that add. The carrier turns (A + B) / 2, and its\n" ..
             "ring, with twice as many numbers, reads A + B. Turn one input back and it subtracts." },
-  { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
-    prefix = "Sieve: ", floorY = -100,
-    about = "Lehmer's number sieve (1926): wheels of 9, 8, 7 and 5 places, each moved on one\n" ..
-            "place by every turn of the handle. Pegs close the holes of the numbers that fail;\n" ..
-            "where every wheel has an open hole, the probe falls right through. It factors\n" ..
-            "N by Fermat's way; the board beside it shows the working. N: choose a number;\n" ..
-            "T: its tour; G: turn until the probe falls through; Space: one turn." },
+  { dir = "exhibits/Pascaline/", file = "pascaline.lua", name = "the Pascaline", label = "pascaline",
+    prefix = "Pascaline: ", floorY = -100,
+    about = "The Pascaline (1642): Pascal's adding machine. Each wheel, passing 9,\n" ..
+            "lifts a weighted lever, the sautoir; passing 9 it drops, and its pawl kicks\n" ..
+            "the next wheel on by one. Watch 99 + 1 ripple to 100. To add: rest the mouse\n" ..
+            "on a dial's hole and press Space, or U/T/H to choose a wheel and 1-9." },
   { dir = "exhibits/Planimeter/", file = "planimeter.lua", name = "Amsler's planimeter", label = "planimeter",
     prefix = "Planimeter: ", floorY = -100,
     about = "Amsler's polar planimeter (1856): trace round a shape and a wheel rolling\n" ..
@@ -104,17 +109,20 @@ EXHIBITS = EXHIBITS or {
             "the gold lines are where fair coins would put them. Two mirror-image wheels\n" ..
             "under the hopper let them in one at a time. Space: turn the crank; E: empty the bins and pour\n" ..
             "them back; T: the tour." },
-  { dir = "exhibits/Pascaline/", file = "pascaline.lua", name = "the Pascaline", label = "pascaline",
-    prefix = "Pascaline: ", floorY = -100,
-    about = "The Pascaline (1642): Pascal's adding machine. Each wheel, passing 9,\n" ..
-            "lifts a weighted lever, the sautoir; passing 9 it drops, and its pawl kicks\n" ..
-            "the next wheel on by one. Watch 99 + 1 ripple to 100. To add: rest the mouse\n" ..
-            "on a dial's hole and press Space, or U/T/H to choose a wheel and 1-9." },
-  { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
-    prefix = "Dominoes: ", floorY = -100,
-    about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..
-            "Waves meeting head-on stop each other; a branch is taken only by a wave\n" ..
-            "running toward it; a wave can cut another line. That is enough for XOR and AND." },
+  { dir = "exhibits/GaltonBoard/", file = "splitter-board.lua", name = "the splitter board", label = "splitter",
+    prefix = "Splitter: ", floorY = -100,
+    about = "The splitter board: a Galton board whose pins are fair, independent coins.\n" ..
+            "Every pin is a splitter, a neck dropping each ball onto it; a wall on the left\n" ..
+            "swallows the balls that reach it, into a tube for the row they were caught at.\n" ..
+            "The tubes fill as first passage has it, a long thin tail; the survivors pile up\n" ..
+            "away from the wall. Space: turn the crank; E: empty and pour back; T: the tour." },
+  { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
+    prefix = "Sieve: ", floorY = -100,
+    about = "Lehmer's number sieve (1926): wheels of 9, 8, 7 and 5 places, each moved on one\n" ..
+            "place by every turn of the handle. Pegs close the holes of the numbers that fail;\n" ..
+            "where every wheel has an open hole, the probe falls right through. It factors\n" ..
+            "N by Fermat's way; the board beside it shows the working. N: choose a number;\n" ..
+            "T: its tour; G: turn until the probe falls through; Space: one turn." },
   { dir = "exhibits/DigiComp2/", file = "digicomp2.lua", name = "the Digi-Comp II", label = "digicomp",
     prefix = "Digi-Comp: ", floorY = -100,
     about = "The Digi-Comp II (1965): balls rolling down a two-level board of flip-flops\n" ..

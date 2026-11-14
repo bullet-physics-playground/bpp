@@ -4,7 +4,7 @@
 `MANUAL.pdf`) is an illustrated manual: how each operation works, ball by
 ball, and which parts each one needs.
 
-Babbage's Hall, west bay 4. The Digi-Comp II, designed by John Godfrey in 1965 and made by E.S.R. Inc. in the late 1960s,
+Babbage's Hall, east bay 4. The Digi-Comp II, designed by John Godfrey in 1965 and made by E.S.R. Inc. in the late 1960s,
 was a computer of marbles: a sloping two-level board of flip-flops and
 switches that balls rolled down one at a time. Set up with its switches, it
 counted, cleared, added, subtracted, multiplied and divided binary numbers.

@@ -22,12 +22,15 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   how to assemble it. What is printed is what is simulated: no shortcuts in
   the parts that compute, and anything idealised is said on the placard and
   in FINDINGS.
-- **The walk gets more interesting as you go**, least interesting first,
-  Babbage's Difference Engine at the far end (`MACHINES.md` ranks them).
-- Built so far: **the Differential** (west 1), **Lehmer's number sieve**
-  (east 1), **the Galton board** (east 2, since 2026-11-12), **the
-  Pascaline** (west 3), **the Domino Half Adder** (east 3), and the
-  **Digi-Comp II** (west 4: it counts, adds, multiplies,
+- **The walk asks more of you as you go:** from what asks least (one idea,
+  little mechanism) to what asks most, Babbage's Difference Engine at the
+  far end. `MACHINES.md` has the order and why (re-ordered 2026-11-14:
+  it was by interest alone).
+- Built so far, in walking order: **the Domino Half Adder** (west 1),
+  **the Differential** (east 1), **the Pascaline** (west 2), **the Galton
+  board** (west 3, since 2026-11-12), **the splitter board** (east 3,
+  facing it, since 2026-11-14), **Lehmer's number sieve** (west 4), and
+  the **Digi-Comp II** (east 4: it counts, adds, multiplies,
   subtracts and divides, runs programs, and in AUTO runs a multiply by
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
   a cup of balls and a bought rotary damper; each program has only its
@@ -84,7 +87,7 @@ git push
 |---|---|
 | `hall.lua` | The hall: architecture, the EXHIBITS list (walking order, placards, `floorY`), sandboxes, walking and camera flights, resting, the cost meter |
 | `exhibit-table.lua` | The standard exhibit table (README "Exhibit standard") |
-| `MACHINES.md` | All 47 machines considered, ranked by interest and scored for complexity, with how each would go in bpp and be printed; the rope test |
+| `MACHINES.md` | All 48 machines considered, in walking order (five tiers), scored for interest and complexity, with how each would go in bpp and be printed; the rope test |
 | `README.md` | The hall: bays, keys, how it works, the cost meter, the exhibit standard, notes for exhibit authors |
 | `HANDOFF.md` | This file |
 | `make-pdfs.sh`, `tools/md2pdf.py` | The PDFs |
@@ -281,7 +284,7 @@ there, in `release/`, or on the path; or set `BPP`.
 - **Checked against bpp's new Params and ScriptKeys (2026-11-11):**
   `tools/check-all.sh` all passed on Jakob's rewrite, and in the window
   Tab, the panes and the sliders work.
-- **Done (2026-11-12, revised 2026-11-13): the Galton board** (east 2),
+- **Done (2026-11-12, revised 2026-11-13): the Galton board** (now west 3),
   in a new row of bays: the hall has ten now, the planimeter's covered bay
   (west 2) before it (by rank, 14 and 13), and everything after it one row
   on, on the same side (Pascaline west 3, Domino Half Adder east 3,
@@ -343,21 +346,25 @@ there, in `release/`, or on the path; or set `BPP`.
   and no two parts overlap at rest. `tools/check-all.sh` (twelve runs, the
   Galton board's two included) all passed on the revised board.
   **Not seen by William in the GUI yet.**
-- **Next (William to choose):** **Amsler's planimeter** (its bay is ready,
-  west 2; quick and clear), **Kelvin's tide predictor** (the next covered
-  bay of the original list), or the **Antikythera mechanism** (the most
-  striking). Still offered, not asked for: printing only a Digi-Comp program's parts (the tiles carry
-  every wall; `make-stls.sh` could take a `PARTS` list, with tiles cut
-  anew). Skipped, at William's word: fixing bpp's own
+- **Done (2026-11-14): the hall re-ordered, the splitter board in it.**
+  William found the old order (by interest alone) off: the Domino Half
+  Adder, which does one thing once, stood sixth; Lehmer's sieve second.
+  MACHINES.md now orders all 48 by what each asks of a visitor (the idea
+  it computes, the mechanism, how much it shows), in five tiers, and the
+  hall walks it: dominoes first, the Galton and splitter boards facing
+  each other in the third pair. The splitter board has its placard,
+  lectern card and check-all lines (fourteen runs).
+- **Next (William, 2026-11-14): build the machines from the start of the
+  list on.** The first four (the abacus, the slide rule, Napier's bones, the
+  combination lock) have little or nothing to simulate; the bead and
+  spaghetti sorts (5) are the first with real physics. Each new machine
+  goes in its place in the walking order, the bays after it moving along.
+  The covered bays (the planimeter, the tide predictor, the Differential
+  Analyser, the Difference Engine) wait for their turn in the list.
+  Still offered, not asked for: printing only a Digi-Comp program's parts
+  (the tiles carry every wall; `make-stls.sh` could take a `PARTS` list,
+  with tiles cut anew). Skipped, at William's word: fixing bpp's own
   `demo/koppi/gears.lua` (its `assign()`, which newer OpenSCAD dropped).
-- The other 37 machines in MACHINES.md have no bays: adding any grows the
-  hall by a row of two, each going in by its rank.
-- **Then, in the order of the covered bays,** each its own step: **the
-  planimeter** (west 2), **Kelvin's tide predictor** (east 4: cranks and a
-  bead rope over pulleys), **the Differential Analyser** (west 5) and **the
-  Difference Engine** (east 5). New bays (the hall grows by a row of two)
-  would suit the Enigma and the Antikythera mechanism (striking, within
-  reach).
 - **Settled (2026-10-21):** William has tried the Pascaline (the mouse and
   the keys) and it works well; the stylus collision he thought he saw
   wasn't one. Euler's Gallery keeps its own tables as they are; the exhibit

@@ -2,7 +2,7 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
-Babbage's Hall, east bay 2. Francis Galton's quincunx: balls falling
+Babbage's Hall, west bay 3. Francis Galton's quincunx: balls falling
 through rows of pins, each pin sending a ball left or right, pile up in
 the bins below in the bell of the normal curve. Galton had his made by
 Tisley and Spiller in London in 1873, for lead shot, and showed it at the

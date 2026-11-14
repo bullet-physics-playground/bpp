@@ -2,7 +2,7 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
-Babbage's Hall, east bay 1. A number sieve after Derrick Lehmer's (1926
+Babbage's Hall, west bay 4. A number sieve after Derrick Lehmer's (1926
 and 1932): wheels of different numbers of places, all moved on together,
 with holes where a number passes a test. Where every wheel has an open
 hole at the reading place, a probe falls right through, and the machine
