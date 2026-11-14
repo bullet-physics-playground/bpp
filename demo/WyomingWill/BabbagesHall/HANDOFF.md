@@ -310,9 +310,13 @@ there, in `release/`, or on the path; or set `BPP`.
   `SPLITTERS.md`), for a second board that would show independent coins
   exactly and, with other walls, gambler's ruin and first passage. At a
   30 mm pitch with 10 mm necks the decisions cannot be told from fair
-  coins; the memory is never more than one pin deep; but the bounce moves
-  it (0.3: 69% the same way), so a printed board needs the real bounce
-  measured and its necks tuned. Both boards are to be kept. Printed in three tiles under 200 mm,
+  coins; but the bounce moves it (0.3: 69% the same way). A fifth patch
+  tried to take the bounce out (mixing chambers, leaning necks): neither
+  did, and the memory turned out to hang on how a ball meets the neck's
+  mouth (a seam there moved it by 0.13), so no simulation can promise a
+  printed splitter's memory. The plan: necks as inserts in a few lengths,
+  tuned on the built board from SPLITTERS.md's table (bounce against neck
+  length). Both boards are to be kept. Printed in three tiles under 200 mm,
   two gears, a stand, an acrylic front sheet; every STL checked watertight,
   and no two parts overlap at rest. `tools/check-all.sh` (twelve runs, the
   Galton board's two included) all passed on the revised board.

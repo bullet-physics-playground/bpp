@@ -27,7 +27,8 @@ ball's path is recorded in the board's format and measured with
 
 Sizes and contacts are set from the environment (`SP_S` the pitch,
 `SP_NECK_W`, `SP_NECK_L`, `SP_SLOPE`, `SP_BOUNCE`, `SP_FRICTION`, ...).
-About 26,000 balls went through in all the runs below; none stopped.
+Over 70,000 balls went through the plain necks in all the runs below; none
+stopped.
 
 ## The first try: the memory moved into the neck
 
@@ -85,10 +86,11 @@ decisions cannot be told from fair, independent coins: P(same) 0.494, no
 correlation at any distance, the spread 1.43 against 1.414. That is the
 default of the test bed now.
 
-- **The memory is one pin deep.** Wherever P(same) is off, it is off at the
-  next pin only: two and three rows apart the correlations are within
-  0.06 everywhere, against -0.21 on the lattice. What a splitter remembers
-  is only which way the ball came in.
+- **Where the memory is small, it is one pin deep.** Two and three rows
+  apart the correlations are within 0.06 in all these, against -0.21 on
+  the lattice: what a splitter remembers is which way the ball came in.
+  (Where the memory is strong, as at a bounce of 0.3 with short necks, it
+  reaches two rows: below.)
 - **The shape is forgiving:** a millimetre on the necks' width or length
   keeps P(same) within 0.49 to 0.54.
 - **The bounce is not:** 0.3 gives 0.69, 0.5 gives 0.42. The slope (55 or
@@ -114,18 +116,76 @@ stays within 0.42 to 0.53, against 0.42 to 0.69 for the short necks. It
 helps, but does not take the bounce out, and twelve rows of it would stand
 0.76 m tall (the board's pins take 0.13 m).
 
+## Taking the bounce out: three tries
+
+**Mixing chambers.** Partway down the neck it widens around a small post
+and narrows again: a little coin flip whose result is thrown away,
+mirror-symmetric so it cannot favour a side. Short chambers (4 mm) trap
+balls between the post and the narrowing wall. Longer ones pass them but
+are worse at a low bounce: at 0.25 the balls turned back 86 to 90% of the
+time. Every mixer in a vertical neck changes how many times a ball
+crosses, which is what the bounce already does.
+
+**Leaning necks.** Lean the neck, and gravity holds a ball on its lower
+wall: it rolls out the same way whichever side it came in from, the
+bouncing damped instead of counted. The pin then goes where the ball
+lands, and the lean changes side row by row, so what one row favours the
+next undoes. It erased too much: the balls left the neck so alike that the
+pin became a knife-edge again (1 mm of the pin's place took a row from 98%
+one way to 96% the other), and at the balance point the little that still
+varied was the part that remembered: memory +0.75. A splitter needs plenty
+of randomness beside what it remembers; erasing the memory is no use if
+the randomness goes with it. The vertical neck's crossings are what give
+it that randomness, and why the bounce matters.
+
+**A corner.** Building the wedges from two convex slices instead of one
+puts a seam where the slope meets the neck, at the corner a ball rolls
+over into the neck. Nothing else changes, but at a 30 mm pitch and 10 mm
+necks the memory moved from -0.01 to +0.12 (1,000 balls each, both
+reproducible to the ball). How a ball meets that corner matters that much.
+A printed corner (its radius, the layer lines, wear) will not be what any
+simulation assumed, so no simulation can say a printed splitter's memory
+to better than about 0.15.
+
+(The memory here is `paths.py`'s row-by-row measure: P(right | right at
+the last pin) - P(right | left at it), averaged over the rows. It is 0 for
+independent pins even where a pin favours a side, which a pooled
+correlation would mistake for memory.)
+
+## Tuning instead: the necks' length for the bounce
+
+So the splitters have to be tuned on the board that is built: necks as
+inserts in two or three lengths, swapped until the balls stop favouring
+"the same way" or "back". As a starting point, the memory and the spread
+(8 rows; fair coins 1.414) at a 30 mm pitch with necks 8 mm wide, 800 balls
+each (the memory's uncertainty about 0.03):
+
+| bounce | necks 6 | 8 | 10 | 12 | 14 | 17 | 20 mm |
+|---|---|---|---|---|---|---|---|
+| 0.3 | +0.56, 2.46 | +0.57, 2.47 | +0.39, 2.05 | +0.38, 2.04 | +0.37, 2.06 | +0.17, 1.58 | **+0.06, 1.56** |
+| 0.4 | +0.36, 1.97 | **+0.03, 1.44** | **-0.02, 1.41** | **+0.07, 1.46** | -0.20, 1.20 | -0.09, 1.36 | -0.27, 1.14 |
+| 0.5 | -0.30, 1.09 | -0.44, 0.95 | -0.33, 1.06 | -0.16, 1.26 | -0.12, 1.32 | **0.00, 1.39** | **-0.02, 1.39** |
+| 0.6 | -0.25, 1.08 | -0.36, 1.02 | **-0.03, 1.36** | +0.06, 1.53 | +0.09, 1.58 | +0.24, 1.79 | +0.27, 1.82 |
+
+Every bounce tried has a length near nothing, but they do not follow in
+order (0.4 wants 10 mm, 0.5 wants 17, 0.6 wants 10 again), and with the
+seam at the corner the table moves by up to 0.15 (at 0.3 no length came
+under +0.4). Where the memory is strong it reaches two rows (at 0.3 with
+6 mm necks, +0.37 two rows apart). The table says where to start; the
+board says where to stop.
+
 ## What it means
 
-- A neck above every pin works as hoped in one way: the memory is cut to a
-  single pin, and at the right shape it is gone. Nothing jammed, though
-  the balls came one at a time.
-- To get there on a printed board, the bounce of the real balls on the real
-  plastic has to be measured first (`FINDINGS.md` section 5 says how), and
-  the necks' length chosen for it: a test print of three or four rows, with
-  necks that can be trimmed, would settle it.
-- Short necks keep a board of reasonable height (37 mm a row at a 30 mm
-  pitch and 10 mm necks: twelve rows in 0.45 m), but need that tuning.
-  Long necks are more forgiving and much taller.
-- Still to try: a more compact mixer than a long neck (a few staggered
-  baffles inside it, say), which might give the long necks' insensitivity
-  in less height; and a full feed (balls meeting in the necks).
+- A neck above every pin can cut the memory to nothing, but only at a
+  shape that suits the bounce, and how a ball meets the neck's mouth moves
+  that shape. No passive mixer tried (chambers, a lean) took the bounce out.
+- So a splitter board is to be tuned as built: necks as inserts in a few
+  lengths (and the bounce measured first, `FINDINGS.md` section 5, to
+  choose where to start from the table above). Watching a few hundred balls
+  with `GB_PATHS`-style counting, or simply the spread of the pile against
+  its engraved curve, says which way to go: too wide, the balls keep on
+  (longer or shorter necks, by the table); too narrow, they turn back.
+- Short necks keep the board's height reasonable (37 mm a row at a 30 mm
+  pitch and 10 mm necks: twelve rows in 0.45 m; 20 mm necks, 0.57 m).
+- Nothing jammed in the plain necks (over 70,000 balls in all), though
+  the balls came one at a time; a full feed is still to try.

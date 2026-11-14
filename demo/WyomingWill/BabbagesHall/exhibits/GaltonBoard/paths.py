@@ -14,7 +14,11 @@ For each file: the balls; P(same way as at the last pin), over all rows, at
 the first pair alone and from the third row on; the correlation of decisions
 1, 2 and 3 rows apart; the jumps; the mean bin and spread of the paths; and
 the spread built up from its parts (the steps alone, then adding the first
-pair's covariance, the later neighbours', and the farther ones').
+pair's covariance, the later neighbours', and the farther ones'); and row
+by row P(right) and the memory, P(right | right at the last pin) - P(right |
+left at it), which is 0 for independent pins even where a pin favours a
+side (pooled correlations mistake a row-to-row change in what pins favour
+for memory).
 Independent fair coins: 0.5, 0, 0, 0, no jumps, 6, 1.732.
 """
 import math
@@ -67,6 +71,19 @@ def report(name):
           f" first pair {first:.2f}, from the third row {later:.3f}")
     print(f"  correlation 1, 2, 3 rows apart: {corr(D, 1):+.3f} {corr(D, 2):+.3f} {corr(D, 3):+.3f}"
           f" (+-{1 / math.sqrt(n * (R - 1)):.3f}); jumped pins {100 * jumps:.2f}%")
+    # row by row: P(right), and the memory, P(right | right before) - P(right | left before),
+    # which is 0 for independent pins whatever each one favours
+    pr, mem = [], []
+    for k in range(R):
+        pr.append(sum(d[k] > 0 for d in D) / n)
+        if k:
+            a = [d[k] > 0 for d in D if d[k - 1] > 0]
+            b = [d[k] > 0 for d in D if d[k - 1] < 0]
+            if a and b:
+                mem.append(sum(a) / len(a) - sum(b) / len(b))
+    print("  P(right) row by row " + " ".join(f"{x:.2f}" for x in pr))
+    print(f"  memory row by row (P(right | right) - P(right | left)) " + " ".join(f"{x:+.2f}" for x in mem)
+          + f"; mean {sum(mem) / len(mem):+.3f} (+-{2 / math.sqrt(n * len(mem)):.3f})")
     print(f"  mean bin {m:.2f}, spread {sd(total):.3f}: the steps alone {sd(steps):.3f},"
           f" + the first pair {sd(steps + pair):.3f}, + later neighbours {sd(steps + pair + near):.3f},"
           f" + farther {sd(total):.3f}")

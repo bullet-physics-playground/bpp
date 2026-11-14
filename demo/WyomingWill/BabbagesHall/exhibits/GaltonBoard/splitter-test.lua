@@ -19,7 +19,9 @@
 --
 -- Sizes in mm; the same balls (6 mm steel), pins (4 mm), plates (a 7 mm
 -- gap) and contacts (bounce 0.4, friction 0.3) as the Galton board. All
--- can be set from the environment (SP_<NAME>).
+-- can be set from the environment (SP_<NAME>); also mixing chambers
+-- (SP_CHAMBERS) and leaning necks (SP_SHEAR, SP_LAND, SP_ALT), both tried
+-- and set aside: SPLITTERS.md.
 --
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local MM = 0.1
@@ -41,10 +43,45 @@ local P = {
 math.randomseed(envnum("SP_SEED", 1))
 local HW = P.S / 2 - P.NECK_W / 2                 -- a wedge's half-width
 local H = HW * math.tan(math.rad(P.SLOPE))        -- its slope's drop
-local V = H + P.NECK_L + P.FOOT                   -- row to row
 assert(HW > 1, "splitter-test: the necks are wider than the pitch allows")
+-- mixing chambers in each neck (SP_CHAMBERS, 0 for none): the neck widens
+-- at 45 degrees to CHAMBER_W around a post on its centre line, runs
+-- CHAMBER_L, and narrows at 45 degrees again; NECK_L of plain neck above,
+-- between and below them. Mirror-symmetric, so they cannot favour a side.
+P.CHAMBERS = envnum("SP_CHAMBERS", 0)
+P.CHAMBER_W = envnum("SP_CHAMBER_W", 17)
+P.CHAMBER_L = envnum("SP_CHAMBER_L", 8)
+P.POST_D = envnum("SP_POST_D", 4)
+local E = (P.CHAMBER_W - P.NECK_W) / 2            -- how far a chamber widens each side
+assert(P.CHAMBERS == 0 or (E > 0 and E < HW - 1), "splitter-test: the chambers do not fit")
+-- a tooth's half-width, down from its pin's centre: { depth, half-width }
+local profile = { { 0, 0 }, { H, HW } }
+do
+  local d = H
+  for c = 1, P.CHAMBERS do
+    d = d + P.NECK_L; profile[#profile + 1] = { d, HW }
+    d = d + E; profile[#profile + 1] = { d, HW - E }
+    d = d + P.CHAMBER_L; profile[#profile + 1] = { d, HW - E }
+    d = d + E; profile[#profile + 1] = { d, HW }
+  end
+  d = d + P.NECK_L; profile[#profile + 1] = { d, HW }
+end
+local NECKS = profile[#profile][1] - H             -- the neck's whole length
+local V = H + NECKS + P.FOOT                      -- row to row
 local function rowY(r) return -r * V end
-local function levelY(r) return rowY(r) - H - P.NECK_L / 2 end   -- in row r's necks
+local function levelY(r) return rowY(r) - H - 2 end   -- just inside row r's necks
+-- leaning necks (SP_SHEAR, degrees from upright; 0 for none): gravity holds
+-- a ball on the lower wall, so it leaves the same way whichever side it
+-- came in from. The pin below is where it lands: the neck's lean plus
+-- SP_LAND mm more. With SP_ALT=1 (the default) the lean changes side row
+-- by row, so whatever a row favours, the next favours the other way.
+P.SHEAR = envnum("SP_SHEAR", 0)
+P.LAND = envnum("SP_LAND", 0)
+P.ALT = envnum("SP_ALT", 1)
+local TS = math.tan(math.rad(P.SHEAR))
+local function lean(r) return (P.ALT == 1 and r % 2 == 1) and -1 or 1 end
+local offs = { [0] = 0 }
+for r = 0, P.ROWS do offs[r + 1] = offs[r] + (P.SHEAR ~= 0 and lean(r) * (NECKS * TS + P.LAND) or 0) end
 
 local HZ = 2400
 local NSTEPS = 40
@@ -80,10 +117,26 @@ local nTeeth = 0
 for r = 0, P.ROWS - 1 do
   local y = rowY(r)
   for j = -P.ROWS, P.ROWS do
-    local x = (j + (r % 2) / 2) * P.S
-    if math.abs(x) <= (r / 2 + 1) * P.S then      -- the triangle the balls can reach, and one more each side
+    local x0 = (j + (r % 2) / 2) * P.S
+    local x = x0 + offs[r]
+    local sh = lean(r) * TS
+    if math.abs(x0) <= (r / 2 + 1) * P.S then     -- the triangle the balls can reach, and one more each side
       add(btCylinderShapeZ(btVector3(P.PIN_D / 2 * MM, P.PIN_D / 2 * MM, P.GAP / 2 * MM)), x, y, zc)
-      hull({ { 0, 0 }, { HW, -H }, { HW, -H - P.NECK_L }, { -HW, -H - P.NECK_L }, { -HW, -H } }, x, y)
+      if P.CHAMBERS == 0 and P.SHEAR == 0 and not os.getenv("SP_SLICED") then
+        -- one pentagon. (Built from two slices instead, with a seam at the neck's
+        -- mouth, the memory moves from -0.01 to +0.12: SPLITTERS.md.)
+        hull({ { 0, 0 }, { HW, -H }, { HW, -H - NECKS }, { -HW, -H - NECKS }, { -HW, -H } }, x, y)
+      else for k = 1, #profile - 1 do                -- (a tooth from convex slices)
+        local a, b = profile[k], profile[k + 1]
+        local sa, sb = sh * math.max(0, a[1] - H), sh * math.max(0, b[1] - H)
+        hull({ { -a[2] + sa, -a[1] }, { a[2] + sa, -a[1] }, { b[2] + sb, -b[1] }, { -b[2] + sb, -b[1] } }, x, y)
+      end end
+      local d = H
+      for c = 1, P.CHAMBERS do                  -- the posts, in the necks to this tooth's right
+        d = d + P.NECK_L + E
+        add(btCylinderShapeZ(btVector3(P.POST_D / 2 * MM, P.POST_D / 2 * MM, P.GAP / 2 * MM)), x + P.S / 2, y - d - P.CHAMBER_L / 2, zc)
+        d = d + P.CHAMBER_L + E
+      end
       nTeeth = nTeeth + 1
     end
   end
@@ -166,7 +219,7 @@ local function track(b)
     local L = levelY(n)
     if b.py >= L and y < L then
       local f = (b.py - L) / (b.py - y)
-      b.u[n + 1] = 2 * (b.px + (x - b.px) * f) / P.S
+      b.u[n + 1] = 2 * (b.px + (x - b.px) * f - offs[n]) / P.S
     end
   end
   if LOG and n >= 1 and n < P.ROWS and b.py then
@@ -174,7 +227,8 @@ local function track(b)
     if b.py >= F and y < F then
       local dir = n == 1 and (b.u[1] > 0 and 1 or -1) or (b.u[n] > b.u[n - 1] and 1 or -1)
       local vx = b.body:getLinearVelocity().x * 10
-      print(string.format("FOOT %d %d %.3f %.1f", n, dir, x - b.u[n] * P.S / 2, vx))
+      local fx = b.u[n] * P.S / 2 + offs[n - 1] + lean(n - 1) * NECKS * TS
+      print(string.format("FOOT %d %d %.3f %.1f %d", n, dir, x - fx, vx, lean(n - 1)))
     end
   end
   b.px, b.py = x, y
@@ -193,8 +247,8 @@ local function track(b)
   end
 end
 
-print(string.format("SPLITTER TEST: pitch %.1f, pins %.1f, necks %.1f wide and %.1f long, sides %.0f deg, row to row %.1f mm, %d rows (%d teeth), bounce %.2f, friction %.2f",
-  P.S, P.PIN_D, P.NECK_W, P.NECK_L, P.SLOPE, V, P.ROWS, nTeeth, P.BOUNCE, P.FRICTION))
+print(string.format("SPLITTER TEST: pitch %.1f, pins %.1f, necks %.1f wide and %.1f long, sides %.0f deg, %d chambers (%.1f wide, %.1f long, post %.1f), lean %.0f deg (%s), landing +%.1f, row to row %.1f mm, %d rows (%d teeth), bounce %.2f, friction %.2f",
+  P.S, P.PIN_D, P.NECK_W, NECKS, P.SLOPE, P.CHAMBERS, P.CHAMBER_W, P.CHAMBER_L, P.POST_D, P.SHEAR, P.ALT == 1 and "alternating" or "all one way", P.LAND, V, P.ROWS, nTeeth, P.BOUNCE, P.FRICTION))
 local reported = false
 v:preSim(function(N)
   for k = 1, NSTEPS - 1 do v:stepSimulation(STEP, 0, STEP) end
