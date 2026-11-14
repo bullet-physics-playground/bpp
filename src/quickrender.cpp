@@ -63,7 +63,7 @@ QuickRender::Plan QuickRender::plan(QSettings *settings, const QSize &viewSize,
   }
 
   QString cache =
-      QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+      userCacheDir();
 
   QString defaultPovrayExe;
   QString defaultIncludes;
@@ -118,7 +118,7 @@ QuickRender::Plan QuickRender::plan(QSettings *settings, const QSize &viewSize,
   args << QString("+H%1").arg(renderHeight);
 
   QString desktop =
-      QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+      userRenderDir();
   QDir().mkpath(desktop); // (POV-Ray won't make the folder it writes into)
   QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss");
   QString fn = QString("%1").arg(frameNum, 5, 10, QChar('0'));

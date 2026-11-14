@@ -7,6 +7,8 @@
 
 #include "viewer.h"
 
+#include "appenv.h"
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -19,7 +21,6 @@
 #include <QNetworkRequest>
 #include <QPushButton>
 #include <QRegularExpression>
-#include <QStandardPaths>
 #include <QTimer>
 
 #include <luabind/luabind.hpp>
@@ -437,7 +438,7 @@ void Viewer::freeDownloads() {
 
 QString Viewer::dataDir() const {
   const QString dir =
-      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+      userDataDir();
   QDir().mkpath(dir);
   return dir;
 }

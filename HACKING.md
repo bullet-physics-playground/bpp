@@ -62,6 +62,11 @@ The rest of `src/`:
   menus. It reaches the Viewer by calling it and by Qt signals
   (`scriptHasOutput`, `frameUpdate`, `paramsChanged` ...); `prefs.cpp` is
   the preferences dialog.
+- `appenv.h`: where bpp keeps the user's files: its settings
+  (`newSettings()`, never a bare `QSettings`), the mesh cache, `v:dataDir`,
+  renders. Ask it rather than `QStandardPaths`, so `BPP_USER_DIR` moves
+  them all; the tests rely on that to keep runs apart, on Windows above
+  all.
 - `main.cpp`: the command line. With `-f script.lua -n N` it runs bpp
   without a window (what the tests do); otherwise it opens the `Gui`.
 - `geo.cpp`, `demcore.cpp`, `dembed.cpp`: compiled helpers for particular

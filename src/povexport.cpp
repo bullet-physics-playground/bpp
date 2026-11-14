@@ -6,13 +6,13 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QStandardPaths>
 #include <QTextStream>
 
 #include <QGLViewer/camera.h>
 
 #include <cmath>
 
+#include "appenv.h"
 #include "objects/cam.h"
 #include "objects/object.h"
 #include "objects/terrain.h"
@@ -252,7 +252,7 @@ void writeIni(const QString &path, const QString &byline,
   ini << "Bits_Per_Color=16" << "\n";
   ini << "+a +j0" << "\n";
 
-  ini << "+L" << QStandardPaths::writableLocation(QStandardPaths::CacheLocation) << "\n";
+  ini << "+L" << userCacheDir() << "\n";
   ini << "+L../../includes" << "\n" << "\n";
   ini << "+L/nfs/cache" << "\n" << "\n"; // XXX make this an option in the prefs
 

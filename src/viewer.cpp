@@ -4036,24 +4036,31 @@ void Viewer::setPostSDL(const QString &postSDL) { mPostSDL = postSDL; }
 QString Viewer::getPostSDL() const { return mPostSDL; }
 
 // Writes a script's preferences on the Viewer's preference thread.
-// (which store: taken from the Viewer's settings on the main thread)
+// (which store: taken from the Viewer's settings on the main thread; one
+// opened by file name, as BPP_USER_DIR's bpp.ini is, has no organization)
 class PrefsWriter : public QRunnable {
 public:
   PrefsWriter(Viewer *v, const QSettings *store)
       : _v(v), _format(store->format()), _scope(store->scope()),
-        _org(store->organizationName()), _app(store->applicationName()) {
+        _org(store->organizationName()), _app(store->applicationName()),
+        _file(store->fileName()) {
     setAutoDelete(true);
   }
   void run() override {
-    QSettings s(_format, _scope, _org, _app);
-    _v->writePendingPrefs(s);
+    if (_org.isEmpty()) {
+      QSettings s(_file, _format);
+      _v->writePendingPrefs(s);
+    } else {
+      QSettings s(_format, _scope, _org, _app);
+      _v->writePendingPrefs(s);
+    }
   }
 
 private:
   Viewer *_v;
   QSettings::Format _format;
   QSettings::Scope _scope;
-  QString _org, _app;
+  QString _org, _app, _file;
 };
 
 void Viewer::setPrefs(QString key, QString value) {

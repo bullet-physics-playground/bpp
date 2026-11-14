@@ -10,12 +10,11 @@
 
 /// Version string reported by @c --version and recorded in the settings.
 #define APP_VERSION QString("0.3.40")
-/// Short application name; also the QSettings application key.
+/// Short application name; Qt names its cache and data folders after it.
+/// (The settings store's names are in appenv.cpp.)
 #define APP_NAME QString("bpp")
 /// Translated, human readable application name.
 #define APP_NAME_FULL tr("Bullet Physics Playground")
-/// Organization name used to locate the QSettings store.
-#define APP_ORGANIZATION QString("bullet-physics-playground.github.io")
 
 #include <QApplication>
 #include <QCommandLineOption>
@@ -210,7 +209,7 @@ int main(int argc, char **argv) {
   app->setApplicationName(APP_NAME);
   app->setApplicationVersion(APP_VERSION);
 
-  QSettings *settings = new QSettings(APP_ORGANIZATION, APP_NAME);
+  QSettings *settings = newSettings();
 
   QCommandLineParser parser;
 

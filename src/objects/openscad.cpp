@@ -15,9 +15,12 @@
 #include <QProgressBar>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QScopedPointer>
 #include <QStatusBar>
 #include <QTemporaryFile>
 #include <QApplication>
+
+#include "appenv.h"
 
 #include <stdexcept>
 
@@ -43,7 +46,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
   QString hash = hashAlgo.result().toHex();
 
   QFileInfo cacheInfo(
-      QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+      userCacheDir());
   if (!cacheInfo.exists()) {
     QDir p(".");
     if (!p.mkpath(cacheInfo.absoluteFilePath())) {
@@ -52,7 +55,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
   }
 
   QString stlfile =
-      QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+      userCacheDir() +
       QDir::separator() + hash + ".stl";
 
   QFileInfo check_file(stlfile);
@@ -63,7 +66,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
   }
 
   QString scadFile =
-      QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+      userCacheDir() +
       QDir::separator() + hash + ".scad";
   QFile scad(scadFile);
   if (scad.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -74,10 +77,12 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
 
     QStringList args;
 
-    QSettings s;
+    // (bpp's own store: a bare QSettings names no organization and reads
+    // another, so the executable set in the preferences went unseen)
+    QScopedPointer<QSettings> s(newSettings());
     QString openscad;
 
-    openscad = s.value("openscad/executable").toString();
+    openscad = s->value("openscad/executable").toString();
     if (openscad.isEmpty() || !QFileInfo(openscad).exists()) {
       QStringList candidates;
 #ifdef Q_OS_WIN

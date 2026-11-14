@@ -172,7 +172,7 @@ void Prefs::setupPages() {
       _settings->value("povray/export", defaultExportPath).toString();
 
   QString cache =
-      QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+      userCacheDir();
 
   QString defaultPovrayExe;
   QString defaultIncludes;
