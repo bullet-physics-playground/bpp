@@ -25,7 +25,7 @@ static const unsigned STILL_FRAMES = 30;
 // Each fixed object's address, shape, size and where it is drawn, hashed;
 // those that have stayed the same long enough are marked, and their hashes
 // summed (so the order the objects come in doesn't matter).
-quint64 ShadowRecord::markStillCasters(const QSet<Object *> &objects, int *count) {
+quint64 ShadowRecord::markStillCasters(const ObjectSet &objects, int *count) {
   quint64 sum = 0;
   int n = 0;
   foreach (Object *o, objects) {
@@ -89,7 +89,7 @@ quint64 ShadowRecord::markStillCasters(const QSet<Object *> &objects, int *count
   return sum;
 }
 
-bool ShadowRecord::fill(const QSet<Object *> &objects, ShadowMap *map,
+bool ShadowRecord::fill(const ObjectSet &objects, ShadowMap *map,
                         btBroadphaseInterface *broadphase, bool culled, Counts &counts) {
   // The fixed objects that have stayed put are drawn once, recorded as
   // OpenGL lists, and those are replayed each frame; only the rest are drawn

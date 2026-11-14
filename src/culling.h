@@ -1,7 +1,7 @@
 #ifndef CULLING_H
 #define CULLING_H
 
-#include <QSet>
+#include "orderedset.h"
 
 #include <LinearMath/btVector3.h>
 
@@ -36,7 +36,7 @@ namespace Culling {
  * @param shadowMap The shadow map (its size and softness); used only with
  *                  @p shadows.
  */
-void cull(const QSet<Object *> &objects, const qglviewer::Camera *camera,
+void cull(const ObjectSet &objects, const qglviewer::Camera *camera,
           bool shadows, const btVector4 &light0, const ShadowMap *shadowMap);
 
 } // namespace Culling

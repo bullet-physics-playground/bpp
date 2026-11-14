@@ -376,7 +376,7 @@ void writeMain(const QString &path, const QString &byline, const Scene &scene) {
 
 void writeFrame(const QString &path, const QString &byline,
                 const QString &preSDL, Cam *cam, qglviewer::Camera *view,
-                const QSet<Object *> &objects, const QString &postSDL,
+                const ObjectSet &objects, const QString &postSDL,
                 const QString &sceneDir) {
   QFile file(path);
   file.open(QFile::WriteOnly | QFile::Truncate);

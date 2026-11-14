@@ -48,6 +48,7 @@
 #include "joystick/joystickinterfacesdl.h"
 
 #include "spacenavigator/spacenavigator.h"
+#include "orderedset.h"
 #include "screenmerge.h"
 #include "shadowrecord.h"
 #include "decorations.h"
@@ -2326,15 +2327,15 @@ private:
   //  int nbKeyFrames;
   //  int currentKF_;
 
-  QSet<Object *> *_objects;                  ///< Every object in the scene.
+  ObjectSet *_objects;                       ///< Every object in the scene, in the order added.
   QSet<Object *> _takenFromLua;              ///< Objects v:add took from Lua.
-  QSet<btTypedConstraint *> _detached;       ///< Constraints taken out of the
+  OrderedSet<btTypedConstraint *> _detached; ///< Constraints taken out of the
                                              ///< world with an object they
                                              ///< join (see removeObject()).
   QSet<Object *> _removed;                   ///< Removed objects bpp still owns,
                                              ///< until their script lets go
                                              ///< (see reapRemoved()).
-  QSet<btTypedConstraint *> *_constraints;   ///< Every constraint in the world.
+  OrderedSet<btTypedConstraint *> *_constraints; ///< Every constraint in the world, in the order added.
   QSet<btRaycastVehicle *> *_raycast_vehicles; ///< Every raycast vehicle.
 
   /**

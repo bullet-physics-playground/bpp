@@ -61,7 +61,7 @@ void Hover::hide() {
 }
 
 void Hover::tick(const qglviewer::Camera *cam, const std::vector<World> &worlds,
-                 const QSet<Object *> *objects, int frameNum,
+                 const ObjectSet *objects, int frameNum,
                  const std::function<void(const std::exception &)> &onError) {
   if (!_cb || !_armed) return;
   if (QApplication::mouseButtons() != Qt::NoButton) { hide(); return; }

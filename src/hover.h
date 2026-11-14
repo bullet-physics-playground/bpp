@@ -3,7 +3,7 @@
 
 #include <QElapsedTimer>
 #include <QPoint>
-#include <QSet>
+#include "orderedset.h"
 
 #include <exception>
 #include <functional>
@@ -77,7 +77,7 @@ public:
    * @param onError  Shows an error the hook raised (the hook is dropped).
    */
   void tick(const qglviewer::Camera *cam, const std::vector<World> &worlds,
-            const QSet<Object *> *objects, int frameNum,
+            const ObjectSet *objects, int frameNum,
             const std::function<void(const std::exception &)> &onError);
 
 private:

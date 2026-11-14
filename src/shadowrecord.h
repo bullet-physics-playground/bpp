@@ -2,7 +2,7 @@
 #define SHADOWRECORD_H
 
 #include <QMap>
-#include <QSet>
+#include "orderedset.h"
 #include <QVector>
 
 #include <tuple>
@@ -52,7 +52,7 @@ public:
    * @return True if the record was drawn: the caller then draws only the
    *         objects not in it (shadowListed); false: every object.
    */
-  bool fill(const QSet<Object *> &objects, ShadowMap *map,
+  bool fill(const ObjectSet &objects, ShadowMap *map,
             btBroadphaseInterface *broadphase, bool culled, Counts &counts);
 
   /// Objects taken from the record last frame (v.shadowCached).
@@ -67,7 +67,7 @@ public:
 private:
   /// Marks the fixed objects that have stayed put long enough (shadowListed)
   /// and returns their hashes summed; @p count gets how many.
-  quint64 markStillCasters(const QSet<Object *> &objects, int *count);
+  quint64 markStillCasters(const ObjectSet &objects, int *count);
 
   /// The still objects' recorded depth: a list for each patch of the room,
   /// made again only when what's in that patch changes.

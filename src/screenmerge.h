@@ -2,7 +2,7 @@
 #define SCREENMERGE_H
 
 #include <QMap>
-#include <QSet>
+#include "orderedset.h"
 #include <QVector>
 
 #include <tuple>
@@ -38,7 +38,7 @@ public:
 
   /// Once a frame: takes out what has changed, looks for more now and then,
   /// and makes the batches again if need be.
-  Counts update(const QSet<Object *> &objects);
+  Counts update(const ObjectSet &objects);
   /// Draws the batches (for the screen); with @p culled, only those with
   /// an object culling keeps on screen.
   void draw(bool culled);

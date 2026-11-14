@@ -24,7 +24,7 @@ namespace Culling {
 // the map if its box, swept the way the light shines (one direction for the
 // whole scene, as the shadow map takes it) until it is past everything in
 // view, meets the view.
-void cull(const QSet<Object *> &objects, const qglviewer::Camera *camera,
+void cull(const ObjectSet &objects, const qglviewer::Camera *camera,
           bool shadows, const btVector4 &light0, const ShadowMap *shadowMap) {
   GLdouble proj[16], mv[16], m[16];
   glGetDoublev(GL_PROJECTION_MATRIX, proj);

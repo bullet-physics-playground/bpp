@@ -1,7 +1,7 @@
 #ifndef POVEXPORT_H
 #define POVEXPORT_H
 
-#include <QSet>
+#include "orderedset.h"
 #include <QString>
 
 #include <LinearMath/btVector3.h>
@@ -69,7 +69,7 @@ void writeMain(const QString &path, const QString &byline, const Scene &scene);
  */
 void writeFrame(const QString &path, const QString &byline,
                 const QString &preSDL, Cam *cam, qglviewer::Camera *view,
-                const QSet<Object *> &objects, const QString &postSDL,
+                const ObjectSet &objects, const QString &postSDL,
                 const QString &sceneDir);
 
 /// Writes the scene directory's @c GNUmakefile, unless it has one already

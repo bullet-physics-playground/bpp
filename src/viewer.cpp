@@ -1144,7 +1144,7 @@ namespace {
  * @param[in]  objects The objects to cover.
  * @param[out] aabb    Receives minimum x, y, z followed by maximum x, y, z.
  */
-void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
+void getAABB(ObjectSet *objects, btScalar aabb[6]) {
   aabb[0] = -10;
   aabb[1] = -10;
   aabb[2] = -10;
@@ -1152,7 +1152,7 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
   aabb[4] = 10;
   aabb[5] = 10;
 
-  QSet<Object *>::iterator oi;
+  ObjectSet::const_iterator oi;
   for (oi = objects->begin(); oi != objects->end(); oi++) {
     Object *o = *oi;
 
@@ -1545,8 +1545,8 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
       setFrameTiming(ms);
   }
 
-  _objects = new QSet<Object *>();
-  _constraints = new QSet<btTypedConstraint *>();
+  _objects = new ObjectSet();
+  _constraints = new OrderedSet<btTypedConstraint *>();
   _raycast_vehicles = new QSet<btRaycastVehicle *>();
   _vehicle_raycasters = new QSet<btVehicleRaycaster *>();
 

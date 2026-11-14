@@ -249,7 +249,7 @@ void ScreenMerge::build(Counts &counts) {
     ++_made;
 }
 
-ScreenMerge::Counts ScreenMerge::update(const QSet<Object *> &objects) {
+ScreenMerge::Counts ScreenMerge::update(const ObjectSet &objects) {
   Counts counts;
   ++_frame;
   _ready = false;
