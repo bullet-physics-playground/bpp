@@ -93,9 +93,9 @@ preDraw hook -> POV-Ray export (if on) -> preSim hook -> Bullet step -> postSim 
 ```
 
 The steps from `preSim` on run only while the simulation is running. In the
-GUI, `Viewer::draw()` then paints the frame: it calls `preDraw` again,
-places the decorations, culls, draws shadows and objects, and ends in
-`postDraw`. Without a window, `main.cpp` calls `animate()` N times, and
+GUI, `Viewer::draw()` then paints the frame: it places the decorations,
+culls, draws shadows and objects, and ends in `postDraw`. (`preDraw` runs
+once a frame, in `animate()`, with or without a window.) Without a window, `main.cpp` calls `animate()` N times, and
 nothing is drawn.
 
 `Viewer::mutex` keeps the GUI's drawing and the stepping apart while

@@ -3010,13 +3010,7 @@ void Viewer::draw() {
     return;
   }
 
-  if (_cb_preDraw) {
-    try {
-      luabind::call_function<void>(_cb_preDraw, _frameNum);
-    } catch (const std::exception &e) {
-      showLuaException(e, "preDraw()");
-    }
-  }
+  // (preDraw ran in animate(), once a frame, as without a window)
   _decorations.update();                // (the decorations to their parents: before anything reads places)
 
   QElapsedTimer dtAll;                  // (the drawing timer: all of draw())
