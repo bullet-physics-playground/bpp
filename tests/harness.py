@@ -218,6 +218,9 @@ def run_bpp(bpp, args, workdir, timeout, cwd, env=None):
             [bpp] + args,
             cwd=cwd,
             env=env,
+            # (not the harness's: a script that reads it, as dofile(nil)
+            # does, would wait on the developer's terminal until timed out)
+            stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             timeout=timeout,
@@ -981,7 +984,8 @@ def _grab(ctx, display, scene, out_png, wd):
     if fonts:
         env["FONTCONFIG_FILE"] = fonts
     log = open(os.path.join(wd, "bpp.log"), "w")
-    p = subprocess.Popen([ctx.bpp, scene], cwd=wd, env=env, stdout=log, stderr=subprocess.STDOUT)
+    p = subprocess.Popen([ctx.bpp, scene], cwd=wd, env=env, stdin=subprocess.DEVNULL,
+                         stdout=log, stderr=subprocess.STDOUT)
     try:
         win = None
         for _ in range(100):
