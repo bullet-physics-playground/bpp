@@ -30,16 +30,27 @@ if user then
   v:savePrefs("userDirTest", "written")
   assert_eq("loadPrefs", v:loadPrefs("userDirTest", "missing"), "written")
 
-  local found = false
+  -- Looks a few times a second, not all the time: Qt writes the file
+  -- under another name and renames it over bpp.ini, which Windows refuses
+  -- while the file is open here, and Qt doesn't try again.
+  local text = ""
   local start = os.clock()
-  while not found and os.clock() - start < 5 do
-    local f = io.open(user .. "/bpp.ini", "r")
-    if f then
-      found = f:read("*a"):find("userDirTest=written", 1, true) ~= nil
-      f:close()
+  local next = start
+  while not text:find("userDirTest=written", 1, true) and os.clock() - start < 10 do
+    if os.clock() >= next then
+      next = os.clock() + 0.25
+      local f = io.open(user .. "/bpp.ini", "r")
+      if f then
+        text = f:read("*a")
+        f:close()
+      end
     end
   end
+  local found = text:find("userDirTest=written", 1, true) ~= nil
   assert_eq("savePrefs reaches bpp.ini", found, true)
+  if not found then
+    print("bpp.ini holds:\n" .. text)
+  end
 end
 
 print(string.format("\n%d passed, %d failed", pass, fail))
