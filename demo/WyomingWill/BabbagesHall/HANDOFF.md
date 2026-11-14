@@ -258,6 +258,14 @@ there, in `release/`, or on the path; or set `BPP`.
   of 6 from a bounce of 0.3 to 0.55). If a result depends on a parameter
   that should only change its spread, look for an asymmetry; test by
   mirroring (`GB_LOG=3` shows how the balls leave the neck).
+- **An invisible change is a different run.** Rewriting the Galton
+  board's OpenSCAD sizes file (three empty lists added, nothing drawn
+  differently) changed its tour's numbers (5.88/2.12 to 5.73/2.18); so
+  does running it with an empty parts cache. The parts don't collide, but
+  something about building them changes the order the solver meets the
+  balls, and the board is chaotic. Neither run is wrong. Compare a change
+  against the same cache, and keep a file's text unchanged when its
+  meaning is.
 - **Fair is not independent** (the Galton board, `FINDINGS.md` section 6):
   each pin split the balls 50/50, yet the bins came out wider than the
   binomial. William guessed why: a ball leaving a pin carries a bias to the
@@ -323,7 +331,11 @@ there, in `release/`, or on the path; or set `BPP`.
   3,000 balls), and fails plainly mistuned; two walls give gambler's ruin
   (three starts, all passing). A gambler's-ruin board wants its walls 4
   places apart (2% survive 12 rows; a quarter, a half, three quarters go
-  right). Next: the splitter
+  right). The exhibit (an eighth patch): splitter-board.lua, run by
+  galton.lua through a small BOARD interface (its geometry, its OpenSCAD
+  files, its sign and verdict); every wall mode passes its tour by
+  chi-square. Still to come: its bay in the hall, its placard and lectern
+  card, check-all, its printed parts. Next was: the splitter
   board in bpp, with swappable wall panels (plain; swallowing, for first
   passage and the reflection principle; both, for gambler's ruin). Both
   boards are to be kept. Printed in three tiles under 200 mm,

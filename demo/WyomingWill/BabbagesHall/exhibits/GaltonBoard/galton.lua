@@ -56,9 +56,15 @@ for _, d in ipairs({ "", "demo/WyomingWill/BabbagesHall/exhibits/GaltonBoard/" }
   if f then f:close(); DIR = d; break end
 end
 assert(DIR, "The Galton board: can't find its folder")
-local G = dofile(DIR .. "galton-geometry.lua")
+-- (BOARD: another board this script runs, set by its own script first:
+-- splitter-board.lua. Its geometry, its OpenSCAD files, its words.)
+local BOARD = BOARD or {}
+local NAME = BOARD.name or "The Galton board"
+local G = dofile(DIR .. (BOARD.geometry or "galton-geometry.lua"))
+if BOARD.options then G = G.build(BOARD.options) end
 do   -- (GB_GEO="CHUTE_X=-1.5 S=13": sizes to try, headless; not for the printed board)
   local o, any = {}, false
+  for k, x in pairs(BOARD.options or {}) do o[k] = x end
   for k, x in (os.getenv("GB_GEO") or ""):gmatch("([%w_]+)=([%d.-]+)") do o[k] = tonumber(x); any = true end
   if any then G = G.build(o); GB_TRYING = true end
 end
@@ -76,7 +82,7 @@ local function fullPath(path)
   end
   return path
 end
-local SCAD = fullPath(DIR .. "parts/galton.scad")
+local SCAD = fullPath(DIR .. "parts/" .. (BOARD.scad or "galton.scad"))
 local HAND_SCAD = fullPath(DIR .. "parts/hand.scad")
 
 -- geometry.scad: the sizes, for OpenSCAD (written from the geometry when it
@@ -108,12 +114,23 @@ do
   L[#L + 1] = "EXPECTED = " .. nums(fill) .. ";      // the fill heights for NBALLS fair coins"
   L[#L + 1] = "MAIN = " .. pts(G.spaces.main) .. ";"
   L[#L + 1] = "HOPPER = " .. pts(G.spaces.hopper) .. ";"
+  -- (a splitter board's teeth, its other solids, and the marks in its tubes)
+  local function polys(list)
+    local s = {}
+    for _, q in ipairs(list or {}) do s[#s + 1] = pts(q) end
+    return "[" .. table.concat(s, ", ") .. "]"
+  end
+  if G.teeth then L[#L + 1] = "TEETH = " .. polys(G.teeth) .. ";" end
+  if G.solids then L[#L + 1] = "SOLIDS = " .. polys(G.solids) .. ";" end
+  local tm = {}
+  for i, t in ipairs(G.tubes or {}) do tm[#tm + 1] = { t.x, G.Y_FLOOR + G.tubeFill(G.tubeExpected(G.NBALLS, i)) } end
+  if G.tubes then L[#L + 1] = "TUBE_MARKS = " .. pts(tm) .. ";" end
   local text = table.concat(L, "\n") .. "\n"
-  local path = DIR .. "parts/geometry.scad"
+  local path = DIR .. "parts/" .. (BOARD.geoScad or "geometry.scad")
   local f = io.open(path, "r")
   local old = f and f:read("*a")
   if f then f:close() end
-  if old ~= text and not GB_TRYING then
+  if old ~= text and not GB_TRYING and not BOARD.noWrite then
     f = io.open(path, "w")
     if f then f:write(text); f:close() end
   end
@@ -134,7 +151,12 @@ local function checksum(paths)
   end
   return sum
 end
-local SCAD_SUM = checksum({ SCAD, (SCAD:gsub("galton%.scad$", "geometry.scad")) })
+local SCAD_SUM
+do
+  local files = { SCAD, (SCAD:gsub("[^/\\]+$", BOARD.geoScad or "geometry.scad")) }
+  for _, f in ipairs(BOARD.alsoScad or {}) do files[#files + 1] = (SCAD:gsub("[^/\\]+$", f)) end
+  SCAD_SUM = checksum(files)
+end
 local HAND_SUM = checksum({ HAND_SCAD })
 -- (only to see: the contact shapes are the simulation's own, from the same sizes)
 local function part(call, file, sum)
@@ -216,6 +238,7 @@ end
 local boardObj = still("board()", "#5b3a22")
 local marksObj = still("marks(0.05)", "#e2c35a")
 local pinsObj = still("pinsDrawn()", "#c8a24e")      -- (the board's pins, drawn in brass so they show)
+local teethObj = G.teeth and #G.teeth > 0 and still("teeth()", "#8f86d6") or nil   -- (a splitter board's)
 local standObj = still("stand()", "#3b2a1a")
 local frontObj = still("front()", "#eef6fa")
 pcall(function() frontObj.transparency = 0.93 end)
@@ -249,6 +272,17 @@ do
   local function cyl(x, y, d) add(btCylinderShapeZ(btVector3(d / 2 * MM, d / 2 * MM, G.GAP / 2 * MM)), x, y, zc) end
   for _, p in ipairs(G.pins) do cyl(p[1], p[2], G.PIN_D) end
   for _, p in ipairs(G.bumps) do cyl(p[1], p[2], G.PIN_D) end
+  -- (a splitter board's teeth and other solids: convex outlines, the ball space deep)
+  local function hull(q)
+    local h = btConvexHullShape()
+    for _, p in ipairs(q) do
+      for _, z in ipairs({ 0, G.GAP }) do h:addPoint(btVector3(p[1] * MM, p[2] * MM, z * MM), false) end
+    end
+    h:recalcLocalAabb()
+    add(h, 0, 0, 0)
+  end
+  for _, q in ipairs(G.teeth or {}) do hull(q) end
+  for _, q in ipairs(G.solids or {}) do hull(q) end
   for _, w in ipairs(G.walls) do
     if not w.slide then
       local dx, dy = w[3] - w[1], w[4] - w[2]
@@ -423,7 +457,7 @@ do
     end
     y, row = y + 5.6, row + 1
   end
-  assert(#SPOTS == NBALLS, "The Galton board: the hopper holds only " .. #SPOTS .. " balls")
+  assert(#SPOTS == NBALLS, NAME .. ": the hopper holds only " .. #SPOTS .. " balls")
 end
 local balls = {}
 local function place(b, x, y)
@@ -455,8 +489,9 @@ applyContacts()
 -- bins, in the drawer, or on their way
 local chuteLog = { n = 0, x = 0, vx = 0, left = 0, prevY = {} }
 local function census()
-  local c = { hopper = 0, bins = 0, drawer = 0, between = 0, counts = {}, maxv = 0 }
+  local c = { hopper = 0, bins = 0, drawer = 0, between = 0, counts = {}, maxv = 0, tubes = 0, tubeCounts = {} }
   for k = 1, G.NBINS do c.counts[k] = 0 end
+  for i = 1, #(G.tubes or {}) do c.tubeCounts[i] = 0 end
   for _, b in ipairs(balls) do
     local x, y = boardXY(b.body:getCenterOfMassPosition())
     c.maxv = math.max(c.maxv, b.body:getLinearVelocity():length())
@@ -471,6 +506,7 @@ local function census()
     end
     if y > G.WHEEL_Y + G.HOUSING * 0.5 and math.abs(x) <= G.W then c.hopper = c.hopper + 1
     elseif y < G.Y_FLOOR - G.SLIDE_T then c.drawer = c.drawer + 1
+    elseif G.tubeOf and G.tubeOf(x, y) then local i = G.tubeOf(x, y); c.tubes = c.tubes + 1; c.tubeCounts[i] = c.tubeCounts[i] + 1
     elseif y < G.Y_DIV and y > G.Y_FLOOR - 1 then c.bins = c.bins + 1; local k = G.binOf(x); c.counts[k] = c.counts[k] + 1
     else c.between = c.between + 1 end
   end
@@ -487,7 +523,11 @@ end
 local PATHS = os.getenv("GB_PATHS")
 local paths = {}
 local levels = {}
-for r = G.TOP, G.ROWS - 1 do levels[#levels + 1] = -(r - G.TOP) * G.V - G.V / 2 end
+if G.levels then
+  for _, y in ipairs(G.levels) do levels[#levels + 1] = y end
+else
+  for r = G.TOP, G.ROWS - 1 do levels[#levels + 1] = -(r - G.TOP) * G.V - G.V / 2 end
+end
 local function trackPaths()
   for i, b in ipairs(balls) do
     local p = b.body:getCenterOfMassPosition()
@@ -543,11 +583,25 @@ do
     drums[name] = d
   end
   label("RUN", 8, 1); digits("run", 70, 1, 2)
+  if G.tubes then     -- (a splitter board: the balls caught, on each side or in the first tube; the survivors)
+    local eL, eR, eS = 0, 0, 0
+    for n, w in pairs(G.exactLeft) do eL = eL + w end
+    for n, w in pairs(G.exactRight) do eR = eR + w end
+    for u, w in pairs(G.exactPile) do eS = eS + w end
+    local two = G.WALL_L > 0 and G.WALL_R > 0
+    label(two and "OUT LEFT" or "CAUGHT", 8, 2, 6); digits("caught", 100, 2, 3)
+    label(string.format("FAIR: %.0f", NBALLS * (two and eL or eL + eR)), 140, 2, 5)
+    label(two and "OUT RIGHT" or "FIRST TUBE", 8, 3, 6); digits("second", 100, 3, 3)
+    label(string.format("FAIR: %.0f", NBALLS * (two and eR or (G.tubes[1] and G.tubes[1].p or 0))), 140, 3, 5)
+    label("SURVIVED", 8, 4, 6); digits("survived", 100, 4, 3)
+    label(string.format("FAIR: %.0f", NBALLS * eS), 140, 4, 5)
+  else
   label("IN THE BINS", 8, 2, 6); digits("balls", 100, 2, 3); label("OF " .. NBALLS, 136, 2, 6)
   label("MEAN BIN", 8, 3, 6); digits("mean", 100, 3, 3, { 6 }); label(".", 109.5, 3, 7)
   label(string.format("FAIR: %.2f", FAIR_MEAN), 140, 3, 5)
   label("SPREAD", 8, 4, 6); digits("sd", 100, 4, 3, { 6 }); label(".", 109.5, 4, 7)
   label(string.format("FAIR: %.2f", FAIR_SD), 140, 4, 5)
+  end
   local tr = btTransform(qa(0, 1, 0, -12), btVector3(SIGN_X, 1.5, -2))
   local box = part(string.format("signBox(%.1f, %.1f, [%s])", W, H, table.concat(wins, ",")))
   box.col = "#3a2818"
@@ -598,8 +652,24 @@ local function showNumber(name, value, zeros)
 end
 for _, list in pairs(SIGN.drums) do for _, d in ipairs(list) do placeDrum(d) end end
 local runNo = 0
+-- (a splitter board's counts: caught on the left and on the right)
+local function sides(c)
+  local L, Rt = 0, 0
+  for i, t in ipairs(G.tubes or {}) do
+    if t.side < 0 then L = L + c.tubeCounts[i] else Rt = Rt + c.tubeCounts[i] end
+  end
+  return L, Rt
+end
 local function showStats(c)
   showNumber("run", runNo > 0 and runNo or nil)
+  if G.tubes then
+    local L, Rt = sides(c)
+    local two = G.WALL_L > 0 and G.WALL_R > 0
+    showNumber("caught", two and L or c.tubes)
+    showNumber("second", two and Rt or (c.tubeCounts[1] or 0))
+    showNumber("survived", c.bins)
+    return
+  end
   showNumber("balls", c.bins)
   showNumber("mean", c.mean and c.mean * 100, true)
   showNumber("sd", c.sd and c.sd * 100, true)
@@ -695,7 +765,50 @@ local function startEmpty()
   say("EMPTY: the slide out, the balls down into the drawer; then poured back into the hopper")
 end
 local pourNext = 1
+-- (a splitter board: the caught and the survivors against the exact chances,
+-- a chi-square with cells under 5 expected pooled, as walls.py does)
+local CHI1 = { 6.6, 9.2, 11.3, 13.3, 15.1, 16.8, 18.5, 20.1, 21.7, 23.2, 24.7, 26.2, 27.7, 29.1, 30.6, 32.0, 33.4, 34.8, 36.2, 37.6 }
+local function splitterVerdict(c)
+  local n = c.tubes + c.bins
+  local groups = { {}, {}, {} }
+  for i, t in ipairs(G.tubes) do
+    local g = groups[t.side < 0 and 1 or 2]
+    g[#g + 1] = { string.format("%s%d", t.side < 0 and "L" or "R", t.row), c.tubeCounts[i], G.tubeExpected(n, i) }
+  end
+  for k = 1, G.NBINS do
+    local e = G.expected(n, k)
+    if e > 0 then groups[3][#groups[3] + 1] = { string.format("b%d", k), c.counts[k], e } end
+  end
+  local chi, df, shown = 0, -1, {}
+  for _, g in ipairs(groups) do
+    local cells, acc = {}, nil
+    for _, cell in ipairs(g) do
+      if acc then acc = { acc[1] .. "+", acc[2] + cell[2], acc[3] + cell[3] } else acc = { cell[1], cell[2], cell[3] } end
+      if acc[3] >= 5 then cells[#cells + 1] = acc; acc = nil end
+    end
+    if acc then
+      if #cells > 0 then local l = cells[#cells]; cells[#cells] = { l[1] .. "+", l[2] + acc[2], l[3] + acc[3] }
+      else cells[1] = acc end
+    end
+    for _, cell in ipairs(cells) do
+      chi = chi + (cell[2] - cell[3]) ^ 2 / cell[3]; df = df + 1
+      shown[#shown + 1] = string.format("%s %d (%.0f)", cell[1], cell[2], cell[3])
+    end
+  end
+  local crit = CHI1[math.max(1, math.min(#CHI1, df))]
+  say("  " .. table.concat(shown, ", "))
+  local L, Rt = sides(c)
+  say(string.format("  caught %d left, %d right, %d survived, of %d; chi-square %.1f on %d degrees of freedom (1%% level %.1f); %d backs of the crank; %.1f s",
+                    L, Rt, c.bins, NBALLS, chi, df, crit, backs, modeT))
+  return n == NBALLS and chi < crit
+end
 local function endOfRun(c)
+  if G.tubes then
+    local ok = splitterVerdict(c)
+    say(ok and "    as expected" or "    NOT AS EXPECTED")
+    if PATHS then writePaths() end
+    return ok
+  end
   local ok = c.bins == NBALLS and c.mean and math.abs(c.mean - FAIR_MEAN) < 0.6 and c.sd > 1.4 and c.sd < 2.6
   say(string.format("  bins: %s", table.concat(c.counts, " ")))
   local fair = {}
@@ -799,7 +912,8 @@ local function operate(dt)
     -- top, a row at a time, where there's room
     local top = G.Y_TOP - R - 0.5
     local placed = 0
-    for x = -G.W + R + 1, G.W - R - 1, 6.6 do
+    local HWD = G.WH or G.W                     -- (the hopper's half width: a splitter board is wider than its hopper)
+    for x = -HWD + R + 1, HWD - R - 1, 6.6 do
       if pourNext <= NBALLS and placed < 24 then
         local free = true
         for _, b in ipairs(balls) do
@@ -858,7 +972,7 @@ local function tourNext()
   tour = tour + 1
   if tour > #TOUR then
     tour = nil
-    say("RESULT galton tour: " .. ((tourFails == 0 and #tourRuns == RUNS) and "PASS" or "FAIL"))
+    say("RESULT " .. (BOARD.result or "galton") .. " tour: " .. ((tourFails == 0 and #tourRuns == RUNS) and "PASS" or "FAIL"))
   else tourStep() end
 end
 
@@ -922,7 +1036,7 @@ v:postSim(function(N)
   t = t + FRAME_DT
   if not started then
     started = true
-    if tour then print("\nTHE GALTON BOARD -- the tour"); tourStep() end
+    if tour then print("\n" .. (BOARD.title or "THE GALTON BOARD") .. " -- the tour"); tourStep() end
   end
   operate(FRAME_DT)
   tourNext()
@@ -971,7 +1085,7 @@ v:onParamChanged(function(N, name, value)
   elseif name == "bounce" or name == "friction" then applyContacts() end
 end)
 pcall(function()
-  v:setHelpText(table.concat({
+  v:setHelpText(table.concat(BOARD.help or {
     "THE GALTON BOARD  (Babbage's Hall)",
     "",
     "KEYS",
@@ -993,9 +1107,10 @@ pcall(function()
 end)
 if v.onHover then
   local KEY = {}
-  KEY[objectKey(boardObj)] = "the Galton board: twelve rows of pins over thirteen bins"
+  KEY[objectKey(boardObj)] = BOARD.keyBoard or "the Galton board: twelve rows of pins over thirteen bins"
   KEY[objectKey(marksObj)] = "where 150 balls would come to if every pin were a fair coin"
-  KEY[objectKey(pinsObj)] = "the pins: 4 mm, 12 mm apart, printed with the board"
+  KEY[objectKey(pinsObj)] = BOARD.keyPins or "the pins: 4 mm, 12 mm apart, printed with the board"
+  if teethObj then KEY[objectKey(teethObj)] = BOARD.keyTeeth or "a splitter's tooth" end
   for _, wh in ipairs(wheels) do
     KEY[objectKey(wh.obj)] = "a metering wheel: each slot carries one ball from the hopper to the funnel over the first pin; the two are mirror images, geared together"
     KEY[objectKey(wh.gear)] = "the gears behind the board: they turn the wheels alike, opposite ways"
@@ -1010,6 +1125,14 @@ if v.onHover then
     local s = KEY[objectKey(obj)]
     if not s then return nil end
     local c = lastCensus
+    if G.tubes then
+      local t, e = {}, {}
+      for i = 1, #G.tubes do t[i] = tostring(c.tubeCounts[i]); e[i] = string.format("%.0f", G.tubeExpected(NBALLS, i)) end
+      local b, f = {}, {}
+      for k = 1, G.NBINS do if G.expected(1, k) > 0 then b[#b + 1] = tostring(c.counts[k]); f[#f + 1] = string.format("%.0f", G.expected(NBALLS, k)) end end
+      return s .. string.format("\nthe tubes: %s\nfair coins: %s\nthe bins: %s\nfair coins: %s",
+        table.concat(t, " "), table.concat(e, " "), table.concat(b, " "), table.concat(f, " "))
+    end
     local fair = {}
     for k = 1, G.NBINS do fair[k] = string.format("%.0f", G.expected(math.max(c.bins, 1), k)) end
     return s .. string.format("\nthe bins: %s\nfair coins: %s\nmean bin %s (fair %.2f), spread %s (fair %.2f)",
@@ -1018,7 +1141,12 @@ if v.onHover then
   end)
 end
 
-common.setCamera(btVector3(BX + 9, 40, 98), btVector3(BX + 9, 28, 0))
+if BOARD.camera then
+  local k = BOARD.camera
+  common.setCamera(btVector3(BX + k[1], k[2], k[3]), btVector3(BX + k[4], k[5], 0))
+else
+  common.setCamera(btVector3(BX + 9, 40, 98), btVector3(BX + 9, 28, 0))
+end
 moveRiders()
 hand.update(0)
 holdStart()

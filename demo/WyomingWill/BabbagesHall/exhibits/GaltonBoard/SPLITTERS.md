@@ -276,6 +276,32 @@ quarters: about 37, 75 and 112 of 150 balls). So a gambler's-ruin board
 would have its walls 4 places (two pitches) apart, with the feed, or the
 walls, moved between runs.
 
+## The exhibit
+
+`splitter-board.lua` builds the whole board on the Galton board's machine
+(README, "The splitter board"): twelve rows of splitters with 10 mm necks,
+and the walls as above, the exits now real (an exit block whose top slopes
+outward, a 6-degree ramp to a tube standing on the slide). Tour runs of
+150 balls, each judged by a chi-square of the tubes and bins against the
+exact counts:
+
+| walls | result | chi-square (1% level) |
+|---|---|---|
+| first passage, three runs | caught 85, 85, 77; survived 65, 65, 73 | 4.3, 0.9, 4.2 (20.1) |
+| none | the binomial | 6.8 (16.8) |
+| gambler's ruin, start 1 | 37 out right (37.5) | 5.6 (18.5) |
+| gambler's ruin, start 2 | 70 out right, 76 left (73, 73) | 8.1 (20.1) |
+| gambler's ruin, start 3 | 112 out right (112.5) | 11.9 (18.5) |
+
+Two things the whole board needed that the test bed did not. A ball
+coming off a ramp meets its tube's outer wall and bounces back: with the
+wall between tubes only as high as the next tube's ramp, it bounced over
+into the next tube (the row 2 tube got 11 balls, the row 4 tube 39). Each
+tube's inner wall now rises to just under its own ramp's end. And with a
+wall an odd number of places from the start, the bins' dividers have to
+stand at the odd places, not counted from the wall (they stood in the
+middle of the bins, and balls came to rest on them).
+
 ## What it means
 
 - A neck above every pin can cut the memory to nothing, but only at a

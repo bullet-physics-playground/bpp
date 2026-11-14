@@ -191,3 +191,47 @@ board in the stand. Pour the balls in at the filling slot at the top, and
 turn the crank.
 
 See `FINDINGS.md` for how the sizes were arrived at.
+
+## The splitter board
+
+A second board on the same machine (`splitter-board.lua`), built so that
+its pins are independent fair coins, and with walls that swallow balls,
+to show the mathematics of fair coins exactly where the Galton board shows
+it roughly. The hopper, the mirror-image wheels, the crank, the slide and
+drawer, the hand and the sign are the Galton board's, and `galton.lua`
+runs it; what is its own is in `splitter-geometry.lua` and
+`parts/splitter.scad` (which includes `galton.scad` and overrides the
+board, the teeth and the marks).
+
+Every pin is a splitter (`SPLITTERS.md`): a steel pin carrying a printed
+tooth, a wedge whose sides slope into straight necks, each neck dropping a
+ball onto the pin below, half a 30 mm pitch to the side. The neck takes
+away what the ball remembered of the pin before. Teeth are all one height,
+so a set with longer or shorter necks fits the same rows: the board is
+tuned to its balls' bounce by choosing the set (10, 12, 14 or 20 mm necks).
+
+The walls (`SB_WALLS`):
+
+- `first` (the default): a wall 2 places left of the start. A ball
+  reaching it drops onto an exit block, rolls down a ramp to the tube for
+  the row it was caught at, one tube for each of rows 2, 4, ... 12, the
+  first outermost. The tubes fill as first passage has it (for 150 balls
+  about 38, 19, 12, 8, 6, 5): a long thin tail, the average wait infinite.
+  The survivors pile up away from the wall as the reflection principle
+  has it. The gold lines are the exact counts.
+- `ruin`: walls on both sides, 4 places apart, the start `SB_START`
+  places from the left one (1, 2 or 3): gambler's ruin. A quarter, a half
+  or three quarters of the balls go out on the right.
+- `none`: no walls, the binomial exactly.
+
+The sign counts the balls caught (or out on the left), those in the first
+tube (or out on the right), and the survivors, each against fair coins.
+The tour judges each run by a chi-square of the tubes and bins against
+the exact counts (cells under 5 pooled), at the 1% level.
+
+    bpp -f splitter-board.lua                       # first passage
+    SB_WALLS=ruin SB_START=1 bpp -f splitter-board.lua
+    GB_TOUR=1 GB_RUNS=3 bpp -f splitter-board.lua -n 10500
+
+The board is 400 by 788 mm. Its printed parts and the hall's bay for it
+are still to come.
