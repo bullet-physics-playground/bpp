@@ -437,8 +437,9 @@ QString Mesh::toMesh2(QByteArray *out) const {
 
   POVSaveCallback pov;
   pov.collect = (out != nullptr);
-  btVector3 pminaabb(-1e99, -1e99, -1e99); // XXX
-  btVector3 pmaxaabb(1e99, 1e99, 1e99);    // XXX
+  // (every triangle: Bullet's own "everything" box; 1e99 overflowed a float)
+  btVector3 pminaabb(-BT_LARGE_FLOAT, -BT_LARGE_FLOAT, -BT_LARGE_FLOAT);
+  btVector3 pmaxaabb(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT);
   btConcaveShape *concaveMesh = (btConcaveShape *)m_shape;
   concaveMesh->processAllTriangles(&pov, pminaabb, pmaxaabb);
 
