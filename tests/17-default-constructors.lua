@@ -79,4 +79,8 @@ check("btTransform(q, origin)", vecIsZero(back), back)
 -- They are still the classes: a script can test and extend them.
 check("btQuaternion is still the class", class_info(btQuaternion).name == "btQuaternion")
 
+-- An empty joystick report says what it holds (it printed "JoystickInfo()").
+check("JoystickInfo() prints its axes and buttons",
+      tostring(JoystickInfo()) == "JoystickInfo(axes={}, buttons={})", tostring(JoystickInfo()))
+
 print(string.format("\n%d passed, %d failed", pass, fail))

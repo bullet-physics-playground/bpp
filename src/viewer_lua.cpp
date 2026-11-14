@@ -92,14 +92,22 @@ std::ostream &operator<<(std::ostream &ostream, const QColor &c) {
 }
 
 /**
- * @brief Writes a placeholder description of a JoystickInfo to a stream.
+ * @brief Writes a JoystickInfo's axes and buttons to a stream, as
+ *        @c JoystickInfo(axes={0, -120}, buttons={0, 1}).
  * @param ostream The stream to write to.
- * @param ji      The report. Its contents are not printed.
+ * @param ji      The report.
  * @return @p ostream, for chaining.
  */
 std::ostream &operator<<(std::ostream &ostream, const JoystickInfo &ji) {
-  Q_UNUSED(ji)
-  ostream << "JoystickInfo()"; // XXX
+  ostream << "JoystickInfo(axes={";
+  const QList<int> axes = ji.getAxisValues();
+  for (int i = 0; i < axes.size(); i++)
+    ostream << (i ? ", " : "") << axes[i];
+  ostream << "}, buttons={";
+  const QList<bool> buttons = ji.getButtonValues();
+  for (int i = 0; i < buttons.size(); i++)
+    ostream << (i ? ", " : "") << (buttons[i] ? 1 : 0);
+  ostream << "})";
   return ostream;
 }
 
