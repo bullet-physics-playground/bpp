@@ -25,3 +25,12 @@ race:JobQueue::setupJobStealing
 # PulseAudio's own thread (bpp's sound output), in a library that isn't
 # instrumented: its locking is invisible to ThreadSanitizer.
 race:libpulsecommon
+
+# Qt's own thread pool (Viewer's _prefsPool, which writes v:savePrefs), as
+# ~Viewer destroys it: the pool frees its thread list and its threads' wait
+# conditions after joining them, but through a QMutex, which in Qt 5 is a
+# futex in libQt5Core, not instrumented, so ThreadSanitizer does not see
+# the join (tests/27-user-dir.lua, at exit, about one run in 15). bpp itself
+# has no QWaitCondition.
+race:QThreadPoolPrivate::reset
+race:QWaitCondition::~QWaitCondition
