@@ -28,7 +28,7 @@ it holds as a member:
 | File | Member | What it does |
 |------|--------|--------------|
 | `viewer_lua.cpp` | | `Viewer::luaBind`: the `Viewer` class as scripts see it (`v:add`, `v:preSim`, `v:addParam` ...) |
-| `viewermedia.cpp` | | music, `v:ask`, `v:download`, `v:dataDir` |
+| `viewermedia.cpp` | | music, sound effects and tones (`v:playSound`, `v:setTone`), `v:ask`, `v:download`, `v:dataDir` |
 | `viewerworlds.cpp` | | the physics worlds (`v:newWorld`, `useWorld`, `placeWorld`), the solver (`v:setSolver`, `tau`, `erp`, `cfm` ...) and threads (`v:setThreads`); the step itself |
 | `restskipping.cpp` | | `RestSkippingDispatcher`, every world's collision dispatcher: it skips pairs at rest, on threads too |
 | `params.cpp` | `_params` | the script's parameters (`v:addParam`), which the GUI shows as sliders, check boxes and cells |
