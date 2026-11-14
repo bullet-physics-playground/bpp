@@ -799,8 +799,23 @@ def report_new_files(before):
 
 
 def _gist(reason):
-    """A failure reason without its numbers, for comparing with the known one."""
+    """A failure reason without its numbers, for comparing with the known one.
+    Lua 5.4 (macOS) words an error otherwise than 5.1 ("attempt to index a
+    nil value (global 'arg')" for "attempt to index global 'arg' (a nil
+    value)") and shortens a chunk's name otherwise: both are taken out."""
+    reason = re.sub(r"attempt to (\w+) an? (\w+) value \((global|local|field|upvalue|method) '([^']*)'\)",
+                    r"attempt to \1 \3 '\4' (a \2 value)", reason)
+    reason = re.sub(r'\[string "[^"]*"\]', "[string]", reason)
     return re.sub(r"\d+", "#", reason.strip())[:120]
+
+
+def _after_error(r, limit=8):
+    """The first error line of a run and those after it (what an error
+    message goes on with, such as OpenSCAD's own), indented."""
+    lines = r.lines()
+    errs = lua_errors(lines)
+    start = lines.index(errs[0]) if errs else max(0, len(lines) - limit)
+    return ["         | " + l for l in lines[start:start + limit]]
 
 
 def suite_smoke(ctx):
@@ -814,6 +829,7 @@ def suite_smoke(ctx):
         results[demo] = why
         if why and demo not in known:
             print("  FAIL %-60s %s" % (demo, why))
+            print("\n".join(_after_error(r)))
             failed += 1
         elif why and _gist(why) != _gist(known[demo]) and not ctx.update:
             print("  FAIL %-60s fails differently now: %s" % (demo, why))
