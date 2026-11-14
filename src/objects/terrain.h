@@ -162,6 +162,18 @@ protected:
   btBvhTriangleMeshShape *m_shape; ///< BVH shape built from #m_mesh by build().
 
   /**
+   * @brief Cached POV-Ray content hash of the triangles.
+   *
+   * Terrain::toPOV(sceneDir) hashes every triangle once, then reuses the hash
+   * on every later frame so long as the geometry is unchanged (its
+   * mesh_<hash>.inc is already written) instead of re-walking all triangles
+   * triangle by triangle on each exported frame. Invalidated in #addTriangle
+   * and #build. Mutable because toPOV() is const.
+   */
+  mutable QString _povMeshHash;
+  mutable bool _povHashValid = false;
+
+  /**
    * @brief Per-triangle colour overrides, keyed by triangle index.
    *
    * Sparse on purpose: a trail marks a tiny fraction of a mesh that can be

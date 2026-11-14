@@ -155,6 +155,7 @@ public:
     m_mesh = nullptr;
     body = nullptr;
     shape = nullptr;
+    _povHashValid = false;
   }
 
   /**
@@ -255,6 +256,18 @@ protected:
    * Same as m_ownsShape, for m_mesh.
    */
   bool m_ownsMesh = false;
+
+  /**
+   * @brief Cached POV-Ray content hash of the geometry.
+   *
+   * Mesh::toPOV(sceneDir) hashes every triangle once, then reuses the hash on
+   * every later frame so long as the geometry is unchanged (its
+   * mesh_<hash>.inc is already written) instead of re-walking all triangles
+   * triangle by triangle on each exported frame. Invalidated in #loadFile,
+   * #setShape and #setTriangleMesh. Mutable because toPOV() is const.
+   */
+  mutable QString _povMeshHash;
+  mutable bool _povHashValid = false;
 
   /**
    * @brief Meshes this object owns that a shape still points into.

@@ -270,6 +270,7 @@ void Mesh::loadFile(const QString &filename, btScalar mass,
                     bool centerOfMass) {
   m_filename = filename;
   m_mass = mass;
+  _povHashValid = false; // geometry (re)loaded: hash must be recomputed
 
   QString resolvedPath = locateMeshFile(filename);
   QString absPath = QFileInfo(resolvedPath).absoluteFilePath();
@@ -507,8 +508,14 @@ QString Mesh::toPOV(const QString &sceneDir) const {
     if (mPreSDL.isNull()) {
       // The hash alone first (one cheap walk, nothing formatted): exported
       // every frame, a mesh's .inc is usually there already. Only a new one
-      // is walked again and formatted into its mesh2 blob.
-      const QString hash = toMesh2(nullptr);
+      // is walked again and formatted into its mesh2 blob. The hash is
+      // cached so a mesh whose geometry did not change is not re-walked
+      // triangle by triangle on every exported frame.
+      if (!_povHashValid) {
+        _povMeshHash = toMesh2(nullptr);
+        _povHashValid = true;
+      }
+      const QString hash = _povMeshHash;
 
       QString incfile = sceneDir + QDir::separator() + "mesh_" + hash + ".inc";
 
@@ -707,6 +714,7 @@ void Mesh::setShape(btGImpactMeshShape *newShape, bool fromLua) {
   // The new shape's ownership is no longer the default constructor's
   // direct allocation, so ~Mesh() must not delete it a second time.
   m_ownsShape = false;
+  _povHashValid = false; // geometry changed: hash must be recomputed
 }
 
 btTriangleMesh *Mesh::getTriangleMesh() const { return m_mesh; }
@@ -727,6 +735,7 @@ void Mesh::setTriangleMesh(btTriangleMesh *mesh, bool fromLua) {
   m_meshFromLua = fromLua && mesh != nullptr;
   // Same reasoning as setShape(): don't let ~Mesh() delete this again.
   m_ownsMesh = false;
+  _povHashValid = false; // geometry changed: hash must be recomputed
 }
 
 void Mesh::setMass(btScalar _mass) {
