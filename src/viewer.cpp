@@ -3804,7 +3804,7 @@ void Viewer::stopAnimation() {
 
   QGLViewer::stopAnimation();
   _synth.setGate(false); // (the voices hush while paused)
-  // XXX updateGLViewer();
+  updateGLViewer();      // (else the red dot stays until something repaints)
 }
 
 void Viewer::animate() {
