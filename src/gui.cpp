@@ -675,6 +675,7 @@ void Gui::setCurrentFile(const QString &fileName) {
     if (fi.exists()) {
       QString dir = QDir::toNativeSeparators(fi.absolutePath());
       QDir::setCurrent(dir);
+      syncPwd();
       ui.viewer->setScriptBasePath(dir);
     }
   }

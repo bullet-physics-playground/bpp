@@ -21,6 +21,12 @@ const QString &userDirOverride() {
   return dir;
 }
 
+void syncPwd() {
+#ifndef Q_OS_WIN
+  qputenv("PWD", QDir::currentPath().toLocal8Bit());
+#endif
+}
+
 // A folder under BPP_USER_DIR.
 static QString under(const char *name) {
   return QDir(userDirOverride()).filePath(name);

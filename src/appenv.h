@@ -31,6 +31,17 @@ inline const QString &startupWorkingDir() {
 }
 
 /**
+ * @brief Points the environment's PWD at the current working directory, as
+ *        a shell does when it changes directory.
+ *
+ * A script that asks a shell where it is (io.popen("pwd")) gets PWD back if
+ * that shell trusts it, as macOS's /bin/sh does, so PWD must follow bpp's
+ * working directory: main() calls this at start, Gui::setCurrentFile after
+ * moving into a script's folder. (Unix only: Windows' cmd asks the system.)
+ */
+void syncPwd();
+
+/**
  * @name Per-user files
  *
  * Where bpp keeps what belongs to the user rather than to a script: its

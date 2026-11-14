@@ -99,6 +99,7 @@ int main(int argc, char **argv) {
   // Capture the launch directory before anything (e.g. opening a script)
   // can change the process's current working directory.
   startupWorkingDir();
+  syncPwd(); // (whoever started bpp may have left PWD elsewhere)
 
   // Request a stencil buffer for CSG rendering
   QSurfaceFormat fmt;
