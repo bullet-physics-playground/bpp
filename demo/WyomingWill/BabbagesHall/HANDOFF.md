@@ -305,7 +305,14 @@ there, in `release/`, or on the path; or set `BPP`.
   row-spacing sweeps); the board was left as it is, the instrument kept
   (`GB_PATHS`, `paths.py`, and `GB_GEO="V=..."` for the rows). Left to
   try: feeding the first pin a little off-centre, since the first pair
-  goes together 98% of the time. Printed in three tiles under 200 mm,
+  goes together 98% of the time. Splitters (2026-11-13, a fourth patch):
+  a neck above every pin, tested on its own (`splitter-test.lua`,
+  `SPLITTERS.md`), for a second board that would show independent coins
+  exactly and, with other walls, gambler's ruin and first passage. At a
+  30 mm pitch with 10 mm necks the decisions cannot be told from fair
+  coins; the memory is never more than one pin deep; but the bounce moves
+  it (0.3: 69% the same way), so a printed board needs the real bounce
+  measured and its necks tuned. Both boards are to be kept. Printed in three tiles under 200 mm,
   two gears, a stand, an acrylic front sheet; every STL checked watertight,
   and no two parts overlap at rest. `tools/check-all.sh` (twelve runs, the
   Galton board's two included) all passed on the revised board.

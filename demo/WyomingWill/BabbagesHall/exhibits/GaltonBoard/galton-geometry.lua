@@ -87,7 +87,7 @@ local function build(o)
   G.OUT_R, G.OUT_L = -60, -120            -- the outlet under each wheel
   G.CHUTE = o.CHUTE or 4.0                -- the neck, half its width (a ball and 2 mm)
   G.CHUTE_T = 1.2                         -- the funnel's and neck's walls
-  G.CHUTE_Y = 8                           -- the neck's foot: a ball leaving it touches the pin
+  G.CHUTE_Y = o.CHUTE_Y or (G.PIN_D / 2 + G.BALL_D / 2 + 3)  -- the neck's foot (8): a ball leaving it touches the pin
   G.NECK_L = o.NECK_L or 8                -- the neck's length
   G.WHEEL_T = 6.0                         -- the wheels' thickness (in the 7 mm space)
   G.WHEEL_MASS = 0.004                    -- kg (PLA, with its axle)

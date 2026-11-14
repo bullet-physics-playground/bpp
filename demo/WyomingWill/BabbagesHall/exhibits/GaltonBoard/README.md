@@ -36,6 +36,8 @@ jumps a pin. The bins come out a little wider than fair coins' (a spread of
 about 1.9 to 2.0, against 1.73), with the mean bin within about 0.3 of 6.
 A deader ball remembers more, and taller rows let it jump more; no setting
 tried does much better than this board. See `FINDINGS.md`, section 6.
+A neck above every pin can cut the memory to nothing: see `SPLITTERS.md`
+and `splitter-test.lua`, a test bed for a second board.
 
 ## The board
 
