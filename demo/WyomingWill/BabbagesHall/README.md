@@ -150,7 +150,7 @@ museum label on a brass post at its table's right front corner, turned to
 face the visitor walking up (the exhibit's first stop), is built when
 its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
 card, the name, a line and a few sentences, as
-`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All six exhibits on
+`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All seven exhibits on
 show have one.
 
 Every `.md` file has a typeset `.pdf` beside it; `./make-pdfs.sh` rebuilds
@@ -169,9 +169,9 @@ Every exhibit stands on the same kind of table, drawn by `exhibit-table.lua`:
 - **Size:** the machine's footprint plus 30 cm on every side, rounded up to
   the next 10 cm, and never smaller than 80 x 60 cm. The machine keeps its
   real, printable size: the Differential's table is 80 x 80, Lehmer's
-  sieve's 120 x 80 (with its board), the Galton board's 110 x 70 (with its
-  sign), the Pascaline's 110 x 80, the Domino Half Adder's 180 x 230, the
-  Digi-Comp II's 110 x 220.
+  sieve's 120 x 80 (with its board), the Galton board's 110 x 70 and the
+  splitter board's 130 x 70 (each with its sign), the Pascaline's 110 x 80,
+  the Domino Half Adder's 180 x 230, the Digi-Comp II's 110 x 220.
 - **Place:** the hall moves each exhibit forward in its bay until the
   table's front edge is 60 cm behind the rail (`TABLE_GAP`), so the machine
   is seen close from the aisle. A table too deep for that stays in the

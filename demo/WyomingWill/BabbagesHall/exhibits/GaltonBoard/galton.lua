@@ -62,7 +62,7 @@ local BOARD = BOARD or {}
 local NAME = BOARD.name or "The Galton board"
 local G = dofile(DIR .. (BOARD.geometry or "galton-geometry.lua"))
 if BOARD.options then G = G.build(BOARD.options) end
-do   -- (GB_GEO="CHUTE_X=-1.5 S=13": sizes to try, headless; not for the printed board)
+do   -- (GB_GEO="S=13 PIN_D=3": sizes to try, headless; not for the printed board)
   local o, any = {}, false
   for k, x in pairs(BOARD.options or {}) do o[k] = x end
   for k, x in (os.getenv("GB_GEO") or ""):gmatch("([%w_]+)=([%d.-]+)") do o[k] = tonumber(x); any = true end
