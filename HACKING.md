@@ -29,6 +29,8 @@ it holds as a member:
 |------|--------|--------------|
 | `viewer_lua.cpp` | | `Viewer::luaBind`: the `Viewer` class as scripts see it (`v:add`, `v:preSim`, `v:addParam` ...) |
 | `viewermedia.cpp` | | music, `v:ask`, `v:download`, `v:dataDir` |
+| `viewerworlds.cpp` | | the physics worlds (`v:newWorld`, `useWorld`, `placeWorld`), the solver (`v:setSolver`, `tau`, `erp`, `cfm` ...) and threads (`v:setThreads`); the step itself |
+| `restskipping.cpp` | | `RestSkippingDispatcher`, every world's collision dispatcher: it skips pairs at rest, on threads too |
 | `params.cpp` | `_params` | the script's parameters (`v:addParam`), which the GUI shows as sliders, check boxes and cells |
 | `scriptkeys.cpp` | `_keys` | the script's `v:onKey` hook and `v:addShortcut` shortcuts |
 | `hover.cpp` | `_hover` | the tooltip by the resting mouse (`v:onHover`) |
@@ -43,7 +45,9 @@ it holds as a member:
 | `bppworld.cpp` | | bpp's Bullet world, with threads (`v:setThreads`) |
 
 Each helper's header starts with a comment saying what it is for and how
-the Viewer uses it; read that first.
+the Viewer uses it; read that first. The files without a member hold more of
+the Viewer's own methods; `viewer_p.h` declares what they share with
+`viewer.cpp`.
 
 The rest of `src/`:
 
