@@ -49,9 +49,7 @@ void luaBindBulletPart1(lua_State *s) {
            .def(tostring(const_self))
            .def(const_self == const_self)];
 
-  // TODO
-  // btStridingMeshInterface
-  // btBroadphaseProxy
+  // (btStridingMeshInterface, btBroadphaseProxy: issue #67)
 
   // https://pybullet.org/Bullet/BulletFull/classbtMotionState.html
   module(s)[class_<btMotionState, btMotionState *, btMotionState_wrap>(

@@ -96,9 +96,7 @@ void luaBindBulletPart2(lua_State *s) {
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtPolyhedralConvexShape.html
       [class_<btPolyhedralConvexShape, btConvexInternalShape>(
           "btPolyhedralConvexShape")
-       // TODO .def("getConvexPolyhedron",
-       // &btPolyhedralConvexShape::getConvexPolyhedron) needs definition of
-       // btConvexPolyhedron not in the headers
+       // (getConvexPolyhedron: issue #66)
            .def(tostring(const_self))
            .def(const_self == const_self)
   ];
