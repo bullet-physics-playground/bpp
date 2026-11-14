@@ -89,7 +89,7 @@ module(
            .def(constructor<btRigidBody &, btRigidBody &, const btTransform &,
                             const btTransform &>())
            .def(constructor<btRigidBody &, const btTransform &>())
-     	   //XXX  ^.def("getLimit", &btConeTwistConstraint::getLimit)
+           .def("getLimit", &btConeTwistConstraint::getLimit)
            .def("setLimit",
                 (void(btConeTwistConstraint::*)(int, btScalar)) &
                     btConeTwistConstraint::setLimit)
@@ -97,7 +97,7 @@ module(
            .def("setMotorTargetInConstraintSpace",
                 &btConeTwistConstraint::setMotorTargetInConstraintSpace)
            .def("enableMotor", &btConeTwistConstraint::enableMotor)
-	       //XXX .def("isMotorEnabled", &btConeTwistConstraint::isMotorEnabled)
+           .def("isMotorEnabled", &btConeTwistConstraint::isMotorEnabled)
            .def("setMaxMotorImpulse", &btConeTwistConstraint::setMaxMotorImpulse)
            .def("getPointForAngle", &btConeTwistConstraint::GetPointForAngle)
            .def("setParam", &btConeTwistConstraint::setParam)

@@ -196,9 +196,16 @@ assert_callable("btConeTwistConstraint:setLimit(5,value)", function()
   ct:setLimit(5, math.pi * 0.8)
 end)
 
+assert_eq("btConeTwistConstraint:getLimit(3)", math.abs(ct:getLimit(3) - math.pi * 0.8) < 1e-6, true)
+assert_eq("btConeTwistConstraint:getLimit(4)", math.abs(ct:getLimit(4) - math.pi * 0.25) < 1e-6, true)
+assert_eq("btConeTwistConstraint:getLimit(5)", math.abs(ct:getLimit(5) - math.pi * 0.8) < 1e-6, true)
+assert_eq("btConeTwistConstraint:isMotorEnabled before", ct:isMotorEnabled(), false)
+
 assert_callable("btConeTwistConstraint:enableMotor", function()
   ct:enableMotor(true)
 end)
+
+assert_eq("btConeTwistConstraint:isMotorEnabled after", ct:isMotorEnabled(), true)
 
 assert_callable("btConeTwistConstraint:setMotorTarget", function()
   ct:setMotorTarget(btQuaternion(0, 0, 0, 1))
