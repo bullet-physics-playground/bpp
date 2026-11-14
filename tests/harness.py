@@ -121,8 +121,13 @@ def isolated_env(workdir, display=None):
     else:
         # Windows always has a window server, and a Windows build ships only
         # the native platform plugin; forcing offscreen there fails (see the
-        # comment in src/main.cpp).
-        if not sys.platform.startswith("win"):
+        # comment in src/main.cpp). A macOS app bundle has no offscreen
+        # plugin either, so it runs with its own window server plugin.
+        if sys.platform.startswith("win"):
+            pass
+        elif sys.platform == "darwin":
+            env["QT_QPA_PLATFORM"] = "cocoa"
+        else:
             env["QT_QPA_PLATFORM"] = "offscreen"
     return env
 

@@ -128,6 +128,7 @@ void LuaBullet::luaBind(lua_State *s) {
   // demos use it so), so with no arguments each now makes the identity or
   // zero; luabind looks up a class's __init when it is called.
   luaL_dostring(s, R"lua(
+    local unpack = table.unpack or unpack
     local function default(class, ...)
       local init, args = class.__init, {...}
       class.__init = function(...)

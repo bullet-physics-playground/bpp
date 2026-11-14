@@ -1,0 +1,63 @@
+name: Demo screenshots
+
+# Builds bpp, runs every demo Lua script in bpp's GUI on a virtual X server
+# (Xvfb), grabs a screenshot once the scene loads, generates
+# demo-screenshots/index.html (+ shots/) and publishes it to the gh-pages
+# branch (https://bullet-physics-playground.github.io/bpp/).
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1'   # weekly, Mondays
+
+permissions:
+  contents: write
+
+jobs:
+  screenshots:
+    name: Build bpp and screenshot every demo
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install build and screenshot dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            --no-install-recommends \
+            pkg-config qt5-qmake qtbase5-dev qttools5-dev-tools \
+            libqt5opengl5-dev libqglviewer-dev-qt5 libglew-dev \
+            libluabind-dev liblua5.1-dev libbullet-dev libassimp-dev \
+            libsdl2-dev libsdl2-mixer-dev lsb-release help2man \
+            openscad fonts-liberation \
+            xvfb xdotool imagemagick
+
+      - name: Build bpp (release)
+        id: build
+        run: |
+          qmake CONFIG+=release bpp.pro
+          make -j"$(nproc)" release
+
+      - name: Screenshot every demo and generate index.html
+        id: screenshots
+        run: |
+          python3 scripts/make-demo-screenshots.py \
+            --bpp release/bpp \
+            --out demo-screenshots \
+            --settle 3 \
+            --timeout 90
+
+      - name: Publish gallery to gh-pages
+        if: success()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: demo-screenshots
+          keep_files: false
+          commit_message: "chore: regenerate demo screenshot gallery"

@@ -37,7 +37,7 @@ local before = collectgarbage("count")
 collectgarbage("stop")
 for i = 1, 400000 do local t = { i, i, i } end
 local grown = collectgarbage("count") - before
-check(string.format("collectgarbage('stop') is ignored (grew %d KB)", grown), grown < 8192)
+check(string.format("collectgarbage('stop') is ignored (grew %d KB)", math.floor(grown)), grown < 8192)
 collectgarbage("collect")
 check("collectgarbage('collect') still works", collectgarbage("count") <= before + 64)
 
