@@ -14,6 +14,18 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
         INSTALL_PROGRAM += -s
 endif
 
+# Qt 6 where the distribution has libQGLViewer for it (debian/control lists
+# it first), else Qt 5, as older ones have only that (Ubuntu 24.04, Debian 12
+# and 13): bpp builds with either. Qt 5's qmake by its path, as both may be
+# installed and a plain qmake could be either.
+ifeq ($(shell dpkg-query -W -f='$${Status}' libqglviewer-dev-qt6 2>/dev/null),install ok installed)
+QMAKE = qmake6
+QT_SVG = libqt6svg6
+else
+QMAKE = /usr/lib/qt5/bin/qmake
+QT_SVG = libqt5svg5
+endif
+
 QMAKE_AFTER = -after \
 	      'QMAKE_CXXFLAGS_RELEASE = $(CXXFLAGS)' \
 	      'QMAKE_POST_LINK ~= s/strip/:'
@@ -22,8 +34,8 @@ build: build-stamp
 build-stamp: $(QUILT_STAMPFN)
 	dh_testdir
 
-	if [ -d ../povray ]; then cd povray-linux && qmake povvfe.pro && $(MAKE); cd -; fi
-	qmake6 "USE_VFE=1" $(QMAKE_AFTER) bpp.pro && $(MAKE)
+	if [ -d ../povray ]; then cd povray-linux && $(QMAKE) povvfe.pro && $(MAKE); cd -; fi
+	$(QMAKE) "USE_VFE=1" $(QMAKE_AFTER) bpp.pro && $(MAKE)
 
 	touch $@
 
@@ -87,7 +99,7 @@ binary-arch: build install
 	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
-	dh_gencontrol
+	dh_gencontrol -- -Vbpp:QtSvg=$(QT_SVG)
 	dh_md5sums
 	dh_builddeb
 

@@ -90,8 +90,7 @@ jobs:
             cd /workspace/povray
             env CPPFLAGS="-I/usr/include" ./configure --with-boost=/usr --without-x --disable-sdl
             sed -i "s/#if !defined(TARGET_OS_MAC)/#if 1/" /workspace/povray/source/core/shape/truetype.cpp
-            cd /workspace/${REPO_DIR}/povray-linux
-            qmake povvfe.pro && make -j$(nproc)
+            # (debian/rules builds povray-linux, with the Qt its control chose)
             cd /workspace/${REPO_DIR}
             mk-build-deps -i -t "apt --yes --no-install-recommends"
             sed -i "1s/.*/bpp (${VERSION}) ${CODENAME}; urgency=medium/" debian/changelog
