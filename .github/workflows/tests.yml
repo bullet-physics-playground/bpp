@@ -298,10 +298,20 @@ jobs:
   # OpenSCAD is a development snapshot, with Manifold: 2021.01's CGAL is too
   # slow on Windows for duplo.lua. The Linux jobs keep Ubuntu's 2021.01, so
   # CI runs the demos with both engines.
+  # Both MSYS2 environments while the move to UCRT64 (MSYS2's default, and
+  # what Jakob asked for) is tried: MINGW64 as before, UCRT64 not blocking
+  # (continue-on-error) until it has passed; then MINGW64 goes, and the
+  # release with it. pacboy's ":p" names each package for the environment
+  # (mingw-w64-x86_64-qt5, mingw-w64-ucrt-x86_64-qt5).
   test-windows:
-    name: Windows build (MSYS2 MinGW64)
+    name: Windows build (MSYS2 ${{ matrix.msystem }})
     runs-on: windows-latest
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        msystem: [MINGW64, UCRT64]
+    continue-on-error: ${{ matrix.msystem == 'UCRT64' }}
     defaults:
       run:
         shell: msys2 {0}
@@ -309,27 +319,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Set up MSYS2 (MinGW64)
+      - name: Set up MSYS2 (${{ matrix.msystem }})
         uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
+          msystem: ${{ matrix.msystem }}
           update: true
           release: false
-          install: >-
-            git
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-qt5
-            mingw-w64-x86_64-assimp
-            mingw-w64-x86_64-glew
-            mingw-w64-x86_64-SDL2
-            mingw-w64-x86_64-SDL2_mixer
-            mingw-w64-x86_64-boost
-            mingw-w64-x86_64-lua51
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-ninja
-            mingw-w64-x86_64-bullet
-            mingw-w64-x86_64-freeglut
-            mingw-w64-x86_64-python
+          install: git
+          pacboy: >-
+            toolchain:p
+            qt5:p
+            assimp:p
+            glew:p
+            SDL2:p
+            SDL2_mixer:p
+            boost:p
+            lua51:p
+            cmake:p
+            ninja:p
+            bullet:p
+            freeglut:p
+            python:p
 
       # Siblings of the checkout, where msys2.pri looks for them. The same
       # libQGLViewer commit as the Qt 6 job.
@@ -398,7 +408,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v6
         with:
-          name: test-output-windows
+          name: test-output-windows-${{ matrix.msystem }}
           path: '*.log'
           if-no-files-found: ignore
 
