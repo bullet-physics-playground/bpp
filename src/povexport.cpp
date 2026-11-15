@@ -254,7 +254,6 @@ void writeIni(const QString &path, const QString &byline,
 
   ini << "+L" << QStandardPaths::writableLocation(QStandardPaths::CacheLocation) << "\n";
   ini << "+L../../includes" << "\n" << "\n";
-  ini << "+L/nfs/cache" << "\n" << "\n"; // XXX make this an option in the prefs
 
   ini << "Initial_Clock=" << firstFrame << "\n";
   ini << "Final_Clock="   << lastFrame << "\n";
