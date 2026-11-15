@@ -29,6 +29,7 @@ it holds as a member:
 |------|--------|--------------|
 | `viewer_lua.cpp` | | `Viewer::luaBind`: the `Viewer` class as scripts see it (`v:add`, `v:preSim`, `v:addParam` ...) |
 | `viewermedia.cpp` | | music, sound effects and tones (`v:playSound`, `v:setTone`), `v:ask`, `v:download`, `v:dataDir` |
+| `viewerdraw.cpp` | | how the scene is drawn: `init`, `draw`, `postDraw` (the status dots), the passes (objects, shadow depth, constraints, culling, screen merging), and the settings for them (shadows, culling, `v.showConstraints`, the GL lights and materials) |
 | `viewerscript.cpp` | | a script's life: its Lua state (`openLua`, which registers every class), `runScript`, `parse`, `clear`, `closeScript` |
 | `viewerworlds.cpp` | | the physics worlds (`v:newWorld`, `useWorld`, `placeWorld`), the solver (`v:setSolver`, `tau`, `erp`, `cfm` ...) and threads (`v:setThreads`); the step itself |
 | `viewertiming.cpp` | | the drawing timer (`v.drawTiming`, `v:drawTimingReport`) and frame timing (`BPP_FRAME_TIMING`) |
