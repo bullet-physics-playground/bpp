@@ -59,12 +59,12 @@ import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TESTS = os.path.join(ROOT, "tests")
-ALL_SUITES = ["unit", "api", "render", "smoke", "golden", "screens"]
+ALL_SUITES = ["unit", "api", "render", "smoke", "golden", "walker", "screens"]
 # Run only when named: they take a while.
 EXTRA_SUITES = ["theory"]
 # The expected files of these hold what one platform produces (C++ type
 # names as GCC's library spells them, Linux settings files, Mesa pixels).
-LINUX_ONLY = ["api", "render", "golden", "screens"]
+LINUX_ONLY = ["api", "render", "golden", "walker", "screens"]
 
 # Lines bpp writes that are not program behaviour: the device it ran on, Qt's
 # notes about the headless platform. Dropped from logs before looking for
@@ -931,6 +931,92 @@ def suite_golden(ctx, baseline=None):
             failed += 1
         else:
             print("  ok   %s" % demo)
+    return failed + report_new_files(before)
+
+
+# -- walker ----------------------------------------------------------------
+#
+# The Walker room's results (its WRITEUP.md: walkers' speeds over rough
+# ground) come from 20 s runs of its table probe, which golden's demos don't
+# cover: the warm-started solver, held pendants, ankle springs and stops,
+# joint forces. Each case here is one such run, made by the room's own
+# runs/run-table.sh (so exactly as the tables are made), shorter, and its RUN
+# line (speed, positions, crank range, motor torque) must come out the same
+# to the digit. tests/walker/cases.txt says why there is no tolerance.
+
+WALKER = os.path.join(TESTS, "walker")
+WALKER_ROOM = os.path.join(ROOT, "demo", "WyomingWill", "WalkerRoom")
+WALKER_SECS = 10           # a run's length; its speed is from 5 s to the end
+
+
+def walker_cases():
+    """(key, build, terrain, height, seed) for each line of cases.txt."""
+    out = []
+    for line in read(os.path.join(WALKER, "cases.txt")).splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        build, ground, seed = [f.strip() for f in line.split("|")]
+        terrain, height = ground.split(":")
+        out.append(("%s | %s | %s" % (build, ground, seed), build, terrain, height, seed))
+    return out
+
+
+def walker_expected():
+    """{key: RUN line} from expected.txt (key, a tab, the line)."""
+    path = os.path.join(WALKER, "expected.txt")
+    if not os.path.exists(path):
+        return {}
+    return dict(l.split("\t", 1) for l in read(path).splitlines() if "\t" in l)
+
+
+def suite_walker(ctx):
+    cases = [c for c in walker_cases() if ctx.selected([c[0]])]
+    expected = walker_expected()
+
+    def one(case):
+        key, build, terrain, height, seed = case
+        wd = ctx.workdir("walker-" + key)
+        names = os.path.join(wd, "builds.txt")
+        write(names, build + "\n")
+        env = isolated_env(wd)
+        env.update(BPP=ctx.bpp, JOBS="1", SEEDS=seed, TERRAINS="%s:%s" % (terrain, height),
+                   BUILDS=names, OUT=os.path.join(wd, "out"), RUN_SECS=str(WALKER_SECS))
+        try:
+            subprocess.run(["bash", "runs/run-table.sh"], cwd=WALKER_ROOM, env=env,
+                           stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.STDOUT, timeout=600)
+        except subprocess.TimeoutExpired:
+            return key, None, "timed out"
+        outs = glob.glob(os.path.join(wd, "out", "*", "*.txt"))
+        lines = read(outs[0]).splitlines() if outs else []
+        run = [l for l in lines if l.startswith("RUN ")]
+        errs = [l for l in lines if "rror" in l] + ["bpp wrote %s outside BPP_USER_DIR" % f
+                                                     for f in stray_files(wd)]
+        if errs or not run:
+            return key, None, (errs or ["no RUN line"])[0]
+        return key, run[0], None
+
+    before = untracked_demo_files()
+    failed, got = 0, dict(expected)
+    for key, run, err in pmap(ctx, one, cases):
+        if err:
+            print("  FAIL %s\n         %s" % (key, err))
+            failed += 1
+        elif ctx.update:
+            got[key] = run
+            print("  upd  %s" % key)
+        elif key not in expected:
+            print("  FAIL %s\n         no expected line; run --update walker\n         got:      %s" % (key, run))
+            failed += 1
+        elif run != expected[key]:
+            print("  FAIL %s\n         expected: %s\n         got:      %s" % (key, expected[key], run))
+            failed += 1
+        else:
+            print("  ok   %s" % key)
+    if ctx.update:
+        keys = [c[0] for c in walker_cases()]
+        write(os.path.join(WALKER, "expected.txt"),
+              "".join("%s\t%s\n" % (k, got[k]) for k in keys if k in got))
     return failed + report_new_files(before)
 
 

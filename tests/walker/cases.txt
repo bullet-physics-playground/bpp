@@ -1,0 +1,17 @@
+# tests/harness.py walker: runs of the Walker room's table probe
+# (demo/WyomingWill/WalkerRoom/runs/run-table.sh, speedprobe.lua, the standard
+# warm40fast), each compared with its RUN line in expected.txt, exactly.
+#
+# The runs are chaotic: a change anywhere in the arithmetic changes the RUN line,
+# so a tolerance would mean nothing. A change that is meant to change results
+# (a solver fix, say) needs `--update walker`, and the Walker room's tables
+# rerun (handover section 4i). Expected lines are made on CI's setup (Ubuntu
+# 24.04, Qt 5), as golden's are; another machine can differ.
+#
+# build | terrain:height | seed     (RUN_SECS in harness.py; speed from 5 s on)
+Chebyshev-Spears lift 51 diag | waves:4 | 1
+Klann                         | steps:5 | 1
+Hoecken-Spears slider diag    | logs:5  | 1
+Jansen                        | waves:4 | 2
+Spears 4-bar                  | steps:5 | 2
+Hoecken-Spears 4-bar duty 85  | logs:5  | 2

@@ -72,6 +72,10 @@ jobs:
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: python3 tests/harness.py --keep golden 2>&1 | tee golden.log
 
+      - name: Walker room runs (its tables' probe, to the digit)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: python3 tests/harness.py walker 2>&1 | tee walker.log
+
       - name: Screenshots
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: python3 tests/harness.py --keep screens 2>&1 | tee screens.log

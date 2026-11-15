@@ -18,6 +18,7 @@ tests/harness.py golden -k constraint   # one suite, only matching tests
 | `render`  | A quick render (`v:quickRender`) with a stand-in `povray` first on `PATH`: bpp calls it with the right options, size, output file, frame, scene file and folder (nothing is rendered: Ubuntu's POV-Ray 3.7 won't read bpp's 3.8 scenes) | in the harness |
 | `smoke`   | Every demo the Demos menu lists loads and runs 3 frames: no Lua error, crash or hang | `smoke/known-failures.txt` |
 | `golden`  | The demos in `golden/demos.txt` simulate 40 frames; in the POV-Ray export (frames 1, 20, 40), every object's transform, the camera, the scene text and each mesh's geometry match | `golden/expected/` |
+| `walker`  | The Walker room's table probe (`demo/WyomingWill/WalkerRoom/runs/run-table.sh`, the standard warm40fast), 10 s runs of the walkers in `walker/cases.txt`: each run's RUN line (speed, positions, crank range, motor torque) matches to the digit. The room's results (its `WRITEUP.md`) come from these runs, which golden's demos don't cover | `walker/expected.txt` |
 | `screens` | Still scenes in `screens/*.lua`, opened in the GUI on a virtual screen, match pixel for pixel (outside the frame counter) | `screens/expected/*.png`, `screens/expected-qt6/` for a Qt 6 build |
 | `theory`  | Only when named. Euler's Gallery's exhibits, run as their physics report ran them; what each prints agrees with the theory it stands for, within a tolerance (`--slow` adds the two that take many minutes) | `theory/checks.txt` |
 
@@ -33,7 +34,7 @@ own directory, as the GUI runs them; the unit tests from the top of the
 checkout, as before. Numbers are compared with a tolerance of 1e-5 (bpp
 prints six digits): on the same platform runs match exactly.
 
-`api`, `golden` and `screens` hold what Linux produces (Ubuntu 24.04, as
+`api`, `golden`, `walker` and `screens` hold what Linux produces (Ubuntu 24.04, as
 the CI runs), so on other systems the harness skips them.
 
 ## When a test fails
@@ -43,9 +44,15 @@ fix it. If it is meant (a new property, a changed default, a better
 renderer), regenerate the expected files and commit them with the change:
 
 ```sh
-tests/harness.py --update api            # or golden, screens, smoke
+tests/harness.py --update api            # or golden, walker, screens, smoke
 git diff tests/                          # check the change is the one meant
 ```
+
+A `walker` failure is more than a file to regenerate: the Walker room's
+published speeds (`demo/WyomingWill/WalkerRoom/WRITEUP.md`) were measured
+with the code as it was. If the change is meant, rerun the room's tables
+(`runs/run-table.sh`, then `runs/table.py` to compare: its handover,
+section 4i) and say in the commit how the ranking moved.
 
 `smoke/known-failures.txt` lists demos that already fail, mostly
 standalone Lua tools that are not bpp scenes. A new failure fails the
