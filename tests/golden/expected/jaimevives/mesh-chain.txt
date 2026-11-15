@@ -34,8 +34,6 @@ Bits_Per_Color=16
 +L$CACHE/bpp
 +L../../includes
 
-+L/nfs/cache
-
 Initial_Clock=1
 Final_Clock=40
 Final_Frame=40

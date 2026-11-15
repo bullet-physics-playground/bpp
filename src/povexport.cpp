@@ -254,7 +254,6 @@ void writeIni(const QString &path, const QString &byline,
 
   ini << "+L" << userCacheDir() << "\n";
   ini << "+L../../includes" << "\n" << "\n";
-  ini << "+L/nfs/cache" << "\n" << "\n"; // (one machine's: issue #65)
 
   ini << "Initial_Clock=" << firstFrame << "\n";
   ini << "Final_Clock="   << lastFrame << "\n";

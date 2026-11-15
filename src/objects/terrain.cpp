@@ -170,6 +170,7 @@ void Terrain::addTriangle(const btVector3 &v0, const btVector3 &v1,
                           const btVector3 &v2) {
   m_mesh->addTriangle(v0, v1, v2);
   markAllDirty();
+  _povHashValid = false; // geometry changed: hash must be recomputed
 }
 
 int Terrain::getNumTriangles() const { return m_mesh->getNumTriangles(); }
@@ -237,6 +238,7 @@ void Terrain::build() {
   // choice for a static (never-refit) terrain like this one.
   m_shape = new btBvhTriangleMeshShape(m_mesh, true, true);
   shape = m_shape;
+  _povHashValid = false; // geometry finalized: hash must be recomputed
 
   btQuaternion qtn;
   btTransform trans;
@@ -349,8 +351,14 @@ QString Terrain::toPOV(const QString &sceneDir) const {
     if (mPreSDL.isNull()) {
       // The hash alone first (one cheap walk, nothing formatted): exported
       // every frame, the terrain's .inc is usually there already. Only a new
-      // one is walked again and formatted into its mesh2 blob.
-      const QString hash = toMesh2(nullptr);
+      // one is walked again and formatted into its mesh2 blob. The hash is
+      // cached so a terrain whose geometry did not change is not re-walked
+      // triangle by triangle on every exported frame.
+      if (!_povHashValid) {
+        _povMeshHash = toMesh2(nullptr);
+        _povHashValid = true;
+      }
+      const QString hash = _povMeshHash;
 
       QString incfile = sceneDir + QDir::separator() + "mesh_" + hash + ".inc";
 
