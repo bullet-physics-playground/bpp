@@ -148,10 +148,10 @@ screens` with a Qt 6 build writes there.
 ## Windows
 
 `test-windows` builds bpp on Windows as the release's installer is built
-(MSYS2 MinGW64, Qt 5, without POV-Ray built in) and runs the unit tests and
+(MSYS2 UCRT64, Qt 5, without POV-Ray built in) and runs the unit tests and
 the smoke run; the other suites' expected files are made on Linux, so the
 harness skips them there. To run them on Windows yourself, from an MSYS2
-MinGW64 shell with QGLViewer's DLL on `PATH`:
+UCRT64 shell with QGLViewer's DLL on `PATH`:
 
 ```sh
 python tests/harness.py --bpp release/bpp.exe unit smoke

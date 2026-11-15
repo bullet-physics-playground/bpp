@@ -292,26 +292,20 @@ jobs:
           if-no-files-found: ignore
 
   # The Windows build, as the release's Windows installer is built (MSYS2
-  # MinGW64, Qt 5, luabind and libQGLViewer from source; without POV-Ray
+  # UCRT64, Qt 5, luabind and libQGLViewer from source; without POV-Ray
   # built in), running the suites whose expected files hold off Linux: the
   # unit tests and the smoke run (the harness skips the rest off Linux).
   # OpenSCAD is a development snapshot, with Manifold: 2021.01's CGAL is too
   # slow on Windows for duplo.lua. The Linux jobs keep Ubuntu's 2021.01, so
   # CI runs the demos with both engines.
-  # Both MSYS2 environments while the move to UCRT64 (MSYS2's default, and
-  # what Jakob asked for) is tried: MINGW64 as before, UCRT64 not blocking
-  # (continue-on-error) until it has passed; then MINGW64 goes, and the
-  # release with it. pacboy's ":p" names each package for the environment
-  # (mingw-w64-x86_64-qt5, mingw-w64-ucrt-x86_64-qt5).
+  # MSYS2's UCRT64 environment (its default, on Windows' Universal C
+  # Runtime), as the release is built. pacboy's ":p" names each package for
+  # the environment (mingw-w64-ucrt-x86_64-qt5), so a change of environment
+  # is only `msystem`.
   test-windows:
-    name: Windows build (MSYS2 ${{ matrix.msystem }})
+    name: Windows build (MSYS2 UCRT64)
     runs-on: windows-latest
     timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        msystem: [MINGW64, UCRT64]
-    continue-on-error: ${{ matrix.msystem == 'UCRT64' }}
     defaults:
       run:
         shell: msys2 {0}
@@ -319,10 +313,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Set up MSYS2 (${{ matrix.msystem }})
+      - name: Set up MSYS2 (UCRT64)
         uses: msys2/setup-msys2@v2
         with:
-          msystem: ${{ matrix.msystem }}
+          msystem: UCRT64
           update: true
           release: false
           install: git
@@ -408,7 +402,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v6
         with:
-          name: test-output-windows-${{ matrix.msystem }}
+          name: test-output-windows
           path: '*.log'
           if-no-files-found: ignore
 

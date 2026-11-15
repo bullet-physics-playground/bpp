@@ -11,7 +11,7 @@ SetCompressor /SOLID lzma
 !define COMPANY "Jakob Flierl"
 !define URL "https://github.com/bullet-physics-playground"
 
-!define DLL "C:\msys64\mingw64\bin"
+!define DLL "C:\msys64\ucrt64\bin"
 
 Caption "Bullet Physics Playground ${VERSION} Setup" 
 

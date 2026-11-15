@@ -16,7 +16,7 @@ official `windows/vs2015/*.vcxproj` MSVC projects.
   i.e. `povray/` next to `bpp/`, not inside it. The build expects
   `$$HOME/povray` where `$$HOME` is `bpp`'s parent directory (see
   `WIN32_DIR_POVRAY` in [`../msys2.pri`](../msys2.pri)).
-* MSYS2 MinGW-w64 (`mingw64` toolchain: `g++`, `qmake`, `mingw32-make`).
+* MSYS2's UCRT64 environment (its MinGW-w64 toolchain: `g++`, `qmake`, `mingw32-make`).
 * The MinGW-w64 packages this links against: `zlib`, `libpng`, `libjpeg`,
   `libtiff`. These are pulled in via `pkg-config`, not vendored — POV-Ray's
   own copies under `povray/libraries/` are not built or used.
@@ -57,7 +57,7 @@ official `windows/vs2015/*.vcxproj` MSVC projects.
 ## Building
 
 All commands assume the MinGW-w64 toolchain is on `PATH` (e.g.
-`export PATH="/c/msys64/mingw64/bin:$PATH"` in an MSYS2 shell) and are run
+`export PATH="/c/msys64/ucrt64/bin:$PATH"` in an MSYS2 shell) and are run
 from this directory unless noted.
 
 ### 1. Patch the POV-Ray checkout
@@ -89,7 +89,7 @@ Render something with it — MinGW-w64's DLLs need to be reachable at
 runtime too:
 
 ```bash
-export PATH="/c/msys64/mingw64/bin:$PATH"
+export PATH="/c/msys64/ucrt64/bin:$PATH"
 ./release/smoketest.exe path/to/scene.pov +W320 +H240 +Oout.png +FN
 ```
 
@@ -101,7 +101,7 @@ A `POVINC=<path>` environment variable maps to an extra library path (for
 ```bash
 cd ../tworenders
 qmake-qt5 tworenders.pro && mingw32-make -j4
-export PATH="/c/msys64/mingw64/bin:$PATH"
+export PATH="/c/msys64/ucrt64/bin:$PATH"
 ./release/tworenders.exe path/to/scene.pov +W320 +H240 +Oout.png +FN
 ```
 
@@ -141,7 +141,7 @@ all — see the main README's build-flag section for details.
   standalone with `smoketest`/`tworenders`, pass the equivalent yourself via
   `POVINC=/path/to/povray/distribution/include`.
 * **Output executables need the MinGW-w64 DLLs on `PATH`** (`libpng16.dll`,
-  `zlib1.dll`, etc) — the usual `export PATH="/c/msys64/mingw64/bin:$PATH"`
+  `zlib1.dll`, etc) — the usual `export PATH="/c/msys64/ucrt64/bin:$PATH"`
   covers it.
 
 ## Licensing
