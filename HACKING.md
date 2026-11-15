@@ -29,6 +29,7 @@ it holds as a member:
 |------|--------|--------------|
 | `viewer_lua.cpp` | | `Viewer::luaBind`: the `Viewer` class as scripts see it (`v:add`, `v:preSim`, `v:addParam` ...) |
 | `viewermedia.cpp` | | music, sound effects and tones (`v:playSound`, `v:setTone`), `v:ask`, `v:download`, `v:dataDir` |
+| `viewerscript.cpp` | | a script's life: its Lua state (`openLua`, which registers every class), `runScript`, `parse`, `clear`, `closeScript` |
 | `viewerworlds.cpp` | | the physics worlds (`v:newWorld`, `useWorld`, `placeWorld`), the solver (`v:setSolver`, `tau`, `erp`, `cfm` ...) and threads (`v:setThreads`); the step itself |
 | `viewertiming.cpp` | | the drawing timer (`v.drawTiming`, `v:drawTimingReport`) and frame timing (`BPP_FRAME_TIMING`) |
 | `viewervfe.cpp` | | the embedded POV-Ray (`USE_VFE`): F6 renders in bpp, with a live preview |
