@@ -33,6 +33,33 @@ READING = (
 )
 
 LABELS = {
+    "suanpan": [(                    # (Matsuzaki and Wood: Kojima, The Japanese Abacus, 1954; Computer History Museum)
+        "THE SUANPAN",
+        "The Chinese abacus",
+        "Each rod holds a digit, the units on the right. A heaven bead above "
+        "the beam counts five and an earth bead below it counts one, when "
+        "pushed to the beam.\n"
+        "Type a number and press Return: the finger adds it rod by rod from "
+        "the left, as it is done by hand, and the slate shows each rule it uses.",
+    ), (
+        "THE RULES",
+        "Fives and tens",
+        "Nobody works out 7~+~8 on an abacus. A pupil learned three moves by "
+        "heart. If there is room, beads to the beam. If not, use five: "
+        "+3~=~5~\u2212~2, the heaven bead down and two earth beads away. Past "
+        "nine, use ten: +8~=~10~\u2212~2, two away and carry one to the rod on "
+        "the left.\n"
+        "The hand never needs more than that.",
+    ), (
+        "BEADS AGAINST A MACHINE",
+        "From China to Japan, and Tokyo, 1946",
+        "The bead abacus was in wide use in China by the 1300s. It reached "
+        "Japan in the late 1500s and became the soroban, one heaven bead and "
+        "four earth beads to a rod.\n"
+        "On 12~November 1946 in Tokyo, Kiyoshi Matsuzaki with a soroban raced "
+        "Private Thomas Nathan Wood with an electric calculator. The abacus "
+        "won four rounds of five, losing only at multiplication.",
+    )],
     "differential": (
         "THE DIFFERENTIAL",
         "Bevel gears that add",

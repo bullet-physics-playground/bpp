@@ -26,6 +26,7 @@ check() { # name, frames, script, env...
   printf '%-34s %s\n' "$name" "$(echo "$out" | tr '\n' ' ')"
   echo "$out" | grep -q "PASS" || fails=$((fails + 1))
 }
+check "Suanpan, on its own"       4000 $H/exhibits/Suanpan/suanpan.lua
 check "Differential, on its own"  2400 $H/exhibits/Differential/differential.lua
 check "Pascaline, on its own"     4200 $H/exhibits/Pascaline/pascaline.lua
 check "Domino Half Adder, on its own" 1750 $H/exhibits/DominoAdder/domino-adder.lua
@@ -33,6 +34,7 @@ check "Lehmer's sieve, on its own"  2600 $H/exhibits/LehmerSieve/lehmer-sieve.lu
 check "Galton board, on its own"   6000 $H/exhibits/GaltonBoard/galton.lua
 check "Splitter board, on its own" 7000 $H/exhibits/GaltonBoard/splitter-board.lua
 check "Digi-Comp II, on its own"  135000 $H/exhibits/DigiComp2/digicomp2.lua
+check "Suanpan, in the hall"      4600 $H/hall.lua HALL_START=suanpan
 check "Differential, in the hall" 3000 $H/hall.lua HALL_START=differential
 check "Pascaline, in the hall"    4000 $H/hall.lua HALL_START=pascaline
 check "Domino Half Adder, in the hall" 2400 $H/hall.lua HALL_START=domino

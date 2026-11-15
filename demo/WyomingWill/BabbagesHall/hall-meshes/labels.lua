@@ -2,6 +2,10 @@
 return {
   ["title"] = { file = "label-title.obj", w = 290.34, h = 24.00 },
   ["subtitle"] = { file = "label-subtitle.obj", w = 151.02, h = 8.00 },
+  ["suanpan"] = { file = "label-suanpan.obj", w = 41.80, h = 4.20 },
+  ["slide-rule"] = { file = "label-slide-rule.obj", w = 48.76, h = 4.20 },
+  ["napier"] = { file = "label-napier.obj", w = 49.68, h = 4.20 },
+  ["lock"] = { file = "label-lock.obj", w = 74.88, h = 4.20 },
   ["domino-adder"] = { file = "label-domino-adder.obj", w = 78.37, h = 4.20 },
   ["differential"] = { file = "label-differential.obj", w = 59.98, h = 4.20 },
   ["pascaline"] = { file = "label-pascaline.obj", w = 46.61, h = 4.20 },

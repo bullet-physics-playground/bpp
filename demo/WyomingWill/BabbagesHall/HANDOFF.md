@@ -26,18 +26,20 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   little mechanism) to what asks most, Babbage's Difference Engine at the
   far end. `MACHINES.md` has the order and why (re-ordered 2026-11-14:
   it was by interest alone).
-- Built so far, in walking order: **the Domino Half Adder** (west 1),
-  **the Differential** (east 1), **the Pascaline** (west 2), **the Galton
-  board** (west 3, since 2026-11-12), **the splitter board** (east 3,
-  facing it, since 2026-11-14), **Lehmer's number sieve** (west 4), and
-  the **Digi-Comp II** (east 4: it counts, adds, multiplies,
+- Built so far, in walking order: **the suanpan** (west 1, since
+  2026-11-15), **the Domino Half Adder** (west 3),
+  **the Differential** (east 3), **the Pascaline** (west 4), **the Galton
+  board** (west 5, since 2026-11-12), **the splitter board** (east 5,
+  facing it, since 2026-11-14), **Lehmer's number sieve** (west 6), and
+  the **Digi-Comp II** (east 6: it counts, adds, multiplies,
   subtracts and divides, runs programs, and in AUTO runs a multiply by
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
   a cup of balls and a bought rotary damper; each program has only its
   parts on the board, and the operator's hand is shown).
-  Covered bays wait for Amsler's planimeter (east 2), Kelvin's tide
-  predictor (west 5), the Differential Analyser (east 5) and the Difference
-  Engine (west 6): eleven bays, six pairs.
+  Covered bays wait for the slide rule (east 1), Napier's bones (west 2),
+  the combination lock (east 2), Amsler's planimeter (east 4), Kelvin's
+  tide predictor (west 7), the Differential Analyser (east 7) and the
+  Difference Engine (west 8): fifteen bays, eight pairs.
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
   Jakob (koppi) wrote bpp. Clocks are William's own separate collection.
 
@@ -396,7 +398,7 @@ there, in `release/`, or on the path; or set `BPP`.
 
 ## 7. Where things stand and what's next
 
-- **Done (2026-10-21): Lehmer's number sieve** (then east 1, now west 4): four Geneva stars
+- **Done (2026-10-21): Lehmer's number sieve** (then east 1, now west 6): four Geneva stars
   of 9, 8, 7 and 5 places on one axle, driven from one shaft, detents to
   centre them, pegged holes, a cam-lifted probe; it factors 1241 (and 1679,
   1157, 2813: `N`) by Fermat's way. **2026-10-25:** William found it hard
@@ -414,7 +416,7 @@ there, in `release/`, or on the path; or set `BPP`.
   flats now). It is the dearest exhibit to step (a 25 s tour took about
   three minutes here, headless): if it is slow on his computer,
   `LS_HZ=1200` halves that and still passes.
-- **Done (2026-10-26): the Digi-Comp II, step 1, the counter** (then west 3, later west 4, now east 4):
+- **Done (2026-10-26): the Digi-Comp II, step 1, the counter** (then west 3, later west 4 and east 4, now east 6):
   three printed rockers, tipped over by the balls alone, and a feeder
   wheel. **The same day, step 2a, the accumulator,** which replaces it.
   William asked for the rest of the real machine; its manual (Evil Mad
@@ -645,7 +647,7 @@ there, in `release/`, or on the path; or set `BPP`.
 - **Checked against bpp's new Params and ScriptKeys (2026-11-11):**
   `tools/check-all.sh` all passed on Jakob's rewrite, and in the window
   Tab, the panes and the sliders work.
-- **Done (2026-11-12, revised 2026-11-13): the Galton board** (now west 3),
+- **Done (2026-11-12, revised 2026-11-13): the Galton board** (now west 5),
   in a new row of bays: the hall has ten now, the planimeter's covered bay
   (west 2) before it (by rank, 14 and 13), and everything after it one row
   on, on the same side (Pascaline west 3, Domino Half Adder east 3,
@@ -786,13 +788,30 @@ there, in `release/`, or on the path; or set `BPP`.
   in the first two rows" (a quarter in the first, 37 in 100 by the
   second). William's idea, for other exhibits too: an exhibit with ways,
   a label with pages.
-- **Next (William, 2026-11-14): build the machines from the start of the
-  list on.** Open: whether the first four (the abacus, the slide rule,
-  Napier's bones, the combination lock: little or nothing to simulate) get
-  bays, as simple hand-worked pieces at the start of the walk, or the
-  building starts at the bead and spaghetti sorts (5), the first with real
-  physics. Ask William first. Each new machine goes in its place in the
-  walking order, the bays after it moving along.
+- **Done (2026-11-15): the suanpan** (west 1), the first of the four
+  hand-worked pieces at the start of the walk (William chose bays for all
+  four: the abacus, the slide rule, Napier's bones, the combination lock).
+  All four bays were added at once, the other three covered, so every
+  exhibit moved along two bays on its side and the facing pairs (the
+  Galton and splitter boards) still face. Seven rods, 49 printed beads on
+  steel rods: each bead a body on a slider along its rod, a motor at no
+  speed and little force its friction; a finger (the script's) moves one
+  bead and it pushes the others by contact. Adding by the suanpan's rules
+  (`plan.lua`: direct, the five- and ten-complements, both together, the
+  carry), from the left; a slate (pictures swapped as textures,
+  `make-slate.py`) shows the number, the number added, the rod and the
+  rule. Its tour (3, 4, 8, 6, 79, 1234 to 1334) passes at every friction,
+  finger speed and step rate tried, and 40 random additions pass
+  (`FINDINGS.md`); the rules alone, 120,000 random additions. Its lectern
+  has three pages, one of history (the 1946 Tokyo contest, checked). No
+  dots on its beam: a dot every third rod is the soroban's. Not done:
+  subtraction, multiplication, division.
+- **Next (William, 2026-11-15): the slide rule (east 1), then Napier's
+  bones (west 2) and the combination lock (east 2)**, each a simple
+  hand-worked piece; their covered bays and placards are there. Then the
+  bead and spaghetti sorts (5), the first with real physics. Each new
+  machine goes in its place in the walking order, the bays after it moving
+  along.
   The covered bays (the planimeter, the tide predictor, the Differential
   Analyser, the Difference Engine) wait for their turn in the list.
   Still offered, not asked for: printing only a Digi-Comp program's parts
@@ -815,6 +834,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step: Galton's two-stage board on the splitter board, or the first
-> machine on MACHINES.md's list]. Deliver each step as a patch on test-harness, with
-> its documents and PDFs, and the git commands.
+> step: the slide rule, the next machine on MACHINES.md's list]. Deliver
+> each step as a patch on test-harness, with its documents and PDFs, and
+> the git commands.

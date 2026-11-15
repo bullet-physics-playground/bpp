@@ -2,7 +2,7 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
-Babbage's Hall, west bay 3. Francis Galton's quincunx: balls falling
+Babbage's Hall, west bay 5. Francis Galton's quincunx: balls falling
 through rows of pins, each pin sending a ball left or right, pile up in
 the bins below in the bell of the normal curve. Galton had his made by
 Tisley and Spiller in London in 1873, for lead shot, and showed it at the
@@ -261,5 +261,5 @@ the exact counts (cells under 5 pooled), at the 1% level.
     SB_WALLS=flat bpp -f splitter-board.lua         # the pile goes flat
     GB_TOUR=1 GB_RUNS=3 bpp -f splitter-board.lua -n 10500
 
-The board is 400 by 788 mm. It stands in the hall's east bay 3, facing
+The board is 400 by 788 mm. It stands in the hall's east bay 5, facing
 the Galton board; its printed parts are still to come.

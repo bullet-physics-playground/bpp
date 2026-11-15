@@ -95,6 +95,24 @@ local LABELS = dofile(MESH .. "labels.lua")
 --              lectern card is hall-meshes/lectern-<card>.png (and -2, -3
 --              ... for more pages); its sliders are named with its key.
 EXHIBITS = EXHIBITS or {
+  { dir = "exhibits/Suanpan/", file = "suanpan.lua", name = "the suanpan", label = "suanpan",
+    prefix = "Suanpan: ", floorY = -100,
+    about = "The suanpan, the Chinese abacus: a heaven bead counts 5 and an earth bead 1 when\n" ..
+            "pushed to the beam; each rod holds a digit. A finger adds by the rules every pupil\n" ..
+            "learned: direct, the five-complement, the ten-complement and its carry; the slate\n" ..
+            "shows each. 0-9: a number; Return: add it; C: clear; T: the tour." },
+  { dir = "exhibits/SlideRule/", file = "slide-rule.lua", name = "the slide rule", label = "slide-rule",
+    prefix = "Slide rule: ", floorY = -100,
+    about = "The slide rule (1620s): scales of logarithms slid along each other multiply\n" ..
+            "by adding lengths. In preparation." },
+  { dir = "exhibits/NapiersBones/", file = "napiers-bones.lua", name = "Napier's bones", label = "napier",
+    prefix = "Napier: ", floorY = -100,
+    about = "Napier's bones (1617): rods carrying the multiplication table; laid side by side,\n" ..
+            "they give a product to be read off, adding along the diagonals. In preparation." },
+  { dir = "exhibits/CombinationLock/", file = "combination-lock.lua", name = "the combination lock", label = "lock",
+    prefix = "Lock: ", floorY = -100,
+    about = "The combination lock: its wheels' notches must all line up before the fence\n" ..
+            "drops in. A lock that tests a number. In preparation." },
   { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
     prefix = "Dominoes: ", floorY = -100,
     about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..

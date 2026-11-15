@@ -18,17 +18,21 @@ comes to life.
 
 | Bay | Exhibit | |
 |---|---|---|
-| west 1 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
-| east 1 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
-| west 2 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
-| east 2 | Amsler's planimeter | in preparation |
-| west 3 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
-| east 3 | **The splitter board**: a Galton board whose pins are independent coins, with a wall that swallows balls (first passage, exactly), or walls that send them back | `exhibits/GaltonBoard/` |
-| west 4 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
-| east 4 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
-| west 5 | Kelvin's tide predictor | in preparation |
-| east 5 | The Differential Analyser | in preparation |
-| west 6 | The Difference Engine | in preparation |
+| west 1 | **The suanpan**: the Chinese abacus, worked by a finger by the old rules, a slate showing each | `exhibits/Suanpan/` |
+| east 1 | The slide rule | in preparation |
+| west 2 | Napier's bones | in preparation |
+| east 2 | The combination lock | in preparation |
+| west 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
+| east 3 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
+| west 4 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
+| east 4 | Amsler's planimeter | in preparation |
+| west 5 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
+| east 5 | **The splitter board**: a Galton board whose pins are independent coins, with a wall that swallows balls (first passage, exactly), or walls that send them back | `exhibits/GaltonBoard/` |
+| west 6 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
+| east 6 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
+| west 7 | Kelvin's tide predictor | in preparation |
+| east 7 | The Differential Analyser | in preparation |
+| west 8 | The Difference Engine | in preparation |
 
 `HANDOFF.md` is where a new chat starts: how to work, build and test, and
 what's next. `MACHINES.md` lists every machine considered for the hall (48 of them),

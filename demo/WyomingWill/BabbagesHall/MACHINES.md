@@ -71,10 +71,10 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 
 | # | Tier | Machine | Year | What it does | In bpp, and printed | Int. | Cx. | Status |
 |---|---|---|---|---|---|---|---|---|
-| 1 | 1 | Abacus, suanpan | ancient | beads | nothing to simulate | 1 | 1 |  |
-| 2 | 1 | Slide rule | 1620s | multiplies by adding logarithms | one slide; nothing to simulate | 2 | 1 |  |
-| 3 | 1 | Napier's bones, Genaille–Lucas rulers | 1617 / 1891 | rods laid side by side give a product to read off | no moving mechanism: printable, nothing to simulate | 2 | 1 |  |
-| 4 | 1 | Mechanical combination lock |  | the wheels' notches must line up: a lock that tests a number | wheels and a fence; simple | 2 | 2 |  |
+| 1 | 1 | Abacus, suanpan | ancient | beads | built: seven rods, 49 printed beads sliding on steel rods, held by friction; a finger adds by the old rules, a slate shows each | 1 | 1 | built |
+| 2 | 1 | Slide rule | 1620s | multiplies by adding logarithms | one slide; nothing to simulate | 2 | 1 | bay |
+| 3 | 1 | Napier's bones, Genaille–Lucas rulers | 1617 / 1891 | rods laid side by side give a product to read off | no moving mechanism: printable, nothing to simulate | 2 | 1 | bay |
+| 4 | 1 | Mechanical combination lock |  | the wheels' notches must line up: a lock that tests a number | wheels and a fence; simple | 2 | 2 | bay |
 | 5 | 1 | Bead sort and spaghetti sort | modern | physical sorting: beads fall on rods, or rods are stood on end | beads and rods under gravity: easy | 3 | 1 |  |
 | 6 | 1 | Domino Half Adder | modern | dominoes falling add two bits | built: 268 dominoes on printed tiles | 3 | 2 | built |
 | 7 | 1 | Slide adder (troncet, Addiator) | 1889 / 1920 | slides moved with a stylus add and carry by a hook | flat slides; the carry hook is the trick | 3 | 2 |  |
@@ -159,14 +159,17 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 
 The hall's bays are walked in the list's order, so a new exhibit goes in
 its place in it and the bays after it move along one (the hall grows by a
-pair of facing bays when it needs one). With eleven bays (since
-2026-11-14) the hall holds the seven built and the four covered "in
-preparation", in this order: the Domino Half Adder and the Differential
-(west 1, east 1), the Pascaline and the planimeter (west 2, east 2), the
-Galton board and the splitter board facing each other (west 3, east 3),
-Lehmer's sieve and the Digi-Comp II (west 4, east 4), the tide predictor
-and the Differential Analyser (west 5, east 5), the Difference Engine (west
-6). The machines are to be built from the start of the list on.
+pair of facing bays when it needs one). With fifteen bays (since
+2026-11-15) the hall holds the eight built and the seven covered "in
+preparation", in this order: the suanpan and the slide rule (west 1, east
+1), Napier's bones and the combination lock (west 2, east 2), the Domino
+Half Adder and the Differential (west 3, east 3), the Pascaline and the
+planimeter (west 4, east 4), the Galton board and the splitter board facing
+each other (west 5, east 5), Lehmer's sieve and the Digi-Comp II (west 6,
+east 6), the tide predictor and the Differential Analyser (west 7, east 7),
+the Difference Engine (west 8). The machines are being built from the start
+of the list on: the first four as simple hand-worked pieces at the start
+of the walk (William, 2026-11-15).
 
 **Rope.** bpp has no rope (its soft bodies are cloth). A rope of small
 spheres joined by ball joints works, tested as an Atwood machine over a

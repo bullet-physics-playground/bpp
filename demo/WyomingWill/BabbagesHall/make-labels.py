@@ -55,6 +55,10 @@ SERIF = "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
 jobs = [
  ("title", "BABBAGE’S HALL", 24, 2),
  ("subtitle", "ENGINES OF CALCULATION", 8, 1.0),
+ ("suanpan", "THE SUANPAN", 4.2, 0.5),
+ ("slide-rule", "THE SLIDE RULE", 4.2, 0.5),
+ ("napier", "NAPIER’S BONES", 4.2, 0.5),
+ ("lock", "THE COMBINATION LOCK", 4.2, 0.5),
  ("domino-adder", "THE DOMINO HALF ADDER", 4.2, 0.5),
  ("differential", "THE DIFFERENTIAL", 4.2, 0.5),
  ("pascaline", "THE PASCALINE", 4.2, 0.5),
