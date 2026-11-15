@@ -246,6 +246,9 @@ local boardObj = still("board()", "#5b3a22")
 local marksObj = still("marks(0.05)", "#e2c35a")
 local pinsObj = still("pinsDrawn()", "#c8a24e")      -- (the board's pins, drawn in brass so they show)
 local teethObj = G.teeth and #G.teeth > 0 and still("teeth()", "#8f86d6") or nil   -- (a splitter board's)
+-- (and its exit blocks, ramps, tubes and walls, in light wood: in the
+-- board's brown they couldn't be seen)
+local wallsObj = G.solids and #G.solids > 0 and still("wallsDrawn()", "#d8bb86") or nil
 local standObj = still("stand()", "#3b2a1a")
 local frontObj = still("front()", "#eef6fa")
 pcall(function() frontObj.transparency = 0.93 end)
@@ -1138,6 +1141,8 @@ if v.onHover then
   KEY[objectKey(marksObj)] = "where 150 balls would come to if every pin were a fair coin"
   KEY[objectKey(pinsObj)] = BOARD.keyPins or "the pins: 4 mm, 12 mm apart, printed with the board"
   if teethObj then KEY[objectKey(teethObj)] = BOARD.keyTeeth or "a splitter's tooth" end
+  if wallsObj then KEY[objectKey(wallsObj)] = BOARD.keyWalls or
+    "the walls in the ball space: exit blocks, ramps and tubes, the bins' dividers" end
   for _, wh in ipairs(wheels) do
     KEY[objectKey(wh.obj)] = "a metering wheel: each slot carries one ball from the hopper to the funnel over the first pin; the two are mirror images, geared together"
     KEY[objectKey(wh.gear)] = "the gears behind the board: they turn the wheels alike, opposite ways"

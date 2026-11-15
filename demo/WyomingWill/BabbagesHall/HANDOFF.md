@@ -340,6 +340,25 @@ there, in `release/`, or on the path; or set `BPP`.
   half-edited (it passed, and rewrote the sizes file). Run check-all again
   on the finished code before sending.
 
+- **bpp sizes its view to everything in the scene** (`computeBoundingBox`,
+  every object, wherever it is drawn). The hall's first try at an
+  exhibit's ways put the ways not shown a kilometre under the floor: the
+  near limit of the view moved out past the exhibits and lecterns, which
+  then weren't drawn at all (and the shadows went). Now they go 4 m down,
+  and their objects onto a layer that isn't drawn (`Layer`,
+  `setVisible(false)`, `o.layer`; nil puts one back), casting no shadows.
+  Out of sight is not out of the scene.
+- **OpenSCAD from a snap can't read `~/.cache`** (a snap may not open
+  hidden folders in your home): "Can't open input file". Since
+  74830071 bpp uses the OpenSCAD path set in its preferences, which it had
+  been ignoring, so a snap set there weeks before failed the first time a
+  new part was needed (2026-11-14, William's machine). Point the preference
+  at a packaged OpenSCAD.
+- **Rebuilding in a build folder that has a `release/bpp`** can go wrong:
+  the precompiled header has the program's name (`PRECOMPILED_HEADER` in
+  `bpp.pro`), and when it must be remade gcc can take the binary for the
+  header. Remove `release/bpp` and `release/bpp.gch` before `make` after
+  header changes.
 ## 6. How to make an exhibit
 
 1. Pick it from `MACHINES.md`; it goes in its place in the list's walking
@@ -359,8 +378,12 @@ there, in `release/`, or on the path; or set `BPP`.
    the parts table, what to buy, assembly; both PDFs; a `make-pdfs.sh` line.
 6. In the hall: its EXHIBITS entry (`floorY = -100`), placard lettering
    (`make-labels.py`; a new key needs its line in `labels.lua` first), the
-   lectern card (`make-lecterns.py`), `tools/check-all.sh` (add it there),
-   screenshots.
+   lectern card (`make-lecterns.py`; more than a card's worth of text goes
+   on pages, a list of cards, turned by PgDn), `tools/check-all.sh` (add it
+   there), screenshots. An exhibit that can be built more than one way
+   (by environment variables, as the splitter board's `SB_WALLS`) can show
+   them all: its EXHIBITS entry's `modes`, each a stop Tab steps through,
+   each with a label of its own.
 7. **Make it show its working in the 3D view from the start**, not only in
    the console and tooltips: William watches in the GUI. Lehmer's sieve
    first showed nothing of N, x or the answer, and its probe's depth was
@@ -748,6 +771,21 @@ there, in `release/`, or on the path; or set `BPP`.
   (`SP_REFL_FILL`) gave one wall's run identical to the ball, and two
   walls the same counts; every board tour passed again. **Not seen by
   William in the GUI.**
+- **Done (2026-11-15): an exhibit's ways, lectern pages, and the splitter
+  board's walls in light wood.** At William's word: the hall's splitter
+  board shows all five ways (EXHIBITS `modes`: first passage, gambler's
+  ruin, a wall that sends balls back, the pile goes flat, no walls), Tab
+  stepping on through them; each way its own world, the others put away
+  (section 5: not far away). Lectern labels can have pages (PgDn, PgUp; a
+  list of cards in `make-lecterns.py`); the splitter board has a label of
+  two to four pages for each way, what you see, the mathematics, and
+  further reading (Feller, Grinstead and Snell, van der Hofstad and
+  Keane). Its exit blocks, ramps, tubes and walls are drawn again over the
+  board in light wood (`wallsDrawn()`, drawn only): in the board's brown
+  they couldn't be seen. Its help no longer says "half the balls caught
+  in the first two rows" (a quarter in the first, 37 in 100 by the
+  second). William's idea, for other exhibits too: an exhibit with ways,
+  a label with pages.
 - **Next (William, 2026-11-14): build the machines from the start of the
   list on.** Open: whether the first four (the abacus, the slide rule,
   Napier's bones, the combination lock: little or nothing to simulate) get

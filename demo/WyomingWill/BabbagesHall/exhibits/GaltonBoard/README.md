@@ -238,6 +238,13 @@ on a solid wall, the board's. Each bin holds its binomial count
   yet flat after twelve rows (26, 31.5, 35, 31.5, 26), as the mathematics
   has it: the rows it takes grow as the width squared.
 
+In the hall all five ways stand in the bay, one at a time: Tab steps on
+through them, and the lectern's label changes with them (PgDn turns its
+pages). What stands in the ball space, the exit blocks, ramps, tubes,
+walls and dividers, is drawn again over the board in light wood
+(`wallsDrawn()` in `parts/splitter.scad`, drawn only, not printed): in the
+board's brown it couldn't be seen.
+
 The half teeth are printed with their set of teeth (they are tuned with
 it); `SPLITTERS.md`, "Reflecting walls", has why the half tooth keeps its
 pin (without it the walls hoarded balls).

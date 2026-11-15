@@ -45,6 +45,17 @@ runs on its own from its folder.
 | `Tab` | walk on: the view from the entrance, the exhibits, the view from the title wall. An exhibit with a lectern is two stops: walking up to it (the table and its lectern), then stepping in (`Shift+Tab` the same, back) |
 | `Shift+Tab` | walk back |
 | `I` | at an exhibit with a lectern: its label, close up; again, back |
+| `PgDn`, `PgUp` | at an exhibit whose label has pages: the next page, the one before (the card says which, and "PgDn: more") |
+
+An exhibit can have **ways of its own**: the splitter board has five (a
+wall that catches balls, gambler's ruin, a wall that sends balls back, the
+pile going flat, no walls). Each is a stop of its own, after the first's
+approach: Tab steps on through them, and the lectern's card changes to
+that way's label. Each way is the exhibit's script, unchanged, loaded in a
+world of its own with its own environment variables (`SB_WALLS=...`); the
+one you're at stands in the bay, the others are put away under the floor,
+on a layer that isn't drawn. Its sliders carry the way's name
+(`Splitter, ruin: ...`). An EXHIBITS entry lists them as `modes`.
 
 Click the 3D view first so it has the keyboard. Everything else goes to the
 exhibit you're at, with the same keys as when it runs on its own; the
@@ -151,7 +162,11 @@ face the visitor walking up (the exhibit's first stop), is built when
 its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
 card, the name, a line and a few sentences, as
 `hall-meshes/lectern-<placard>.png` (36 x 24 cm). All seven exhibits on
-show have one.
+show have one. A label can have **pages**, a list of cards: the first
+`lectern-<key>.png`, then `lectern-<key>-2.png` and on, each numbered;
+`PgDn` turns them. An exhibit with ways has a label for each way (its
+mode's `card`): the splitter board's has two to four pages each, ending
+with a page of further reading.
 
 Every `.md` file has a typeset `.pdf` beside it; `./make-pdfs.sh` rebuilds
 them all (needs `pip install markdown playwright`). The STL files are not

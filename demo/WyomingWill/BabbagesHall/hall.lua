@@ -14,6 +14,10 @@
 --               one with a lectern, first up to it, then a step in
 --   Shift+Tab   walk back (stepping back out first)
 --   I           at an exhibit with a lectern: its label, close up (again: back)
+--   PgDn, PgUp  at an exhibit whose label has more than one page: the next
+--               page, the one before
+--   An exhibit with ways of its own (the splitter board's walls) has a stop
+--   for each: Tab steps on through them, and its label changes with them.
 --   everything else goes to the exhibit you're at, with the same keys as
 --   when it runs on its own; the Shortcuts pane shows them.
 --   Rest the mouse on an exhibit, its table, its lectern, a placard or a
@@ -82,6 +86,14 @@ local LABELS = dofile(MESH .. "labels.lua")
 --   floorY     the height of its own ground plane, in its own units: that
 --              is where the hall's floor goes
 --   about      what the placard says when the mouse rests on it
+--   modes      (if it has ways of its own) a list, each { key, name, env,
+--              card, about }: each is loaded as an exhibit of its own, in a
+--              world of its own, with the environment variables env (so
+--              its script, unchanged, builds that way); all stand in the
+--              same bay, the one you're at shown and the others put away
+--              out of sight. Each is a stop: Tab steps on through them. Its
+--              lectern card is hall-meshes/lectern-<card>.png (and -2, -3
+--              ... for more pages); its sliders are named with its key.
 EXHIBITS = EXHIBITS or {
   { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
     prefix = "Dominoes: ", floorY = -100,
@@ -115,7 +127,18 @@ EXHIBITS = EXHIBITS or {
             "Every pin is a splitter, a neck dropping each ball onto it; a wall on the left\n" ..
             "swallows the balls that reach it, into a tube for the row they were caught at.\n" ..
             "The tubes fill as first passage has it, a long thin tail; the survivors pile up\n" ..
-            "away from the wall. Space: turn the crank; E: empty and pour back; T: the tour." },
+            "away from the wall. Space: turn the crank; E: empty and pour back; T: the tour.\n" ..
+            "Tab steps on through its five walls; PgDn turns its label's pages.",
+    modes = {
+      { key = "first", name = "the splitter board", card = "splitter", env = { SB_WALLS = "first" } },
+      { key = "ruin", name = "the splitter board: gambler's ruin", card = "splitter-ruin",
+        env = { SB_WALLS = "ruin", SB_START = "1" } },
+      { key = "reflect", name = "the splitter board: a wall that sends balls back", card = "splitter-reflect",
+        env = { SB_WALLS = "reflect" } },
+      { key = "flat", name = "the splitter board: the pile goes flat", card = "splitter-flat",
+        env = { SB_WALLS = "flat" } },
+      { key = "none", name = "the splitter board: no walls", card = "splitter-none", env = { SB_WALLS = "none" } },
+    } },
   { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
     prefix = "Sieve: ", floorY = -100,
     about = "Lehmer's number sieve (1926): wheels of 9, 8, 7 and 5 places, each moved on one\n" ..
@@ -304,8 +327,33 @@ end
 -- left as it is (its own world keeps it apart); what it has of its own is
 -- its globals, its folder, its sliders, its keys and callbacks, and its
 -- camera, which is moved to its bay.
+-- An exhibit's ways not shown are put away: drawn PARKED cm lower, under
+-- the floor, and their objects on a layer that isn't drawn, casting no
+-- shadows. (Not far away: bpp sizes its view to everything in the scene,
+-- and ways put a kilometre down pushed the view's near limit out past the
+-- exhibits and lecterns, which then weren't drawn at all.)
+local PARKED = 400
+local HIDDEN = Layer and Layer("put away") or nil
+if HIDDEN then HIDDEN:setVisible(false) end
+local function hideObjects(g, hide)
+  if not HIDDEN or (g.hidden or false) == hide then return end
+  g.hidden = hide
+  g.cast = g.cast or {}
+  for _, o in ipairs(g.objects) do
+    pcall(function()
+      if hide then
+        g.cast[o] = o.castShadow
+        o.castShadow = false
+        o.layer = HIDDEN
+      else
+        o.layer = nil
+        if g.cast[o] ~= nil then o.castShadow = g.cast[o] end
+      end
+    end)
+  end
+end
 local function makeExhibit(e, bay)
-  local g = { e = e, name = e.name, dir = e.dir, callbacks = {}, shortcuts = {}, help = "", down = {},
+  local g = { e = e, name = e.name, dir = e.dir, callbacks = {}, shortcuts = {}, help = "", down = {}, objects = {},
               timing = {}, N = 0, draws = 0, prefix = e.prefix or (e.name .. ": "), vset = {}, view = {} }
   for k, val in pairs(BPP_TIMING) do g.timing[k] = val end
   g.world = realV:newWorld()
@@ -313,7 +361,14 @@ local function makeExhibit(e, bay)
   -- the side it's seen from on its own, toward the aisle)
   local ox, oy, oz, a = bay.x, bay.y, bay.z, bay.a
   local cs, sn = math.cos(a), math.sin(a)
-  realV:placeWorld(g.world, btTransform(btQuaternion(btVector3(0, 1, 0), a), btVector3(ox, oy, oz)))
+  -- (one of an exhibit's ways, not the one shown: drawn far under the
+  -- floor, out of every view, so bpp's culling leaves it undrawn)
+  local function place()
+    realV:placeWorld(g.world, btTransform(btQuaternion(btVector3(0, 1, 0), a),
+                                          btVector3(ox, oy - (g.parked and PARKED or 0), oz)))
+  end
+  g.place = place
+  place()
   local function toScene(p) return btVector3(p.x * cs + p.z * sn + ox, p.y + oy, -p.x * sn + p.z * cs + oz) end
   local function toLocal(q)
     local x, z = q.x - ox, q.z - oz
@@ -324,7 +379,7 @@ local function makeExhibit(e, bay)
   -- TABLE_GAP (its world, its views and what the mouse finds all go with it)
   g.shift = function(dz)
     ox, oz = bay.x + dz * sn, bay.z + dz * cs
-    realV:placeWorld(g.world, btTransform(btQuaternion(btVector3(0, 1, 0), a), btVector3(ox, oy, oz)))
+    place()
   end
   local dir = e.dir
   local function fix(path)
@@ -392,6 +447,17 @@ local function makeExhibit(e, bay)
       meter.phys = meter.phys + (now() - t)
       return r
     end,
+    -- (what it adds, kept, so that one of an exhibit's ways can be put away)
+    add = function(_, o, ...)
+      local r = realV:add(o, ...)
+      g.objects[#g.objects + 1] = o
+      if g.hidden and HIDDEN then pcall(function() g.cast[o] = o.castShadow; o.castShadow = false; o.layer = HIDDEN end) end
+      return r
+    end,
+    remove = function(_, o, ...)
+      for i = #g.objects, 1, -1 do if g.objects[i] == o then table.remove(g.objects, i); break end end
+      return realV:remove(o, ...)
+    end,
     -- (the worlds are the hall's to arrange)
     newWorld = function() error("an exhibit can't make worlds of its own in the hall") end,
     useWorld = function() end,
@@ -450,6 +516,13 @@ local function makeExhibit(e, bay)
     random = function(...) g.draws = g.draws + 1; return math.random(...) end,
     randomseed = function(sd) g.seed, g.draws = sd, 0; return math.randomseed(sd) end,
   }, { __index = math })
+  -- (one of an exhibit's ways: its environment variables, as if set when
+  -- bpp was started)
+  if e.env then
+    env.os = setmetatable({
+      getenv = function(k) local val = e.env[k]; if val ~= nil then return val end; return os.getenv(k) end,
+    }, { __index = os })
+  end
   env.io = setmetatable({
     open = function(path, mode) return io.open(fix(path), mode) end,
     lines = function(path, ...) if path == nil then return io.lines() end return io.lines(fix(path), ...) end,
@@ -768,6 +841,21 @@ end
 -- first time, and again whenever its files change; after that they come
 -- from bpp's cache.)
 local all = {}             -- every exhibit with a script, in walking order, loaded or not
+-- (one of an exhibit's ways, as an exhibit of its own: its name, sliders,
+-- environment, lectern card and hover text; the first keeps the exhibit's
+-- own slider names)
+local function modeOf(e, k)
+  local m = e.modes[k]
+  local x = {}
+  for key, val in pairs(e) do x[key] = val end
+  x.modes = nil
+  x.name = m.name or e.name
+  x.env = m.env
+  x.card = m.card or e.label
+  x.about = m.about or e.about
+  if k > 1 then x.prefix = (e.prefix or (e.name .. ": ")):gsub(":%s*$", "") .. ", " .. m.key .. ": " end
+  return x
+end
 local function sheet(b, about)
   local q = yq(b.a)
   local text = about .. "\n\n(Being set up: it appears here as soon as it has loaded.)"
@@ -791,7 +879,7 @@ for i, b in ipairs(BAYS) do
   else
     local off = btVector3(b.x, -(e.floorY or 0), b.z)
     -- (in a world of its own, at its own coordinates, drawn in its bay)
-    local g = makeExhibit(e, { x = b.x, y = -(e.floorY or 0), z = b.z, a = b.a })
+    local g = makeExhibit(e.modes and modeOf(e, 1) or e, { x = b.x, y = -(e.floorY or 0), z = b.z, a = b.a })
     g.bay = b
     bayFrame(b, e.label, e.about)
     if e.stand then
@@ -809,6 +897,22 @@ for i, b in ipairs(BAYS) do
     local vx, vz = rot(b.a, 0, 1)
     g.bayView = { pos = btVector3(b.x + vx * 330, 230, b.z + vz * 330), look = btVector3(b.x, 90, b.z) }
     all[#all + 1] = g
+    -- (its other ways: in the same bay, each in a world of its own, put
+    -- away until you come to it; no frame, sheet or stand of their own)
+    if e.modes then
+      local group = { modes = { g } }
+      g.group, g.modeIndex = group, 1
+      for k = 2, #e.modes do
+        local m = makeExhibit(modeOf(e, k), { x = b.x, y = -(e.floorY or 0), z = b.z, a = b.a })
+        m.bay, m.group, m.modeIndex = b, group, k
+        m.parked = true
+        m.place()
+        m.pending = true
+        m.bayView = g.bayView
+        group.modes[k] = m
+        all[#all + 1] = m
+      end
+    end
   end
 end
 
@@ -823,9 +927,35 @@ local LECTERN_TILT = 35                       -- degrees back from upright
 local LECTERN = { dx = 12, dz = 14, y = 8 }    -- (cm past the table's right edge, before its front edge;
                                                 -- the board's middle over the table top)
 local EYE = 62                                -- the approach: eyes this far over the table top (162 cm up)
+-- (its card's pages: lectern-<card>.png, then -2, -3 ... while there are more)
+local function cardPages(key)
+  local pages = {}
+  local first = MESH .. "lectern-" .. key .. ".png"
+  if not exists(first) then return pages end
+  pages[1] = first
+  for n = 2, 20 do
+    local f = MESH .. "lectern-" .. key .. "-" .. n .. ".png"
+    if not exists(f) then break end
+    pages[n] = f
+  end
+  return pages
+end
+-- (an exhibit's ways share one lectern: built by the first of them to load,
+-- its card turned to the way you're at, at its first page)
+local function lecternFor(g)
+  g.pages = cardPages(g.e.card or g.e.label)
+  g.page = 1
+  local L = g.group and g.group.lectern
+  if L then
+    g.lecternCard, g.lecternView = L.card, L.view
+    if g.modeIndex == 1 then g.approach = L.approach end
+    return true
+  end
+end
 local function lectern(g, t)
-  local file = MESH .. "lectern-" .. g.e.label .. ".png"
-  if not exists(file) then return end
+  if lecternFor(g) then return end
+  local file = g.pages[1]
+  if not file then return end
   -- (in the exhibit's own frame: its table top at y = 0, the dais at -96.5)
   local lx, lz, ly = t.x + t.w / 2 + LECTERN.dx, t.z + t.d / 2 + LECTERN.dz, LECTERN.y
   -- the approach: from the aisle, square to the table, back far enough that
@@ -867,7 +997,35 @@ local function lectern(g, t)
   local D = 1.35 * W                           -- (as far off as it is wide, and a bit)
   local d = g.toScene(btVector3(D * cs * math.sin(yaw), D * sn, D * cs * math.cos(yaw))) - g.toScene(btVector3(0, 0, 0))
   g.lecternView = { pos = btVector3(c.x + d.x, c.y + d.y, c.z + d.z), look = n }
-  g.approach = { pos = g.toScene(apos), look = g.toScene(alook) }
+  g.lecternCard = card
+  local approach = { pos = g.toScene(apos), look = g.toScene(alook) }
+  if g.group then
+    -- (the approach is the first way's: the others are steps on from it)
+    g.group.lectern = { card = card, view = g.lecternView, approach = approach }
+    g.group.modes[1].approach = approach
+    for _, m in ipairs(g.group.modes) do
+      if m ~= g and m.ready then m.lecternCard, m.lecternView = card, g.lecternView end
+    end
+  else
+    g.approach = approach
+  end
+end
+-- (the card turned to one of its pages)
+local function showPage(g, n)
+  if not (g.lecternCard and g.pages and g.pages[n]) then return end
+  g.page = n
+  pcall(function() g.lecternCard.tex = g.pages[n] end)
+end
+-- (one of an exhibit's ways in its bay, the others put away)
+local function showMode(g)
+  if not g.group then return end
+  for _, m in ipairs(g.group.modes) do
+    local park = m ~= g
+    if m.parked ~= park then m.parked = park; m.place() end
+    hideObjects(m, park)
+  end
+  g.group.shown = g
+  showPage(g, 1)
 end
 
 -- loadExhibit(g): its script, into its sandbox and world, as on its own
@@ -883,7 +1041,7 @@ local function loadExhibit(g)
   do
     local was = realV:currentWorld()
     realV:useWorld(0)
-    for _, o in ipairs(g.sheet) do pcall(function() realV:remove(o) end) end
+    for _, o in ipairs(g.sheet or {}) do pcall(function() realV:remove(o) end) end
     realV:useWorld(was)
     g.sheet = nil
   end
@@ -904,6 +1062,7 @@ local function loadExhibit(g)
   end
   if ok then
     g.ready = true
+    if g.parked then hideObjects(g, true) end      -- (one of an exhibit's ways, not shown)
     exhibits[#exhibits + 1] = g
     print(string.format("HALL: %s is in its bay (%s%s, %.1f s)", g.name, e.dir, e.file, (realMs() - t0) / 1000))
     -- its first frame, now: everything put where it begins, so it shows
@@ -949,10 +1108,12 @@ local steppedIn = nil
 local function header(g)
   return function()
     local out = g.approach and steppedIn ~= g          -- (at its approach)
-    return "BABBAGE'S HALL -- at " .. g.name ..
+    local ways = g.group and string.format(" (way %d of %d)", g.modeIndex, #g.group.modes) or ""
+    local pages = (g.pages and #g.pages > 1) and string.format(";   PgDn, PgUp: its label's pages (%d of %d)", g.page or 1, #g.pages) or ""
+    return "BABBAGE'S HALL -- at " .. g.name .. ways ..
            (out and ".   Tab: step in" or (".   Tab: on to " .. nextStop(g, 1).name)) ..
            ";   Shift+Tab: " .. ((g.approach and not out) and "step back" or ("back to " .. nextStop(g, -1).name)) ..
-           (g.lecternView and ";   I: its label, close up (again: back)" or "") .. "\n"
+           (g.lecternView and ";   I: its label, close up (again: back)" or "") .. pages .. "\n"
   end
 end
 local function wrapHelp(g)
@@ -965,7 +1126,10 @@ for _, g in ipairs(all) do g.header, g.wrapHelp = header(g), wrapHelp(g) end
 local function hallHelp(s)
   local live, coming = {}, {}
   for _, g in ipairs(all) do
-    live[#live + 1] = "  " .. g.name .. (g.ready and "" or (g.failed and "  (didn't load)" or "  (being set up)"))
+    if not g.group or g.modeIndex == 1 then
+      live[#live + 1] = "  " .. g.name .. (g.group and string.format(" (%d ways: Tab steps through them)", #g.group.modes) or "") ..
+                        (g.ready and "" or (g.failed and "  (didn't load)" or "  (being set up)"))
+    end
   end
   for i, e in ipairs(EXHIBITS) do
     if not exists(e.dir .. e.file) then coming[#coming + 1] = "  " .. e.name end
@@ -1114,7 +1278,7 @@ local function goTo(s, instant, stepIn)
     f = active.callbacks.onLeave
     if f then local ok, err = pcall(f, active.N); if not ok then print("HALL: " .. active.name .. " onLeave: " .. tostring(err)) end end
   end
-  local same = here == s        -- (stepping in or back at the same exhibit)
+  local same = here == s or (here.group ~= nil and here.group == s.group)   -- (stepping in or back, or on to another way, at the same exhibit)
   here = s
   steppedIn = (stepIn and not s.isView and s.approach) and s or nil
   pcall(function() realV.statusText = (not s.isView and s.ready and s.statusText ~= nil and s.statusText ~= "" and s.statusText) or hallStatus end)
@@ -1129,6 +1293,7 @@ local function goTo(s, instant, stepIn)
     realV:addParam(STOP_PARAM, i, 1, #stops, 1,
                    "where you are: 1 the entrance, then on round (Tab, Shift+Tab); drag to go there")
   end
+  if not s.isView and s.ready then showMode(s) end
   if not s.isView and not s.ready then
     -- (not loaded yet: its bay from the aisle; it comes to life when it has)
     active = nil
@@ -1291,6 +1456,18 @@ realV:onKey(function(N, key, down)
     return true
   end
   local g = active
+  -- (PgDn, PgUp: its label's pages; unless the exhibit uses them itself)
+  if (key == "PgDown" or key == "PgUp") and g and g.pages and #g.pages > 1 and not g.shortcuts[key] then
+    if down then
+      local n = (g.page or 1) + (key == "PgDown" and 1 or -1)
+      n = math.max(1, math.min(#g.pages, n))
+      if n ~= g.page then
+        showPage(g, n)
+        realV:setHelpText(g.wrapHelp(g.help))
+      end
+    end
+    return true
+  end
   -- (I: its lectern close up, and back; unless the exhibit has I itself)
   if key == "I" and g and g.lecternView and not g.shortcuts[key] then
     if down then
@@ -1388,7 +1565,7 @@ realV:addParam(METER_PARAM, METER and 1 or 0, 0, 1, 1, "the cost meter in the co
 -- (START: begin at that exhibit's name, for trying one out)
 local START = os.getenv("HALL_START")
 if START then
-  for _, g in ipairs(all) do if g.name:lower():find(START:lower(), 1, true) then here = g end end
+  for _, g in ipairs(all) do if g.name:lower():find(START:lower(), 1, true) then here = g; break end end
   if START == "end" then here = VIEW_B end
 end
 goTo(here, true)

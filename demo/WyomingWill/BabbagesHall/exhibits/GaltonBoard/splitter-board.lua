@@ -88,8 +88,9 @@ BOARD = {
 local WORDS = {
   first = {
     "A ball that reaches the wall on the left drops into the tube for the",
-    "row it was caught at. Fair coins fill the tubes to the gold lines: half",
-    "the balls caught in the first two rows, and a long thin tail after.",
+    "row it was caught at. Fair coins fill the tubes to the gold lines: a",
+    "quarter of all the balls in the first, 37 in 100 by the second, and a",
+    "long thin tail after.",
     "The balls that survive all twelve rows pile up away from the wall.",
     "",
     "The sign counts the balls caught, those in the first tube, and the",
@@ -125,6 +126,12 @@ local WORDS = {
   },
 }
 for _, line in ipairs(WORDS[walls] or WORDS.first) do BOARD.help[#BOARD.help + 1] = line end
+BOARD.keyWalls = ({
+  first = "the wall on the left: a ball that reaches it drops onto an exit block and rolls down the ramp to the tube for the row it was caught at",
+  ruin = "the walls: a ball that reaches one drops onto an exit block and rolls down a ramp to the tube for its side and row",
+  reflect = "the wall that sends balls back: a half tooth on its pin in every other row",
+  flat = "the walls that send balls back: a half tooth on its pin in every other row",
+})[walls] or "the bins' dividers"
 local keyWalls = ({ ruin = ", walls on both sides that swallow balls, a tube for each row and side",
   none = ", no walls", reflect = ", a wall that sends balls back (half teeth on it)",
   flat = ", two walls that send balls back (half teeth on them)" })[walls]

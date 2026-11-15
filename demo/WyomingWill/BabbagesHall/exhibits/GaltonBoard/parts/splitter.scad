@@ -34,6 +34,19 @@ module teeth() difference() {
   for (q = TEETH) linear_extrude(GAP - 0.4) polygon(q);
   for (p = PINS) translate([p[0], p[1], -1]) cylinder(d = PIN_D + 0.2, h = GAP + 2, $fn = 16);
 }
+// what stands in the ball space (the exit blocks, the ramps, the tubes'
+// walls, the walls that send balls back, the bins' dividers), drawn again
+// over the board in a colour of their own so they show: in the board's
+// brown they were lost against it. Drawn only, a hair larger and proud of
+// the board so their faces don't flicker against its; the board above is
+// what is printed.
+module wallsDrawn() {
+  for (q = SOLIDS) linear_extrude(GAP + 0.1) offset(delta = 0.05) polygon(q);
+  for (x = DIVIDERS) {
+    translate([x - DIV_T / 2 - 0.05, Y_FLOOR, 0]) cube([DIV_T + 0.1, Y_DIV - Y_FLOOR, GAP + 0.1]);
+    translate([x, Y_DIV, 0]) cylinder(d = DIV_T + 0.1, h = GAP + 0.1, $fn = 12);
+  }
+}
 // the pins, steel, drawn
 module pinsDrawn() for (p = PINS) translate([p[0], p[1], 0]) cylinder(d = PIN_D + 0.1, h = GAP + 0.05, $fn = 16);
 // the exact counts for NBALLS balls: a line across each bin and each tube
