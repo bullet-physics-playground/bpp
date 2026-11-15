@@ -157,7 +157,8 @@ local function scaledObj(file, s)
     for line in io.lines(MESH_DIR .. file) do t[#t + 1] = line end
     OBJ_LINES[file] = t
   end
-  local name = ((package.config:sub(1, 1) == "\\" and (os.getenv("TEMP") or ".") or "") .. os.tmpname())
+  -- (Windows: the old C runtime names a bare \name, prefixed with TEMP; UCRT a full path)
+  local name = (function(n) return n:sub(1, 1) == "\\" and (os.getenv("TEMP") or ".") .. n or n end)(os.tmpname())
   local f = assert(io.open(name, "w"))
   for _, line in ipairs(OBJ_LINES[file]) do
     local x, y, z = line:match("^v%s+(%S+)%s+(%S+)%s+(%S+)")

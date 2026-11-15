@@ -71,7 +71,8 @@ end
 local function buildCourse()
   local nz = floor((LENGTH + 90) / STEP)
   local nx = floor(2 * HALF_W / STEP)
-  local path = ((package.config:sub(1, 1) == "\\" and (os.getenv("TEMP") or ".") or "") .. os.tmpname()) .. ".obj"
+  -- (Windows: the old C runtime names a bare \name, prefixed with TEMP; UCRT a full path)
+  local path = (function(n) return n:sub(1, 1) == "\\" and (os.getenv("TEMP") or ".") .. n or n end)(os.tmpname()) .. ".obj"
   local f = assert(io.open(path, "w"))
   local zmin = -30
   for j = 0, nz do
@@ -183,7 +184,8 @@ local objFiles = {}
 local function ellipsoidFile(a, b, c, nlon, nlat)
   local key = string.format("%g,%g,%g,%d,%d", a, b, c, nlon, nlat)
   if objFiles[key] then return objFiles[key] end
-  local path = ((package.config:sub(1, 1) == "\\" and (os.getenv("TEMP") or ".") or "") .. os.tmpname()) .. ".obj"
+  -- (Windows: the old C runtime names a bare \name, prefixed with TEMP; UCRT a full path)
+  local path = (function(n) return n:sub(1, 1) == "\\" and (os.getenv("TEMP") or ".") .. n or n end)(os.tmpname()) .. ".obj"
   local f = assert(io.open(path, "w"))
   f:write(string.format("v 0 %.4f 0\nv 0 %.4f 0\n", -b, b))      -- 1: south, 2: north
   for j = 1, nlat - 1 do
