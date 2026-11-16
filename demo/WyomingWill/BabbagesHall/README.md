@@ -9,7 +9,7 @@ be 3D printed and built**: each exhibit's folder holds its OpenSCAD sources,
 a script that makes its STL files, and a README saying what else to buy and
 how to put it together. What is printed is what is simulated.
 
-The machines **ask more of you as you walk on**, from the Domino Half Adder at
+The machines **ask more of you as you walk on**, from the suanpan at
 the entrance to Babbage's own Difference Engine at the far end: a bay on the
 west side, then the one facing it on the east, and on (`MACHINES.md` says
 how they are ordered). The bays still waiting for their machines stand covered,
@@ -19,7 +19,7 @@ comes to life.
 | Bay | Exhibit | |
 |---|---|---|
 | west 1 | **The suanpan**: the Chinese abacus, worked by a finger by the old rules, a slate showing each; Tab: adding, taking away, multiplying | `exhibits/Suanpan/` |
-| east 1 | The slide rule | in preparation |
+| east 1 | **The slide rule**: a Mannheim rule, worked by a finger, a slate showing each step and the estimate that places the point; Tab: multiplying and dividing, then squares, roots, cubes, reciprocals and logarithms | `exhibits/SlideRule/` |
 | west 2 | Napier's bones | in preparation |
 | east 2 | The combination lock | in preparation |
 | west 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
@@ -51,7 +51,8 @@ runs on its own from its folder.
 | `I` | at an exhibit with a lectern: its label, close up; again, back |
 | `PgDn`, `PgUp` | at an exhibit whose label has pages: the next page, the one before (the card says which, and "PgDn: more") |
 
-An exhibit can have **ways of its own**: the splitter board has five (a
+An exhibit can have **ways of its own**: the suanpan has three (adding,
+taking away, multiplying), the slide rule two, and the splitter board five (a
 wall that catches balls, gambler's ruin, a wall that sends balls back, the
 pile going flat, no walls). Each is a stop of its own, after the first's
 approach: Tab steps on through them, and the lectern's card changes to
@@ -173,7 +174,7 @@ museum label on a brass post at its table's right front corner, turned to
 face the visitor walking up (the exhibit's first stop), is built when
 its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
 card, the name, a line and a few sentences, as
-`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All seven exhibits on
+`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All eight exhibits on
 show have one. A label can have **pages**, a list of cards: the first
 `lectern-<key>.png`, then `lectern-<key>-2.png` and on, each numbered;
 `PgDn` turns them. An exhibit with ways has a label for each way (its
@@ -195,7 +196,8 @@ Every exhibit stands on the same kind of table, drawn by `exhibit-table.lua`:
   `hall.lua` is -100.
 - **Size:** the machine's footprint plus 30 cm on every side, rounded up to
   the next 10 cm, and never smaller than 80 x 60 cm. The machine keeps its
-  real, printable size: the Differential's table is 80 x 80, Lehmer's
+  real, printable size: the suanpan's table is 100 x 90 and the slide rule's
+  100 x 80 (each with its slate), the Differential's 80 x 80, Lehmer's
   sieve's 120 x 80 (with its board), the Galton board's 110 x 70 and the
   splitter board's 130 x 70 (each with its sign), the Pascaline's 110 x 80,
   the Domino Half Adder's 180 x 230, the Digi-Comp II's 110 x 220.

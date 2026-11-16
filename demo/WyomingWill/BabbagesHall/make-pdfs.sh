@@ -9,6 +9,8 @@ pdf MACHINES.md                        --sub "Every machine considered, in the o
 pdf HANDOFF.md                         --sub "For a new chat: how to work, build, test, and what's next"
 pdf exhibits/Suanpan/README.md         --sub "West bay 1: the Chinese abacus"
 pdf exhibits/Suanpan/FINDINGS.md       --sub "West bay 1: the suanpan"
+pdf exhibits/SlideRule/README.md       --sub "East bay 1: multiplying by adding lengths"
+pdf exhibits/SlideRule/FINDINGS.md     --sub "East bay 1: the slide rule"
 pdf exhibits/DominoAdder/README.md     --sub "West bay 3: dominoes that add two bits"
 pdf exhibits/DominoAdder/FINDINGS.md   --sub "West bay 3: the Domino Half Adder"
 pdf exhibits/Differential/README.md    --sub "East bay 3: bevel gears that add and subtract"

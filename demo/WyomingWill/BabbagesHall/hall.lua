@@ -109,8 +109,15 @@ EXHIBITS = EXHIBITS or {
     } },
   { dir = "exhibits/SlideRule/", file = "slide-rule.lua", name = "the slide rule", label = "slide-rule",
     prefix = "Slide rule: ", floorY = -100,
-    about = "The slide rule (1620s): scales of logarithms slid along each other multiply\n" ..
-            "by adding lengths. In preparation." },
+    about = "The slide rule (1620s): on D a number v stands log v along; C on the slide is the same.\n" ..
+            "C's 1 over a puts every b on C over a x b on D: the slide adds the lengths. A finger\n" ..
+            "sets the slide and the cursor; the slate shows each step, the reading and the estimate\n" ..
+            "that places the point. Type 2.5 X 3.2 (or 7.5 / 2.5), Return; M: close to the hairline.\n" ..
+            "Tab: squares, roots, cubes, reciprocals and logarithms; PgDn turns its label's pages.",
+    modes = {
+      { key = "multiply", name = "the slide rule", card = "slide-rule", env = { SR_WAY = "multiply" } },
+      { key = "powers", name = "the slide rule: squares and roots", card = "slide-rule-powers", env = { SR_WAY = "powers" } },
+    } },
   { dir = "exhibits/NapiersBones/", file = "napiers-bones.lua", name = "Napier's bones", label = "napier",
     prefix = "Napier: ", floorY = -100,
     about = "Napier's bones (1617): rods carrying the multiplication table; laid side by side,\n" ..
@@ -932,12 +939,14 @@ local function sheet(b, about)
   CASTING = false
   return objs
 end
+local nCovered = 0                 -- (bays in preparation; each of an exhibit's ways is one of all)
 for i, b in ipairs(BAYS) do
   local e = EXHIBITS[i]
   if not e then
     emptyBay(b)
   elseif not exists(e.dir .. e.file) then
     coveredBay(b, e)
+    nCovered = nCovered + 1
   else
     local off = btVector3(b.x, -(e.floorY or 0), b.z)
     -- (in a world of its own, at its own coordinates, drawn in its bay)
@@ -1649,7 +1658,7 @@ if START then
 end
 goTo(here, true)
 print(string.format("HALL: %d exhibits to set up, %d in preparation, %d empty bays; the nave %.0f m long",
-                    #all, #EXHIBITS - #all, #BAYS - #EXHIBITS, (ZS - ZN) / 100))
+                    #all, nCovered, #BAYS - #EXHIBITS, (ZS - ZN) / 100))
 
 -- the exhibits loaded, one a frame from the second on (the hall is shown
 -- first): next, the one you're at or walking to, else the next one on
@@ -1717,6 +1726,6 @@ loadSome = function()
     status("")
     if here.isView then realV:setHelpText(hallHelp(here)) end
     print(string.format("HALL: %d exhibits on show, %d in preparation, %d empty bays",
-                        #exhibits, #EXHIBITS - #all, #BAYS - #EXHIBITS))
+                        #exhibits, nCovered, #BAYS - #EXHIBITS))
   end
 end
