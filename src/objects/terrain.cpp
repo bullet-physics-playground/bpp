@@ -160,7 +160,7 @@ Terrain::Terrain() {
 Terrain::~Terrain() {
   freeLists();
   if (body && body->getMotionState())
-    delete body->getMotionState();
+    Object::freeMotionState(body->getMotionState());
   delete m_shape;
   delete m_mesh;
   shape = nullptr;
@@ -227,7 +227,7 @@ void Terrain::freeLists() {
 void Terrain::build() {
   if (body != nullptr) {
     if (body->getMotionState())
-      delete body->getMotionState();
+      Object::freeMotionState(body->getMotionState());
     delete body;
     body = nullptr;
   }

@@ -207,6 +207,7 @@ void Viewer::closeScript() {
     QSet<btMotionState *> motionStates;
     foreach (Object *o, Object::live())
       o->takeMotionStates(motionStates);
+    Object::takeOrphanMotionStates(motionStates);   // (objects gone before)
     qDeleteAll(motionStates);
   }
   LuaBullet::freeScriptMotionStates();   // (those of bodies with no object)

@@ -54,6 +54,31 @@ static QSet<Object *> &liveObjects() {
 
 const QSet<Object *> &Object::live() { return liveObjects(); }
 
+// The motion states of script-made bodies (obj.body = btRigidBody(...))
+// whose objects have gone: see ~Object() and takeOrphanMotionStates().
+static QSet<btMotionState *> &orphanMotionStates() {
+  static QSet<btMotionState *> s;
+  return s;
+}
+
+void Object::takeOrphanMotionStates(QSet<btMotionState *> &states) {
+  for (btMotionState *m : orphanMotionStates())
+    states.insert(m);
+  orphanMotionStates().clear();
+}
+
+void Object::freeMotionState(btMotionState *m) {
+  orphanMotionStates().remove(m);   // (a body two objects shared)
+  delete m;
+}
+
+// A body's motion state replaced by one at @p trans (obj.pos, obj.trans,
+// setRotation).
+static void replaceMotionState(btRigidBody *b, const btTransform &trans) {
+  Object::freeMotionState(b->getMotionState());
+  b->setMotionState(new btDefaultMotionState(trans));
+}
+
 Object::Object(QObject *parent, btScalar pmass) : QObject(parent) {
   Q_UNUSED(pmass)
   liveObjects().insert(this);
@@ -96,6 +121,11 @@ Object::~Object() {
     delete body;
     body = nullptr;
   }
+  // A script's body outlives its object, and frees no motion state: its
+  // motion state (one obj.pos made, as like as not) goes when the script
+  // ends. (Lost before, when the object went first.)
+  if (body != nullptr && !_ownsBody && body->getMotionState() != nullptr)
+    orphanMotionStates().insert(body->getMotionState());
 
   // Bodies and shapes it made itself and then replaced, with the bodies'
   // motion states (a script's too: C++ owns those, see btDefaultMotionState).
@@ -107,7 +137,7 @@ Object::~Object() {
       keptBody = true;
       continue;
     }
-    delete b->getMotionState();
+    Object::freeMotionState(b->getMotionState());
     delete b;
   }
   if (!keptBody)
@@ -787,7 +817,7 @@ void Object::deleteOwnShape(bool motionStateToo) {
   shape = nullptr;
   _shapeFromLua = false;
   if (motionStateToo && body != nullptr && _ownsBody && body->getMotionState()) {
-    delete body->getMotionState();
+    Object::freeMotionState(body->getMotionState());
     body->setMotionState(nullptr);
   }
 }
@@ -965,8 +995,7 @@ void Object::setPosition(btScalar x, btScalar y, btScalar z) {
     }
     body->getMotionState()->getWorldTransform(trans);
     trans.setOrigin(btVector3(x, y, z));
-    delete body->getMotionState();
-    body->setMotionState(new btDefaultMotionState(trans));
+    replaceMotionState(body, trans);
   }
 }
 
@@ -987,8 +1016,7 @@ void Object::setRotation(const btVector3 &axis, btScalar angle) {
     rot = trans.getRotation();
     rot.setRotation(axis, angle);
     trans.setRotation(rot);
-    delete body->getMotionState();
-    body->setMotionState(new btDefaultMotionState(trans));
+    replaceMotionState(body, trans);
   }
 }
 
@@ -997,8 +1025,7 @@ void Object::setRotation(const btQuaternion &r) {
     btTransform trans;
     body->getMotionState()->getWorldTransform(trans);
     trans.setRotation(r);
-    delete body->getMotionState();
-    body->setMotionState(new btDefaultMotionState(trans));
+    replaceMotionState(body, trans);
   }
 }
 
@@ -1013,8 +1040,7 @@ btQuaternion Object::getRotation() const {
 
 void Object::setTransform(const btTransform &trans) {
   if (body != nullptr) {
-    delete body->getMotionState();
-    body->setMotionState(new btDefaultMotionState(trans));
+    replaceMotionState(body, trans);
   }
 }
 

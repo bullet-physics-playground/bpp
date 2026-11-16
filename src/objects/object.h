@@ -435,6 +435,17 @@ public:
    */
   void takeMotionStates(QSet<btMotionState *> &states);
 
+  /**
+   * @brief Moves into @p states the motion states bpp made (obj.pos,
+   * obj.trans) for script-made bodies whose objects have
+   * gone: C++ owns them, and the body, Lua's, never frees its motion state.
+   * Viewer::closeScript() frees them with the rest.
+   */
+  static void takeOrphanMotionStates(QSet<btMotionState *> &states);
+
+  /// Deletes a body's motion state (null: nothing), one of those above too.
+  static void freeMotionState(btMotionState *m);
+
   /// Every object alive now, the ones Lua owns too (for takeMotionStates()).
   static const QSet<Object *> &live();
 
