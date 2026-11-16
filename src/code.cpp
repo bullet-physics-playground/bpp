@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QSaveFile>
 #include <QSet>
 #include <QStandardItemModel>
 #include <QTextBrowser>
@@ -252,15 +253,23 @@ bool CodeEditor::saveAs(QString filename) {
       return false;
   }
 
-  QFile file(filename);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+  // (QSaveFile: the script goes to a temporary file, put in the old one's
+  // place only once all of it is written. Writing over the file itself
+  // emptied it first, and a full disk left part of the script, reported
+  // as saved.)
+  QSaveFile file(filename);
+  bool written = file.open(QIODevice::WriteOnly);
+  if (written) {
+    QTextStream os(&file);
+    os << toPlainText();
+    os.flush();
+    written = os.status() == QTextStream::Ok && file.commit();
+  }
+  if (!written) {
     QMessageBox::warning(this, tr("Application error"),
-                         tr("Cannot write file %1\n").arg(filename));
+                         tr("Cannot write file %1.\nThe file on disk is as it was.").arg(filename));
     return false;
   }
-  QTextStream os(&file);
-  os << toPlainText();
-  file.close();
   script_filename = filename;
 
   emit scriptSaved();

@@ -12,6 +12,7 @@
 
 #include <QActionGroup>
 #include <QFile>
+#include <QSaveFile>
 #include <QProgressBar>
 #include <QDir>
 #include <QFileInfo>
@@ -618,11 +619,12 @@ void Gui::writePovraySetting(const QString &name, int value) {
   }
   content.replace(rx, QString("\\1%1\\2").arg(value));
 
-  QFile out(path);
+  QSaveFile out(path);   // (all or nothing, as a script's save)
   if (!out.open(QIODevice::WriteOnly | QIODevice::Text)) {
     return;
   }
   out.write(content.toUtf8());
+  out.commit();
 }
 
 void Gui::updateRecentFileActions() {
