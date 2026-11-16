@@ -82,6 +82,10 @@ function S.run(opts)
   end
 
   local function draw()
+    -- (not part way through setup(): a scene's build may set its own
+    -- parameters, and onParamChanged then draws before the bodies have
+    -- spheres -- on R, on Restart, or a slider that rebuilds)
+    if #objs < #model.ps then return end
     for i, p in ipairs(model.ps) do
       objs[i].pos = P(p.x or 0, p.y or 0, Z(p))
     end
