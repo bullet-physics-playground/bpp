@@ -412,14 +412,10 @@ jobs:
   # in, and the unit tests and the smoke run, as on Windows (the other
   # suites' expected files are made on Linux). Homebrew's Lua is 5.4, where
   # Linux and Windows have 5.1, as the release's disk images do.
-  # continue-on-error while this job is new, as the Windows job was: a
-  # failure here shows on the job but leaves the run green. Drop it once
-  # the job has passed for a while.
   test-macos:
     name: macOS build (Apple Silicon)
     runs-on: macos-15
     timeout-minutes: 90
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6
