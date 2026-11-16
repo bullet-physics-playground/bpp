@@ -1,4 +1,5 @@
 #include "scriptkeys.h"
+#include "luahome.h"
 
 #include <QDebug>
 #include <QKeyEvent>
@@ -31,7 +32,7 @@ QString luaKeyName(const QKeyEvent *e) {
 
 void ScriptKeys::setOnKey(const luabind::object &fn) {
   if (luabind::type(fn) == LUA_TFUNCTION) {
-    _onKey = fn;
+    _onKey = luaHome(fn);
   }
 }
 

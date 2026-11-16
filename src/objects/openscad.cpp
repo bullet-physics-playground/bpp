@@ -19,6 +19,10 @@
 #include <QStatusBar>
 #include <QTemporaryFile>
 #include <QApplication>
+#include <QHash>
+#include <QSet>
+#include <QTextStream>
+#include <QThread>
 
 #include "appenv.h"
 
@@ -77,44 +81,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
 
     QStringList args;
 
-    // (bpp's own store: a bare QSettings names no organization and reads
-    // another, so the executable set in the preferences went unseen)
-    QScopedPointer<QSettings> s(newSettings());
-    QString openscad;
-
-    openscad = s->value("openscad/executable").toString();
-    if (openscad.isEmpty() || !QFileInfo(openscad).exists()) {
-      QStringList candidates;
-#ifdef Q_OS_WIN
-      candidates << "C:\\Program Files\\OpenSCAD\\openscad.exe";
-#elif defined(Q_OS_LINUX)
-      candidates << "/usr/bin/openscad" << "/usr/local/bin/openscad";
-#else
-      candidates << "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"
-                 << "/opt/homebrew/bin/openscad"
-                 << "/usr/local/bin/openscad"
-                 << "/usr/bin/openscad";
-#endif
-      QString fromPath = QStandardPaths::findExecutable("openscad");
-      if (!fromPath.isEmpty())
-        candidates.prepend(fromPath);
-      for (const QString &c : candidates) {
-        QFileInfo fi(c);
-        if (fi.exists() && fi.isExecutable()) {
-          openscad = fi.absoluteFilePath();
-          break;
-        }
-      }
-    }
-    if (openscad.isEmpty()) {
-#ifdef Q_OS_WIN
-      openscad = "C:\\Program Files\\OpenSCAD\\openscad.exe";
-#elif defined(Q_OS_LINUX)
-      openscad = "/usr/bin/openscad";
-#else
-      openscad = "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD";
-#endif
-    }
+    QString openscad = executable();
 
     args << "-o";
     args << stlfile;
@@ -178,6 +145,178 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
   }
 }
 
+QString OpenSCAD::executable() {
+  // (bpp's own store: a bare QSettings names no organization and reads
+  // another, so the executable set in the preferences went unseen)
+  QScopedPointer<QSettings> s(newSettings());
+  QString openscad = s->value("openscad/executable").toString();
+  if (openscad.isEmpty() || !QFileInfo(openscad).exists()) {
+    QStringList candidates;
+#ifdef Q_OS_WIN
+    candidates << "C:\\Program Files\\OpenSCAD\\openscad.exe";
+#elif defined(Q_OS_LINUX)
+    candidates << "/usr/bin/openscad" << "/usr/local/bin/openscad";
+#else
+    candidates << "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"
+               << "/opt/homebrew/bin/openscad"
+               << "/usr/local/bin/openscad"
+               << "/usr/bin/openscad";
+#endif
+    QString fromPath = QStandardPaths::findExecutable("openscad");
+    if (!fromPath.isEmpty())
+      candidates.prepend(fromPath);
+    for (const QString &c : candidates) {
+      QFileInfo fi(c);
+      if (fi.exists() && fi.isExecutable()) {
+        openscad = fi.absoluteFilePath();
+        break;
+      }
+    }
+  }
+  if (openscad.isEmpty()) {
+#ifdef Q_OS_WIN
+    openscad = "C:\\Program Files\\OpenSCAD\\openscad.exe";
+#elif defined(Q_OS_LINUX)
+    openscad = "/usr/bin/openscad";
+#else
+    openscad = "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD";
+#endif
+  }
+
+  return openscad;
+}
+
+// ---------------------------------------------------------------------
+// Parts built in the background: openscadBuild(sdl) starts OpenSCAD on the
+// source if its mesh isn't in the cache yet, and says how it stands, so a
+// caller (Babbage's Hall, loading exhibits) can go on and come back for it.
+// A few run at once, one per spare core. Each writes to <hash>.part.stl,
+// renamed to <hash>.stl only once OpenSCAD has finished well, so a mesh
+// half written is never read. The OpenSCAD constructor then finds the mesh
+// in the cache and loads it at once.
+// ---------------------------------------------------------------------
+static bool s_background = true;
+void OpenSCAD::setBackgroundBuilds(bool on) { s_background = on; }
+
+namespace {
+struct ScadJob {
+  QString hash, scad, part, stl;
+};
+
+class ScadBuilds : public QObject {
+public:
+  static ScadBuilds &instance() {
+    static ScadBuilds b;
+    return b;
+  }
+
+  QString status(const QString &sdl) {
+    QCryptographicHash hashAlgo(QCryptographicHash::Sha1);
+    hashAlgo.addData(sdl.toUtf8());
+    const QString hash = hashAlgo.result().toHex();
+    const QString dir = userCacheDir();
+    const QString stl = dir + QDir::separator() + hash + ".stl";
+    if (QFileInfo(stl).isFile())
+      return "ready";
+    if (m_failed.contains(hash))
+      return "failed: " + m_failed.value(hash);
+    if (m_running.contains(hash) || m_queued.contains(hash))
+      return "building";
+    QDir().mkpath(dir);
+    ScadJob job;
+    job.hash = hash;
+    job.stl = stl;
+    job.scad = dir + QDir::separator() + hash + ".scad";
+    job.part = dir + QDir::separator() + hash + ".part.stl";
+    QFile f(job.scad);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
+      return "failed: could not write " + job.scad;
+    QTextStream out(&f);
+    out << sdl;
+    f.close();
+    if (!s_background) {
+      // (a run with no event loop, as bpp -n: built now, waited for, as
+      // the OpenSCAD constructor does; its frames don't run on meanwhile)
+      QProcess p;
+      OpenSCAD::showProgressBar();
+      p.start(OpenSCAD::executable(), QStringList() << "-o" << job.part << job.scad);
+      bool ran = p.waitForFinished(-1);
+      OpenSCAD::hideProgressBar();
+      return finish(job, ran && p.exitStatus() == QProcess::NormalExit ? p.exitCode() : -1,
+                    ran ? p.exitStatus() : QProcess::CrashExit, p.readAllStandardError());
+    }
+    m_queue.append(job);
+    m_queued.insert(hash);
+    startNext();
+    return "building";
+  }
+
+  int count() const { return m_running.size() + m_queue.size(); }
+
+private:
+  QHash<QString, QString> m_failed;      // hash -> what OpenSCAD said
+  QHash<QString, QProcess *> m_running;  // hash -> its process
+  QList<ScadJob> m_queue;
+  QSet<QString> m_queued;
+
+  static int most() { return qMax(1, QThread::idealThreadCount() - 1); }
+
+  void startNext() {
+    while (m_running.size() < most() && !m_queue.isEmpty()) {
+      const ScadJob job = m_queue.takeFirst();
+      m_queued.remove(job.hash);
+      QProcess *p = new QProcess(this);
+      m_running.insert(job.hash, p);
+      OpenSCAD::showProgressBar();
+      connect(p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
+              [this, p, job](int code, QProcess::ExitStatus st) { done(p, job, code, st); });
+      connect(p, &QProcess::errorOccurred, this, [this, p, job](QProcess::ProcessError e) {
+        if (e == QProcess::FailedToStart) done(p, job, -1, QProcess::CrashExit);
+      });
+      qDebug() << "openscad, in the background:" << job.scad;
+      p->start(OpenSCAD::executable(), QStringList() << "-o" << job.part << job.scad);
+    }
+  }
+
+  // (the mesh renamed into place, or what went wrong kept; how it stands)
+  QString finish(const ScadJob &job, int code, QProcess::ExitStatus st, const QByteArray &stderrText) {
+    if (st == QProcess::NormalExit && code == 0 && QFileInfo(job.part).isFile()) {
+      QFile::remove(job.stl);
+      if (QFile::rename(job.part, job.stl))
+        return "ready";
+      if (QFileInfo(job.stl).isFile()) {   // (another bpp on the same cache built it too)
+        QFile::remove(job.part);
+        return "ready";
+      }
+      m_failed.insert(job.hash, "could not rename " + job.part);
+    } else if (QFileInfo(job.stl).isFile()) {
+      return "ready";                      // (as above, and its part file went with it)
+    } else {
+      QString err = QString::fromLocal8Bit(stderrText).trimmed();
+      if (err.isEmpty())
+        err = st == QProcess::CrashExit ? QString("OpenSCAD did not run (%1)").arg(OpenSCAD::executable())
+                                        : QString("OpenSCAD exited with code %1").arg(code);
+      m_failed.insert(job.hash, err);
+      QFile::remove(job.part);
+    }
+    return "failed: " + m_failed.value(job.hash);
+  }
+
+  void done(QProcess *p, const ScadJob &job, int code, QProcess::ExitStatus st) {
+    if (!m_running.contains(job.hash) || m_running.value(job.hash) != p)
+      return;  // (already counted: a failure to start also finishes)
+    m_running.remove(job.hash);
+    OpenSCAD::hideProgressBar();
+    finish(job, code, st, p->readAllStandardError());
+    p->deleteLater();
+    startNext();
+  }
+};
+}  // namespace
+
+QString openscadBuild(QString sdl) { return ScadBuilds::instance().status(sdl); }
+int openscadBuilds() { return ScadBuilds::instance().count(); }
+
 void OpenSCAD::showProgressBar() {
   s_runningCount++;
   QMainWindow *mainWindow = nullptr;
@@ -226,7 +365,9 @@ void OpenSCAD::luaBind(lua_State *s) {
                 .def(constructor<QString, btScalar>(), adopt(result))
                 .def(constructor<QString, btScalar, bool>(), adopt(result))
                 .def(tostring(const_self))
-                .def(const_self == const_self)];
+                .def(const_self == const_self),
+            def("openscadBuild", &openscadBuild),
+            def("openscadBuilds", &openscadBuilds)];
 }
 
 QString OpenSCAD::toString() const { return QString("OpenSCAD"); }

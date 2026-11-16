@@ -30,6 +30,7 @@
 #include "gui.h"
 #include "prefs.h"
 #include "viewer.h"
+#include "objects/openscad.h"
 
 #include "glutils.h"
 
@@ -417,6 +418,9 @@ int main(int argc, char **argv) {
 
     v->setSavePOV(parser.isSet("export"));
 
+    // (no event loop here: parts asked for in the background are built at
+    // once, as the frames below don't wait for them)
+    OpenSCAD::setBackgroundBuilds(false);
     bool parsed = v->parse(txt);
     v->startSim();
 

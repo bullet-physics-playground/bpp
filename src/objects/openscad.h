@@ -51,6 +51,25 @@ public:
   virtual QString toString() const;
 
   /**
+   * @brief The OpenSCAD program to run: the one set in the preferences if
+   *        it exists, else the first found on the PATH or in the usual places.
+   */
+  static QString executable();
+
+  /**
+   * @brief Whether openscadBuild() builds in the background (the default,
+   *        with the window's event loop running) or at once, waiting for it
+   *        (a run with no event loop, as @c bpp -n, whose frames would
+   *        otherwise run on while parts are built).
+   */
+  static void setBackgroundBuilds(bool on);
+
+  /// Shows the busy indicator while OpenSCAD runs (counted: one per run).
+  static void showProgressBar();
+  /// Hides it once the last run has finished.
+  static void hideProgressBar();
+
+  /**
    * @brief Reports whether the geometry has been generated and loaded.
    * @return True once OpenSCAD has finished and the STL was read.
    */
@@ -63,16 +82,6 @@ signals:
   void stlReady();
 
 private:
-  /**
-   * @brief Shows the busy indicator while OpenSCAD runs.
-   */
-  void showProgressBar();
-
-  /**
-   * @brief Hides the busy indicator once OpenSCAD has finished.
-   */
-  void hideProgressBar();
-
   QString sdl;            ///< The OpenSCAD source to compile.
   QProcess *m_process;    ///< The running @c openscad process.
   QString m_stlfile;      ///< Path of the STL it writes.

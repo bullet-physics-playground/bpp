@@ -8,6 +8,7 @@
 #endif
 
 #include "object.h"
+#include "luahome.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -770,7 +771,7 @@ void Object::keepLua(LuaKeepSlot slot, const luabind::object &o) {
   if (!o.is_valid() || luabind::type(o) == LUA_TNIL)
     _luaKeep[slot] = luabind::object();
   else
-    _luaKeep[slot] = o;
+    _luaKeep[slot] = luaHome(o);       // (held from the main thread: luahome.h)
 }
 
 void Object::retireLua(LuaKeepSlot slot) {
@@ -1068,7 +1069,7 @@ void Object::render(btVector3 &minaabb, btVector3 &maxaabb) {
 
 void Object::setRenderFunction(const luabind::object &fn) {
   if (luabind::type(fn) == LUA_TFUNCTION) {
-    _cb_render = fn;
+    _cb_render = luaHome(fn);
   }
 }
 

@@ -342,6 +342,26 @@ there, in `release/`, or on the path; or set `BPP`.
   half-edited (it passed, and rewrote the sizes file). Run check-all again
   on the finished code before sending.
 
+- **A value C++ keeps remembers the Lua thread it was made on** (luabind):
+  made in a coroutine, it was let go through a thread gone by then, and
+  bpp crashed closing the script (`Object::preDestructor`). `luaHome()`
+  (`src/luahome.h`) gives the value held from the main thread; every place
+  that keeps a script's value uses it (an object's body and render
+  function, sliders' callbacks, hover, keys).
+- **Lua 5.1 can't yield across a C call**, `pcall` included (bpp runs 5.1,
+  not LuaJIT). The hall's loads are coroutines, so while an exhibit loads
+  its sandbox's `pcall` and `xpcall` run the call as a coroutine of their
+  own and pass any wait on up; the sandbox's `dofile` and `require` were
+  already plain Lua.
+- **`bpp -n` never returns to Qt's event loop** (`main.cpp` calls
+  `animate()` in a loop), so nothing there hears that a process has
+  finished; and its frames cost nothing, so a fixed number of them would
+  run out while parts built. There `openscadBuild` builds at once.
+- **Waiting for a background command: look for what is on its command
+  line.** A wait for `pgrep -f cold3`, a word that was only in the
+  environment, returned at once, and a trace read mid-run looked like a
+  crash; a second bpp then started on the same cache raced the first to
+  rename the same parts (now harmless: a part another bpp finished counts).
 - **bpp sizes its view to everything in the scene** (`computeBoundingBox`,
   every object, wherever it is drawn). The hall's first try at an
   exhibit's ways put the ways not shown a kilometre under the floor: the
@@ -806,6 +826,20 @@ there, in `release/`, or on the path; or set `BPP`.
   has three pages, one of history (the 1946 Tokyo contest, checked). No
   dots on its beam: a dot every third rod is the soroban's. Not done:
   subtraction, multiplication, division.
+- **Done (2026-11-15, evening): parts built in the background, the hall
+  going on.** William found getting into the hall slow; the exhibits never
+  ran until visited, but OpenSCAD held the window still while it built
+  parts (`waitForFinished`). bpp gains `openscadBuild(sdl)` ("ready",
+  "building" or "failed: ..."; several OpenSCADs at once, one per spare
+  core; each writes `<hash>.part.stl`, renamed once done) and
+  `openscadBuilds()`. The hall loads each exhibit as a coroutine (up to
+  three at once): its `OpenSCAD` asks for the part and yields until it is
+  built, then takes it from the cache. From an empty cache, in a window:
+  all 297 parts in 7 minutes, the hall drawing every second (3 to 9
+  frames a second in software, no gap over 1.6 s); before, it stood still
+  for each part. Headless runs unchanged (built at once). Two more of
+  William's three ideas wait: an exhibit's other ways loaded only once you
+  get there, and exhibits loaded only as you walk up.
 - **Next (William, 2026-11-15): the slide rule (east 1), then Napier's
   bones (west 2) and the combination lock (east 2)**, each a simple
   hand-worked piece; their covered bays and placards are there. Then the

@@ -6,6 +6,7 @@
  *        closeScript, removeLeftoverBodies).
  */
 
+#include "luahome.h"
 #include "viewer.h"
 #include "viewer_p.h"
 
@@ -249,6 +250,8 @@ void Viewer::openLua() {
 #else
   L = luaL_newstate();
 #endif
+
+  mainLuaState() = L;   // (values C++ keeps are held from this thread: luahome.h)
 
   // open all standard Lua libs
   luaL_openlibs(L);

@@ -1,4 +1,5 @@
 #include "hover.h"
+#include "luahome.h"
 
 #include <QApplication>
 #include <QToolTip>
@@ -16,7 +17,7 @@ Hover::Hover(QWidget *view) : _view(view) {}
 
 void Hover::setCallback(const luabind::object &fn) {
   if (luabind::type(fn) == LUA_TFUNCTION) {
-    _cb = fn;
+    _cb = luaHome(fn);
   } else {
     clear();
   }

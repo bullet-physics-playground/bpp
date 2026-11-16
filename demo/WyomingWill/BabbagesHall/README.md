@@ -86,15 +86,23 @@ The machinery is Euler's Gallery's, unchanged; the building around it is new.
 - **Files.** An exhibit finds its files from its own folder.
   `hallPath(name)` gives a file's path from bpp's folder; the exhibits use it
   to hand OpenSCAD the full path to their parts files.
-- **Loading, a bit at a time.** The hall itself is shown first, with a
-  sheet over each exhibit's bay; the exhibits are then loaded one a frame,
-  the one you're at (or walking to) first, and each sheet comes off as its
-  exhibit arrives. The status bar says which one is loading. Walk to a bay
-  that is still being set up and you see it from the aisle; it comes to life
-  when it has loaded. Loading is slow only while bpp makes an exhibit's
-  OpenSCAD parts, the first time and after its files change (here: a minute
-  and a half for the first five from an empty cache, under two seconds cached).
-  Each load still holds up the frames while it runs.
+- **Loading, a bit at a time, and parts built in the background.** The
+  hall itself is shown first, with a sheet over each exhibit's bay; the
+  exhibits are then loaded, the one you're at (or walking to) first, up to
+  three at once, and each sheet comes off as its exhibit arrives. The status
+  bar says which are loading and how many parts OpenSCAD is building. Walk
+  to a bay that is still being set up and you see it from the aisle; it
+  comes to life when it has loaded. Loading is slow only while OpenSCAD
+  makes an exhibit's parts, the first time and after its files change; with
+  a bpp that has `openscadBuild` the hall goes on meanwhile (you can walk,
+  and the exhibit you're at runs): each load is a coroutine, and when its
+  script asks for a part not built yet the hall has bpp build it in the
+  background (several at once, one per spare core) and the load waits
+  there. From an empty cache, here, all 297 parts took 7 minutes and the
+  hall drew every second of it; cached, the whole hall loads in 5 seconds.
+  A run with no window (`bpp -n`) builds each part at once, as before, so
+  its frames don't run on meanwhile. `HALL_TRACE=file` writes a line a
+  second: the frames drawn and the status.
 - **Requirement:** a bpp with separate worlds (`v:newWorld`).
 - **POV-Ray.** The hall renders in POV-Ray (File, or `bpp -e`) as on the
   screen, with a bpp that exports each object moved to where its world is

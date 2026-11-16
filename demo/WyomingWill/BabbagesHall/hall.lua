@@ -563,6 +563,44 @@ local function makeExhibit(e, bay)
     end
     return require(mod)
   end
+  -- (its parts built in the background while it loads: OpenSCAD asks bpp
+  -- to build the part if it isn't in the cache yet, and the load waits, its
+  -- coroutine yielding, while the hall goes on; then the part comes from the
+  -- cache at once. Outside its load, or with a bpp that can't, as before.)
+  if openscadBuild then
+    env.OpenSCAD = function(text, ...)
+      if loading == g and coroutine.running() then
+        while openscadBuild(text) == "building" do
+          g.waitingFor = (g.waitingFor or 0) + 1
+          coroutine.yield()
+        end
+      end
+      return OpenSCAD(text, ...)       -- (ready: from the cache; failed: it says why)
+    end
+    -- (Lua 5.1 can't wait inside a pcall: while it loads, its pcall runs the
+    -- call as a coroutine of its own, passing any wait on up)
+    local function copcall(f, ...)
+      local co = coroutine.create(f)
+      local r = { coroutine.resume(co, ...) }
+      while coroutine.status(co) ~= "dead" do
+        r = { coroutine.resume(co, coroutine.yield(unpack(r, 2))) }
+      end
+      if r[1] then return true, unpack(r, 2) end
+      return false, r[2]
+    end
+    env.pcall = function(f, ...)
+      if loading == g and coroutine.running() then return copcall(f, ...) end
+      return pcall(f, ...)
+    end
+    env.xpcall = function(f, h)
+      if loading == g and coroutine.running() then
+        local r = { copcall(f) }
+        if r[1] then return unpack(r) end
+        return false, h(r[2])
+      end
+      return xpcall(f, h)
+    end
+  end
   g.env = env
   g.load = function() env.dofile(e.file) end
   return g
@@ -1046,15 +1084,32 @@ local function showMode(g)
   showPage(g, 1)
 end
 
--- loadExhibit(g): its script, into its sandbox and world, as on its own
-local function loadExhibit(g)
-  local e = g.e
+-- Loading an exhibit: its script, into its sandbox and world, as on its
+-- own. It runs as a coroutine, so that it can wait for its parts while the
+-- hall goes on (see OpenSCAD in makeExhibit); resumeLoad takes it on to
+-- its next part not built yet, or to its end, and says when it has ended.
+local finishLoad
+local function startLoad(g)
   g.pending = nil
+  g.t0 = realMs()
+  g.co = coroutine.create(function() g.load() end)
+end
+local function resumeLoad(g)
   loading = g
   setRandom(g)
-  local t0 = realMs()
-  local ok, err = inWorld(g, g.load)
+  local was = realV:currentWorld()
+  realV:useWorld(g.world)
+  local ok, err = coroutine.resume(g.co)
+  realV:useWorld(was)
   loading = nil
+  if ok and coroutine.status(g.co) ~= "dead" then return false end    -- (waiting for a part)
+  g.co = nil
+  finishLoad(g, ok, err)
+  return true
+end
+finishLoad = function(g, ok, err)
+  local e = g.e
+  local t0 = g.t0
   -- the sheet off its bay
   do
     local was = realV:currentWorld()
@@ -1606,19 +1661,53 @@ local function nextToLoad()
     if s.pending then return s end
   end
 end
-loadSome = function()
-  hallFrames = hallFrames + 1
-  if hallFrames < 2 then return end
-  local g = nextToLoad()
-  if not g then return end
-  local n = 0
-  for _, x in ipairs(all) do if not x.pending then n = n + 1 end end
-  status(string.format("Setting up %s (%d of %d) ...", g.name, n + 1, #all))
-  loadExhibit(g)
+-- (up to MAX_LOADS exhibits loading at once, their parts building side by
+-- side; one more started each frame; the one you're at always started)
+local MAX_LOADS, underWay, allShown = 3, {}, false
+local function loaded(g)
   lastShown = nil                                  -- (loading isn't a freeze)
   if here == g then goTo(g, not FLY_ON, steppedIn == g)   -- (you're there: it comes to life)
   elseif active then setRandom(active) end
-  if not nextToLoad() then
+end
+-- (HALL_TRACE=file: a line a second, the frames drawn and the status, to
+-- see how the hall keeps up while it sets up; in a window, as headless
+-- runs print)
+local TRACE = os.getenv("HALL_TRACE") and io.open(os.getenv("HALL_TRACE"), "w")
+local traceT0, traceLast, traceFrames = realMs(), 0, 0
+loadSome = function()
+  hallFrames = hallFrames + 1
+  if TRACE then
+    traceFrames = traceFrames + 1
+    local t = (realMs() - traceT0) / 1000
+    if t - traceLast >= 1 then
+      TRACE:write(string.format("%6.1f s  %3d frames  %s\n", t, traceFrames, allShown and "(all set up)" or hallStatus))
+      TRACE:flush()
+      traceLast, traceFrames = t, 0
+    end
+  end
+  if hallFrames < 2 or allShown then return end
+  -- those under way, on as far as they can go
+  local still = {}
+  for _, g in ipairs(underWay) do
+    if resumeLoad(g) then loaded(g) else still[#still + 1] = g end
+  end
+  underWay = still
+  -- one more, if there's room (or if it's the one you're at)
+  local g = nextToLoad()
+  if g and (#underWay < MAX_LOADS or g == here) then
+    startLoad(g)
+    if resumeLoad(g) then loaded(g) else underWay[#underWay + 1] = g end
+  end
+  local n = 0
+  for _, x in ipairs(all) do if x.ready or x.failed then n = n + 1 end end
+  if #underWay > 0 or nextToLoad() then
+    local names = {}
+    for _, x in ipairs(underWay) do names[#names + 1] = x.name end
+    local building = openscadBuilds and openscadBuilds() or 0
+    status(string.format("Setting up %s (%d of %d ready)%s", #names > 0 and table.concat(names, ", ") or "the exhibits",
+                         n, #all, building > 0 and string.format("; OpenSCAD building %d part%s", building, building == 1 and "" or "s") or ""))
+  else
+    allShown = true
     status("")
     if here.isView then realV:setHelpText(hallHelp(here)) end
     print(string.format("HALL: %d exhibits on show, %d in preparation, %d empty bays",

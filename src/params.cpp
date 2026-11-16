@@ -1,4 +1,5 @@
 #include "params.h"
+#include "luahome.h"
 
 #include <lua.hpp>
 #include <luabind/luabind.hpp>
@@ -7,7 +8,7 @@
 
 void Params::setOnChanged(const luabind::object &fn) {
   if (luabind::type(fn) == LUA_TFUNCTION) {
-    _onChanged = fn;
+    _onChanged = luaHome(fn);
   }
 }
 
@@ -24,7 +25,7 @@ void Params::add(lua_State *L, int frameNum, const QString &name, const QVariant
     ParamInfo info;
     info.value = value;
     info.isButton = true;
-    info.buttonCallback = qvariant_cast<luabind::object>(value);
+    info.buttonCallback = luaHome(qvariant_cast<luabind::object>(value));
     info.comment = comment;
     _info[name] = info;
 
