@@ -736,7 +736,7 @@ void Gui::createDock() {
   paramsTable = new QTableWidget(0, 2, this);
   paramsTable->setHorizontalHeaderLabels(QStringList() << "Name" << "Value");
   paramsTable->horizontalHeader()->setStretchLastSection(true);
-  paramsTable->setItemDelegate(new QItemDelegate());
+  paramsTable->setItemDelegate(new QItemDelegate(paramsTable));   // (its parent frees it: a view does not)
   dw5->setWidget(paramsTable);
   addDockWidget(Qt::RightDockWidgetArea, dw5);
   dockParams = dw5;
