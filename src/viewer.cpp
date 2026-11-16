@@ -1569,11 +1569,17 @@ void Viewer::savePOV(bool force) {
   // (No dialog for a directory that cannot be created: it would run an event
   // loop inside animate(), with the mutex held, that nobody can answer in a
   // headless run, and the animation timer firing in it blocks on that mutex.)
-  auto exportFailed = [this](const QString &dir) {
-    emitScriptOutput(tr("Unable to create directory %1.").arg(dir));
+  auto failedWith = [this](const QString &message) {
+    emitScriptOutput(message);
     _savePOV = false;
     _povExportFailed = true;
     emit POVStateChanged(false);
+  };
+  auto exportFailed = [&](const QString &dir) {
+    failedWith(tr("Unable to create directory %1.").arg(dir));
+  };
+  auto unwritable = [&](const QString &path) {
+    failedWith(tr("Unable to write %1.").arg(path));
   };
 
   if (!pwdDir.exists(exportDir)) {
@@ -1610,7 +1616,10 @@ void Viewer::savePOV(bool force) {
 
   const QString byline = PovExport::byline();
 
-  PovExport::writeIni(fileINI, byline, sceneName, _firstFrame, _frameNum);
+  if (!PovExport::writeIni(fileINI, byline, sceneName, _firstFrame, _frameNum)) {
+    unwritable(fileINI);
+    return;
+  }
 
   PovExport::Scene scene;
   scene.radiosity = _povRadiosityEnabled;
@@ -1621,12 +1630,19 @@ void Viewer::savePOV(bool force) {
   scene.light1 = _light1;
   scene.diffuse = _gl_diffuse;
   scene.settingsInc = _pov_settings_inc;
-  PovExport::writeMain(fileMain, byline, scene);
+  if (!PovExport::writeMain(fileMain, byline, scene)) {
+    unwritable(fileMain);
+    return;
+  }
 
-  PovExport::writeMakefile(sceneDir);
+  if (!PovExport::writeMakefile(sceneDir)) {
+    unwritable(sceneDir + QDir::separator() + "GNUmakefile");
+    return;
+  }
 
   _decorations.update();   // (headless runs export without drawing)
-  PovExport::writeFrame(file, byline, mPreSDL, _cam, camera(), *_objects, mPostSDL, sceneDir);
+  if (!PovExport::writeFrame(file, byline, mPreSDL, _cam, camera(), *_objects, mPostSDL, sceneDir))
+    unwritable(file);
 }
 
 void Viewer::setCBPreStart(const luabind::object &fn) {

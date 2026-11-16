@@ -734,6 +734,28 @@ def suite_render(ctx):
     print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "quick.lua", r.seconds))
     for w in why:
         print("         " + w)
+    return int(bool(why)) + render_disk_full(ctx, env)
+
+
+def render_disk_full(ctx, env):
+    """An export (bpp -e) whose second frame can't be written -- its .inc a
+    link to /dev/full, as a full disk -- must say so, stop and fail the run,
+    not go on and exit 0 with the frame lost."""
+    wd = ctx.workdir("render-full")
+    export = os.path.join(wd, "export", "quick")
+    os.makedirs(export)
+    os.symlink("/dev/full", os.path.join(export, "00002.inc"))
+    r = run_bpp(ctx.bpp, ["-f", "quick.lua", "-n", "4", "-e"], wd, 120, RENDER, env)
+    why = []
+    if r.rc != 1:
+        why.append("exit code %s, not 1" % r.rc)
+    if not any("Unable to write" in l and "00002.inc" in l for l in r.lines()):
+        why.append("no 'Unable to write ...00002.inc'")
+    if os.path.exists(os.path.join(export, "00003.inc")):
+        why.append("went on to export frame 3")
+    print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "quick.lua -e, disk full", r.seconds))
+    for w in why:
+        print("         " + w)
     return int(bool(why))
 
 

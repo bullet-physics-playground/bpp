@@ -24,6 +24,9 @@ class Camera;
  */
 namespace PovExport {
 
+// (Each write... below returns false when its file couldn't be written in
+// full: not opened, or the disk full.)
+
 /// "yyyy-MM-dd hh:mm:ss by USER", for the header comment of each file
 /// (computed once per export, so all its files agree).
 QString byline();
@@ -40,7 +43,7 @@ void copySettingsIncludes(const QString &settingsInc, const QString &startupDir,
 
 /// Writes the animation's @c .ini: frames @p firstFrame to @p lastFrame of
 /// @p sceneName, with named sections for common render sizes.
-void writeIni(const QString &path, const QString &byline,
+bool writeIni(const QString &path, const QString &byline,
               const QString &sceneName, int firstFrame, int lastFrame);
 
 /// What the main @c .pov file of an export holds.
@@ -56,7 +59,7 @@ struct Scene {
 };
 
 /// Writes the main @c .pov file, which includes the frame of the clock.
-void writeMain(const QString &path, const QString &byline, const Scene &scene);
+bool writeMain(const QString &path, const QString &byline, const Scene &scene);
 
 /**
  * @brief Writes one frame's @c .inc: the scene's pre-SDL, the camera, every
@@ -67,14 +70,14 @@ void writeMain(const QString &path, const QString &byline, const Scene &scene);
  * @param sceneDir The scene directory (meshes and terrains write their data
  *                 files there).
  */
-void writeFrame(const QString &path, const QString &byline,
+bool writeFrame(const QString &path, const QString &byline,
                 const QString &preSDL, Cam *cam, qglviewer::Camera *view,
                 const ObjectSet &objects, const QString &postSDL,
                 const QString &sceneDir);
 
 /// Writes the scene directory's @c GNUmakefile, unless it has one already
 /// (it may have been edited).
-void writeMakefile(const QString &sceneDir);
+bool writeMakefile(const QString &sceneDir);
 
 } // namespace PovExport
 
