@@ -168,9 +168,7 @@ void Viewer::luaBind(lua_State *s) {
            .def("addConstraint", &Viewer::addConstraintLua)
            .def("removeConstraint", &Viewer::removeConstraintLua)
            .def("createVehicleRaycaster", &Viewer::createVehicleRaycaster)
-           .def("addVehicle",
-                (void(Viewer::*)(btRaycastVehicle *)) & Viewer::addVehicle,
-                adopt(_2))
+           .def("addVehicle", &Viewer::addVehicleLua)
            .def("addShortcut", &Viewer::addShortcut)
            .def("removeShortcut", &Viewer::removeShortcut)
            .def("preStart",

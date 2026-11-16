@@ -793,6 +793,15 @@ public:
   void addVehicle(btRaycastVehicle *veh);
 
   /**
+   * @brief v:addVehicle(veh): adds a script's vehicle, which bpp then owns.
+   *
+   * Adding one already in the world does nothing; nil is an error.
+   *
+   * @param handle The script's handle to the vehicle.
+   */
+  void addVehicleLua(const luabind::object &handle);
+
+  /**
    * @brief Removes a constraint from the dynamics world.
    *
    * The constraint itself is not deleted; ownership passes back to the caller.

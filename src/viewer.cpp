@@ -625,6 +625,24 @@ btVehicleRaycaster *Viewer::createVehicleRaycaster() {
   return raycaster;
 }
 
+// (taken from Lua once, as a constraint is: see constraintOf above. nil
+// went into the world as a null vehicle, which crashed the next step.)
+void Viewer::addVehicleLua(const luabind::object &handle) {
+  btRaycastVehicle *veh = nullptr;
+  if (handle.is_valid() && luabind::type(handle) == LUA_TUSERDATA)
+    veh = luabind::object_cast<btRaycastVehicle *>(handle);
+  if (veh == nullptr)
+    luaFail(L, "addVehicle: needs a vehicle");
+  if (_raycast_vehicles->contains(veh))
+    return;
+  handle.push(L);
+  luabind::detail::object_rep *rep = luabind::detail::get_instance(L, -1);
+  if (rep != nullptr)
+    rep->release();
+  lua_pop(L, 1);
+  addVehicle(veh);
+}
+
 void Viewer::addVehicle(btRaycastVehicle *veh) {
   dynamicsWorld->addVehicle(veh);
   _raycast_vehicles->insert(veh);

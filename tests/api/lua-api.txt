@@ -1684,7 +1684,7 @@ class Viewer
   addParam: void addParam(Viewer&,custom [QString] const&,custom [float] const&,custom [float] const&,custom [float] const&,custom [float] const&)
   addParam: void addParam(Viewer&,custom [QString] const&,custom [float] const&,custom [float] const&,custom [float] const&,custom [float] const&,custom [QString] const&)
   addShortcut: void addShortcut(Viewer&,custom [QString] const&,luabind::object const&)
-  addVehicle: void addVehicle(Viewer&,btRaycastVehicle*)
+  addVehicle: void addVehicle(Viewer&,luabind::object const&)
   ask: int ask(Viewer&,custom [QString] const&,custom [QString] const&,luabind::object const&)
   ask: int ask(Viewer&,custom [QString] const&,custom [QString] const&,luabind::object const&,custom [QString] const&)
   attach: void attach(Viewer&,Object*,Object*)

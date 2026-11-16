@@ -98,6 +98,8 @@ public:
   explicit FindVisitor(Pred p) : pred(std::move(p)) {}
 
   bool Visiting(Object *obj) override {
+    if (obj == nullptr)
+      return true;   // (nil from a script: nothing to look at)
     if (pred(obj)) {
       found = obj;
       return false;  // stop traversal
@@ -122,6 +124,8 @@ public:
   StatisticsVisitor() = default;
 
   bool Visiting(Object *obj) override {
+    if (obj == nullptr)
+      return true;   // (nil from a script: nothing to count)
     ++total;
     const QString type = obj->toString();
     if (type.contains("Light", Qt::CaseInsensitive))
@@ -162,6 +166,8 @@ public:
   explicit FindObjectVisitor(const QString &namePattern) : namePattern(namePattern) {}
 
   bool Visiting(Object *obj) override {
+    if (obj == nullptr)
+      return true;   // (nil from a script: nothing to look at)
     if (obj->toString().contains(namePattern, Qt::CaseInsensitive)) {
       found = obj;
       return false;  // stop traversal
