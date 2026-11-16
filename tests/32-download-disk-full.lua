@@ -18,8 +18,18 @@ local function check(name, ok, detail)
   end
 end
 
+-- (Not under ThreadSanitizer: Qt 5's QNetworkAccessManager starts its
+-- bearer-management thread and a D-Bus thread, which hand events over
+-- through Qt's own uninstrumented locking, and their stripped stacks can't
+-- be suppressed by name. The sanitizer job runs it.)
 local dir = os.getenv("BPP_USER_DIR")
 local full = io.open("/dev/full", "w")
+if os.getenv("TSAN_OPTIONS") then
+  if full then full:close() end
+  check("skipped under ThreadSanitizer", true)
+  print(string.format("\n%d passed, %d failed", pass, fail))
+  return
+end
 if dir == nil or dir == "" or full == nil then
   check("skipped (needs BPP_USER_DIR and /dev/full)", true)
   print(string.format("\n%d passed, %d failed", pass, fail))
