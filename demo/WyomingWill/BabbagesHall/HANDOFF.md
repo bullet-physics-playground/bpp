@@ -840,6 +840,24 @@ there, in `release/`, or on the path; or set `BPP`.
   for each part. Headless runs unchanged (built at once). Two more of
   William's three ideas wait: an exhibit's other ways loaded only once you
   get there, and exhibits loaded only as you walk up.
+- **Done (2026-11-16): the suanpan takes away and multiplies.** William
+  has an abacus and wanted to learn on it. The suanpan has three ways
+  (`SU_WAY`; Tab in the hall, each with its own lectern pages):
+  adding; taking away, the rules backward (the borrow first, as the
+  soroban handbooks teach it: the slate says the rule, the borrow is done,
+  then the rod's own beads; 2000 − 1 borrows through three rods); and
+  multiplying, the modern Japanese method as in Kojima (1954): the
+  multiplier on the left rods, the multiplicand to its right, each
+  two-digit product from the times table added k rods right of the
+  multiplicand's digit, that digit then cleared. Seven rods hold 99 × 99
+  or 9999 × 9; the rods are named A to G for it. `plan-test.lua` checks
+  all three against arithmetic (100,000 sums, 100,000 differences,
+  29,801 products: none wrong, all 26 rules each way). Both new tours
+  pass at every friction, finger speed and step rate tried, and on 40
+  random differences and 20 random products read from the beads.
+  check-all has four more lines (each way alone and in the hall). The 145
+  new slate pictures are saved with an 8-colour palette (a third the
+  size; the old ones untouched). Not done: division.
 - **Next (William, 2026-11-15): the slide rule (east 1), then Napier's
   bones (west 2) and the combination lock (east 2)**, each a simple
   hand-worked piece; their covered bays and placards are there. Then the

@@ -100,7 +100,13 @@ EXHIBITS = EXHIBITS or {
     about = "The suanpan, the Chinese abacus: a heaven bead counts 5 and an earth bead 1 when\n" ..
             "pushed to the beam; each rod holds a digit. A finger adds by the rules every pupil\n" ..
             "learned: direct, the five-complement, the ten-complement and its carry; the slate\n" ..
-            "shows each. 0-9: a number; Return: add it; C: clear; T: the tour." },
+            "shows each. 0-9: a number; Return: add it; C: clear; T: the tour.\n" ..
+            "Tab: taking away (the rules backward), then multiplying; PgDn turns its label's pages.",
+    modes = {
+      { key = "add", name = "the suanpan", card = "suanpan", env = { SU_WAY = "add" } },
+      { key = "subtract", name = "the suanpan: subtraction", card = "suanpan-subtract", env = { SU_WAY = "subtract" } },
+      { key = "multiply", name = "the suanpan: multiplication", card = "suanpan-multiply", env = { SU_WAY = "multiply" } },
+    } },
   { dir = "exhibits/SlideRule/", file = "slide-rule.lua", name = "the slide rule", label = "slide-rule",
     prefix = "Slide rule: ", floorY = -100,
     about = "The slide rule (1620s): scales of logarithms slid along each other multiply\n" ..

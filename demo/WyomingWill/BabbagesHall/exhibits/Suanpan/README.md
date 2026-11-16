@@ -21,18 +21,59 @@ rule it is using:
 | ten and five together | taking away 10 − a needs the heaven bead | +6 = 10 − 4, and −4 = −5 + 1: one earth bead up, the heaven bead up, carry 1 |
 
 A pupil learned these by heart: nobody works out 7 + 8 on an abacus. The
-rules are in `plan.lua`; checked against plain arithmetic on 120,000
-random additions, all six cases come up and none goes wrong.
+rules are in `plan.lua`; `plan-test.lua` checks them against plain
+arithmetic (100,000 random sums: all six cases come up and none goes wrong).
+
+## Three ways
+
+In the hall, Tab steps through them (each has its own label on the
+lectern); on its own, `SU_WAY` chooses.
+
+**Adding** (the default), as above.
+
+**Taking away** (`SU_WAY=subtract`): the rules backward, rod by rod from
+the left.
+
+| Rule | When | Example |
+|---|---|---|
+| direct | enough on the rod | −3: three earth beads down; −7 = −5 − 2: the heaven bead up, two earth beads down |
+| five-complement | not enough earth beads | −3 = −5 + 2: the heaven bead up, two earth beads up |
+| ten-complement | not enough on the rod | −8 = −10 + 2: borrow 1 from the rod on the left, then two earth beads up |
+| ten and five together | adding 10 − a needs the heaven bead | −7 = −10 + 3, and +3 = 5 − 2: borrow 1, the heaven bead down, two earth beads down |
+
+The borrow is done first, as it is taught. Taking 1 from 2000 borrows
+from the thousands rod, through the hundreds and the tens, then fills
+them back with nines: 1999.
+
+**Multiplying** (`SU_WAY=multiply`): the modern Japanese method, as in
+Kojima's *The Japanese Abacus* (1954). Type 36, X, 4 and press Return:
+
+1. The multiplier, 4, goes on the rods at the left, and the multiplicand,
+   36, to its right, leaving two rods free after it.
+2. The multiplicand's last digit times each digit of the multiplier,
+   from the left: 6 × 4 = 24, said as two digits, is added on the two
+   rods just right of the 6. (For the multiplier's second digit, one rod
+   further right.) The products are added by the adding rules.
+3. The 6 is used: its rod is cleared. Then the same with the 3:
+   3 × 4 = 12 on the two rods right of the 3, and the 3 cleared.
+4. The product, 144, is on the rods at the right. The multiplier is
+   cleared too, so that the abacus reads the product.
+
+The rods are named A to G from the left, and the slate says which one
+the finger is at. Seven rods hold up to 99 × 99, or 9999 × 9.
 
     bpp -f suanpan.lua                  (or walk to it in the hall)
+    SU_WAY=multiply bpp -f suanpan.lua
 
 | Key | |
 |---|---|
-| `0`–`9` | a number to add (the slate shows it) |
-| `Return` | add it |
+| `0`–`9` | a number (the slate shows it) |
+| `Return` | add it (taking away: take it away; multiplying: multiply) |
+| `X` | multiplying: times, between the two numbers |
+| `A` | taking away: add the number instead, to have something to take away from |
 | `Backspace` | its last digit off |
 | `C` | clear the abacus: heaven beads up, earth beads down |
-| `T` | the tour: 3, 4, 8, 6, 79 and 1234 added, a rule of its own each, to 1334 |
+| `T` | the tour. Adding: 3, 4, 8, 6, 79 and 1234 added, a rule of its own each, to 1334. Taking away: 2000 set, then 1, 4, 3, 7, 8 and 5 taken away, to 1972. Multiplying: 36 × 4, 23 × 45, 99 × 99 |
 
 The sliders: the beads' friction on their rods, the finger's speed, and the
 simulation's speed. Resting the mouse on a bead, the frame, the slate or
@@ -46,7 +87,8 @@ a bead stays where it is left). The finger takes hold of one bead and moves
 it; that bead pushes the others ahead of it by contact, as a finger does on
 a real abacus, and they stop where they meet the beam, the frame or the
 beads already there. The beads' value is read from where they are, after
-every addition, and checked against what the rules say it should be.
+every addition (subtraction, product), and checked against what the rules
+say it should be.
 
 The finger, the slate and the reading of the beads are the script's: a
 person works an abacus, and the slate is there to show what the person
@@ -79,7 +121,8 @@ held upright: if they are loose, a 3.2 mm hole holds them better.
 | File | |
 |---|---|
 | `suanpan.lua` | the exhibit |
-| `plan.lua` | the rules for adding, as moves of beads |
+| `plan.lua` | the rules for adding, taking away and multiplying, as moves of beads |
+| `plan-test.lua` | the rules checked against plain arithmetic (`lua plan-test.lua`) |
 | `parts/suanpan.scad` | every part's shape |
 | `make-slate.py`, `slate/` | the slate's pictures (Pillow), and the rules' words |
 | `make-stls.sh` | the STL files (not kept in the repository) |

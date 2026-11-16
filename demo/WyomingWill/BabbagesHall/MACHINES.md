@@ -71,7 +71,7 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 
 | # | Tier | Machine | Year | What it does | In bpp, and printed | Int. | Cx. | Status |
 |---|---|---|---|---|---|---|---|---|
-| 1 | 1 | Abacus, suanpan | ancient | beads | built: seven rods, 49 printed beads sliding on steel rods, held by friction; a finger adds by the old rules, a slate shows each | 1 | 1 | built |
+| 1 | 1 | Abacus, suanpan | ancient | beads | built: seven rods, 49 printed beads sliding on steel rods, held by friction; a finger adds, takes away and multiplies by the old rules (Tab: the three ways), a slate shows each | 1 | 1 | built |
 | 2 | 1 | Slide rule | 1620s | multiplies by adding logarithms | one slide; nothing to simulate | 2 | 1 | bay |
 | 3 | 1 | Napier's bones, Genaille–Lucas rulers | 1617 / 1891 | rods laid side by side give a product to read off | no moving mechanism: printable, nothing to simulate | 2 | 1 | bay |
 | 4 | 1 | Mechanical combination lock |  | the wheels' notches must line up: a lock that tests a number | wheels and a fence; simple | 2 | 2 | bay |

@@ -32,6 +32,17 @@ READING = (
     "hitting time theorem, Amer. Math. Monthly 115 (2008).",
 )
 
+# (the suanpan's last page, taking away and multiplying)
+ABACUS_READING = (
+    "FURTHER READING",
+    "Learning the abacus",
+    "Takashi Kojima, The Japanese Abacus: Its Use and Theory (1954). Its "
+    "soroban has fewer beads, but the same rules.\n"
+    "Takashi Kojima, Advanced Abacus (1963): older ways to multiply and "
+    "divide.\n"
+    "Totton Heffelfinger and Gary Flom, Abacus: Mystery of the Bead (online).",
+)
+
 LABELS = {
     "suanpan": [(                    # (Matsuzaki and Wood: Kojima, The Japanese Abacus, 1954; Computer History Museum)
         "THE SUANPAN",
@@ -40,7 +51,8 @@ LABELS = {
         "the beam counts five and an earth bead below it counts one, when "
         "pushed to the beam.\n"
         "Type a number and press Return: the finger adds it rod by rod from "
-        "the left, as it is done by hand, and the slate shows each rule it uses.",
+        "the left, as it is done by hand, and the slate shows each rule it uses. "
+        "Tab: taking away, then multiplying.",
     ), (
         "THE RULES",
         "Fives and tens",
@@ -60,6 +72,42 @@ LABELS = {
         "Private Thomas Nathan Wood with an electric calculator. The abacus "
         "won four rounds of five, losing only at multiplication.",
     )],
+    "suanpan-subtract": [(
+        "TAKING AWAY",
+        "The suanpan's second way",
+        "Type a number and press Return: the finger takes it away, rod by rod "
+        "from the left. A adds a number instead, to have something to take "
+        "away from.\n"
+        "The tour sets 2000 and takes away 1. There is nothing on the units rod, "
+        "so one is borrowed from the thousands, through the hundreds and the "
+        "tens: 2000~\u2212~1~=~1999.",
+    ), (
+        "THE RULES, BACKWARD",
+        "Fives and tens again",
+        "If there are beads enough, take them away. If not, use five: "
+        "\u22123~=~\u22125~+~2, the heaven bead up and two earth beads up. If the "
+        "rod hasn't enough, use ten: \u22128~=~\u221210~+~2. Take one from the rod "
+        "on the left first, then put two earth beads up.\n"
+        "Each is an adding rule run backward, so the hand learns them in pairs.",
+    ), ABACUS_READING],
+    "suanpan-multiply": [(
+        "MULTIPLYING",
+        "The suanpan's third way",
+        "Type 36, X, 4 and press Return. The multiplier, 4, goes on the rods "
+        "at the left and the multiplicand, 36, to its right. 6~\u00d7~4~=~24 is "
+        "added on the two rods right of the 6, and the 6 cleared; then "
+        "3~\u00d7~4~=~12 on the two right of the 3, and the 3 cleared. 144 is left.\n"
+        "Seven rods hold up to 99~\u00d7~99, or 9999~\u00d7~9.",
+    ), (
+        "TWO DIGITS, ALWAYS",
+        "Where each product goes",
+        "Each product from the times table is said as two digits: 3~\u00d7~2 is "
+        "06. Its tens go one rod right of the multiplicand's digit for the "
+        "multiplier's first digit, two rods right for its second, and so on. "
+        "Said that way, nothing goes on the wrong rod.\n"
+        "The products are added by the rules for adding; the slate shows each. "
+        "Rods are named A to G from the left.",
+    ), ABACUS_READING],
     "differential": (
         "THE DIFFERENTIAL",
         "Bevel gears that add",

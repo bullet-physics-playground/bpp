@@ -18,7 +18,7 @@ comes to life.
 
 | Bay | Exhibit | |
 |---|---|---|
-| west 1 | **The suanpan**: the Chinese abacus, worked by a finger by the old rules, a slate showing each | `exhibits/Suanpan/` |
+| west 1 | **The suanpan**: the Chinese abacus, worked by a finger by the old rules, a slate showing each; Tab: adding, taking away, multiplying | `exhibits/Suanpan/` |
 | east 1 | The slide rule | in preparation |
 | west 2 | Napier's bones | in preparation |
 | east 2 | The combination lock | in preparation |

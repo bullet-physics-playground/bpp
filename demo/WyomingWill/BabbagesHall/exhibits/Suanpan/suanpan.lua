@@ -13,13 +13,23 @@
 --                    and take away the difference (+3 = 5 - 2)
 --   ten-complement   the rod would pass 9: take away what is left of 10,
 --                    and carry 1 to the rod on the left (+8 = 10 - 2)
--- The slate beside it shows the number on the abacus, the one being added,
--- the rod the hand is at, and the rule.
+-- Taking away is the same rules backward (-3 = -5 + 2; -8 = -10 + 2,
+-- borrowing 1 from the rod on the left). Multiplying is Kojima's way: the
+-- multiplier on the rods at the left, the multiplicand to its right, and
+-- each digit of one times each of the other, from the times table, added
+-- as two digits on the rods to the right of the multiplicand's digit.
+-- The slate beside it shows the number on the abacus, the one being added
+-- (taken away, multiplied), the rod the hand is at, and the rule.
+--
+-- THREE WAYS (SU_WAY; in the hall, Tab steps through them)
+--   add        (the default)
+--   subtract   Return takes the number away; A adds it instead
+--   multiply   type 36, X, 4: Return works 36 x 4 (up to 99 x 99, or 9999 x 9)
 --
 -- KEYS
---   0 - 9      a number to add (shown on the slate)    Return   add it
+--   0 - 9      a number (shown on the slate)           Return   add it (or ...)
 --   Backspace  its last digit off                      C        clear the abacus
---   T          the tour: 3, 4, 8, 6, 79 and 1234 added, one rule after another
+--   T          the tour: each step using a rule of its own
 --
 -- PHYSICS: each bead is a body that slides on its rod (a slider; a motor at
 -- no speed and little force is the rod's friction, holding it where it is
@@ -31,7 +41,7 @@
 -- EVERY PART CAN BE PRINTED but the steel rods: parts/suanpan.scad, README.md.
 --
 -- Units: centimetres, kilograms, seconds.
--- Headless: SU_TOUR=0 (no tour), SU_ADD=n (add n at the start), SU_LOG=1
+-- Headless: SU_WAY (add, subtract, multiply), SU_TOUR=0 (no tour), SU_ADD=n (add n at the start), SU_LOG=1
 -- (print each move), SU_FRICTION (the beads on their rods, kg cm/s^2),
 -- SU_FINGER (the finger's speed, cm/s), SU_HZ (steps a second).
 --
@@ -50,6 +60,9 @@ end
 assert(DIR, "The Suanpan: can't find its folder")
 local plan = dofile(DIR .. "plan.lua")
 local RULES = dofile(DIR .. "slate/rules.lua")
+local WAY = os.getenv("SU_WAY") or "add"
+if WAY ~= "subtract" and WAY ~= "multiply" then WAY = "add" end
+local READY = WAY == "add" and "rule-ready" or ("rule-ready-" .. WAY)
 local SCAD
 do
   local path = DIR .. "parts/suanpan.scad"
@@ -268,14 +281,15 @@ end
 -- toward you; its slate from 2 to 19 cm up, 28 cm across)
 local slate = {}
 slate.labelA = tile(7.4, 1.3, -9.8, 16.4, "label-abacus")
-slate.labelB = tile(7.4, 1.3, -9.8, 13.1, "label-adding")
+slate.labelB = tile(7.4, 1.3, -9.8, 13.1, ({ add = "label-adding", subtract = "label-subtracting",
+                                              multiply = "label-multiplying" })[WAY])
 slate.a, slate.b = {}, {}
 for k = 1, ROD_N do
   slate.a[k] = tile(1.6, 2.1, -4.6 + k * 2.1, 16.4, "digit-0")
   slate.b[k] = tile(1.6, 2.1, -4.6 + k * 2.1, 13.1, "digit-blank")
 end
 slate.place = tile(25, 1.6, 0, 9.9, "place-none")
-slate.rule = tile(25, 4, 0, 6.0, "rule-ready")
+slate.rule = tile(25, 4, 0, 6.0, READY)
 local shown = {}
 local function show(t, pic) if shown[t] ~= pic then shown[t] = pic; t.tex = slatePic(pic) end end
 local function showNumber(row, n, blankZero)
@@ -283,6 +297,15 @@ local function showNumber(row, n, blankZero)
   for k = 1, ROD_N do
     local i = k - (ROD_N - #s)
     show(row[k], i >= 1 and ("digit-" .. s:sub(i, i)) or "digit-blank")
+  end
+end
+-- (digits and x, as typed for multiplying: 36x4)
+local function showText(row, s)
+  s = s or ""
+  for k = 1, ROD_N do
+    local i = k - (ROD_N - #s)
+    local c = i >= 1 and s:sub(i, i) or ""
+    show(row[k], c == "" and "digit-blank" or c == "x" and "digit-times" or ("digit-" .. c))
   end
 end
 
@@ -328,17 +351,40 @@ end
 local function lerp(a, b, t) return a + (b - a) * t end
 local function ease(t) return t * t * (3 - 2 * t) end
 
+-- (what the slate shows for a step: its rule's picture, and the rod)
+local LETTERS = "ABCDEFG"
+local PLACES = { "units", "tens", "hundreds", "thousands", "ten thousands", "hundred thousands", "millions" }
+local function ruleKey(s)
+  if s.rule == "times" then return "times-" .. s.a .. "-" .. s.b end
+  if s.rule == "mset" or s.rule == "aset" or s.rule == "mclear" then return s.rule end
+  return s.rule .. "-" .. s.a
+end
+local function placePic(s)
+  if WAY == "multiply" then return "rod-" .. s.rod .. (s.carry and "-carry" or "") end
+  return "place-" .. (ROD_N + 1 - s.rod) .. (s.carry and "-carry" or s.borrow and "-borrow" or "")
+end
+local function placeWords(s)
+  if WAY == "multiply" then return "rod " .. LETTERS:sub(s.rod, s.rod) end
+  return PLACES[ROD_N + 1 - s.rod] .. " rod"
+end
+-- (every rod's digit, zeros too: while multiplying, the numbers set on it)
+local function showRods(row)
+  for k = 1, ROD_N do show(row[k], "digit-" .. rodDigit(k)) end
+end
+
 local function startJob()
   local q = table.remove(queue, 1)
   if not q then job = nil; return end
   if q.step then
     local s = q.step
-    show(slate.place, "place-" .. (ROD_N + 1 - s.rod) .. (s.carry and "-carry" or ""))
-    show(slate.rule, "rule-" .. s.rule .. "-" .. s.a)
-    local w = RULES[s.rule .. "-" .. s.a]
-    print(string.format("  %s rod%s:  %s   (%s)", ({ "units", "tens", "hundreds", "thousands", "ten thousands",
-          "hundred thousands", "millions" })[ROD_N + 1 - s.rod], s.carry and " (the carry)" or "", w[1], w[2]))
-    job = { wait = 0.6 }
+    local key = ruleKey(s)
+    show(slate.place, placePic(s))
+    show(slate.rule, "rule-" .. key)
+    if WAY == "multiply" then showRods(slate.a) else showNumber(slate.a, reading()) end
+    local w = RULES[key]
+    print(string.format("  %s%s:  %s   (%s)", placeWords(s), s.carry and " (the carry)" or s.borrow and " (the borrow)" or "",
+          w[1], w[2]))
+    job = { wait = (s.rule == "mset" or s.rule == "aset") and 1.0 or s.rule == "times" and 1.2 or 0.6 }
     return
   end
   if q.wait then job = { wait = q.wait, after = q.after }; return end
@@ -412,32 +458,48 @@ local function idle() return job == nil and #queue == 0 end
 -- ---------------------------------------------------------------------
 local entry = ""          -- the number being typed
 local fails = 0
-local function addNumber(n, expect)
-  local total = plan.value(digits)
-  if total + n > 10 ^ ROD_N - 1 then print("  (too big for seven rods)"); return false end
-  showNumber(slate.b, n)
-  show(slate.rule, "rule-none")
-  print(string.format("ADD %d to %d", n, total))
-  local steps = plan.number(digits, n)
+local function queueSteps(steps)
   for _, s in ipairs(steps) do
     queue[#queue + 1] = { step = s }
     for _, m in ipairs(s.moves) do queue[#queue + 1] = { move = m } end
   end
+end
+-- (the beads read, and checked against what was meant; the finger home)
+local function queueCheck(expect)
   queue[#queue + 1] = { wait = 0.3 }
   queue[#queue + 1] = { call = function()
     local r = reading()
     showNumber(slate.a, r)
     show(slate.place, "place-none")
-    local want = expect or plan.value(digits)
+    local want = expect
     local ok = r == want
     if not ok then fails = fails + 1 end
     print(string.format("  the beads read %d%s", r, ok and "" or ("  -- WRONG, " .. want .. " was meant")))
   end }
   -- (the finger back to its rest)
   queue[#queue + 1] = { call = function() job = { bead = nil, phase = "home", t = 0, from = fingerAt } end }
+end
+local function addNumber(n, expect)
+  local total = plan.value(digits)
+  if total + n > 10 ^ ROD_N - 1 then print("  (too big for seven rods)"); return false end
+  showNumber(slate.b, n)
+  show(slate.rule, "rule-none")
+  print(string.format("ADD %d to %d", n, total))
+  queueSteps(plan.number(digits, n))
+  queueCheck(expect or plan.value(digits))
   return true
 end
-local function clearAll()
+local function subNumber(n, expect)
+  local total = plan.value(digits)
+  if n > total then print(string.format("  (%d is more than the %d on the abacus)", n, total)); return false end
+  showNumber(slate.b, n)
+  show(slate.rule, "rule-none")
+  print(string.format("TAKE %d from %d", n, total))
+  queueSteps(plan.subNumber(digits, n))
+  queueCheck(expect or plan.value(digits))
+  return true
+end
+local function clearAll(keepB)
   show(slate.rule, "rule-clear")
   show(slate.place, "place-none")
   for i = 1, ROD_N do
@@ -447,43 +509,96 @@ local function clearAll()
   end
   queue[#queue + 1] = { wait = 0.2 }
   queue[#queue + 1] = { call = function()
-    showNumber(slate.a, reading()); showNumber(slate.b, nil)
-    show(slate.rule, "rule-ready")
+    showNumber(slate.a, reading())
+    if not keepB then showNumber(slate.b, nil); show(slate.rule, READY) end
   end }
 end
+local function multiply(a, b, expect)
+  if not plan.layout(ROD_N, a, b) then
+    if plan.layout(ROD_N, b, a) then
+      print(string.format("  (set as %d x %d: the longer number the multiplicand, so that it fits)", b, a))
+      a, b = b, a
+    else
+      print(string.format("  (%d x %d is too long for seven rods: up to 99 x 99, or 9999 x 9)", a, b))
+      return false
+    end
+  end
+  showText(slate.b, a .. "x" .. b)
+  show(slate.rule, "rule-none")
+  print(string.format("MULTIPLY %d by %d", a, b))
+  local clear = reading() == 0
+  for i = 1, ROD_N do if digits[i] ~= 0 then clear = false end end
+  if not clear then clearAll(true) end
+  queueSteps(plan.multiply(digits, a, b))
+  queueCheck(expect or a * b)
+  return true
+end
 
-local TOUR = { { 3, 3 }, { 4, 7 }, { 8, 15 }, { 6, 21 }, { 79, 100 }, { 1234, 1334 } }
--- (SU_RANDOM=n: n random numbers added instead, up to 99,999 each, and checked)
+-- (each: what to do, the number or numbers, and what the beads should read)
+local TOURS = {
+  add = { { "add", 3, 3 }, { "add", 4, 7 }, { "add", 8, 15 }, { "add", 6, 21 }, { "add", 79, 100 },
+          { "add", 1234, 1334 } },
+  -- (2000 - 1 borrows through three rods; then each rule in turn)
+  subtract = { { "add", 2000, 2000 }, { "sub", 1, 1999 }, { "sub", 4, 1995 }, { "sub", 3, 1992 },
+               { "sub", 7, 1985 }, { "sub", 8, 1977 }, { "sub", 5, 1972 } },
+  multiply = { { "mul", 36, 4, 144 }, { "mul", 23, 45, 1035 }, { "mul", 99, 99, 9801 } },
+}
+local TOUR_SAYS = {
+  add = "3, 4, 8, 6, 79 and 1234 added, each using a rule of its own",
+  subtract = "2000 set, then 1, 4, 3, 7, 8 and 5 taken away, each using a rule of its own",
+  multiply = "36 x 4, 23 x 45 and 99 x 99",
+}
+local TOUR = TOURS[WAY]
+-- (SU_RANDOM=n: n random numbers added (taken away, multiplied) instead, and checked)
 local RANDOM_N = envnum("SU_RANDOM", 0)
 if RANDOM_N > 0 then
   math.randomseed(envnum("SU_SEED", 1))
   TOUR = {}
   local total = 0
+  if WAY == "subtract" then
+    total = math.random(1000000, 9999999)
+    TOUR[1] = { "add", total, total }
+  end
   for k = 1, RANDOM_N do
-    local x = math.random(1, 99999)
-    if total + x > 9999999 then break end
-    total = total + x
-    TOUR[#TOUR + 1] = { x, total }
+    if WAY == "add" then
+      local x = math.random(1, 99999)
+      if total + x > 9999999 then break end
+      total = total + x
+      TOUR[#TOUR + 1] = { "add", x, total }
+    elseif WAY == "subtract" then
+      if total < 1 then break end
+      local x = math.random(1, math.min(total, 99999))
+      total = total - x
+      TOUR[#TOUR + 1] = { "sub", x, total }
+    else
+      local a, b
+      if k % 2 == 0 then a, b = math.random(1, 9999), math.random(1, 9) else a, b = math.random(1, 99), math.random(1, 99) end
+      TOUR[#TOUR + 1] = { "mul", a, b, a * b }
+    end
   end
 end
 local touring = nil
 local function tourStart()
   touring, fails = 1, 0
-  print("\nTHE SUANPAN -- the tour: 3, 4, 8, 6, 79 and 1234 added, each using a rule of its own")
-  if reading() ~= 0 then clearAll() end
+  print("\nTHE SUANPAN -- the tour: " .. TOUR_SAYS[WAY])
+  if reading() ~= 0 and WAY ~= "multiply" then clearAll() end
 end
 local function tourNext()
   if not touring or not idle() then return end
   if touring > #TOUR then
     touring = nil
-    print("RESULT suanpan tour: " .. (fails == 0 and reading() == TOUR[#TOUR][2] and "PASS" or "FAIL"))
-    show(slate.rule, "rule-ready")
+    local last = TOUR[#TOUR]
+    print("RESULT suanpan " .. (WAY == "add" and "" or (WAY .. " ")) .. "tour: " ..
+          (fails == 0 and reading() == last[#last] and "PASS" or "FAIL"))
+    show(slate.rule, READY)
     return
   end
   local t = TOUR[touring]
   touring = touring + 1
   queue[#queue + 1] = { wait = touring == 2 and 0.3 or 1.2 }
-  addNumber(t[1], t[2])
+  if t[1] == "add" then addNumber(t[2], t[3])
+  elseif t[1] == "sub" then subNumber(t[2], t[3])
+  else multiply(t[2], t[3], t[4]) end
 end
 
 -- ---------------------------------------------------------------------
@@ -542,33 +657,64 @@ end)
 -- ---------------------------------------------------------------------
 -- keys, help, hover
 -- ---------------------------------------------------------------------
+local function showEntry()
+  if WAY == "multiply" then showText(slate.b, entry) else showNumber(slate.b, tonumber(entry), true) end
+end
 local function typed(d)
   touring = nil
-  if #entry < ROD_N then entry = (entry == "0" and "" or entry) .. d end
-  showNumber(slate.b, tonumber(entry))
-  show(slate.rule, "rule-ready")
+  if #entry < ROD_N then
+    if entry == "0" then entry = "" elseif entry:sub(-2) == "x0" then entry = entry:sub(1, -2) end
+    entry = entry .. d
+  end
+  showEntry()
+  show(slate.rule, READY)
 end
 for d = 0, 9 do v:addShortcut(tostring(d), function() typed(tostring(d)) end) end
 local function enter()
   touring = nil
-  local n = tonumber(entry)
+  local s = entry
   entry = ""
-  if n and n > 0 then addNumber(n) end
+  if WAY == "multiply" then
+    local a, b = s:match("^(%d+)x(%d+)$")
+    a, b = tonumber(a), tonumber(b)
+    if a and b and a > 0 and b > 0 then multiply(a, b)
+    else print("  (type a number, X, and another: 36 X 4, then Return)"); showEntry() end
+    return
+  end
+  local n = tonumber(s)
+  if n and n > 0 then if WAY == "subtract" then subNumber(n) else addNumber(n) end end
 end
 v:addShortcut("Return", enter)
 v:addShortcut("Enter", enter)
 v:addShortcut("Backspace", function()
   entry = entry:sub(1, -2)
-  showNumber(slate.b, tonumber(entry), true)
+  showEntry()
 end)
+if WAY == "multiply" then
+  local function times()
+    if entry ~= "" and not entry:find("x") and #entry < ROD_N - 1 then entry = entry .. "x"; showEntry() end
+  end
+  v:addShortcut("X", times)
+  v:addShortcut("*", times)
+end
+if WAY == "subtract" then
+  local function addInstead()
+    touring = nil
+    local n = tonumber(entry)
+    entry = ""
+    if n and n > 0 then addNumber(n) end
+  end
+  v:addShortcut("A", addInstead)
+  v:addShortcut("+", addInstead)
+end
 v:addShortcut("C", function() touring = nil; entry = ""; clearAll() end)
 v:addShortcut("T", function() tourStart() end)
 v:onParamChanged(function(N, name, value)
   if name == "speed" then applyTiming()
   elseif name == "friction" then applyFriction() end
 end)
-pcall(function()
-  v:setHelpText(table.concat({
+local HELP = {
+  add = {
     "THE SUANPAN  (Babbage's Hall)",
     "",
     "KEYS",
@@ -582,10 +728,45 @@ pcall(function()
     "  direct           room on the rod: beads to the beam",
     "  five-complement  no room among the earth beads: +3 = 5 - 2",
     "  ten-complement   the rod would pass 9: +8 = 10 - 2, and carry 1 left",
+  },
+  subtract = {
+    "THE SUANPAN: SUBTRACTION  (Babbage's Hall)",
     "",
-    "The beads slide on their rods and push one another; friction holds them.",
-    "The finger, the slate and the reading of the beads are the script's.",
-  }, "\n"))
+    "KEYS",
+    "  0 - 9  a number                 Return  take it away    Backspace  a digit off",
+    "  A      add it instead           C       clear           T          the tour",
+    "",
+    "Taking away is adding's rules backward, rod by rod from the left:",
+    "  direct           enough on the rod: beads away from the beam",
+    "  five-complement  not enough earth beads: -3 = -5 + 2, the heaven bead",
+    "                   up and two earth beads up",
+    "  ten-complement   not enough on the rod: -8 = -10 + 2, two earth beads up",
+    "                   and borrow 1 from the rod on the left",
+    "Taking 1 from 2000 borrows through three rods, to 1999.",
+  },
+  multiply = {
+    "THE SUANPAN: MULTIPLICATION  (Babbage's Hall)",
+    "",
+    "KEYS",
+    "  0 - 9  the numbers              X       times           Return  multiply",
+    "  Backspace  a digit off          C       clear           T       the tour",
+    "  (36 X 4 Return: up to 99 x 99, or 9999 x 9, on seven rods)",
+    "",
+    "Kojima's way. The multiplier goes on the rods at the left, the multiplicand",
+    "to its right. Take the multiplicand's last digit times each digit of the",
+    "multiplier, from its left: each product, from the times table, is two digits",
+    "(3 x 2 is 06), added with its tens one rod to the right of the digit (two",
+    "rods for the multiplier's second digit) and its units on the next. Then",
+    "clear that digit and do the same with the one to its left. The product",
+    "builds up on the rods at the right. The rods are A to G from the left.",
+  },
+}
+pcall(function()
+  local h = HELP[WAY]
+  h[#h + 1] = ""
+  h[#h + 1] = "The beads slide on their rods and push one another; friction holds them."
+  h[#h + 1] = "The finger, the slate and the reading of the beads are the script's."
+  v:setHelpText(table.concat(h, "\n"))
 end)
 if v.onHover then
   local KEY = {}
