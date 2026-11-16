@@ -575,6 +575,44 @@ btTypedConstraint *Viewer::removeConstraint(btTypedConstraint *con) {
   return con;
 }
 
+// A script's constraint changes hands once: luabind's adopt policy, used
+// here before, broke the script's handle when the same constraint was added
+// twice, and v:removeConstraint made a second handle that freed it while
+// the first still pointed at it.
+static btTypedConstraint *constraintOf(lua_State *L, const luabind::object &handle, const char *fn) {
+  btTypedConstraint *c = nullptr;
+  if (handle.is_valid() && luabind::type(handle) == LUA_TUSERDATA)
+    c = luabind::object_cast<btTypedConstraint *>(handle);   // (another class: luabind's own error)
+  if (c == nullptr)
+    luaFail(L, std::string(fn) + ": needs a constraint");
+  return c;
+}
+
+void Viewer::addConstraintLua(const luabind::object &handle) {
+  btTypedConstraint *c = constraintOf(L, handle, "addConstraint");
+  if (_constraints->contains(c))
+    return;
+  if (!_consTakenFromLua.contains(c)) {
+    handle.push(L);
+    luabind::detail::object_rep *rep = luabind::detail::get_instance(L, -1);
+    if (rep != nullptr)
+      rep->release();
+    lua_pop(L, 1);
+    _consTakenFromLua.insert(c);
+  }
+  _consKept.remove(c);
+  addConstraint(c);
+}
+
+luabind::object Viewer::removeConstraintLua(const luabind::object &handle) {
+  btTypedConstraint *c = constraintOf(L, handle, "removeConstraint");
+  if (!_constraints->contains(c))
+    return handle;
+  removeConstraint(c);
+  _consKept.insert(c);
+  return handle;
+}
+
 void Viewer::addConstraints(QList<btTypedConstraint *> cons) {
   for (int i = 0; i < cons.size(); ++i)
     if (cons[i])
@@ -1460,6 +1498,8 @@ Viewer::~Viewer() {
   }
   _constraints->clear();
   delete _constraints;
+  qDeleteAll(_consKept);                 // (removed ones the script kept)
+  _consKept.clear();
 
   {
     QList<btRaycastVehicle*> rvs = _raycast_vehicles->values();

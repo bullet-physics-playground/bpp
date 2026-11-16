@@ -165,13 +165,8 @@ void Viewer::luaBind(lua_State *s) {
                 (btScalar(Viewer::*)(const btVector3 &, const btVector3 &,
                                      const luabind::object &)) &
                     Viewer::rayTest)
-           .def("addConstraint",
-                (void(Viewer::*)(btTypedConstraint *)) & Viewer::addConstraint,
-                adopt(_2))
-           .def("removeConstraint",
-                (btTypedConstraint * (Viewer::*)(btTypedConstraint *)) &
-                    Viewer::removeConstraint,
-                adopt(result))
+           .def("addConstraint", &Viewer::addConstraintLua)
+           .def("removeConstraint", &Viewer::removeConstraintLua)
            .def("createVehicleRaycaster", &Viewer::createVehicleRaycaster)
            .def("addVehicle",
                 (void(Viewer::*)(btRaycastVehicle *)) & Viewer::addVehicle,

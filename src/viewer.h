@@ -803,6 +803,29 @@ public:
   btTypedConstraint *removeConstraint(btTypedConstraint *con);
 
   /**
+   * @brief v:addConstraint(c): adds a script's constraint, which bpp then
+   * owns until the script ends.
+   *
+   * Adding one already in the world does nothing, and one removed earlier
+   * goes back in.
+   *
+   * @param handle The script's handle to the constraint.
+   */
+  void addConstraintLua(const luabind::object &handle);
+
+  /**
+   * @brief v:removeConstraint(c): takes a constraint out of the world.
+   *
+   * bpp keeps it (and frees it when the script ends), so the script's handle
+   * stays good and the constraint can be added back. One that isn't in the
+   * world is left as it is.
+   *
+   * @param handle The script's handle to the constraint.
+   * @return @p handle.
+   */
+  luabind::object removeConstraintLua(const luabind::object &handle);
+
+  /**
    * @brief Binds a Lua function to a key sequence.
    *
    * The binding takes precedence over the viewer's own shortcut for that key.
@@ -2336,6 +2359,9 @@ private:
                                              ///< until their script lets go
                                              ///< (see reapRemoved()).
   OrderedSet<btTypedConstraint *> *_constraints; ///< Every constraint in the world, in the order added.
+  QSet<btTypedConstraint *> _consTakenFromLua; ///< Constraints v:addConstraint took from Lua.
+  QSet<btTypedConstraint *> _consKept;       ///< Removed constraints bpp still owns,
+                                             ///< until the script ends.
   QSet<btRaycastVehicle *> *_raycast_vehicles; ///< Every raycast vehicle.
 
   /**

@@ -674,6 +674,9 @@ void Viewer::clear() {
     for (btTypedConstraint* c : cons) delete c;
   }
   _constraints->clear();
+  qDeleteAll(_consKept);                 // (removed ones the script kept)
+  _consKept.clear();
+  _consTakenFromLua.clear();
 
   {
     QList<btRaycastVehicle*> rvs = _raycast_vehicles->values();
