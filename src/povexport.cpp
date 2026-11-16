@@ -223,9 +223,15 @@ void copySettingsIncludes(const QString &settingsInc, const QString &startupDir,
     for (const QString &entry : srcQDir.entryList(QDir::Files)) {
       if (!entry.endsWith(".inc", Qt::CaseInsensitive))
         continue;
+      QString src = srcIncDir + QDir::separator() + entry;
       QString dst = sceneDir + QDir::separator() + entry;
+      // (once: this runs for every frame exported, and the includes are
+      // 66 MB, which took most of each frame's export)
+      QFileInfo si(src), di(dst);
+      if (di.exists() && di.size() == si.size() && di.lastModified() >= si.lastModified())
+        continue;
       QFile::remove(dst);
-      QFile::copy(srcIncDir + QDir::separator() + entry, dst);
+      QFile::copy(src, dst);
     }
   }
 }
