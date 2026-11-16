@@ -56,8 +56,12 @@ do
   if hallPath then path = hallPath(path) end
   if path:sub(1, 1) ~= "/" and not path:match("^%a:[/\\]") then
     local cwd
-    local p = io.popen and io.popen("pwd")
+    local p = io.popen and io.popen("cd")
     if p then cwd = p:read("*l"); p:close() end
+    if not cwd or cwd == "" or not (cwd:sub(1, 1) == "/" or cwd:match("^%a:")) then
+      p = io.popen and io.popen("pwd")
+      if p then cwd = p:read("*l"); p:close() end
+    end
     path = (cwd or os.getenv("PWD") or ".") .. "/" .. path
   end
   SCAD = path
