@@ -322,6 +322,7 @@ jobs:
           install: git
           pacboy: >-
             toolchain:p
+            make:p
             qt5:p
             assimp:p
             glew:p
