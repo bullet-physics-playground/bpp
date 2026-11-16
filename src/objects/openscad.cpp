@@ -5,6 +5,7 @@
 
 #include "openscad.h"
 
+#include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QDir>
@@ -83,8 +84,18 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
 
     QString openscad = executable();
 
+    // OpenSCAD writes a part file, renamed to <hash>.stl only once it has
+    // finished well, as the background builds do: a mesh cut off part way
+    // (OpenSCAD killed, or failing after it began to write) never reaches
+    // the cache, where every later run would find it and fail to load it.
+    // (Named for this process, so neither a background build of the same
+    // part nor another bpp writes the same file.)
+    const QString part = userCacheDir() + QDir::separator() + hash + ".part-" +
+                         QString::number(QCoreApplication::applicationPid()) + ".stl";
+    QFile::remove(part);
+
     args << "-o";
-    args << stlfile;
+    args << part;
     args << scad.fileName();
 
     qDebug() << "executing openscad " << args;
@@ -116,19 +127,35 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
       m_process->deleteLater();
       m_process = nullptr;
     } else {
-      loadFile(m_stlfile, m_pendingMass, m_centerOfMass);
-      m_stlReady = true;
       m_process->deleteLater();
       m_process = nullptr;
+      QFile::remove(stlfile);
+      if (!QFile::rename(part, stlfile))
+        m_stlfile = part;               // (loaded from the part, which then goes)
+      try {
+        loadFile(m_stlfile, m_pendingMass, m_centerOfMass);
+      } catch (...) {
+        QFile::remove(m_stlfile);       // (one that won't load isn't kept either)
+        throw;
+      }
+      QFile::remove(part);
+      m_stlReady = true;
       emit stlReady();
       return;
     }
 
     // Try to load the STL file even if OpenSCAD reported an error,
     // since the file may have been written despite the non-zero exit.
-    QFileInfo stlCheck(m_stlfile);
+    // (This run only: it stays out of the cache.)
+    QFileInfo stlCheck(part);
     if (stlCheck.exists() && stlCheck.isFile()) {
-      loadFile(m_stlfile, m_pendingMass, m_centerOfMass);
+      try {
+        loadFile(part, m_pendingMass, m_centerOfMass);
+      } catch (...) {
+        QFile::remove(part);
+        throw;
+      }
+      QFile::remove(part);
       m_stlReady = true;
       emit stlReady();
     } else {
