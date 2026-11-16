@@ -677,6 +677,7 @@ void Viewer::clear() {
   qDeleteAll(_consKept);                 // (removed ones the script kept)
   _consKept.clear();
   _consTakenFromLua.clear();
+  LuaBullet::freeJointFeedback();        // (their enableForces, all gone now)
 
   {
     QList<btRaycastVehicle*> rvs = _raycast_vehicles->values();
