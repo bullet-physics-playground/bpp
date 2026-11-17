@@ -20,6 +20,7 @@
 --   C          close the rule (the slide home, the cursor to the left)
 --   M          the camera close to the hairline, following it; again: back
 --   T          the tour
+--   H          the manual (MANUAL.pdf) in the PDF viewer
 --
 -- Each part is set against the other as it stands (C's 1 under the
 -- hairline wherever the hairline is; the cursor to a mark on the slide
@@ -685,6 +686,12 @@ else
 end
 v:addShortcut("C", function() stopTour(); entry = ""; close(); home() end)
 v:addShortcut("T", function() tourStart() end)
+-- H: this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the hall,
+-- the hall's own H does it
+if not hallPath then
+  local MANUAL = dofile(DIR .. "../../open-manual.lua")
+  v:addShortcut("H", function() MANUAL.open(DIR, "the slide rule's manual") end)
+end
 local camBack = nil
 local function magnifyOff(putBack)
   if not magnify then return end
@@ -719,6 +726,7 @@ local HELP = {
     "  0 - 9 .  a number      X  times      /  divided by      Return  work it",
     "  Backspace  a figure off      C  close the rule      T  the tour",
     "  M  the camera close to the hairline, following it; again: back",
+    "  H  the manual (MANUAL.pdf, in your PDF viewer)",
     "",
     "On D the number v stands log v of the way along; C on the slide is the",
     "same. C's 1 over a puts every b on C over a x b on D: the slide adds",
@@ -735,6 +743,7 @@ local HELP = {
     "                           I its reciprocal   L its logarithm",
     "  Backspace  a figure off      C  close the rule      T  the tour",
     "  M  the camera close to the hairline, following it; again: back",
+    "  H  the manual (MANUAL.pdf, in your PDF viewer)",
     "",
     "The hairline reads every scale at once. A is D squared (two decades in",
     "the length of one), K is D cubed (three), CI is C backward (1 / x), L",

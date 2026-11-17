@@ -50,6 +50,7 @@ runs on its own from its folder.
 | `Shift+Tab` | walk back |
 | `I` | at an exhibit with a lectern: its label, close up; again, back |
 | `PgDn`, `PgUp` | at an exhibit whose label has pages: the next page, the one before (the card says which, and "PgDn: more") |
+| `H` | at an exhibit: its manual, opened in your PDF viewer (its `MANUAL.pdf`; its `README.pdf` where it has no manual yet); at the entrance or the title wall: this guide |
 
 An exhibit can have **ways of its own**: the suanpan has three (adding,
 taking away, multiplying), the slide rule and Napier's bones two each, and the splitter board five (a
@@ -180,6 +181,13 @@ show have one. A label can have **pages**, a list of cards: the first
 `PgDn` turns them. An exhibit with ways has a label for each way (its
 mode's `card`): the splitter board's has two to four pages each, ending
 with a page of further reading.
+
+**Every machine gets a manual**, `MANUAL.pdf` in its folder: how to work
+it, step by step, with pictures, and the exhibit's keys; its README is the
+builder's reference and its FINDINGS the measurements. `H`, at the exhibit
+or running it on its own, opens the manual in your PDF viewer
+(`open-manual.lua`; where there is no manual yet, the README). Done so
+far: the slide rule's and the Digi-Comp II's.
 
 Every `.md` file has a typeset `.pdf` beside it; `./make-pdfs.sh` rebuilds
 them all (needs `pip install markdown playwright`). The STL files are not

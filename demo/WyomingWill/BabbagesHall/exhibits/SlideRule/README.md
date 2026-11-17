@@ -2,6 +2,10 @@
 
 *Babbage's Hall, east bay 1: multiplying by adding lengths.*
 
+**`MANUAL.pdf`** is the manual: how to work a slide rule, step by step,
+with pictures, and the exhibit's keys (`H` opens it, here or in the hall).
+This README is the builder's reference.
+
 The second machine on the walk, facing the suanpan. On the D scale every
 number stands as far along as its logarithm: over 25 cm, 2 stands at
 7.5 cm (log 2 = 0.301), 4 at 15.1 cm, 10 at the end. C, on the slide, is
@@ -79,6 +83,7 @@ Type a number, then a key; each needs only the cursor (the slide closed):
 | `Backspace` | a figure off |
 | `C` | close the rule: the slide home, the cursor to the left |
 | `M` | the camera over the hairline, following it, close enough to read the scales; again: back (walking on puts the view back too) |
+| `H` | the manual, `MANUAL.pdf`, opened in your PDF viewer |
 | `T` | the tour. Multiplying: 2 × 3, 1.5 × 4.5, 3 × 4 (by C's 10), 7.5 / 2.5, 2 / 8, 0.25 × 36, and 1.609 × 2, 3 and 5 at one setting. The second way: 3², √2, √20, 2³, 1/4, log 2 |
 
 The sliders: the slide's friction in its groove (the cursor's is 0.6 of
@@ -146,6 +151,7 @@ rule on the feet, their pegs in the holes behind the lower stator.
 
 | File | |
 |---|---|
+| `MANUAL.md`, `manual/` | the manual and its figures (`python3 manual/make-figures.py` redraws them, but for `fig-exhibit.png`, a screenshot) |
 | `slide-rule.lua` | the exhibit |
 | `rule.lua` | the scales, and how each problem is worked: the moves, the reading, the decimal point |
 | `rule-test.lua` | the plans against plain arithmetic, with the parts exactly placed and off by up to 0.2 mm (`lua rule-test.lua`) |

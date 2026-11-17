@@ -10,6 +10,7 @@ pdf HANDOFF.md                         --sub "For a new chat: how to work, build
 pdf exhibits/Suanpan/README.md         --sub "West bay 1: the Chinese abacus"
 pdf exhibits/Suanpan/FINDINGS.md       --sub "West bay 1: the suanpan"
 pdf exhibits/SlideRule/README.md       --sub "East bay 1: multiplying by adding lengths"
+pdf exhibits/SlideRule/MANUAL.md       --sub "East bay 1: how to work a slide rule"
 pdf exhibits/SlideRule/FINDINGS.md     --sub "East bay 1: the slide rule"
 pdf exhibits/NapiersBones/README.md    --sub "West bay 2: the multiplication table, cut into rods"
 pdf exhibits/NapiersBones/FINDINGS.md  --sub "West bay 2: Napier's bones"

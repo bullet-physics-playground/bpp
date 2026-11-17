@@ -70,6 +70,7 @@ local function findDir(cands, file)
   error("Babbage's Hall: can't find " .. file)
 end
 local HERE = findDir({ "./", "demo/WyomingWill/BabbagesHall/" }, "hall.lua")
+local MANUAL = dofile(HERE .. "open-manual.lua")   -- (H: the manual, in the PDF viewer)
 local MESH = HERE .. "hall-meshes/"
 local LABELS = dofile(MESH .. "labels.lua")
 
@@ -1207,7 +1208,8 @@ local function header(g)
     return "BABBAGE'S HALL -- at " .. g.name .. ways ..
            (out and ".   Tab: step in" or (".   Tab: on to " .. nextStop(g, 1).name)) ..
            ";   Shift+Tab: " .. ((g.approach and not out) and "step back" or ("back to " .. nextStop(g, -1).name)) ..
-           (g.lecternView and ";   I: its label, close up (again: back)" or "") .. pages .. "\n"
+           (g.lecternView and ";   I: its label, close up (again: back)" or "") .. pages ..
+           ";   H: its manual (a PDF)\n"
   end
 end
 local function wrapHelp(g)
@@ -1236,6 +1238,7 @@ local function hallHelp(s)
          "On show:\n" .. table.concat(live, "\n") .. "\n\n" ..
          (#coming > 0 and ("In preparation:\n" .. table.concat(coming, "\n") .. "\n\n") or "") ..
          "Tab / Shift+Tab   walk on / back\n" ..
+         "H                  at an exhibit: its manual (a PDF); here: the hall's guide\n" ..
          "the mouse          looks round as usual\n"
 end
 
@@ -1572,6 +1575,15 @@ realV:onKey(function(N, key, down)
         g.lecternBack = { pos = btVector3(p.x, p.y, p.z), look = btVector3(l.x, l.y, l.z) }
         moveCam(g.lecternView.pos, g.lecternView.look)
       end
+    end
+    return true
+  end
+  -- (H: the manual of the exhibit you're at, in the PDF viewer, or at the
+  -- views the hall's own guide; unless the exhibit has H itself)
+  if key == "H" and not (g and g.shortcuts[key]) then
+    if down then
+      if here.isView then MANUAL.open(HERE, "the hall's guide")
+      else MANUAL.open(here.dir, here.name) end
     end
     return true
   end

@@ -408,6 +408,12 @@ there, in `release/`, or on the path; or set `BPP`.
 - **A job that queues jobs must put them first**, not at the end of the
   queue (Napier's bones' `soon`): appended, they ran after the clearing
   the problem had already queued.
+- **Scripts get hover, not clicks** (bpp gives `v:onHover`, no click
+  hook; the Shortcuts pane is plain text, so no links). The manual opens on
+  a key, `H`, through the system's opener (`open-manual.lua`: `xdg-open`,
+  `open`, `start`; `MANUAL_OPENER` replaces it for testing). A click hook
+  on objects would let the lectern itself be clicked: that is bpp's C++,
+  for Jakob.
 - **Don't edit `tools/check-all.sh` while it runs:** bash reads a script
   as it goes, so lines added above the one running shift what it reads
   next (it would re-run or garble a line). Stop it, or edit a copy.
@@ -433,6 +439,14 @@ there, in `release/`, or on the path; or set `BPP`.
    turned to print; check the STLs and overlaps.
 5. Sweep friction and speed, record it in `FINDINGS.md`; `README.md` with
    the parts table, what to buy, assembly; both PDFs; a `make-pdfs.sh` line.
+   **A manual**, `MANUAL.md` and its PDF (William, 2026-11-17: one per
+   machine): how to work the machine, step by step, with worked examples
+   and pictures drawn from the same code as the simulation and the printed
+   parts (`manual/make-figures.py`), common mistakes, the exhibit's keys, a
+   short "making one" pointing to the README. The slide rule's is the
+   model for a simple machine, the Digi-Comp II's for a big one. Register
+   `H` to open it when the exhibit runs on its own (`if not hallPath`,
+   `open-manual.lua`); in the hall the hall's `H` does it.
 6. In the hall: its EXHIBITS entry (`floorY = -100`), placard lettering
    (`make-labels.py`; a new key needs its line in `labels.lua` first), the
    lectern card (`make-lecterns.py`; more than a card's worth of text goes
@@ -943,7 +957,21 @@ there, in `release/`, or on the path; or set `BPP`.
   none overlapping. check-all has four more lines. **Not seen by William
   in the GUI yet.** Not done: division and square roots on the bones
   (Napier did both).
-- **Next (William, 2026-11-15): the combination lock (east 2)**, the last
+- **Done (2026-11-17): manuals, and `H` to open them.** William asked for
+  a manual per machine, as a PDF, and a way to open it from the hall. `H`
+  opens the exhibit's `MANUAL.pdf` (else its README) in the PDF viewer, at
+  any exhibit in the hall, and at the entrance or title wall the hall's
+  guide (`open-manual.lua`, through `xdg-open` on William's Ubuntu; quoting
+  tested with a folder named with a space and an apostrophe). The slide
+  rule has the first: `MANUAL.md`, 8 pages, its rule pictures drawn by
+  `manual/make-figures.py` from `make-scales.py`'s own marks, the parts set
+  as the text says. **Waiting on William's verdict on the format.**
+- **Next: manuals for the other seven** once William approves the slide
+  rule's (the suanpan, Napier's bones, the Domino Half Adder, the
+  Differential, the Pascaline, the Galton and splitter boards, Lehmer's
+  sieve; the Digi-Comp II has one), each with `H` registered for running
+  on its own.
+- **Then (William, 2026-11-15): the combination lock (east 2)**, the last
   of the four simple hand-worked pieces; its covered bay and placard are
   there. Then the
   bead and spaghetti sorts (5), the first with real physics. Each new
@@ -971,6 +999,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step: the combination lock, the next machine on MACHINES.md's list]. Deliver
+> step: the manuals for the other machines, or the combination lock]. Deliver
 > each step as a patch on test-harness, with its documents and PDFs, and
 > the git commands.
