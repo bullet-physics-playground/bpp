@@ -27,7 +27,7 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   far end. `MACHINES.md` has the order and why (re-ordered 2026-11-14:
   it was by interest alone).
 - Built so far, in walking order: **the suanpan** (west 1, since
-  2026-11-15), **the slide rule** (east 1, since 2026-11-16), **the Domino Half Adder** (west 3),
+  2026-11-15), **the slide rule** (east 1, since 2026-11-16), **Napier's bones** (west 2, since 2026-11-16), **the Domino Half Adder** (west 3),
   **the Differential** (east 3), **the Pascaline** (west 4), **the Galton
   board** (west 5, since 2026-11-12), **the splitter board** (east 5,
   facing it, since 2026-11-14), **Lehmer's number sieve** (west 6), and
@@ -36,8 +36,7 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
   a cup of balls and a bought rotary damper; each program has only its
   parts on the board, and the operator's hand is shown).
-  Covered bays wait for Napier's bones (west 2),
-  the combination lock (east 2), Amsler's planimeter (east 4), Kelvin's
+  Covered bays wait for the combination lock (east 2), Amsler's planimeter (east 4), Kelvin's
   tide predictor (west 7), the Differential Analyser (east 7) and the
   Difference Engine (west 8): fifteen bays, eight pairs.
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
@@ -98,6 +97,7 @@ git push
 | `tools/shots.sh`, `tools/keys.sh` | Screenshots on a virtual screen; with keys, hover, camera flights |
 | `tools/check-lua52.sh` | The Lua 5.2 sandbox check |
 | `tools/rope-test.lua` | The rope experiment (for the tide predictor) |
+| `exhibits/NapiersBones/bones-test.lua` | Napier's set (every four-digit number laid), and both ways (Napier's, Genaille's) against plain arithmetic (`lua bones-test.lua`, from its folder) |
 | `exhibits/SlideRule/rule-test.lua` | The slide rule's plans against arithmetic, with the parts placed exactly and off by up to 0.2 mm (`lua rule-test.lua`, from its folder) |
 | `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
 | `exhibits/DigiComp2/MANUAL.md`, `manual/` | The Digi-Comp's illustrated manual; `manual/make-figures.sh` redraws its figures from the geometry (lua, python3, matplotlib). `tools/md2pdf.py` puts a `.md` file's images into its PDF |
@@ -397,6 +397,17 @@ there, in `release/`, or on the path; or set `BPP`.
   put it back, on the key and in `v:onLeave`, which the hall calls as you
   walk on). And the hall's camera proxy turns `pos` and `look` into the
   bay but passes `setUpVector` through as it is: keep it (0, 1, 0).
+- **bpp adds every body unable to sleep**, and Bullet's
+  `setActivationState` won't undo that; `forceActivationState(1)` does
+  (Napier's bones, 2026-11-16). Resting bodies there crept: Bullet's
+  contact tolerances assume metres, and in centimetres a rod let go crept
+  0.4 mm, the last one laid 2 mm in 15 s. A rod still for 2 s now sleeps
+  (`setSleepingThresholds`), and the hand keeps the one it holds awake
+  (`forceActivationState(4)`). Anything in the hall that should stay where
+  it was put, at rest, can do the same.
+- **A job that queues jobs must put them first**, not at the end of the
+  queue (Napier's bones' `soon`): appended, they ran after the clearing
+  the problem had already queued.
 - **Don't edit `tools/check-all.sh` while it runs:** bash reads a script
   as it goes, so lines added above the one running shift what it reads
   next (it would re-run or garble a line). Stop it, or edit a copy.
@@ -910,9 +921,31 @@ there, in `release/`, or on the path; or set `BPP`.
   counted each of an exhibit's ways as a bay (it said "-1 in
   preparation"): it counts covered bays now. **Not seen by William in the
   GUI yet.** Not done: S and T (trigonometry) scales, a printed rule.
-- **Next (William, 2026-11-15): Napier's bones (west 2) and the
-  combination lock (east 2)**, each a simple hand-worked piece; their
-  covered bays and placards are there. Then the
+- **Done (2026-11-16): Napier's bones** (west 2). Napier's own set,
+  as Glaisher describes it: ten four-sided rods, four tables each (every
+  four-digit number can be laid; bones-test.lua tries all 10,000). The
+  rods are bodies; a hand (the script's) steers one at a time out of the
+  tray, turns it to the face it needs, sets it on the tilted board's
+  ledge beside the last and presses it home with 0.3 N. Every reading is
+  taken from where the rods lie: the face up from each rod's orientation,
+  the cell level with the index's row from its place (on Genaille's rods
+  the triangles are followed by height). Two ways (`NB_WAY`; Tab, three
+  lectern pages each): Napier's (the row, the diagonals, a row for each
+  of the multiplier's digits, added) and Genaille's rods (rows 2 to 9, the
+  carries drawn as triangles, the path dotted in red). Resting rods crept
+  (section 5); they sleep now. Both tours pass at every friction up to
+  0.85, hand speed, press, step rate and tilt tried, and 20 random
+  problems each way; at friction 1.0 a rod rolled over its edge and the
+  reading caught it (FINDINGS.md). Printed: eleven rods, the board, two
+  feet, the tray, the slate on its stand; the faces on paper,
+  `napier-faces.pdf` and `genaille-faces.pdf` (strips to wrap round the
+  rods, measured true to 0.1 mm). All STLs watertight and under 200 mm,
+  none overlapping. check-all has four more lines. **Not seen by William
+  in the GUI yet.** Not done: division and square roots on the bones
+  (Napier did both).
+- **Next (William, 2026-11-15): the combination lock (east 2)**, the last
+  of the four simple hand-worked pieces; its covered bay and placard are
+  there. Then the
   bead and spaghetti sorts (5), the first with real physics. Each new
   machine goes in its place in the walking order, the bays after it moving
   along.
@@ -938,6 +971,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step: Napier's bones, the next machine on MACHINES.md's list]. Deliver
+> step: the combination lock, the next machine on MACHINES.md's list]. Deliver
 > each step as a patch on test-harness, with its documents and PDFs, and
 > the git commands.

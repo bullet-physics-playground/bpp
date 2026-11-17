@@ -108,6 +108,57 @@ LABELS = {
         "The products are added by the rules for adding; the slate shows each. "
         "Rods are named A to G from the left.",
     ), ABACUS_READING],
+    "napier": [(                     # (1617, Rabdologiae, Napier's death that year; the set of ten rods and four-digit
+        "NAPIER'S BONES",            #  numbers: Wikipedia, MacTutor (Glaisher); 4138 x 567's rows: MacTutor)
+        "The multiplication table, cut into rods",
+        "Each face of a rod holds one digit's multiples, the tens above "
+        "each diagonal and the units below. Lay the rods for 4138 beside the "
+        "index, and row 6 holds 4~×~6, 1~×~6, 3~×~6 and "
+        "8~×~6 side by side. Add along the diagonals from the right, "
+        "carrying any ten.\n"
+        "Type 4138 X 567 and press Return. M takes you close to the board.",
+    ), (
+        "TEN RODS, FOUR FACES",
+        "Napier's own set",
+        "John Napier published the rods in 1617, in Rabdologiae, the year he "
+        "died. His ten rods carry four tables each: every digit is on four "
+        "rods and no rod has one twice, so any four-digit number can be laid.\n"
+        "Watch the hand lay 2222 with four different rods. Here each rod's "
+        "opposite faces make 9.",
+    ), (
+        "SEVERAL DIGITS",
+        "A row for each, then add",
+        "For 4138~×~567 the board stays as it is: row 5 gives 20690, row "
+        "6 gives 24828, row 7 gives 28966. Each is moved a place left of the "
+        "one after it and the three are added: 2346246.\n"
+        "The rods do the multiplying; the person still does the adding. Tab: "
+        "rods that do the carrying too.",
+    )],
+    "napier-genaille": [(            # (Genaille, Lucas, 1891, the rows 2 to 9: Wikipedia, Roegel, nzeldes)
+        "GENAILLE'S RODS",
+        "The carrying, drawn",
+        "Row m of each rod holds a number for every carry the rod to its "
+        "right can send: the units of digit~×~m plus that carry. Its "
+        "triangle points to the number on the next rod that the tens select.\n"
+        "Start at the last rod's top number in the row and follow the "
+        "triangles left: the numbers passed are the product. No adding.",
+    ), (
+        "AN ENGINEER'S ANSWER",
+        "Genaille and Lucas, 1891",
+        "The mathematician Édouard Lucas set the problem; Henri Genaille, "
+        "an engineer on the French state railways, answered it with these "
+        "rods, shown in 1891. They were popular for a few years, until "
+        "mechanical calculators took over.\n"
+        "They have no row for 1: times 1 is the number itself.",
+    ), (
+        "FURTHER READING",
+        "Napier's bones and Genaille's rods",
+        "Denis Roegel, Napier's Bones and Genaille-Lucas's Rods (2015). Free "
+        "online.\n"
+        "Michael R.~Williams, Early Calculation, in William Aspray (ed.), "
+        "Computing Before Computers (1990).\n"
+        "MacTutor History of Mathematics: Napier's rods.",
+    )],
     "slide-rule": [(                 # (Gunter 1620, Oughtred c. 1622: MacTutor; Mannheim 1851: Oughtred Society,
         "THE SLIDE RULE",            #  Smithsonian; Apollo 13's Pickett N600-ES: National Air and Space Museum)
         "Multiplying by adding lengths",

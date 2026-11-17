@@ -120,8 +120,14 @@ EXHIBITS = EXHIBITS or {
     } },
   { dir = "exhibits/NapiersBones/", file = "napiers-bones.lua", name = "Napier's bones", label = "napier",
     prefix = "Napier: ", floorY = -100,
-    about = "Napier's bones (1617): rods carrying the multiplication table; laid side by side,\n" ..
-            "they give a product to be read off, adding along the diagonals. In preparation." },
+    about = "Napier's bones (1617): rods carrying the multiplication table. A hand lays the rods\n" ..
+            "for a number beside the index, each turned to its digit; a row then holds every digit's\n" ..
+            "multiple, and adding along the diagonals gives the product. Type 4138 X 567, Return;\n" ..
+            "M: close to the board. Tab: Genaille's rods (1891), whose triangles do the carrying.",
+    modes = {
+      { key = "napier", name = "Napier's bones", card = "napier", env = { NB_WAY = "napier" } },
+      { key = "genaille", name = "Napier's bones: Genaille's rods", card = "napier-genaille", env = { NB_WAY = "genaille" } },
+    } },
   { dir = "exhibits/CombinationLock/", file = "combination-lock.lua", name = "the combination lock", label = "lock",
     prefix = "Lock: ", floorY = -100,
     about = "The combination lock: its wheels' notches must all line up before the fence\n" ..
