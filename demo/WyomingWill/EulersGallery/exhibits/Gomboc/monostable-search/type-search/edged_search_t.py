@@ -1,5 +1,5 @@
 """edged_search.py with an optional target rest-top angle: TARGET=150 python3 edged_search_t.py TAG SECONDS K L SEED
-(X0=genome.npy warm-starts every restart from that genome; angle seen from the centre of mass; ANGLE_W (0.3) per degree beyond +-10 deg, added at every stage of the score)
+(MINP=3: at least 3 pieces each covering >= 3% of the surface, so at least 2 creases; X0=genome.npy warm-starts every restart from that genome; angle seen from the centre of mass; ANGLE_W (0.3) per degree beyond +-10 deg, added at every stage of the score)
 Population search for an edged (1,1) body.
 CMA-ES, restarted from a fresh random start with twice the population whenever it converges (IPOP).
 score: not convex (a sample deeper than 1 um inside the hull)  1e4 + 1e3 * depth
@@ -11,6 +11,7 @@ from multiprocessing import Pool
 import os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")); import edged
 TA = float(os.environ.get("TARGET", "-1"))   # target rest-top angle (deg); -1 = none
 W = float(os.environ.get("ANGLE_W", "0.3"))  # score per degree beyond +-10 deg of the target (1 um of extra depth = 0.1)
+MINP = int(os.environ.get("MINP", "0"))       # least number of pieces that each cover >= 3% of the grid; 5 per missing piece
 
 
 def angle(B, mn, mx):
@@ -19,6 +20,13 @@ def angle(B, mn, mx):
 
 
 def apen(B, mn, mx): return 0.0 if TA < 0 else max(0.0, abs(angle(B, mn, mx) - TA) - 10)
+
+
+def showing(B):
+    p = B['piece']; return int((np.bincount(p, minlength=K) >= 0.03 * len(p)).sum())
+
+
+def ppen(B): return 5.0 * max(0, MINP - showing(B))
 
 TAG, TLIM, K, L, SEED = sys.argv[1], float(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5])
 NB = (L + 1) ** 2; NP = K * NB
@@ -35,7 +43,7 @@ def score(a):
         B = edged.body(a, K, L, 5)
         if not np.isfinite(B['X']).all(): return 1e5
         if B['conv'] > 0.001: return 1e4 + 1e3 * B['conv']
-        mn, mx, eS, eU = extras(B); ap = W * apen(B, mn, mx)              # angle penalty at every stage
+        mn, mx, eS, eU = extras(B); ap = W * apen(B, mn, mx) + ppen(B)     # angle and piece penalties at every stage
         if eS + eU > 0.0005: return 100 + 100 * (3 * eS + eU) + ap
         B6 = edged.body(a, K, L, 6); _, _, eS6, eU6 = extras(B6)
         if B6['conv'] > 0.001 or eS6 + eU6 > 0.0005: return 50 + 100 * (3 * eS6 + eU6 + B6['conv']) + ap
