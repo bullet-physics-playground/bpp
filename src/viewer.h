@@ -2347,6 +2347,8 @@ private:
                                                 ///< returns to.
   Vec _initialCameraUpVector; ///< Up vector it returns to; also the reference
                               ///< up used to keep the horizon level.
+  bool _cameraPlaced = false; ///< init() framed the scene (or parse() did,
+                              ///< headless, where init() never runs).
 
   QuadView _quad{this}; ///< The quad view (Tab): four panes, three orthographic.
 

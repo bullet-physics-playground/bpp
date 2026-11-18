@@ -559,6 +559,18 @@ emit scriptStarts();
   if (!camChanged)
     for (int i = 0; i < 4; ++i)
       if (camOriBeforeScript[i] != camOriAfterScript[i]) { camChanged = true; break; }
+  if (!camChanged && !_cameraPlaced) {
+    // No window has been shown (bpp -e, headless), so init() never framed
+    // the scene, and a script that places no camera would export one at the
+    // origin, looking at nothing: a blank render. Frame it as the GUI does
+    // when it opens with this script (init()).
+    computeBoundingBox();
+    showEntireScene();
+    _cameraPlaced = true;
+    camChanged = true;               // (and the House button returns here)
+    camPosAfterScript = camera()->position();
+    camOriAfterScript = camera()->orientation();
+  }
   if (camChanged) {
     _initialCameraPosition = camPosAfterScript;
     _initialCameraOrientation = camOriAfterScript;

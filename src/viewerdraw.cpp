@@ -117,6 +117,7 @@ void Viewer::init() {
   computeBoundingBox();
 
   showEntireScene();
+  _cameraPlaced = true;
 
   // Matches the POV-Ray light_source <500,500,-500> in includes/settings.inc.
   // POV-Ray is left-handed, OpenGL is right-handed, so Z is negated (see
