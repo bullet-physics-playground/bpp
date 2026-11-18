@@ -1,0 +1,4 @@
+start deficit 0.0375  below 19.9%  min 0.082  counts (1, 1)  radius 0.26
+  100s kept 1  deficit 0.0367  below 19.9%  min 0.082  radius 0.29  r 0.0000
+  146s kept 2  deficit 0.0358  below 19.8%  min 0.083  radius 0.22  r 0.0000
+FINAL deficit 0.0358  below 19.8%  min 0.083  radius 0.22

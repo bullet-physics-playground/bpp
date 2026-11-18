@@ -1,0 +1,22 @@
+start deficit 0.0375  below 19.9%  min 0.082  counts (1, 1)  radius 0.26
+   67s kept 1  deficit 0.0239  below 17.4%  min 0.078  radius 0.25  r 0.0008
+  146s kept 2  deficit 0.0157  below 12.1%  min 0.073  radius 0.25  r 0.0011
+  reject: counts (1, 1) radius -0.445 deficit 0.0121 (now 0.0157)
+  242s kept 3  deficit 0.0131  below 9.4%  min 0.076  radius 0.25  r 0.0008
+  307s kept 4  deficit 0.0112  below 7.9%  min 0.076  radius 0.23  r 0.0013
+  reject: counts (1, 1) radius 0.027 deficit 0.0098 (now 0.0112)
+  reject: counts (1, 1) radius 0.158 deficit 0.0102 (now 0.0112)
+  461s kept 5  deficit 0.0105  below 7.5%  min 0.074  radius 0.22  r 0.0005
+  519s kept 6  deficit 0.0099  below 7.1%  min 0.072  radius 0.21  r 0.0007
+  575s kept 7  deficit 0.0092  below 6.5%  min 0.070  radius 0.20  r 0.0011
+  reject: counts (1, 2) radius 0.182 deficit 0.0085 (now 0.0092)
+  640s kept 8  deficit 0.0087  below 6.3%  min 0.070  radius 0.25  r 0.0008
+  reject: counts (1, 2) radius 0.243 deficit 0.0081 (now 0.0087)
+  reject: counts (1, 2) radius 0.245 deficit 0.0083 (now 0.0087)
+  reject: counts (1, 2) radius 0.248 deficit 0.0084 (now 0.0087)
+  reject: counts (1, 2) radius 0.249 deficit 0.0085 (now 0.0087)
+  reject: counts (1, 2) radius 0.250 deficit 0.0086 (now 0.0087)
+  715s kept 9  deficit 0.0087  below 6.2%  min 0.070  radius 0.25  r 0.0000
+  reject: counts (1, 2) radius 0.250 deficit 0.0086 (now 0.0087)
+  reject: counts (1, 2) radius 0.250 deficit 0.0086 (now 0.0087)
+FINAL deficit 0.0087  below 6.2%  min 0.070  radius 0.25
