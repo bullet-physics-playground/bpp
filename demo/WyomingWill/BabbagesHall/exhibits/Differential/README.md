@@ -2,6 +2,11 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
+**`MANUAL.pdf`** is the manual: why the carrier turns by the average, how
+to read and work it, what differentials were for, with pictures, and the
+exhibit's keys (`H` opens it, here or in the hall). This README is the
+builder's reference.
+
 Gears that add. Two side gears, A and B, face each other on one axis. Two
 spider gears between them turn on a cross pin in the carrier, the ring round
 the middle. Whatever you do with A and B:
@@ -31,6 +36,7 @@ with the tour:
 | `2` / `W` | input B: one unit forward / back |
 | `0` | both back to 0 |
 | `T` | the tour |
+| `H` | the manual, `MANUAL.pdf`, opened in your PDF viewer |
 
 ## What to watch
 
@@ -98,6 +104,10 @@ Units are centimetres, kilograms and seconds.
 - **Friction and steps:** tooth friction 0.3 (a slider), 2400 steps a second.
 - **Left out:** the carrier's bearing on the hubs, and the rods' bearings in
   the posts.
+
+The manual's figures: `python3 manual/make-figures.py` (OpenSCAD's
+pictures of the parts, through `manual/views.scad`, and the racks drawn
+flat); `fig-exhibit.png` is a screenshot.
 
 Headless testing: `bpp -f differential.lua -n 2400` runs the tour and prints
 `RESULT differential tour: PASS` or `FAIL`. `DF_A`, `DF_B` and `DF_TOUR=0`
