@@ -3,3 +3,4 @@ printed_hull.py --step 0.2, then every second hull point (as the families chat d
   level table: aligned 22/22, vertical slip 25/25, sideways slip 17/17 (seed 1)
   1 deg: aligned 15/16 (seed 2; stop at 65 deg), sideways slip 10/10 (seed 1)
   2 deg: aligned 17/26 (seed 2; stops at 17-18, 82 x2, 98-101 x4, 119 deg)
+  1.5 deg: aligned 28/32 (seed 1; stops 76.5-78.7 deg x4) + 17/17 (seed 2) = 45/49 (92%); F2 at the same settings 40/50 (80%)
