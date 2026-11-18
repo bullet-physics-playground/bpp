@@ -1,5 +1,5 @@
 """edged_search.py with an optional target rest-top angle: TARGET=150 python3 edged_search_t.py TAG SECONDS K L SEED
-(angle seen from the centre of mass; 1 point per degree beyond +-10 deg once (1,1) on level 5, 0.1 before)
+(X0=genome.npy warm-starts every restart from that genome; angle seen from the centre of mass; ANGLE_W (0.3) per degree beyond +-10 deg, added at every stage of the score)
 Population search for an edged (1,1) body.
 CMA-ES, restarted from a fresh random start with twice the population whenever it converges (IPOP).
 score: not convex (a sample deeper than 1 um inside the hull)  1e4 + 1e3 * depth
@@ -10,6 +10,7 @@ import numpy as np, cma
 from multiprocessing import Pool
 import os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")); import edged
 TA = float(os.environ.get("TARGET", "-1"))   # target rest-top angle (deg); -1 = none
+W = float(os.environ.get("ANGLE_W", "0.3"))  # score per degree beyond +-10 deg of the target (1 um of extra depth = 0.1)
 
 
 def angle(B, mn, mx):
@@ -34,19 +35,19 @@ def score(a):
         B = edged.body(a, K, L, 5)
         if not np.isfinite(B['X']).all(): return 1e5
         if B['conv'] > 0.001: return 1e4 + 1e3 * B['conv']
-        mn, mx, eS, eU = extras(B)
-        if eS + eU > 0.0005: return 100 + 100 * (3 * eS + eU) + 0.1 * apen(B, mn, mx)
+        mn, mx, eS, eU = extras(B); ap = W * apen(B, mn, mx)              # angle penalty at every stage
+        if eS + eU > 0.0005: return 100 + 100 * (3 * eS + eU) + ap
         B6 = edged.body(a, K, L, 6); _, _, eS6, eU6 = extras(B6)
-        if B6['conv'] > 0.001 or eS6 + eU6 > 0.0005: return 50 + 100 * (3 * eS6 + eU6 + B6['conv'])
-        if apen(B, mn, mx) > 0: return 20 + apen(B, mn, mx)
+        if B6['conv'] > 0.001 or eS6 + eU6 > 0.0005: return 50 + 100 * (3 * eS6 + eU6 + B6['conv']) + ap
         Qf = edged.lever(B, mn[0][1], mx[0][1]); far = np.ones(len(Qf), bool)
         far[[i for i in (mn[0][1], mx[0][1]) if i < len(Qf)]] = False
-        return -Qf[far].min()
+        return -Qf[far].min() + ap
     except Exception:
         return 1e5
 
 
 def start(rng):
+    if os.environ.get('X0'): return np.load(os.environ['X0']).ravel() + rng.normal(0, 0.002, NP)   # warm start (X0=genome.npy)
     a = rng.normal(0, 0.02, (K, NB)); a[:, 1:4] = rng.normal(0, 0.08, (K, 3))
     return a.ravel()
 
@@ -64,7 +65,7 @@ if __name__ == '__main__':
                 if fs[k] < best[0]: best = (fs[k], np.array(xs[k])); np.save(f'e_best_{TAG}.npy', best[1])
                 if it % 20 == 0:
                     f = best[0]
-                    st = (f'(1,1) off-target {f - 20:.0f} deg' if 20 <= f < 50 else f'(1,1) Q {-f:.4f} mm/rad' if f < 0 else f'L6 extra {(f - 50) * 10:.1f} um' if f < 100
+                    st = (f'(1,1) Q {-f:.4f} mm/rad' if f < 0 else f'L6 extra {(f - 50) * 10:.1f} um' if f < 100
                           else f'extra {(f - 100) * 10:.0f} um' if f < 1e4 else 'not convex')
                     print(f'run {run} pop {pop} it {it} t={time.time() - t0:.0f}s best: {st}  sigma {es.sigma:.4f}', flush=True)
             run += 1; pop *= 2
