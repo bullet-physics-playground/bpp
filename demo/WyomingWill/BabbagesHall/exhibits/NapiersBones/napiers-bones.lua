@@ -995,11 +995,11 @@ end)
 v:addShortcut("T", function()
   if idle() then clearBoard(); tourStart() end
 end)
--- H: this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the hall,
--- the hall's own H does it
+-- H (or F1): this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the
+-- hall, the hall's own H and F1 do it
 if not hallPath then
   local MANUAL = dofile(DIR .. "../../open-manual.lua")
-  v:addShortcut("H", function() MANUAL.open(DIR, "the manual of Napier's bones") end)
+  for _, k in ipairs({ "H", "F1" }) do v:addShortcut(k, function() MANUAL.open(DIR, "the manual of Napier's bones") end) end
 end
 v:addShortcut("M", function()
   if magnify then magnifyOff(true)

@@ -710,11 +710,11 @@ if WAY == "subtract" then
 end
 v:addShortcut("C", function() touring = nil; entry = ""; clearAll() end)
 v:addShortcut("T", function() tourStart() end)
--- H: this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the hall,
--- the hall's own H does it
+-- H (or F1): this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the
+-- hall, the hall's own H and F1 do it
 if not hallPath then
   local MANUAL = dofile(DIR .. "../../open-manual.lua")
-  v:addShortcut("H", function() MANUAL.open(DIR, "the suanpan's manual") end)
+  for _, k in ipairs({ "H", "F1" }) do v:addShortcut(k, function() MANUAL.open(DIR, "the suanpan's manual") end) end
 end
 v:onParamChanged(function(N, name, value)
   if name == "speed" then applyTiming()

@@ -172,7 +172,7 @@ Genaille's rods, red dots mark the path instead. There are two ways, and
 | `C` | clear the board: the rods back in the tray |
 | `M` | the camera close to the board, to read the rods; again: back |
 | `T` | the tour. Napier's bones: 425 × 6, 6785 × 8, 2222 × 9, 4138 × 567. Genaille's rods: 52749 × 4, 874 × 7, 874 × 73 |
-| `H` | this manual |
+| `H` or `F1` | this manual |
 | `I` | in the hall: the lectern's label close up, and `PgDn` turns its pages |
 
 The rods are bodies, laid and pressed by the hand, and every reading is

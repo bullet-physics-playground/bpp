@@ -50,7 +50,7 @@ runs on its own from its folder.
 | `Shift+Tab` | walk back |
 | `I` | at an exhibit with a lectern: its label, close up; again, back |
 | `PgDn`, `PgUp` | at an exhibit whose label has pages: the next page, the one before (the card says which, and "PgDn: more") |
-| `H` | at an exhibit: its manual, opened in your PDF viewer (its `MANUAL.pdf`; its `README.pdf` where it has no manual yet); at the entrance or the title wall: this guide |
+| `H` (or `F1`) | at an exhibit: its manual, opened in your PDF viewer (its `MANUAL.pdf`; its `README.pdf` where it has no manual yet); at the entrance or the title wall: this guide. At the Pascaline and the Digi-Comp II, where `H` is the machine's own, `F1` |
 
 An exhibit can have **ways of its own**: the suanpan has three (adding,
 taking away, multiplying), the slide rule and Napier's bones two each, and the splitter board five (a
@@ -186,8 +186,11 @@ with a page of further reading.
 it, step by step, with pictures, and the exhibit's keys; its README is the
 builder's reference and its FINDINGS the measurements. `H`, at the exhibit
 or running it on its own, opens the manual in your PDF viewer
-(`open-manual.lua`; where there is no manual yet, the README). Done so
-far: the slide rule's and the Digi-Comp II's.
+(`open-manual.lua`; where there is no manual yet, the README); `F1` does
+too, everywhere, and is the key at the Pascaline and the Digi-Comp II,
+whose `H` is their own. Done so far: the suanpan's, the slide rule's,
+Napier's bones', the Domino Half Adder's, the Differential's and the
+Digi-Comp II's.
 
 Every `.md` file has a typeset `.pdf` beside it; `./make-pdfs.sh` rebuilds
 them all (needs `pip install markdown playwright`). The STL files are not

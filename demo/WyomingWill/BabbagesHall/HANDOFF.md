@@ -410,7 +410,8 @@ there, in `release/`, or on the path; or set `BPP`.
   the problem had already queued.
 - **Scripts get hover, not clicks** (bpp gives `v:onHover`, no click
   hook; the Shortcuts pane is plain text, so no links). The manual opens on
-  a key, `H`, through the system's opener (`open-manual.lua`: `xdg-open`,
+  a key, `H` (and `F1`, which no exhibit uses: the Pascaline's `H` is its
+  hundreds, the Digi-Comp II's its memory), through the system's opener (`open-manual.lua`: `xdg-open`,
   `open`, `start`; `MANUAL_OPENER` replaces it for testing). A click hook
   on objects would let the lectern itself be clicked: that is bpp's C++,
   for Jakob.
@@ -445,8 +446,10 @@ there, in `release/`, or on the path; or set `BPP`.
    parts (`manual/make-figures.py`), common mistakes, the exhibit's keys, a
    short "making one" pointing to the README. The slide rule's is the
    model for a simple machine, the Digi-Comp II's for a big one. Register
-   `H` to open it when the exhibit runs on its own (`if not hallPath`,
-   `open-manual.lua`); in the hall the hall's `H` does it.
+   `H` and `F1` to open it when the exhibit runs on its own (`if not
+   hallPath`, `open-manual.lua`; only `F1` where the exhibit uses `H`
+   itself, as the Pascaline and the Digi-Comp II do); in the hall the
+   hall's `H` and `F1` do it.
 6. In the hall: its EXHIBITS entry (`floorY = -100`), placard lettering
    (`make-labels.py`; a new key needs its line in `labels.lua` first), the
    lectern card (`make-lecterns.py`; more than a card's worth of text goes

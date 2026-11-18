@@ -480,11 +480,11 @@ v:addShortcut("2", function() nudge("B", 1) end)
 v:addShortcut("W", function() nudge("B", -1) end)
 v:addShortcut("0", function() tour = nil; target.A, target.B = 0, 0 end)
 v:addShortcut("T", function() tour = 1; fails = 0; print("\nthe tour"); tourStep() end)
--- H: this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the hall,
--- the hall's own H does it
+-- H (or F1): this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the
+-- hall, the hall's own H and F1 do it
 if not hallPath then
   local MANUAL = dofile(DIR .. "../../open-manual.lua")
-  v:addShortcut("H", function() MANUAL.open(DIR, "the Differential's manual") end)
+  for _, k in ipairs({ "H", "F1" }) do v:addShortcut(k, function() MANUAL.open(DIR, "the Differential's manual") end) end
 end
 v:onParamChanged(function(N, name, value)
   if name == "speed" then applyTiming()

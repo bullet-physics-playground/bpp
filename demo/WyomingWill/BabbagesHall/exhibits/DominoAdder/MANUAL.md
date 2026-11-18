@@ -173,7 +173,7 @@ SUM blue and the carry green.
 | `G` | GO: push the first domino |
 | `R` | stand them all up again, the inputs as they are |
 | `Z` | slow motion (a quarter speed) ↔ real time |
-| `H` | this manual |
+| `H` or `F1` | this manual |
 
 Every domino is a body, 8 g, standing in the template's pockets, whose
 walls are in the simulation too; the answer is read from which way the two

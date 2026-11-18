@@ -232,7 +232,7 @@ taking away, and multiplying.
 | `Backspace` | its last digit off |
 | `C` | clear the abacus |
 | `T` | the tour. Adding: 3, 4, 8, 6, 79 and 1234, a rule of its own each, to 1334. Taking away: 2000, then 1, 4, 3, 7, 8 and 5 taken away, to 1972. Multiplying: 36 × 4, 23 × 45, 99 × 99 |
-| `H` | this manual |
+| `H` or `F1` | this manual |
 | `I` | in the hall: the lectern's label close up, and `PgDn` turns its pages |
 
 The beads are bodies that slide on their rods; the finger takes hold of

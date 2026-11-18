@@ -499,11 +499,11 @@ v:addShortcut("A", function() tour = nil; inputs.A = 1 - inputs.A; setUp() end)
 v:addShortcut("B", function() tour = nil; inputs.B = 1 - inputs.B; setUp() end)
 v:addShortcut("G", function() if not running then goPending = false; push() end end)
 v:addShortcut("R", function() tour = nil; setUp(); goPending = false end)
--- H: this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the hall,
--- the hall's own H does it
+-- H (or F1): this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the
+-- hall, the hall's own H and F1 do it
 if not hallPath then
   local MANUAL = dofile(DIR .. "../../open-manual.lua")
-  v:addShortcut("H", function() MANUAL.open(DIR, "the Domino Half Adder's manual") end)
+  for _, k in ipairs({ "H", "F1" }) do v:addShortcut(k, function() MANUAL.open(DIR, "the Domino Half Adder's manual") end) end
 end
 v:addShortcut("Z", function()
   local sp = v:getParam("speed") < 0.5 and 1 or 0.25

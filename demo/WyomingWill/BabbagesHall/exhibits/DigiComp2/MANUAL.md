@@ -1,6 +1,7 @@
 # The Digi-Comp II: an illustrated manual
 
-`MANUAL.pdf` beside this file is a typeset copy of it.
+`MANUAL.pdf` beside this file is a typeset copy of it. In Babbage's Hall,
+press `F1` at the Digi-Comp II to open it (its `H` is the memory's 1s).
 
 How Babbage's Hall's Digi-Comp II computes, operation by operation: count,
 clear, add, multiply, complement, subtract and divide, and what follows

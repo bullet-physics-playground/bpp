@@ -1209,7 +1209,7 @@ local function header(g)
            (out and ".   Tab: step in" or (".   Tab: on to " .. nextStop(g, 1).name)) ..
            ";   Shift+Tab: " .. ((g.approach and not out) and "step back" or ("back to " .. nextStop(g, -1).name)) ..
            (g.lecternView and ";   I: its label, close up (again: back)" or "") .. pages ..
-           ";   H: its manual (a PDF)\n"
+           ((g.shortcuts and g.shortcuts["H"]) and ";   F1: its manual (a PDF)\n" or ";   H: its manual (a PDF)\n")
   end
 end
 local function wrapHelp(g)
@@ -1238,7 +1238,7 @@ local function hallHelp(s)
          "On show:\n" .. table.concat(live, "\n") .. "\n\n" ..
          (#coming > 0 and ("In preparation:\n" .. table.concat(coming, "\n") .. "\n\n") or "") ..
          "Tab / Shift+Tab   walk on / back\n" ..
-         "H                  at an exhibit: its manual (a PDF); here: the hall's guide\n" ..
+         "H (or F1)          at an exhibit: its manual (a PDF); here: the hall's guide\n" ..
          "the mouse          looks round as usual\n"
 end
 
@@ -1579,8 +1579,10 @@ realV:onKey(function(N, key, down)
     return true
   end
   -- (H: the manual of the exhibit you're at, in the PDF viewer, or at the
-  -- views the hall's own guide; unless the exhibit has H itself)
-  if key == "H" and not (g and g.shortcuts[key]) then
+  -- views the hall's own guide; unless the exhibit has H itself. F1 does
+  -- the same everywhere: no exhibit uses it, so the Pascaline's and the
+  -- Digi-Comp II's manuals, whose H is their own, open with it)
+  if (key == "H" and not (g and g.shortcuts[key])) or key == "F1" then
     if down then
       if here.isView then MANUAL.open(HERE, "the hall's guide")
       else MANUAL.open(here.dir, here.name) end

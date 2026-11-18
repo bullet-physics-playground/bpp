@@ -148,7 +148,7 @@ teeth push them.
 | `2` / `W` | input B: one unit forward / back |
 | `0` | both back to 0 |
 | `T` | the tour: 3 + 4, add 5 to B, take 2 from A, back to 0 + 0 |
-| `H` | this manual |
+| `H` or `F1` | this manual |
 | `I` | in the hall: the lectern's label close up, and `PgDn` turns its pages |
 
 The four gears are the printed ones, each simulated as its body and its
