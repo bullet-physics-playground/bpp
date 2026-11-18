@@ -45,3 +45,10 @@ POLISH, 18 Nov: f0_best_c.npy (CONV=0.0003 SIGMA=0.0008 search0.py c 560 3 f0_be
   to the layers become long flat facets and cost about 0.15 mm of lever. So the design needs margin there (the
   shared score in ../common/fam.py now penalises the mean shortfall below 0.45 mm), or a cut whose layers do not
   cross the band at 45 deg.
+
+VERDICT, 18 Nov: f0_best_b is the candidate; f0_best_c is withdrawn (worse on a level table, above).
+  The printing chat's full set for f0_best_b (printing/hulls/families-f0_best_b/, ec2fc18) with these runs:
+  level al 22/22, sy 25/25, sz 17/17; 1 deg al 40/41, sy 24/24, sz 10/10; 2 deg al 39/50 (78%, stops 98-101 deg).
+  f0_best_b.obj (the convex hull; what is printed): no extra resting face deeper than 2 um (prescreen edge
+  passes), rest face 0.09 deg from -Y; support-function minima on it have levers >= 157 um at 36 mm (sampling
+  kinks, not equilibria). Its 1.1 um non-convexity exists only in the radial description.
