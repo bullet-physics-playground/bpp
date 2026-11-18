@@ -49,11 +49,13 @@ contains(DEFINES, WIN32_LINK_BULLET) {
   # c++ - gcc warning" 'will be initialized after'
   unix:QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
 
-  INCLUDEPATH += $$WIN32_DIR_BULLET\\src
-
-  # Include
-
-  LIBS += -L$$WIN32_DIR_BULLET\\build\\lib
+  # Bullet comes from the UCRT64 pkg-config packages (see PKGCONFIG above).
+  # WIN32_DIR_BULLET is never assigned, so the old lines emitted a bogus
+  # -L/build/lib; paired with the Boost block's -L/mingw64/lib below that
+  # made the linker pick MSVCRT-based import libraries and corrupted heaps
+  # shared with the UCRT-based Qt DLLs at runtime.
+  # INCLUDEPATH += $$WIN32_DIR_BULLET\\src
+  # LIBS += -L$$WIN32_DIR_BULLET\\build\\lib
 
   # Link
 
@@ -82,11 +84,12 @@ contains(DEFINES, WIN32_LINK_LUABIND) {
 
 contains(DEFINES, WIN32_LINK_BOOST) {
 
-  INCLUDEPATH += $$WIN32_DIR_BOOST\\include
-
-  # include
-
-  LIBS += -L$$WIN32_DIR_BOOST\\mingw64\\lib
+  # Boost is header-only here (used by luabind via the UCRT64 toolchain).
+  # WIN32_DIR_BOOST is never assigned, so this used to emit -L/mingw64/lib,
+  # which made the linker pull MSVCRT-based libraries (notably libmingw32.a)
+  # instead of their UCRT64 counterparts - a mix that crashes bpp at startup.
+  # INCLUDEPATH += $$WIN32_DIR_BOOST\\include
+  # LIBS += -L$$WIN32_DIR_BOOST\\mingw64\\lib
 
   # link ?
 }
