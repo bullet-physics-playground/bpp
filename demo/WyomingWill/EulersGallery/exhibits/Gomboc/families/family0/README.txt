@@ -35,3 +35,13 @@ logs in drops/, f0_best_a.obj and f0_best_b.obj are the bodies)
   One seed each, 19-25 rests a run: f0_best_b looks clearly better than e2, f0_best_a no better. The
   acceptance test asks for 95% level-table runs too (not yet run for f0_best_b), and f0_best_b's 1.1 um
   non-convexity at level 7 should be polished away first (the printed body is the hull either way).
+
+POLISH, 18 Nov: f0_best_c.npy (CONV=0.0003 SIGMA=0.0008 search0.py c 560 3 f0_best_b.npy)
+  convexity 0.00 um at levels 5-7; strict (1,1); exact lever min 0.171 mm at 129 deg; max/min 1.381; rest-top 91 deg
+  static slip rests: sy 94 um at 163 deg, sz 9 um, aligned none
+  BPP level table (same rig and thinning as above):   aligned 19/23 (83%; 104 deg x3, 115)   vertical slip 23/24 (96%; 160)
+  FAILS the 95% level-table test aligned. The stops at 104 deg are one band of printed-hull faces (104-112 deg,
+  levers 77-104 um at 36 mm) where the smooth design lever is 0.22-0.30 mm: 0.12 mm layer steps at about 45 deg
+  to the layers become long flat facets and cost about 0.15 mm of lever. So the design needs margin there (the
+  shared score in ../common/fam.py now penalises the mean shortfall below 0.45 mm), or a cut whose layers do not
+  cross the band at 45 deg.

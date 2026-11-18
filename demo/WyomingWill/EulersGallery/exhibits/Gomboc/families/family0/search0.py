@@ -13,6 +13,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.jo
 import edged
 
 K, L = 3, 4
+CONV = float(os.environ.get('CONV', 0.001))     # convexity tolerance, mm at the radial scale (0.001 = 1 um)
 
 
 def face_lever(a, level=6):
@@ -42,11 +43,11 @@ def score(a):
     try:
         B = edged.body(a, K, L, 5)
         if not np.isfinite(B['X']).all(): return 1e5
-        if B['conv'] > 0.001: return 1e4 + 1e3 * B['conv']
+        if B['conv'] > CONV: return 1e4 + 1e3 * B['conv']
         eS, eU = extras(B)
         if eS + eU > 0.0005: return 100 + 100 * (3 * eS + eU)
         B6 = edged.body(a, K, L, 6); eS, eU = extras(B6)
-        if B6['conv'] > 0.001 or eS + eU > 0.0005: return 50 + 100 * (3 * eS + eU + B6['conv'])
+        if B6['conv'] > CONV or eS + eU > 0.0005: return 50 + 100 * (3 * eS + eU + B6['conv'])
         lev, tilt, rr = face_lever(a)
         far = np.sort(0.4 * lev[tilt > 25]); floor = far[:max(1, len(far) // 200)].mean()
         return -floor + 100 * max(0.0, 1.30 - rr)
