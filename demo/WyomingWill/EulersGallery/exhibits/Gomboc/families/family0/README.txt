@@ -19,6 +19,19 @@ RESULTS (36 mm; printed hulls from prescreen.py, across cut)
   All three: strict (1,1) on levels 5-7, no extra rest on the aligned hull. f0_best_b reaches 1.1 um of
   non-convexity on level 7 (the search leans on the 1 um tolerance): tighten before using it.
 
-Lesson: raising the lever floor does not remove the slip rest by itself; the rest moves (152 -> 163-166
-deg) and stays near the cut. Next: put the slip check (prescreen extra_rests on sy and sz) into the score
-for the best of each generation, and tighten convexity to 0.3 um.
+Raising the lever floor does not remove the static slip rest; the rest moves (152 -> 163-166 deg) and
+stays near the cut. But the printing chat's BPP drops of mono-e2 (printing/hulls/, 7b4d1e0) show that at
+the measured PLA rolling resistance (50 um) that slip rest catches nothing on a level table: the real
+failures are far-side stops at 93-161 deg, worse with tilt. Those are e2's weak levers, which is what
+this score raises.
+
+BPP DROPS (printing/bpp-drops/ rig, unchanged: 36 mm, across cut, GC_ROLL 50, seed 1, 5400 frames;
+hulls from printed_hull.py --step 0.2, then thinned to every second point as the printing chat did for e2;
+logs in drops/, f0_best_a.obj and f0_best_b.obj are the bodies)
+  case                      mono-e2 (printing chat)          f0_best_a        f0_best_b
+  aligned, 1 deg tilt       28/32 (105, 135 x2, 160)         16/19 (115 x2, 120)   25/25, median 14 s (e2: 31 s)
+  aligned, 2 deg tilt       20/25 (93, 96, 108 x2, 121, 15)  --               22/24 (115, 160)
+  vertical slip, 1 deg      12/18 (102.6 x5, 106.5)          --               24/24
+  One seed each, 19-25 rests a run: f0_best_b looks clearly better than e2, f0_best_a no better. The
+  acceptance test asks for 95% level-table runs too (not yet run for f0_best_b), and f0_best_b's 1.1 um
+  non-convexity at level 7 should be polished away first (the printed body is the hull either way).
