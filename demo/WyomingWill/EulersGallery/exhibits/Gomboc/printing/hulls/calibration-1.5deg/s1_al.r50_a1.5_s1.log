@@ -1,0 +1,94 @@
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+Audio unavailable (Mix_OpenAudio): ALSA: Couldn't open audio device: No such file or directory -- sound effects disabled, simulation continues normally.
+
+--- Drop: 6 gombocs ---
+t=  1.0s  upright 2/6  at rest 0/6  tilt(deg):  89  86   2 108  14  28
+t=  2.0s  upright 1/6  at rest 0/6  tilt(deg):  94 142   2 110  77 143
+t=  3.0s  upright 1/6  at rest 0/6  tilt(deg):  84 142   4 116  21 142
+  Green     at rest after   1.80 s, 142.3 deg off upright  pos 6.8 -10.7 on flat  ** NOT UPRIGHT **
+t=  4.0s  upright 1/6  at rest 1/6  tilt(deg): 120 142   9 121 136 143
+  Yellow    upright after   2.55 s
+t=  5.0s  upright 3/6  at rest 1/6  tilt(deg): 120 142   9  10   2 143
+  Red       at rest after   3.78 s, 120.5 deg off upright  pos -24.2 -29.8 on flat  ** NOT UPRIGHT **
+t=  6.0s  upright 1/6  at rest 2/6  tilt(deg): 120 142   9 131  71 143
+t=  7.0s  upright 1/6  at rest 2/6  tilt(deg): 120 142   9  91  93 142
+t=  8.0s  upright 1/6  at rest 2/6  tilt(deg): 120 142   9  64  74 142
+  Green     pulled away after 5 s at rest; dropping a new one, Green #2
+t=  9.0s  upright 1/6  at rest 0/6  tilt(deg): 120 142   9  69  70 143
+  Yellow    at rest after   7.40 s, 8.6 deg off upright  pos 27.4 -14.5 on flat
+t= 10.0s  upright 1/6  at rest 1/6  tilt(deg): 120  26   9  87  68 143
+t= 11.0s  upright 1/6  at rest 1/6  tilt(deg): 120  37   9  74  67 142
+  Orange    at rest after   9.42 s, 67.5 deg off upright  pos -11.6 25.2 on flat  ** NOT UPRIGHT **
+t= 12.0s  upright 2/6  at rest 2/6  tilt(deg): 120   4   9  84  67 143
+t= 13.0s  upright 1/6  at rest 2/6  tilt(deg): 120  18   9  83  67 142
+t= 14.0s  upright 1/6  at rest 1/6  tilt(deg): 120  23   9  83  67 142
+  Blue      at rest after  12.55 s, 83.5 deg off upright  pos -19.5 12.1 on flat  ** NOT UPRIGHT **
+t= 15.0s  upright 1/6  at rest 2/6  tilt(deg): 120  23   9  83  67 143
+t= 16.0s  upright 1/6  at rest 2/6  tilt(deg): 120  19   9  83  67 142
+  Orange    pulled away after 5 s at rest; dropping a new one, Orange #2
+t= 17.0s  upright 2/6  at rest 1/6  tilt(deg): 120  13   9  83  67 141
+t= 18.0s  upright 3/6  at rest 1/6  tilt(deg): 120   3   9  83  11 143
+t= 19.0s  upright 3/6  at rest 1/6  tilt(deg): 120   7   9  84   7 143
+  Blue      pulled away after 5 s at rest; dropping a new one, Blue #2
+t= 20.0s  upright 3/6  at rest 0/6  tilt(deg): 120  10   9  84   3 142
+  Orange #2 upright after   0.67 s
+  Green #2  upright after   8.48 s
+  Yellow    at rest after  20.58 s, 8.6 deg off upright  pos 27.4 -14.5 on flat
+  Orange #2 at rest after   3.72 s, 2.7 deg off upright  pos -3.5 14.3 on flat
+  Green #2  at rest after  13.13 s, 1.0 deg off upright  pos 2.5 -13.2 on flat
+t= 25.0s  upright 3/6  at rest 3/6  tilt(deg): 120   1   9  24   3 142
+  Yellow    pulled away after 5 s at rest; dropping a new one, Yellow #2
+  Orange    pulled away after 5 s at rest; dropping a new one, Orange #3
+  Blue #2   upright after   7.22 s
+  Green     pulled away after 5 s at rest; dropping a new one, Green #3
+t= 30.0s  upright 1/6  at rest 0/6  tilt(deg): 120   1 135   2 138 143
+  Blue #2   at rest after  10.22 s, 4.3 deg off upright  pos -28.5 12.7 on flat
+t= 35.0s  upright 1/6  at rest 1/6  tilt(deg): 120  75  25   4  91 143
+  Blue      pulled away after 5 s at rest; dropping a new one, Blue #3
+t= 40.0s  upright 2/6  at rest 0/6  tilt(deg): 120   5  13 166  17 142
+  Green #3  upright after   9.38 s
+  Yellow #2 upright after  12.22 s
+  Orange #3 upright after  13.20 s
+  Green #3  at rest after  11.92 s, 3.9 deg off upright  pos 0.9 -9.7 on flat
+t= 45.0s  upright 3/6  at rest 1/6  tilt(deg): 121   4   4  33   3 142
+  Orange #3 at rest after  15.78 s, 3.4 deg off upright  pos 8.2 6.8 on flat
+  Yellow #2 at rest after  17.08 s, 3.3 deg off upright  pos 25.7 -23.2 on flat
+  Red       at rest after  47.85 s, 120.5 deg off upright  pos -24.2 -29.8 on flat  ** NOT UPRIGHT **
+  Green     pulled away after 5 s at rest; dropping a new one, Green #4
+t= 50.0s  upright 2/6  at rest 3/6  tilt(deg): 120   4   3  57   3 142
+  Orange    pulled away after 5 s at rest; dropping a new one, Orange #4
+  Yellow    pulled away after 5 s at rest; dropping a new one, Yellow #3
+t= 55.0s  upright 1/6  at rest 0/6  tilt(deg): 120   4  64  44 129 143
+  Red       at rest after  54.68 s, 120.5 deg off upright  pos -24.2 -29.8 on flat  ** NOT UPRIGHT **
+  Green #4  upright after   6.52 s
+=== 60 s: 10 finished runs; time to rest: median 12.2 s, fastest 1.8 s, slowest 20.6 s; 3 came to rest not upright ===
+t= 60.0s  upright 2/6  at rest 0/6  tilt(deg): 121   6  38  10  49 141
+  Blue #3   upright after  21.82 s
+  Green #4  at rest after   9.90 s, 2.5 deg off upright  pos 6.4 2.1 on flat
+  Blue #3   at rest after  24.02 s, 1.2 deg off upright  pos -5.3 21.4 on flat
+t= 65.0s  upright 2/6  at rest 2/6  tilt(deg): 121   2  16   1  27 143
+  Red       at rest after  64.07 s, 120.5 deg off upright  pos -24.2 -29.8 on flat  ** NOT UPRIGHT **
+  Green     pulled away after 5 s at rest; dropping a new one, Green #5
+  Blue      pulled away after 5 s at rest; dropping a new one, Blue #4
+  Yellow #3 upright after  14.13 s
+t= 70.0s  upright 2/6  at rest 0/6  tilt(deg): 121 111   6   1   2 142
+  Orange #4 upright after  15.10 s
+  Orange #4 at rest after  18.28 s, 2.5 deg off upright  pos -5.8 -26.6 on flat
+  Red       at rest after  72.70 s, 120.5 deg off upright  pos -24.2 -29.8 on flat  ** NOT UPRIGHT **
+t= 75.0s  upright 2/6  at rest 2/6  tilt(deg): 121  26   3  61   3 142
+  Yellow #3 at rest after  20.40 s, 3.0 deg off upright  pos 27.6 -16.2 on flat
+  Orange    pulled away after 5 s at rest; dropping a new one, Orange #5
+t= 80.0s  upright 3/6  at rest 1/6  tilt(deg): 121   4   3   7 120 142
+  Yellow    pulled away after 5 s at rest; dropping a new one, Yellow #4
+  Green #5  upright after  10.63 s
+  Red       at rest after  82.80 s, 120.5 deg off upright  pos -24.2 -29.8 on flat  ** NOT UPRIGHT **
+t= 85.0s  upright 1/6  at rest 1/6  tilt(deg): 121   4  65  19  37 142
+  Green #5  at rest after  14.35 s, 4.3 deg off upright  pos 0.5 -9.7 on flat
