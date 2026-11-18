@@ -164,7 +164,7 @@ local MESH_DIR = "gomboc-meshes/"
 
 local function loadHull()
   local tried = {}
-  for _, dir in ipairs({ MESH_DIR, "demo/gomboc/" .. MESH_DIR, "demo/WyomingWill/EulersGallery/exhibits/Gomboc/" .. MESH_DIR }) do
+  for _, dir in ipairs({ MESH_DIR, "../../" .. MESH_DIR, "demo/gomboc/" .. MESH_DIR, "demo/WyomingWill/EulersGallery/exhibits/Gomboc/" .. MESH_DIR }) do
     local ok, data = pcall(dofile, dir .. "gomboc-hull.lua")
     if ok and data then MESH_DIR = dir; return data end
     tried[#tried + 1] = dir
