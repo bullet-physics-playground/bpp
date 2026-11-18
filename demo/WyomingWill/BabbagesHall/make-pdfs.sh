@@ -15,6 +15,7 @@ pdf exhibits/SlideRule/MANUAL.md       --sub "East bay 1: how to work a slide ru
 pdf exhibits/SlideRule/FINDINGS.md     --sub "East bay 1: the slide rule"
 pdf exhibits/NapiersBones/README.md    --sub "West bay 2: the multiplication table, cut into rods"
 pdf exhibits/NapiersBones/FINDINGS.md  --sub "West bay 2: Napier's bones"
+pdf exhibits/NapiersBones/MANUAL.md    --sub "West bay 2: how to multiply with Napier's bones and Genaille's rods"
 pdf exhibits/DominoAdder/README.md     --sub "West bay 3: dominoes that add two bits"
 pdf exhibits/DominoAdder/FINDINGS.md   --sub "West bay 3: the Domino Half Adder"
 pdf exhibits/Differential/README.md    --sub "East bay 3: bevel gears that add and subtract"

@@ -20,6 +20,7 @@
 --   Backspace  a figure off        C  clear the board (the rods back in the tray)
 --   M          the camera close to the board; again: back
 --   T          the tour
+--   H          the manual (MANUAL.pdf) in the PDF viewer
 --
 -- PHYSICS: the ten rods are bodies (boxes, 16 mm square, 176 mm long); the
 -- board (its plate, its ledge, the index rod against its rim) and the tray
@@ -994,6 +995,12 @@ end)
 v:addShortcut("T", function()
   if idle() then clearBoard(); tourStart() end
 end)
+-- H: this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the hall,
+-- the hall's own H does it
+if not hallPath then
+  local MANUAL = dofile(DIR .. "../../open-manual.lua")
+  v:addShortcut("H", function() MANUAL.open(DIR, "the manual of Napier's bones") end)
+end
 v:addShortcut("M", function()
   if magnify then magnifyOff(true)
   else
@@ -1045,6 +1052,8 @@ pcall(function()
   h[#h + 1] = "other and the ledge, and read from where they lie: which face is up, which"
   h[#h + 1] = "cell is level with the index. The slate, the red strip and the adding are"
   h[#h + 1] = "the script's. The set is Napier's: ten rods, four tables each (Glaisher)."
+  h[#h + 1] = ""
+  h[#h + 1] = "H: the manual (MANUAL.pdf, in your PDF viewer): both ways, with pictures."
   v:setHelpText(table.concat(h, "\n"))
 end)
 if v.onHover and objectKey then

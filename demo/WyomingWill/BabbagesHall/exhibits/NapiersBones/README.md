@@ -2,6 +2,10 @@
 
 *Babbage's Hall, west bay 2: the multiplication table, cut into rods.*
 
+**`MANUAL.pdf`** is the manual: how to multiply with the bones and with
+Genaille's rods, step by step, with pictures, and the exhibit's keys (`H`
+opens it, here or in the hall). This README is the builder's reference.
+
 The third machine on the walk. Each face of a rod (a "bone") carries one
 digit's multiples, × 1 to × 9, in nine cells, each split by a diagonal:
 the tens above it, the units below. Lay the rods for 4138 side by side
@@ -74,6 +78,7 @@ Genaille's own multiplication set had one table to a strip.
 | `C` | clear the board: the rods back in the tray |
 | `M` | the camera close to the board (again: back; walking on puts the view back too) |
 | `T` | the tour. Napier's bones: 425 × 6 (no carries), 6785 × 8 (carries), 2222 × 9 (four rods with a 2), 4138 × 567 (three rows). Genaille's rods: 52749 × 4, 874 × 7, 874 × 73 |
+| `H` | the manual, `MANUAL.pdf`, opened in your PDF viewer |
 
 A number the set can't lay (11111: only four rods carry a 1) is said so
 on the slate. The sliders: the rods' friction, the hand's speed, the
@@ -139,3 +144,4 @@ needs two sets of rods, or the second strips wrapped over the first.
 | `make-slate.py`, `slate/` | the slate's pictures, and the steps' words |
 | `make-stls.sh` | the STL files (not kept in the repository) |
 | `FINDINGS.md` | what was measured |
+| `MANUAL.md`, `manual/` | the manual and its figures (`python3 manual/make-figures.py` redraws them from the faces and `bones.lua`, but for `fig-exhibit.png`, a screenshot) |
