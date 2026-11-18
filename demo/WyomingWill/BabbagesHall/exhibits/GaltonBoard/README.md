@@ -233,7 +233,11 @@ The walls (`SB_WALLS`):
   has it. The gold lines are the exact counts.
 - `ruin`: walls on both sides, 4 places apart, the start `SB_START`
   places from the left one (1, 2 or 3): gambler's ruin. A quarter, a half
-  or three quarters of the balls go out on the right.
+  or three quarters of the balls go out on the right. With the start 1 (or
+  3) place from a wall, half the balls are caught at the first row: that
+  tube is two staggered columns wide (10.4 mm), since single file it
+  couldn't hold them (SPLITTERS.md, "A tube too short for gambler's
+  ruin").
 - `none`: no walls, the binomial exactly.
 - `reflect`: a wall that sends balls back, the outermost place a ball can
   reach `SB_REFL` places left of the start (3 by default). Where a ball

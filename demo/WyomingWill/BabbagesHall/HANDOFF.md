@@ -415,6 +415,10 @@ there, in `release/`, or on the path; or set `BPP`.
   `open`, `start`; `MANUAL_OPENER` replaces it for testing). A click hook
   on objects would let the lectern itself be clicked: that is bpp's C++,
   for Jakob.
+- **Size a container for its count's spread, not its expected count**: a
+  tube holding 82 for an expected 75 overflows in about one run in six.
+  And a test for "everything is still" must leave out what can't move on
+  anyway (a tall stack in a tube jitters without moving).
 - **Don't edit `tools/check-all.sh` while it runs:** bash reads a script
   as it goes, so lines added above the one running shift what it reads
   next (it would re-run or garble a line). Stop it, or edit a copy.
@@ -985,13 +989,17 @@ there, in `release/`, or on the path; or set `BPP`.
   its memory, so theirs open on `F1`. Found and fixed on the way: the
   suanpan's slate tiles were thick enough that their top edges showed each
   picture squashed into a strip.
-- **Found, not fixed: the splitter board's gambler's ruin** (`SB_WALLS=ruin
-  SB_START=1`, the hall's fourth way of it) stops its run with four balls
-  held up on the board ("the run has stopped: 0 balls still in the
-  hopper, 4 on their way"), on origin/test-harness as it was too.
-  SPLITTERS.md has it passing when it was tuned; check-all runs only the
-  first-passage wall. To look into: where the four are caught (`GB_LOG=2`),
-  and a check-all line for each wall.
+- **Fixed (2026-11-18): the splitter board's gambler's ruin.** Starting 1
+  place from a wall, it stopped its run with four balls on the ramp to the
+  first tube: that tube takes half the balls (75 of 150, give or take 6)
+  and, single file, held 82. A tube is now two staggered columns wide
+  (10.4 mm) wherever, for fair coins, the chance of more balls than single
+  file holds is over one in a thousand; only that tube is (starts 1 and
+  3), and the width is kept out of the default board's sizes file. A tall two-column stack
+  jitters without moving, so a run's end no longer waits on balls already
+  in a tube (`maxvFree`). All three starts and the default pass their
+  tours; the default board's geometry is unchanged. check-all has a line
+  for gambler's ruin now (SPLITTERS.md, "A tube too short").
 - **Then (William, 2026-11-15): the combination lock (east 2)**, the last
   of the four simple hand-worked pieces; its covered bay and placard are
   there. Then the
@@ -1020,6 +1028,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step: the combination lock, or the gambler's-ruin stall]. Deliver
+> step: the combination lock]. Deliver
 > each step as a patch on test-harness, with its documents and PDFs, and
 > the git commands.

@@ -29,8 +29,10 @@ hand and the sign are the Galton board's. What is new:
 - **A wall** (in four of its five ways). A wall that **swallows** has an
   **exit block** wherever a ball can reach it; the ball drops onto it and
   rolls down a **ramp** to a **tube** of its own, one tube for each row a
-  ball can be caught at. A wall that **sends balls back** has half teeth
-  that tip every ball inward.
+  ball can be caught at. (A tube is single file, except where single file
+  couldn't hold its balls with room to spare: gambler's ruin's first tube,
+  which takes half of them, is two staggered columns wide.) A wall that
+  **sends balls back** has half teeth that tip every ball inward.
 - **Thirteen bins** for the balls that get through all twelve rows, and a
   **gold line** in every tube and bin: the exact count for fair coins.
 
@@ -109,11 +111,9 @@ seventh bin, a `+` pools it with the cells after):
 | the pile goes flat | b6 43 (50), b7 59 (50), b8 48 (50) | 2.7 (9.2) |
 | no walls | b1+++ 6 (11), b5 21 (18), b6 27 (29), b7 44 (34), b8 28 (29), b9 15 (18), b10+ 9 (11) | 6.8 (16.8) |
 
-Every one "as expected". Gambler's ruin, starting 1 place from the left
-wall, sent 37 out on the right (37.5 exact) when it was tuned
-(`SPLITTERS.md`, "The exhibit"); in the version here a run of it stops
-with four balls held up on the board, which is still to be found and
-fixed.
+| gambler's ruin, start 1 | L1 76 (75), L3 21 (19), L5 3 (9), L7++ 13 (8), R3 19 (19), R5 7 (9), R7++ 7 (8), b7+ 4 (2) | 9.4 (18.5) |
+
+Every one "as expected".
 
 ## 5. Mistakes to avoid
 

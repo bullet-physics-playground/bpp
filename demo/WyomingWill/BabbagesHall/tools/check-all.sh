@@ -39,6 +39,7 @@ check "Domino Half Adder, on its own" 1750 $H/exhibits/DominoAdder/domino-adder.
 check "Lehmer's sieve, on its own"  2600 $H/exhibits/LehmerSieve/lehmer-sieve.lua
 check "Galton board, on its own"   6000 $H/exhibits/GaltonBoard/galton.lua
 check "Splitter board, on its own" 7000 $H/exhibits/GaltonBoard/splitter-board.lua
+check "Splitter board, gambler's ruin" 10000 $H/exhibits/GaltonBoard/splitter-board.lua SB_WALLS=ruin SB_START=1 GB_RUNS=1
 check "Digi-Comp II, on its own"  135000 $H/exhibits/DigiComp2/digicomp2.lua
 check "Suanpan, in the hall"      4600 $H/hall.lua HALL_START=suanpan
 check "Suanpan subtracting, in the hall" 4200 $H/hall.lua HALL_START=subtraction

@@ -73,6 +73,10 @@ local function build(o)
   G.RAMP = 6                              -- the ramps to the tubes, degrees
   G.RAMP_T = 2.0
   G.TUBE_IN = 7.0                         -- a tube's inside: one ball, single file
+  -- (... or two staggered columns, as the Galton board's bins, for a tube
+  -- single file can't hold: gambler's ruin's first. In a table of its own,
+  -- so the sizes file, which takes G's numbers, stays as it was)
+  G.tube = { WIDE = 10.4 }
   G.TUBE_WALL = 2.0
   G.TUBE_PITCH = G.TUBE_IN + G.TUBE_WALL
 
@@ -177,18 +181,52 @@ local function build(o)
   -- the tubes, and a ramp from each exit block to its tube
   G.tubes = {}
   local tr = tan(rad(G.RAMP))
+  -- (a tube single file: a ball each BALL_D up; two staggered columns: a
+  -- ball each half of the rise between rows, the columns' centres w - BALL_D
+  -- apart)
+  -- (the chance of more than k of n balls, each p)
+  local function over(n, p, k)
+    if p <= 0 then return 0 end
+    if p >= 1 then return k < n and 1 or 0 end
+    local term = (1 - p) ^ n                          -- (j = 0)
+    local below = 0
+    for j = 0, math.min(k, n) do
+      below = below + term
+      term = term * (n - j) / (j + 1) * p / (1 - p)
+    end
+    return math.max(0, 1 - below)
+  end
+  local function rise(w)
+    if w <= G.TUBE_IN then return G.BALL_D end
+    local dx = w - G.BALL_D
+    return math.sqrt(G.BALL_D ^ 2 - dx ^ 2)
+  end
   for _, s in ipairs({ -1, 1 }) do
     table.sort(catches[s])
     local m = #catches[s]
+    local from = 0                                    -- (how far in from the board's side the next tube starts)
     for j, r in ipairs(catches[s]) do
-      local X = s * (G.W - G.TUBE_IN / 2 - (j - 1) * G.TUBE_PITCH)
       local blk
       for _, bk in ipairs(blocks) do if bk.r == r and bk.s == s then blk = bk end end
-      local xe = X - s * G.TUBE_IN / 2                -- the tube's inner side
-      local ye = blk.y - math.abs(xe - blk.x) * tr
+      local p = (s < 0 and G.exactLeft or G.exactRight)[r]
+      -- single file unless the chance of more balls than it holds, for fair
+      -- coins, is over one in a thousand: the first tube of gambler's ruin
+      -- takes half the balls (75 of 150, give or take 6) and would hold only
+      -- 81, and a run that sent a few more that way backed up onto its ramp
+      -- and stopped
+      local w = G.TUBE_IN
+      local X = s * (G.W - from - w / 2)
+      local ye = blk.y - math.abs(X - s * w / 2 - blk.x) * tr
+      local holds = math.floor((ye - G.RAMP_T - G.Y_FLOOR - G.BALL_D) / G.BALL_D)
+      if over(G.NBALLS, p, holds) > 1e-3 then
+        w = G.tube.WIDE
+        X = s * (G.W - from - w / 2)
+        ye = blk.y - math.abs(X - s * w / 2 - blk.x) * tr
+      end
+      local xe = X - s * w / 2                        -- the tube's inner side
       G.solids[#G.solids + 1] = { { blk.x, blk.y }, { blk.x, blk.y - G.RAMP_T }, { xe, ye - G.RAMP_T }, { xe, ye } }
-      G.tubes[#G.tubes + 1] = { x = X, e = ye, row = r, side = s, j = j,
-                                p = (s < 0 and G.exactLeft or G.exactRight)[r] }
+      G.tubes[#G.tubes + 1] = { x = X, e = ye, row = r, side = s, j = j, w = w, rise = rise(w), p = p }
+      from = from + w + G.TUBE_WALL
     end
     -- each tube's inner wall: up to just under its ramp's end, so a ball
     -- that comes off the ramp, meets the tube's outer wall and bounces back
@@ -198,7 +236,7 @@ local function build(o)
     for j = 1, m do
       local t = G.tubes[#G.tubes - m + j]
       local top = t.e - G.RAMP_T - 0.2
-      local x0 = t.x - s * G.TUBE_IN / 2
+      local x0 = t.x - s * t.w / 2
       local x1 = x0 - s * G.TUBE_WALL
       G.solids[#G.solids + 1] = { { math.min(x0, x1), G.Y_FLOOR }, { math.max(x0, x1), G.Y_FLOOR },
                                   { math.max(x0, x1), top }, { math.min(x0, x1), top } }
@@ -206,7 +244,7 @@ local function build(o)
   end
   function G.tubeOf(x, y)
     for i, t in ipairs(G.tubes) do
-      if math.abs(x - t.x) < G.TUBE_IN / 2 + 0.5 and y > G.Y_FLOOR - 1 and y < t.e + 8 then return i end
+      if math.abs(x - t.x) < t.w / 2 + 0.5 and y > G.Y_FLOOR - 1 and y < t.e + 8 then return i end
     end
   end
 
@@ -278,7 +316,11 @@ local function build(o)
   -- the height a count fills: a bin (30 mm: about 4.5 balls a layer, 5.2 mm
   -- a layer), a tube (single file)
   function G.fill(count) return count <= 0 and 0 or G.BALL_D + (count / 4.5 - 1) * 5.2 end
-  function G.tubeFill(count) return count * G.BALL_D end
+  function G.tubeFill(count, i)
+    local t = i and G.tubes[i]
+    if not t or t.w <= G.TUBE_IN then return count * G.BALL_D end
+    return count > 0 and G.BALL_D + (count - 1) * t.rise or 0       -- (two staggered columns)
+  end
 
   -- the levels at which a ball's place is read (just inside each row's necks)
   G.levels = {}

@@ -435,6 +435,48 @@ file hands its sizes to OpenSCAD in each part's own text, after the
 include (the last assignment wins). The default board's part text is
 unchanged to the byte, so its runs are too.
 
+## A tube too short for gambler's ruin (2026-11-18)
+
+Gambler's ruin starting 1 place from the left wall stopped its run with
+four balls lying on the ramp to the first left tube, the tube full under
+them. That tube takes the balls that go left at the very first pin: half of
+them, 75 of 150, give or take 6. Single file, from the slide up to its
+ramp's end, it held 82, so a run that sent a few more than usual that way
+overflowed it (the board is deterministic: this run always did). It had
+passed when tuned (the table above); since then the layout of the tubes
+had moved, and with it the run.
+
+Now a tube is single file unless, for fair coins, the chance of more balls
+than it holds is over one in a thousand (worked exactly, from the
+binomial); otherwise it is 10.4 mm wide inside, two staggered columns, as
+the Galton board's bins are. (A first try, "its expected count plus five
+spreads", also widened the default board's last tube, which expects 4.8
+and holds 15: far more caution than the chances ask for.) Only gambler's
+ruin's first tube (starts 1 and 3) comes out wide; the tubes beyond it move
+inward to make room. The default board has no wide tube, so its sizes file
+and its parts are unchanged (the width is kept in a table of its own,
+`G.tube`, out of the sizes file: section "What it means").
+
+A tall two-column stack never quite stops: the balls low in it report
+speeds up to 13 cm/s while staying put to a few hundredths of a millimetre
+(the solver's, as in the Galton board's tall bins). The end of a run waited
+for everything to be still, and never came. A ball in a tube can't leave
+it, so the run's end now waits only for the balls on their way and in the
+bins (`maxvFree` in `galton.lua`; the Galton board has no tubes, so it is
+unchanged).
+
+Tours of 150 balls, two runs each:
+
+| start (places from the left wall) | caught left, right, survived (exact: 111, 37, 2 for start 1) | the first tube (exact 75) | chi-square (1% level) |
+|---|---|---|---|
+| 1 | 113, 33, 4; 104, 40, 6 | 76; 72 | 9.4, 15.7 (18.5) |
+| 2 | 73, 73, 4; 67, 83, 0 (exact 73, 73, 2) | (single file) | 6.0, 8.4 (20.1) |
+| 3 | 44, 103, 3; 29, 120, 1 (exact 37, 111, 2) | 72; 69 | 11.5, 10.3 (18.5) |
+| first passage (the default) | 91, 0, 59; 91, 0, 59 | (single file) | 5.5, 6.8 (20.1) |
+
+check-all now runs gambler's ruin too (start 1, one run), as well as the
+first-passage wall.
+
 ## What it means
 
 - A neck above every pin can cut the memory to nothing, but only at a
