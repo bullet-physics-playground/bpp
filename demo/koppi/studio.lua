@@ -73,8 +73,8 @@ global_settings{
 // needed by the Studio Lighting Kit
 #include "bpp_CIE.inc"
 CIE_ColorSystemWhitepoint(sRGB_ColSys, Illuminant_D65)
-#include "lightsys.inc"
-#include "lightsys_constants.inc"
+#include "bpp_lightsys.inc"
+#include "bpp_lightsys_constants.inc"
 #declare Lightsys_Brightness=.015; // adjust for brighter/dimmer radiosity on the first pass, and for brighter/dimmer reflections on the second pass
 
 // *** STUDIO LIGHTING KIT ***
