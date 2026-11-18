@@ -22,6 +22,7 @@
 --   Space  turn the crank: run the balls through (again: stop)
 --   E      empty the bins into the drawer and pour it back into the hopper
 --   T      the tour: a run, empty and pour back, a second run
+--   H      the manual (MANUAL.pdf; the splitter board's, MANUAL-splitter.pdf)
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md. The balls, the pins
 -- and the walls are the printed board's; the wheels turn by the crank.
@@ -1110,6 +1111,15 @@ v:addShortcut("T", function()
   TOUR = tourPlan(lastCensus.hopper == NBALLS)
   tourStep()
 end)
+-- H (or F1): this board's manual in the PDF viewer (the Galton board's
+-- MANUAL.pdf, the splitter board's BOARD.manual: they share this folder);
+-- in the hall, the hall's own H and F1 do it
+if not hallPath then
+  local MANUAL = dofile(DIR .. "../../open-manual.lua")
+  for _, k in ipairs({ "H", "F1" }) do
+    v:addShortcut(k, function() MANUAL.open(DIR, NAME:gsub("^The", "the") .. "'s manual", BOARD.manual) end)
+  end
+end
 v:onParamChanged(function(N, name, value)
   if name == "speed" then applyTiming()
   elseif name == "bounce" or name == "friction" then applyContacts() end
@@ -1122,6 +1132,7 @@ pcall(function()
     "  Space  turn the crank: run the balls through (again: stop)",
     "  E      empty the bins into the drawer, pour it back into the hopper",
     "  T      the tour: a run, empty and pour back, a second run",
+    "  H      the manual (MANUAL.pdf, in your PDF viewer)",
     "",
     "Each ball meets twelve pins on its way down, and at each goes left or",
     "right. Its bin counts how many times it went right. If every pin were a",

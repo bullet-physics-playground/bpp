@@ -5,6 +5,8 @@
 --
 --   local MANUAL = dofile(<the hall's folder> .. "open-manual.lua")
 --   MANUAL.open(<the exhibit's folder>)       -- its MANUAL.pdf, or README.pdf
+--   MANUAL.open(<folder>, what, "MANUAL-splitter.pdf")   -- an exhibit that
+--          shares its folder with another names its own manual file
 --
 -- bpp can't open a file itself from a script, so this asks the system's
 -- own opener: xdg-open (Linux), open (macOS), start (Windows), in the
@@ -27,10 +29,11 @@ local function whole(path)
   return cwd .. "/" .. path:gsub("^%./", "")
 end
 
--- the file to open in a folder: its MANUAL.pdf if it has one, else README.pdf
-function M.find(dir)
+-- the file to open in a folder: its MANUAL.pdf (or the file named) if it
+-- has one, else README.pdf
+function M.find(dir, file)
   if dir ~= "" and not dir:match("[/\\]$") then dir = dir .. "/" end
-  for _, name in ipairs({ "MANUAL.pdf", "README.pdf" }) do
+  for _, name in ipairs({ file or "MANUAL.pdf", "README.pdf" }) do
     if exists(dir .. name) then return dir .. name, name end
   end
 end
@@ -49,8 +52,8 @@ local function opener()
 end
 
 -- open it; says on the console what it opened (or why it couldn't)
-function M.open(dir, what)
-  local path, name = M.find(dir)
+function M.open(dir, what, file)
+  local path, name = M.find(dir, file)
   if not path then
     print("  (" .. (what or "this") .. " has no manual yet)")
     return nil

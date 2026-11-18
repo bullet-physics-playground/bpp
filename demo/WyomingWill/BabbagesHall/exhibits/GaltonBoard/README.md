@@ -2,6 +2,11 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
+**`MANUAL.pdf`** is the manual: running the board, why the balls make a
+bell, reading the counts, what real balls do, with pictures, and the
+exhibit's keys (`H` opens it, here or in the hall). The splitter board's
+is `MANUAL-splitter.pdf`. This README is the builder's reference.
+
 Babbage's Hall, west bay 5. Francis Galton's quincunx: balls falling
 through rows of pins, each pin sending a ball left or right, pile up in
 the bins below in the bell of the normal curve. Galton had his made by
@@ -81,6 +86,7 @@ the tries.
 | `Space` | turn the crank: run the balls through (again: stop) |
 | `E` | empty the bins into the drawer, and pour it back into the hopper |
 | `T` | the tour: a run, empty and pour back, and a second run (it starts with it) |
+| `H` | the manual, `MANUAL.pdf` (the splitter board: `MANUAL-splitter.pdf`), opened in your PDF viewer |
 
 **Where to look.** The bins fill in a bell; compare them with the gold
 lines. **The sign** beside the board (the exhibit's, not the machine's: it
@@ -117,6 +123,10 @@ spacing: they are not written to the printed parts), `GB_PATHS=<file>`
 Once the operator is done and nothing moves, it rests: it stops stepping
 until the next key, which saves the processor and changes nothing it
 computes.
+
+The manual's figures: `python3 manual/make-figures.py` (a labelled
+screenshot, the routes on the board's lattice, and the tour's two runs as
+the console printed them, in `manual/runs.txt`).
 
 ## How it is built
 

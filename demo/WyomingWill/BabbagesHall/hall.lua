@@ -87,6 +87,8 @@ local LABELS = dofile(MESH .. "labels.lua")
 --   floorY     the height of its own ground plane, in its own units: that
 --              is where the hall's floor goes
 --   about      what the placard says when the mouse rests on it
+--   manual     (if it shares its folder with another exhibit) its manual's
+--              file name in that folder; H opens MANUAL.pdf otherwise
 --   modes      (if it has ways of its own) a list, each { key, name, env,
 --              card, about }: each is loaded as an exhibit of its own, in a
 --              world of its own, with the environment variables env (so
@@ -160,7 +162,7 @@ EXHIBITS = EXHIBITS or {
             "under the hopper let them in one at a time. Space: turn the crank; E: empty the bins and pour\n" ..
             "them back; T: the tour." },
   { dir = "exhibits/GaltonBoard/", file = "splitter-board.lua", name = "the splitter board", label = "splitter",
-    prefix = "Splitter: ", floorY = -100,
+    prefix = "Splitter: ", floorY = -100, manual = "MANUAL-splitter.pdf",   -- (it shares the Galton board's folder)
     about = "The splitter board: a Galton board whose pins are fair, independent coins.\n" ..
             "Every pin is a splitter, a neck dropping each ball onto it; a wall on the left\n" ..
             "swallows the balls that reach it, into a tube for the row they were caught at.\n" ..
@@ -1585,7 +1587,7 @@ realV:onKey(function(N, key, down)
   if (key == "H" and not (g and g.shortcuts[key])) or key == "F1" then
     if down then
       if here.isView then MANUAL.open(HERE, "the hall's guide")
-      else MANUAL.open(here.dir, here.name) end
+      else MANUAL.open(here.dir, here.name, here.e.manual) end
     end
     return true
   end
