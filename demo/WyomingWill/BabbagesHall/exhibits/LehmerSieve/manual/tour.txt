@@ -1,0 +1,22 @@
+LEHMER'S SIEVE: N = 1241; x from 36 (the first whose square is past N)
+  the wheel of 5: open at 0 1 4
+  the wheel of 7: open at 2 3 4 5
+  the wheel of 8: open at 1 3 5 7
+  the wheel of 9: open at 0 3 6
+
+LEHMER'S NUMBER SIEVE -- the tour: factoring 1241 by Fermat's way
+  x = 36   mod 5: 1 open, mod 7: 1 pegged, mod 8: 4 pegged, mod 9: 0 open   -> the probe through 1 of 4
+  x = 37   mod 5: 2 pegged, mod 7: 2 open, mod 8: 5 open, mod 9: 1 pegged   -> the probe through 0 of 4
+  x = 38   mod 5: 3 pegged, mod 7: 3 open, mod 8: 6 pegged, mod 9: 2 pegged   -> the probe through 0 of 4
+  x = 39   mod 5: 4 open, mod 7: 4 open, mod 8: 7 open, mod 9: 3 open   -> the probe through 4 of 4
+  the probe falls right through: x = 39. But 39^2 - 1241 = 280 is not a square (16^2 = 256):
+  the sieve only says it might be. Turn on.
+  x = 40   mod 5: 0 open, mod 7: 5 open, mod 8: 0 pegged, mod 9: 4 pegged   -> the probe through 2 of 4
+  x = 41   mod 5: 1 open, mod 7: 6 pegged, mod 8: 1 open, mod 9: 5 pegged   -> the probe through 1 of 4
+  x = 42   mod 5: 2 pegged, mod 7: 0 pegged, mod 8: 2 pegged, mod 9: 6 open   -> the probe through 0 of 4
+  x = 43   mod 5: 3 pegged, mod 7: 1 pegged, mod 8: 3 open, mod 9: 7 pegged   -> the probe through 0 of 4
+  x = 44   mod 5: 4 open, mod 7: 2 open, mod 8: 4 pegged, mod 9: 8 pegged   -> the probe through 2 of 4
+  x = 45   mod 5: 0 open, mod 7: 3 open, mod 8: 5 open, mod 9: 0 open   -> the probe through 4 of 4
+  the probe falls right through, and the bell rings: x = 45. 45^2 - 1241 = 784 = 28^2,
+  so 1241 = (45 - 28)(45 + 28) = 17 x 73
+RESULT lehmer-sieve tour: PASS

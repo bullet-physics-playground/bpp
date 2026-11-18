@@ -45,6 +45,7 @@
 --   R      set the wheels back to the first x
 --   T      the tour for the number chosen (it starts with 1241's)
 --   Z      slow motion (1/4) <-> real time
+--   H      the manual (MANUAL.pdf) in the PDF viewer
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md. The wheels, the
 -- drive's pins and locking discs, the cam and the probe are the printed
@@ -890,6 +891,12 @@ v:addShortcut("N", function()
 end)
 v:addShortcut("R", function() stopTour(); restart(N) end)
 v:addShortcut("T", function() restart(N, true) end)       -- (the tour for the number N chose)
+-- H (or F1): this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the
+-- hall, the hall's own H and F1 do it
+if not hallPath then
+  local MANUAL = dofile(DIR .. "../../open-manual.lua")
+  for _, k in ipairs({ "H", "F1" }) do v:addShortcut(k, function() MANUAL.open(DIR, "the sieve's manual") end) end
+end
 v:addShortcut("Z", function()
   local sp = v:getParam("speed") < 0.5 and 1 or 0.25
   v:addParam("speed", sp, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
@@ -907,7 +914,7 @@ pcall(function()
     "  Space  one turn         G  turn until the probe falls through",
     "  N      choose the next number (1241, 1679, 1157, 2813)",
     "  T      the tour for that number   R  back to its first x",
-    "  Z      slow motion",
+    "  Z      slow motion      H  the manual (MANUAL.pdf, in your PDF viewer)",
     "",
     "Four wheels of 9, 8, 7 and 5 places. One turn of the handle moves every",
     "wheel on by one place, so after x turns the hole under the probe on the",

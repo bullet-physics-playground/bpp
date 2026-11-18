@@ -2,6 +2,11 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
+**`MANUAL.pdf`** is the manual: Fermat's way of factoring, why squares
+leave few remainders, pegging the wheels, running the sieve and checking
+its stops, with pictures, and the exhibit's keys (`H` opens it, here or in
+the hall). This README is the builder's reference.
+
 Babbage's Hall, west bay 6. A number sieve after Derrick Lehmer's (1926
 and 1932): wheels of different numbers of places, all moved on together,
 with holes where a number passes a test. Where every wheel has an open
@@ -95,6 +100,7 @@ the true answer, carrying on past a false stop.
 | `R` | set the wheels back to the first x |
 | `T` | the tour for the number chosen: it turns until the factors are found (it starts with 1241's) |
 | `Z` | slow motion (1/4 speed) on and off |
+| `H` | the manual, `MANUAL.pdf`, opened in your PDF viewer |
 
 Rest the mouse on a wheel to see which hole is under the probe and which
 are open; on the probe or the scale, how far it has gone through; on the
@@ -122,6 +128,11 @@ second; `LS_LOGDT` sets how often), `LS_HZ` (steps a second, 2400),
 Once the hand is done and nothing moves, the machine rests: it stops
 stepping until the next key, which saves the processor and changes nothing
 it computes.
+
+The manual's figures: `python3 manual/make-figures.py` (OpenSCAD's
+pictures of the parts, through `manual/views.scad`, and the tour as the
+simulation printed it, in `manual/tour.txt`); `fig-exhibit.png` is a
+screenshot.
 
 ## How it is built
 
