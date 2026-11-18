@@ -969,11 +969,29 @@ there, in `release/`, or on the path; or set `BPP`.
   rule has the first: `MANUAL.md`, 8 pages, its rule pictures drawn by
   `manual/make-figures.py` from `make-scales.py`'s own marks, the parts set
   as the text says. **Waiting on William's verdict on the format.**
-- **Next: manuals for the other seven** once William approves the slide
-  rule's (the suanpan, Napier's bones, the Domino Half Adder, the
-  Differential, the Pascaline, the Galton and splitter boards, Lehmer's
-  sieve; the Digi-Comp II has one), each with `H` registered for running
-  on its own.
+- **Done (2026-11-17): every machine has its manual.** William liked the
+  slide rule's ("This is super. Keep going."), so the others followed in
+  its format, one commit each: the suanpan (each rule's moves drawn from
+  `plan.lua`'s own steps), Napier's bones and Genaille's rods (the
+  simulation's own faces; sums and paths from `bones.lua`), the Domino
+  Half Adder (the layout from `domino-layout.lua`; which dominoes fell in
+  each sum as the simulation reported, `DA_DEBUG=2`), the Differential,
+  the Pascaline and Lehmer's sieve (OpenSCAD's drawings of the printed
+  parts, set to the states the simulation reported, through each
+  exhibit's `manual/views.scad`), the Galton board and the splitter board
+  (`MANUAL-splitter.md`: the two share a folder, so an EXHIBITS entry can
+  now name its manual file, `manual = ...`). `F1` opens a manual too,
+  everywhere: the Pascaline's `H` is its hundreds and the Digi-Comp II's
+  its memory, so theirs open on `F1`. Found and fixed on the way: the
+  suanpan's slate tiles were thick enough that their top edges showed each
+  picture squashed into a strip.
+- **Found, not fixed: the splitter board's gambler's ruin** (`SB_WALLS=ruin
+  SB_START=1`, the hall's fourth way of it) stops its run with four balls
+  held up on the board ("the run has stopped: 0 balls still in the
+  hopper, 4 on their way"), on origin/test-harness as it was too.
+  SPLITTERS.md has it passing when it was tuned; check-all runs only the
+  first-passage wall. To look into: where the four are caught (`GB_LOG=2`),
+  and a check-all line for each wall.
 - **Then (William, 2026-11-15): the combination lock (east 2)**, the last
   of the four simple hand-worked pieces; its covered bay and placard are
   there. Then the
@@ -1002,6 +1020,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step: the manuals for the other machines, or the combination lock]. Deliver
+> step: the combination lock, or the gambler's-ruin stall]. Deliver
 > each step as a patch on test-harness, with its documents and PDFs, and
 > the git commands.

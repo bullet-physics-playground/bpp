@@ -188,9 +188,9 @@ builder's reference and its FINDINGS the measurements. `H`, at the exhibit
 or running it on its own, opens the manual in your PDF viewer
 (`open-manual.lua`; where there is no manual yet, the README); `F1` does
 too, everywhere, and is the key at the Pascaline and the Digi-Comp II,
-whose `H` is their own. Done so far: the suanpan's, the slide rule's,
-Napier's bones', the Domino Half Adder's, the Differential's and the
-Digi-Comp II's.
+whose `H` is their own. Every machine on show has one (the splitter
+board's is `MANUAL-splitter.pdf`, beside the Galton board's in their
+shared folder).
 
 Every `.md` file has a typeset `.pdf` beside it; `./make-pdfs.sh` rebuilds
 them all (needs `pip install markdown playwright`). The STL files are not
