@@ -1,0 +1,948 @@
+--
+-- Gomboc Drop, version C: as realistic as we can make it
+--
+-- A gomboc (Gömböc) is a convex body of uniform density with exactly one
+-- stable and one unstable resting point: set it down any way you like and
+-- it rocks and rolls back to the same upright pose. This table drops a
+-- handful of them at random orientations and races them: the console says
+-- when each one is upright and when it has come completely to rest.
+--
+-- Scene, colours, race and sliders come from version B ("Gomboc Drop").
+-- What is different is the shape and the physics, chosen to be realistic
+-- rather than tuned:
+--
+-- SHAPE -- the GOMBOC900 SolidWorks 2010 CAD model by Kiss Attila
+--   (organisation 'e.v.', 12 December 2013, per its STEP file's header),
+--   published as "Gömböc" Convex, homogeneous three-dimensional body by
+--   Istenes József on GrabCAD on 5 December 2024,
+--   https://grabcad.com/library/gomboc-convex-homogeneous-three-dimensional-body-1
+--   (licence not checked). Scaled to 9 cm. Its exact surfaces have one
+--   stable and one unstable equilibrium. It rests and rocks on a cylinder
+--   (radius 3.6 cm, axis along the body's x, 1.147 mm above the centre of
+--   mass). The physics shape is the convex hull of 15,548 points, all on the
+--   true surfaces: a 1.2 mm tessellation everywhere but that cylinder, and
+--   1229 whole straight lines across the cylinder, 30 microns apart at the
+--   bottom (gomboc-meshes/gomboc-hull.lua; made from the STEP file by
+--   hull-reconstruction/, see its README.txt). Its only extra resting faces
+--   are 32 thin strips within 0.74 deg of upright (the deepest needs a
+--   0.003 micron lift to leave). (Version B's printable STL differs from
+--   this shape by up to 2.2 mm; even after B's corrections its hull keeps
+--   27 resting faces deeper than 5 microns, some 50-115 deg from upright.)
+--   Centre of mass and inertia are the exact CAD values.
+--
+-- ENERGY LOSS -- a real gomboc loses energy at the table, not in the air:
+--   * rolling resistance: a couple of at most  M = delta * m * g  against
+--     the rolling, whenever the gomboc touches the table (any tilt). delta
+--     is the rolling-resistance lever arm (slider, microns). Kinetic: M
+--     against the rolling. Static: once the rolling has stopped, whatever
+--     holds it still, up to M -- so it stays put wherever gravity's lever
+--     (the level distance from the contact to the centre of mass) is under
+--     delta, as a real one does. A constant moment, unlike speed-proportional
+--     damping, brings motion to a complete stop in finite time.
+--   * spin friction: a constant moment opposing spinning about the vertical.
+--   * air drag: Bullet's velocity damping, default 0 (real air drag on a
+--     9 cm gomboc is hundreds of times smaller than any useful setting).
+--   * static friction where Bullet leaves it out (rolling.anchor): at rest
+--     Bullet's friction acts along one fixed direction only, so a slow
+--     slide across it (or turning about the vertical) was never stopped;
+--     before each step the contact point's sliding, and on a line of
+--     contact the turning, is stopped by an impulse there, if within what
+--     Coulomb friction has left after Bullet's own (Changed 20 Oct 2026).
+--   All are applied for EVERY physics step (this script steps the world
+--   itself, see stepWorld), not once per frame; the rolling resistance as a
+--   couple that Bullet's step takes in with gravity (demo/module/rolling.lua;
+--   given as an angular impulse just before the step: Bullet's friction
+--   leaves out a torque set with applyTorque, which made a held gomboc
+--   slide 0.4-3.2 mm a minute until 20 Oct 2026).
+--   (Changed 20 Oct 2026. Before, it was a cut in the rolling speed before
+--   each step; that cannot cancel what gravity adds within the step, so a
+--   gomboc that should have been held crept home at about
+--   g*lever*dt/(k^2+r^2), 0.016-0.031 deg/s at 3-6 deg (measured:
+--   0.009-0.030). Shown on a test sphere with the gomboc's 1.147 mm offset
+--   of the centre of mass, mass and inertia, on a single point of contact,
+--   held at 5 deg: creep 0.049/0.029/0.016/0.0064 deg/s at 600/1200/2400/
+--   4800 steps/s, in proportion to the step, 1.0-1.3x that formula; with
+--   the couple, none: under 0.001 deg in 30 s.)
+--
+-- NO TAPS by default: nothing pushes a gomboc home. (Version B's taps are
+-- available with the "taps" slider, for comparison.)
+--
+-- Timestep: a gomboc's resting valley is so flat that small errors in each
+-- contact step can feed it energy (see demo/mesh/gomboc-test.lua). The
+-- "steps" slider sets physics steps per simulated second. At 1200 (the
+-- default), with every loss switched off, a lone gomboc's energy stays
+-- level, with no steady gain, so the losses above are what bring it to rest.
+-- 2400 was no better. (Re-checked 19 Oct 2026: level from 40 s to 120 s,
+-- after a rise of 0.07 cm x m x g in the first 40 s; old hull, the same
+-- after 0.05 cm in 15 s. Found 20 Oct 2026: the rise is Bullet pushing the
+-- body out of the table where its contact points sit, off the true line of
+-- contact (error reduction 0.2; split impulse is used only for overlaps
+-- deeper than 0.04 units, 0.4 mm here): with that set to 0, the energy of a
+-- gomboc set down at 5 deg, losses off, drops 0.014 cm x m x g in 4 s and
+-- then stays within 0.007 for 60 s; with 0.2 it gains 0.2 cm in 20 s.)
+--
+-- What to expect (defaults, 6 gombocs; tested 19 Oct 2026 with 3 drops and
+-- 2 headstands, GC_SEED=1-3, re-drop off):
+--   * all upright within about 13-23 s, all at rest within about 25-30 s
+--     (in two of the five tests one was still settling at 30 s);
+--   * they stop short of exactly upright: 0.1-5.3 deg at 9 cm in the tests
+--     (0.1-7.2 deg with the static rolling resistance of 20 Oct 2026, which
+--     no longer lets them creep home; with static friction, later that
+--     day, 0.2-8.4 deg: see below), with nothing touching. Why: a constant rolling-resistance moment
+--     holds a gomboc wherever gravity's lever home (the horizontal distance
+--     from the contact to the centre of mass) is shorter than delta. It
+--     rests and rocks on the cylinder above, tilting about its x axis, and
+--     there the lever is 1.147 mm x sin(tilt), so delta = 150 microns holds
+--     it out to 7.5 deg at 9 cm (10.0 deg at 75%, 6.0 deg at 125%: the
+--     lever grows with size, delta doesn't). The hull's lines across the
+--     cylinder hold it the same to within 0.7 deg (and, with Bullet's
+--     micron-scale contact, a little further: 8.1 and 8.4 deg were seen
+--     once each). (Before 19 Oct 2026 the
+--     hull was 1.2 mm facets there too; they held it in narrow bands out
+--     to 21 deg, and stops of 11.4-11.7 deg were seen. report/dossiers/
+--     Gomboc.md has the numbers.) More "rolling" = quicker to stop, further
+--     from upright;
+--   * once at rest it stays put: one gomboc, GC_SEED=1-7, 40-140 s after
+--     the drop: no movement the log can see (0.1 micron, 0.001 deg) in six,
+--     0.6 micron and 0.009 deg in one. (Before 20 Oct 2026 every one crept
+--     home, at 0.009-0.030 deg/s; then, held, they slid 0.4-3.2 mm a
+--     minute, until static friction was added later that day.) On a busy
+--     table one can still be reported at rest again: Bullet's contact can
+--     make one rock in place, or a neighbour knocks it;
+--   * from a headstand one can stay balanced on its head (the top is a
+--     crease that is nearly level: the lever across it can be under delta,
+--     so rolling resistance holds it there; one of 12 in the tests stayed
+--     for good) or for a few seconds before it rolls home;
+--   * gombocs that roll into each other can stay propped together for a
+--     long time, as real ones do (the console says "touching ...").
+--
+-- Units are centimetres, kilograms and seconds.
+--
+-- Re-drop: once a gomboc has been at rest for `redrop` seconds (slider,
+-- default 5; 0 = off), an attendant pulls it away (up and off to the side,
+-- out of view) and, at the same time, lets a new one of the same colour
+-- down from high above a clear drop spot and drops it there, so the table
+-- keeps going (R and U, with gombocs already on the table, do the same).
+-- Neither touches anything on the way: both are drawn by display-only
+-- copies, and the new one's rigid body joins the world only as it's let go
+-- (GRIP_S + LIFT_S = 1 s after the old one was taken), at the drop pose
+-- and spin drawn as before. The console reports each gomboc's times from
+-- its own drop (the moment it's let go), and a tally every minute.
+--
+-- Keys
+--   R   drop them all again, at random orientations
+--   U   stand them all on their heads (the unstable point) and let go
+--   K   kick: toss them all up with a spin
+--   ]   one more gomboc (and drop)      [   one fewer
+--
+-- Sliders: count, speed, steps, friction, restitution, rolling (microns),
+--          spin friction, air drag, taps, redrop.
+--
+-- Speed: the physics is the cost (the 15,548-point hull, 1200 steps/s);
+-- on a 2.1 GHz server core six gombocs run at about 1/4 of real time
+-- without graphics (12% slower than with the 13,476-point hull of before
+-- 19 Oct 2026; a few per cent more since 20 Oct 2026, for reading Bullet's
+-- contacts every step for the rolling resistance). Lowering "steps" to 600
+-- halves the cost; with every
+-- loss off, 600 also showed no steady energy gain. Thinning the hull
+-- instead would bring back deep false resting spots (tested: at 1.4 mm
+-- spacing, 6 deeper than 1 micron, some up to 103 deg from upright).
+--
+-- For headless testing (bpp -f ... -n FRAMES), environment variables set
+-- the starting values: GC_SEED, GC_COUNT, GC_STEPS, GC_ROLL, GC_SPIN,
+-- GC_DRAG, GC_REST, GC_TAPS, GC_REDROP, GC_CPT, GC_START=headstand, and GC_LOG=file.csv
+-- logs every gomboc twice a second.
+--
+
+local common = require "common"
+
+-- ---------------------------------------------------------------------
+-- the gomboc's hull and mass properties
+-- ---------------------------------------------------------------------
+
+local MESH_DIR = "gomboc-meshes/"
+
+local function loadHull()
+  local tried = {}
+  for _, dir in ipairs({ MESH_DIR, "demo/gomboc/" .. MESH_DIR, "demo/WyomingWill/EulersGallery/exhibits/Gomboc/" .. MESH_DIR }) do
+    local ok, data = pcall(dofile, dir .. "gomboc-hull.lua")
+    if ok and data then MESH_DIR = dir; return data end
+    tried[#tried + 1] = dir
+  end
+  error("gomboc-hull.lua not found in " .. table.concat(tried, ", "))
+end
+local HULL = loadHull()
+
+local G = 981                             -- cm/s^2
+local DENSITY = 0.0012                    -- kg/cm^3: a resin print, 1.2 g/cm^3
+local MASS = HULL.volume * DENSITY        -- about 0.32 kg
+local K2 = HULL.inertia                   -- squared radii of gyration, cm^2
+local INERTIA = btVector3(K2[1] * MASS, K2[2] * MASS, K2[3] * MASS)
+local MARGIN = 0.04                       -- cm
+
+-- one hull shape, shared by every gomboc (Bullet allows sharing shapes)
+local HULL_SHAPE = btConvexHullShape()
+do
+  local p = HULL.points
+  for i = 1, #p, 3 do
+    HULL_SHAPE:addPoint(btVector3(p[i], p[i + 1], p[i + 2]), false)
+  end
+  HULL_SHAPE:recalcLocalAabb()
+  -- (the margin grows the hull evenly all round, which lifts every resting
+  -- height by the same amount -- so it can't add or remove a resting point)
+  HULL_SHAPE:setMargin(MARGIN)
+end
+
+-- ---------------------------------------------------------------------
+-- world
+-- ---------------------------------------------------------------------
+
+local SLOPE = math.rad(tonumber(os.getenv("GC_SLOPE") or "") or 0)   -- printing chat: tilted gravity = table sloping down toward +x
+v.gravity = btVector3(G * math.sin(SLOPE), -G * math.cos(SLOPE), 0)
+
+local MAX_COUNT = 12
+local function param(name, value, lo, hi, step, info)
+  v:addParam(name, value, lo, hi, step, info)
+end
+local function envnum(name, default) return tonumber(os.getenv(name) or "") or default end
+local CPT = envnum("GC_CPT", 0.001)        -- contact processing threshold, cm (set on each body below)
+param("count", envnum("GC_COUNT", 6), 1, MAX_COUNT, 1, "how many gombocs to drop")
+param("speed", 1, 0.25, 4, 0.25, "simulated seconds per real second")
+param("steps", envnum("GC_STEPS", 1200), 300, 4800, 300, "physics steps per simulated second")
+param("friction", 0.5, 0.05, 1.0, 0.05, "friction coefficient, 1 = grippiest (Bullet multiplies it by the table's 0.8)")
+param("restitution", envnum("GC_REST", 0.1), 0.0, 0.8, 0.05, "bounciness (Bullet multiplies it by the table's 0.2: 0.1 is 0.02)")
+param("rolling", envnum("GC_ROLL", 150), 0, 300, 5,
+      "rolling resistance lever arm, microns (constant moment, any tilt)")
+param("spin friction", envnum("GC_SPIN", 0.7), 0, 5, 0.1,
+      "deceleration of spin about the vertical, rad/s^2")
+param("air drag", envnum("GC_DRAG", 0), 0, 1.5, 0.05,
+      "Bullet velocity damping; real air drag is ~0")
+param("taps", envnum("GC_TAPS", 0), 0, 1, 1, "1: nudge stalled gombocs home (version B's taps)")
+param("redrop", envnum("GC_REDROP", 5), 0, 30, 1,
+      "seconds at rest before a gomboc is pulled away and a new one of its colour let down and dropped (0 = off)")
+
+-- Timing: 60 frames a second; each frame simulates `speed` sixtieths of a
+-- second in `steps`-per-second physics steps. The script takes all but the
+-- last step itself (stepWorld) so it can apply rolling resistance before
+-- each one; bpp takes the last, exactly one step long (maxSubSteps 0).
+local STEP, NSTEPS, FRAME_DT = 1 / 1200, 20, 1 / 60
+local function applyTiming()
+  local speed = v:getParam("speed")
+  NSTEPS = math.max(1, math.floor(v:getParam("steps") * speed / 60 + 0.5))
+  FRAME_DT = speed / 60
+  STEP = FRAME_DT / NSTEPS
+  v.animationPeriod = 16
+  common.setTiming(STEP, 0, STEP)
+end
+applyTiming()
+
+-- The table: version B's tray. A flat wooden middle, a band sloping gently
+-- up all round it, and a low rim.
+local SPACING = 27                         -- cm between drop spots
+local GRID_COLS, GRID_ROWS = 4, 3
+local FLAT_W = GRID_COLS * SPACING + 30    -- cm: the flat middle
+local FLAT_D = GRID_ROWS * SPACING + 30
+local RAMP_W, RAMP_DEG = 14, 8             -- the sloping band: width (cm), slope
+local TABLE_W = FLAT_W + 2 * RAMP_W        -- inside the rim
+local TABLE_D = FLAT_D + 2 * RAMP_W
+local RAMP_TOP = RAMP_W * math.tan(math.rad(RAMP_DEG))
+
+local WOOD, RIM_WOOD = "#7a4a24", "#4e2e15"
+local TABLE_FRICTION = 0.8
+local function slab(sx, sy, sz, x, y, z, col, rot)
+  local c = Cube(sx, sy, sz, 0)
+  c.trans = btTransform(rot or btQuaternion(0, 0, 0, 1), btVector3(x, y, z))
+  c.col = col
+  -- (Bullet multiplies these by a body's own: with the sliders' 0.5 and
+  -- 0.1, friction 0.4 and restitution 0.02 at the table; body on body,
+  -- 0.25 and 0.01)
+  c.friction = TABLE_FRICTION
+  c.restitution = 0.2
+  v:add(c)
+  return c
+end
+slab(FLAT_W, 4, FLAT_D, 0, -2, 0, WOOD)                         -- top at y = 0
+
+local T = 4                                                     -- slab thickness
+local a = math.rad(RAMP_DEG)
+local function ramp(nx, nz, len)              -- (nx, nz): the outward direction
+  local half = (nx ~= 0) and FLAT_W / 2 or FLAT_D / 2
+  local cx = half + RAMP_W / 2
+  local cy = RAMP_W / 2 * math.tan(a)
+  local tilt = btQuaternion(btVector3(-nz, 0, nx), a)            -- tips the outer edge up
+  local w = RAMP_W / math.cos(a)
+  local ox, oy = -math.sin(a) * T / 2, -math.cos(a) * T / 2
+  if nx ~= 0 then
+    slab(w, T, len, nx * (cx - ox), cy + oy, 0, WOOD, tilt)
+  else
+    slab(len, T, w, 0, cy + oy, nz * (cx - ox), WOOD, tilt)
+  end
+end
+ramp(1, 0, TABLE_D); ramp(-1, 0, TABLE_D); ramp(0, 1, TABLE_W); ramp(0, -1, TABLE_W)
+
+local RIM_H, RIM_T = 4, 3
+local rimY, rimH = (RAMP_TOP + RIM_H - 4) / 2, RAMP_TOP + RIM_H + 4
+slab(TABLE_W + 2 * RIM_T, rimH, RIM_T, 0, rimY, TABLE_D / 2 + RIM_T / 2, RIM_WOOD)
+slab(TABLE_W + 2 * RIM_T, rimH, RIM_T, 0, rimY, -TABLE_D / 2 - RIM_T / 2, RIM_WOOD)
+slab(RIM_T, rimH, TABLE_D, TABLE_W / 2 + RIM_T / 2, rimY, 0, RIM_WOOD)
+slab(RIM_T, rimH, TABLE_D, -TABLE_W / 2 - RIM_T / 2, rimY, 0, RIM_WOOD)
+
+local floor = Plane(0, 1, 0, -80, 400)
+floor.col = "#3b3f45"
+v:add(floor)
+
+-- height of the tray's surface under (x, z)
+local TAN_A = math.tan(a)
+local function tableHeight(x, z)
+  local ex = math.max(0, math.abs(x) - FLAT_W / 2)
+  local ez = math.max(0, math.abs(z) - FLAT_D / 2)
+  return math.min(RAMP_W, math.max(ex, ez)) * TAN_A
+end
+
+common.setCamera(btVector3(0, 105, 140), btVector3(0, 0, 6))
+
+-- ---------------------------------------------------------------------
+-- the gombocs
+-- ---------------------------------------------------------------------
+
+local COLOURS = { "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4",
+                  "#42d4f4", "#f032e6", "#bfef45", "#fabed4", "#469990", "#dcbeff" }
+local NAMES = { "Red", "Green", "Yellow", "Blue", "Orange", "Purple",
+                "Cyan", "Magenta", "Lime", "Pink", "Teal", "Lavender" }
+
+local function hex(c)
+  return tonumber(c:sub(2, 3), 16), tonumber(c:sub(4, 5), 16), tonumber(c:sub(6, 7), 16)
+end
+-- 11 shades per gomboc, from dark (tipped over) to its full colour (upright)
+local SHADES = {}
+for i, c in ipairs(COLOURS) do
+  local r, g, b = hex(c)
+  SHADES[i] = {}
+  for k = 0, 10 do
+    local f = 0.25 + 0.75 * k / 10
+    SHADES[i][k] = string.format("#%02x%02x%02x", math.floor(r * f), math.floor(g * f),
+                                 math.floor(b * f))
+  end
+end
+
+local gombocs = {}
+
+local function newGomboc(i)
+  local m = Mesh(MESH_DIR .. "gomboc.obj", 0, false)   -- (already centred on its COM)
+  local ms = btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -50, 0)))
+  local body = btRigidBody(MASS, ms, HULL_SHAPE, INERTIA)
+  m.body = body
+  m.col = SHADES[i][0]
+  body:setActivationState(4)              -- DISABLE_DEACTIVATION: never doze off mid-rock
+  -- (from version B) only contact points within 10 microns of the table
+  -- are handed to the solver; this quietens the buzzing of a gomboc at rest
+  -- about 4x here (median 0.30 -> 0.07 deg/s)
+  body:setContactProcessingThreshold(CPT)
+  v:add(m)
+  return { obj = m, body = body, i = i, shade = 0 }
+end
+
+local function applyMaterials()
+  local f, r, d = v:getParam("friction"), v:getParam("restitution"), v:getParam("air drag")
+  for _, g in ipairs(gombocs) do
+    g.body:setFriction(f)
+    g.body:setRestitution(r)
+    g.body:setDamping(d, d)
+  end
+end
+
+-- a uniformly random orientation (Shoemake's method)
+local function randomQuat()
+  local u1, u2, u3 = math.random(), 2 * math.pi * math.random(), 2 * math.pi * math.random()
+  local a, b = math.sqrt(1 - u1), math.sqrt(u1)
+  return btQuaternion(a * math.sin(u2), a * math.cos(u2), b * math.sin(u3), b * math.cos(u3))
+end
+
+local function place(g, q, x, y, z, vel, spin)
+  local b = g.body
+  b:setCenterOfMassTransform(btTransform(q, btVector3(x, y, z)))
+  b:setLinearVelocity(vel or btVector3(0, 0, 0))
+  b:setAngularVelocity(spin or btVector3(0, 0, 0))
+  b:clearForces()
+  b:activate(true)
+end
+
+-- drop spots: a grid SPACING apart, centred on the table, a little jittered
+local function spots(n)
+  local cols = math.min(GRID_COLS, math.ceil(math.sqrt(n * GRID_COLS / GRID_ROWS)))
+  local rows = math.ceil(n / cols)
+  local out = {}
+  for k = 0, n - 1 do
+    local c, r = k % cols, math.floor(k / cols)
+    local inRow = math.min(cols, n - r * cols)
+    out[#out + 1] = { (c - (inRow - 1) / 2) * SPACING + (math.random() - 0.5) * 3,
+                      (r - (rows - 1) / 2) * SPACING + (math.random() - 0.5) * 3 }
+  end
+  return out
+end
+
+-- ---------------------------------------------------------------------
+-- rolling resistance, spin and static friction, before every physics step
+-- ---------------------------------------------------------------------
+-- Rolling resistance: a couple of at most delta*m*g, applied with the step
+-- itself (demo/module/rolling.lua): while a gomboc rolls, delta*m*g against
+-- its rolling; once it has stopped, whatever holds it, up to delta*m*g,
+-- against the moment of the table's push where Bullet pushed in the last
+-- step. Only while it touches the table. (Given as the angular impulse
+-- couple*dt just before the step, not with applyTorque, whose torque
+-- Bullet's friction leaves out: changed 20 Oct 2026, see the module.)
+-- Static friction (rolling.anchor, first): the impulse at the contact that
+-- stops it sliding along the table (and turning about the normal, on a
+-- line of contact), if within friction times the last step's normal
+-- impulse less the friction Bullet gave in it; Bullet's own friction at
+-- rest acts along one direction only.
+-- Spin friction: on the table (centre of mass no higher above the surface
+-- than the gomboc's tip), the spin about the vertical loses `spin friction`
+-- per second; it can't reverse the spin: below one step's bite it stops.
+-- ("Vertical" is world up even on the 8-degree slopes.)
+-- (Changed 20 Oct 2026. Until then the rolling part too was a cut in the
+-- turning speed before each step, delta*g/(k^2+r^2) per second, about the
+-- point straight below the centre of mass: it could not cancel what gravity
+-- adds within the step, so a gomboc that should be held kept rolling home
+-- at about g*lever*dt/(k^2+r^2); see the header.)
+local ROLL_DELTA, SPIN_DECEL = 0.005, 0.7     -- cm, rad/s^2 (set from sliders)
+local rolling = require "rolling"
+local onTable = {}                            -- the gombocs' objects, as keys
+
+local function resist(dt)
+  for k in pairs(onTable) do onTable[k] = nil end
+  for _, g in ipairs(gombocs) do onTable[g.obj] = true end
+  local C = rolling.contacts(v, onTable, CPT)
+  local mu = v:getParam("friction") * TABLE_FRICTION
+  for _, g in ipairs(gombocs) do
+    g.rr = g.rr or {}
+    rolling.anchor(g.rr, g.obj, g.body, C[g.obj], mu, G, dt)
+    rolling.couple(g.rr, g.obj, g.body, C[g.obj], MASS, G, ROLL_DELTA, K2, dt)
+    local px, py, pz = getPosXYZ(g.obj)
+    local r = py - tableHeight(px, pz) - MARGIN
+    if SPIN_DECEL > 0 and r < HULL.topHeight + 0.05 and r > 0 then
+      local wx, wy, wz = getAngVelXYZ(g.obj)
+      local dws = math.min(math.abs(wy), SPIN_DECEL * dt)
+      setAngVelXYZ(g.obj, wx, wy - (wy > 0 and dws or -dws), wz)
+    end
+  end
+end
+
+-- ---------------------------------------------------------------------
+-- the race: upright, then at rest
+-- ---------------------------------------------------------------------
+
+-- Upright: within UPRIGHT_DEG of upright for HOLD seconds (as version B).
+-- At rest: has not turned more than REST_TURN nor moved more than REST_MOVE
+-- in any REST_HOLD-second window. (Judged by where it is, not by its speed:
+-- the contact solver makes a gomboc at rest buzz in place -- brief speed
+-- spikes that never add up to visible movement, though they do let it creep
+-- about 0.1 mm per 10 s; and it rolls slowly toward upright, see the
+-- header.)
+local UPRIGHT_DEG, HOLD = 15, 2.0
+local REST_TURN = math.rad(0.2)           -- rad
+local REST_MOVE = 0.02                    -- cm
+local REST_HOLD = 2.0
+local RACE_LIMIT = 300                    -- s: give up reporting after this
+
+-- version B's taps (only with the "taps" slider on)
+local TAP_AFTER = 3.0
+local CLEAR = 5.5
+local HOP = 15
+local HOP_UP = 20
+local TAP_SPIN = 1.0
+local SLOW_SPIN = 0.15
+
+local race = { t = 0, running = false, nextReport = 1, nextTally = 60, label = "", done = {} }
+
+-- a fresh run for one gomboc: its clock starts now
+local function resetGomboc(g)
+  g.t0 = race.t
+  g.restSince, g.rightedAt, g.anchorT, g.restedAt, g.restSeenAt = nil, nil, nil, nil, nil
+  g.best, g.bestAt, g.taps, g.touching, g.shade = 180, race.t, 0, nil, -1
+end
+
+local function resetRace(label)
+  race.t, race.running, race.nextReport, race.nextTally, race.label, race.done =
+    0, true, 1, 60, label, {}
+  for _, g in ipairs(gombocs) do
+    resetGomboc(g)
+    g.run = 1
+  end
+  print(string.format("\n--- %s: %d gomboc%s ---", label, #gombocs, #gombocs == 1 and "" or "s"))
+end
+
+-- "Red", or "Red #3" from its third drop on
+local function label(g)
+  return g.run > 1 and string.format("%s #%d", NAMES[g.i], g.run) or NAMES[g.i]
+end
+
+-- tilt of the gomboc's own up axis from world up, in degrees
+local function tiltDeg(b)                  -- measured from "up" = against gravity
+  local q = b:getOrientation()
+  local w, x, y, z = q:getW(), q:getX(), q:getY(), q:getZ()
+  local ux, uy = 2 * (x * y - w * z), 1 - 2 * (x * x + z * z)
+  local c = -ux * math.sin(SLOPE) + uy * math.cos(SLOPE)
+  return math.deg(math.acos(math.max(-1, math.min(1, c))))
+end
+
+local function standings()
+  local done = {}
+  for _, g in ipairs(gombocs) do if g.restedAt then done[#done + 1] = g end end
+  table.sort(done, function(a, b) return a.restedAt - a.t0 < b.restedAt - b.t0 end)
+  for k, g in ipairs(done) do
+    local taps = g.taps > 0 and string.format("  (%d tap%s)", g.taps, g.taps == 1 and "" or "s") or ""
+    print(string.format("  %2d. %-9s upright %s, at rest %6.2f s, %4.1f deg off upright%s%s",
+                        k, label(g), g.rightedAt and string.format("%6.2f s", g.rightedAt - g.t0) or "  never ",
+                        g.restedAt - g.t0, g.tilt, taps, g.touching and ("  (touching " .. g.touching .. ")") or ""))
+  end
+end
+
+local function obstacle(g)
+  local px, _, pz = getPosXYZ(g.obj)
+  local ax, az, why = 0, 0, nil
+  if TABLE_W / 2 - math.abs(px) < CLEAR then ax = -px / math.abs(px); why = "the rim" end
+  if TABLE_D / 2 - math.abs(pz) < CLEAR then az = -pz / math.abs(pz); why = "the rim" end
+  for _, o in ipairs(gombocs) do
+    if o ~= g and not o.out then          -- (one being let down touches nothing yet)
+      local ox, _, oz = getPosXYZ(o.obj)
+      local dx, dz = px - ox, pz - oz
+      local d = math.sqrt(dx * dx + dz * dz)
+      if d < 2 * CLEAR and d > 0 then ax, az, why = ax + dx / d, az + dz / d, NAMES[o.i] end
+    end
+  end
+  local n = math.sqrt(ax * ax + az * az)
+  if not why or n == 0 then return nil end
+  return ax / n, az / n, why
+end
+
+-- what it may be resting against: a neighbour whose centre is closer than
+-- the two gombocs' largest radii (4.6 cm each), or the rim
+local function touching(g)
+  local px, _, pz = getPosXYZ(g.obj)
+  if TABLE_W / 2 - math.abs(px) < HULL.topHeight or TABLE_D / 2 - math.abs(pz) < HULL.topHeight then
+    return "the rim"
+  end
+  for _, o in ipairs(gombocs) do
+    if o ~= g and not o.out then          -- (one being let down touches nothing yet)
+      local ox, _, oz = getPosXYZ(o.obj)
+      if math.sqrt((px - ox) ^ 2 + (pz - oz) ^ 2) < 2 * HULL.topHeight then return NAMES[o.i] end
+    end
+  end
+  return nil
+end
+
+local function maybeTap(g, tilt)
+  if v:getParam("taps") < 0.5 then return end
+  local wx, wy, wz = getAngVelXYZ(g.obj)
+  local ax, az, why = obstacle(g)
+  if math.sqrt(wx * wx + wy * wy + wz * wz) > SLOW_SPIN or (not ax and tilt < g.best - 1) then
+    g.best, g.bestAt = tilt, race.t
+    return
+  end
+  if race.t - g.bestAt < TAP_AFTER then return end
+  local _, h, _ = getPosXYZ(g.obj)
+  local rx, rz
+  if ax then
+    rx, rz = ax, az
+  else
+    local q = g.body:getOrientation()
+    local x, y, z, w = q:getX(), q:getY(), q:getZ(), q:getW()
+    local ux, uz = 2 * (x * y - w * z), 2 * (y * z + w * x)
+    local a = math.atan2(-uz, -ux) + math.rad((math.random() - 0.5) * 60)
+    if ux * ux + uz * uz < 1e-6 then a = math.random() * 2 * math.pi end
+    rx, rz = math.cos(a), math.sin(a)
+  end
+  local s = ax and HOP or TAP_SPIN * h
+  setAngVelXYZ(g.obj, rz * s / h, 0, -rx * s / h)
+  setVelXYZ(g.obj, rx * s, ax and HOP_UP or 0, rz * s)
+  g.taps, g.best, g.bestAt = g.taps + 1, tilt, race.t
+  print(string.format("  %-9s tap! (%s)", NAMES[g.i],
+                      ax and ("leaning on " .. why) or string.format("dawdling at %.0f deg", tilt)))
+end
+
+-- ---------------------------------------------------------------------
+-- the moves
+-- ---------------------------------------------------------------------
+
+local pullAway                        -- (below: takes one off the table, out of the world)
+local function setCount(n)
+  n = math.max(1, math.min(MAX_COUNT, math.floor(n)))
+  while #gombocs > n do
+    local g = table.remove(gombocs)
+    pullAway(g)
+    if not g.out then v:remove(g.obj) end
+  end
+  while #gombocs < n do gombocs[#gombocs + 1] = newGomboc(#gombocs + 1) end
+  applyMaterials()
+end
+
+local function randomSpin()
+  return btVector3((math.random() - 0.5) * 6, (math.random() - 0.5) * 6, (math.random() - 0.5) * 6)
+end
+
+-- ---------------------------------------------------------------------
+-- the attendant: when a gomboc on the table is replaced (a re-drop, R, U),
+-- the old one is pulled away -- up and off to the side, out of view, and
+-- gone -- while AT THE SAME TIME a new one is let down from DOWN_FROM above
+-- its drop spot, already turned as it will be let go, and let go there.
+-- Each move takes GRIP_S + LIFT_S seconds (a moment to take hold, then the
+-- move). Neither can touch anything on the way: both are drawn by
+-- display-only copies (they collide with nothing). The gomboc's rigid body
+-- leaves the world as the old one is taken and goes back into it, as the
+-- new one, at the moment it's let go -- at the pose and with the spin the
+-- drop always had, drawn from the same random numbers; so the new one is
+-- a fresh gomboc, identical to the old. While it's carried it's out of the
+-- race. (Gombocs new on the table, at the start, are put straight at
+-- their drop poses, as always.)
+-- ---------------------------------------------------------------------
+local LIFT_S, GRIP_S = 0.8, 0.2
+local GRIP_N, LIFT_N = math.floor(GRIP_S * 60 + 0.5), math.floor(LIFT_S * 60 + 0.5)
+local AWAY_UP, AWAY_SIDE, DOWN_FROM = 120, 120, 80    -- cm: where the old one goes, where the new one comes from
+local function smooth(f) return f * f * (3 - 2 * f) end
+local function qOf(q) return { q:getX(), q:getY(), q:getZ(), q:getW() } end
+-- a display-only copy of the gomboc (it collides with nothing), or nil
+local function copyOf(col, q, x, y, z)
+  local m = Mesh(MESH_DIR .. "gomboc.obj", 0, false)
+  m.col = col
+  if not pcall(function() m.collides = false end) then return nil end
+  v:add(m)
+  m.trans = btTransform(q, btVector3(x, y, z))
+  return m
+end
+
+-- let g down from DOWN_FROM above (q; x, y, z) and drop it there with `spin`
+local function letDown(g, q, x, y, z, spin, onDone)
+  g.lift = { copy = copyOf(SHADES[g.i][0], q, x, y + DOWN_FROM, z), q1 = qOf(q), p1 = { x, y, z }, y = y + DOWN_FROM,
+             spin = spin, done = onDone, n = -GRIP_N, N = LIFT_N }
+  g.body:setGravity(btVector3(0, 0, 0))
+  place(g, q, x, y, z)                    -- (where it will be let go: what the others see of it)
+  if not g.out then v:remove(g.obj); g.out = true end   -- (and out of the world till then)
+end
+local function liftStep(g)
+  local L = g.lift
+  if not L then return end
+  L.n = L.n + 1
+  local f = math.max(0, math.min(1, L.n / L.N))
+  L.y = L.p1[2] + DOWN_FROM * (1 - smooth(f))
+  if L.copy then
+    L.copy.trans = btTransform(btQuaternion(L.q1[1], L.q1[2], L.q1[3], L.q1[4]), btVector3(L.p1[1], L.y, L.p1[3]))
+  end
+  if f >= 1 then
+    if L.copy then v:remove(L.copy) end
+    if g.out then v:add(g.obj); g.out = nil end
+    g.lift = nil
+    g.body:setGravity(btVector3(0, -G, 0))
+    place(g, btQuaternion(L.q1[1], L.q1[2], L.q1[3], L.q1[4]), L.p1[1], L.p1[2], L.p1[3], nil, L.spin)
+    if L.done then L.done() end
+  end
+end
+
+-- the gombocs being pulled away: display-only copies, carried up and to
+-- the side, then gone
+local leaving = {}
+-- take g off the table (or out of the air, if it was still being let down)
+function pullAway(g)
+  local L, copy, q, p = g.lift, nil, nil, nil
+  if L and L.copy then                      -- (still being let down: its copy turns back)
+    copy, q, p = L.copy, L.q1, { L.p1[1], L.y, L.p1[3] }
+  elseif g.placed then
+    local x, y, z = getPosXYZ(g.obj)
+    q, p = qOf(g.body:getCenterOfMassTransform():getRotation()), { x, y, z }
+    copy = copyOf(SHADES[g.i][math.max(0, g.shade)], btQuaternion(q[1], q[2], q[3], q[4]), x, y, z)
+  end
+  g.lift = nil
+  if not copy then return nil end
+  local r = { obj = copy, q = q, p = p, n = -GRIP_N, side = (g.i % 2 == 1) and -1 or 1 }
+  leaving[#leaving + 1] = r
+  return r
+end
+-- which way it goes: away from where the new one comes down, else outwards
+local function sideAway(r, x)
+  if r then
+    if math.abs(r.p[1] - x) > 3 then r.side = (r.p[1] > x) and 1 or -1
+    elseif math.abs(r.p[1]) > 1 then r.side = (r.p[1] > 0) and 1 or -1 end
+  end
+end
+local function leaveStep()
+  for k = #leaving, 1, -1 do
+    local r = leaving[k]
+    r.n = r.n + 1
+    local f = math.max(0, math.min(1, r.n / LIFT_N))
+    local s = smooth(f)
+    r.obj.trans = btTransform(btQuaternion(r.q[1], r.q[2], r.q[3], r.q[4]),
+                              btVector3(r.p[1] + r.side * AWAY_SIDE * s, r.p[2] + AWAY_UP * math.min(1, 1.6 * s), r.p[3]))
+    if f >= 1 then
+      v:remove(r.obj)
+      table.remove(leaving, k)
+    end
+  end
+end
+-- drop g at (q; x, y, z) with `spin`: straight there if it's new on the
+-- table, else let down while the one there now is pulled away
+local function dropAt(g, q, x, y, z, spin, onDone)
+  local away = pullAway(g)
+  if away then
+    letDown(g, q, x, y, z, spin, onDone)
+    sideAway(away, x)
+  else
+    place(g, q, x, y, z, nil, spin)
+  end
+  g.placed = true
+end
+
+local function drop()
+  setCount(v:getParam("count"))
+  local s = spots(#gombocs)
+  for k, g in ipairs(gombocs) do
+    g.spot = s[k]
+    local q, y, spin = randomQuat(), 12 + 4 * k + math.random() * 6, randomSpin()
+    dropAt(g, q, s[k][1], y, s[k][2], spin, function() resetGomboc(g) end)   -- (its clock starts when it's let go)
+  end
+  resetRace("Drop")
+end
+
+-- Pull a resting gomboc away and drop a new one of its colour: over its
+-- own drop spot if that is clear, otherwise over a clear spot on the flat.
+local function clearOf(g, x, z)
+  for _, o in ipairs(gombocs) do
+    if o ~= g then
+      local ox, _, oz = getPosXYZ(o.obj)
+      if math.sqrt((x - ox) ^ 2 + (z - oz) ^ 2) < 12 then return false end
+    end
+  end
+  return true
+end
+
+local function redrop(g)
+  local x, z = g.spot and g.spot[1] or 0, g.spot and g.spot[2] or 0
+  for try = 1, 40 do
+    if clearOf(g, x, z) then break end
+    x = (math.random() - 0.5) * (FLAT_W - 20)
+    z = (math.random() - 0.5) * (FLAT_D - 20)
+  end
+  race.done[#race.done + 1] = { name = NAMES[g.i], upright = g.rightedAt and g.rightedAt - g.t0,
+                                rest = g.restedAt - g.t0, tilt = g.tilt }
+  g.run = g.run + 1
+  local q, y, spin = randomQuat(), 14 + math.random() * 8, randomSpin()
+  dropAt(g, q, x, y, z, spin, function() resetGomboc(g) end)
+  resetGomboc(g)
+  print(string.format("  %-9s pulled away after %g s at rest; dropping a new one, %s", NAMES[g.i],
+                      v:getParam("redrop"), label(g)))
+end
+
+-- every minute while re-dropping: how the finished runs went
+local function tally()
+  local n = #race.done
+  if n == 0 then return end
+  local rests, notUp = {}, 0
+  for _, d in ipairs(race.done) do
+    rests[#rests + 1] = d.rest
+    if d.tilt >= UPRIGHT_DEG then notUp = notUp + 1 end
+  end
+  table.sort(rests)
+  print(string.format("=== %.0f s: %d finished run%s; time to rest: median %.1f s, fastest %.1f s, " ..
+                      "slowest %.1f s; %d came to rest not upright ===", race.t, n, n == 1 and "" or "s",
+                      (rests[math.floor((n + 1) / 2)] + rests[math.floor(n / 2) + 1]) / 2, rests[1], rests[n], notUp))
+end
+
+-- on its head: the unstable point straight down, nudged a degree or three
+local function headstand()
+  setCount(v:getParam("count"))
+  local s = spots(#gombocs)
+  for k, g in ipairs(gombocs) do
+    local yaw = btQuaternion(btVector3(0, 1, 0), math.random() * 2 * math.pi)
+    local flip = btQuaternion(btVector3(1, 0, 0), math.pi)
+    local a = math.random() * 2 * math.pi
+    local nudge = btQuaternion(btVector3(math.cos(a), 0, math.sin(a)), math.rad(1 + 2 * math.random()))
+    g.spot = s[k]
+    dropAt(g, nudge * yaw * flip, s[k][1], HULL.topHeight + MARGIN + 0.1, s[k][2], nil, function() resetGomboc(g) end)
+  end
+  resetRace("Headstand")
+end
+
+local function kick()
+  for _, g in ipairs(gombocs) do
+    local vel = btVector3((math.random() - 0.5) * 40, 120 + math.random() * 80, (math.random() - 0.5) * 40)
+    local spin = btVector3((math.random() - 0.5) * 30, (math.random() - 0.5) * 10, (math.random() - 0.5) * 30)
+    if not g.lift then              -- (one being carried is in the attendant's hands)
+      g.body:setLinearVelocity(vel)
+      g.body:setAngularVelocity(spin)
+      g.body:activate(true)
+    end
+  end
+  resetRace("Kick")
+end
+
+v:addShortcut("R", function(N) drop() end)
+v:addShortcut("U", function(N) headstand() end)
+v:addShortcut("K", function(N) kick() end)
+v:addShortcut("]", function(N)
+  v:addParam("count", math.min(MAX_COUNT, v:getParam("count") + 1), 1, MAX_COUNT, 1, "how many gombocs to drop")
+  drop()
+end)
+v:addShortcut("[", function(N)
+  v:addParam("count", math.max(1, v:getParam("count") - 1), 1, MAX_COUNT, 1, "how many gombocs to drop")
+  drop()
+end)
+
+local function applyResistance()
+  ROLL_DELTA = v:getParam("rolling") * 1e-4          -- microns -> cm
+  SPIN_DECEL = v:getParam("spin friction")
+end
+applyResistance()
+
+v:onParamChanged(function(N, name, value)   -- bpp passes (frame, name, value)
+  if name == "count" then
+    if math.floor(tonumber(value)) ~= #gombocs then drop() end
+  elseif name == "speed" or name == "steps" then
+    applyTiming()
+  elseif name == "rolling" or name == "spin friction" then
+    applyResistance()
+  else
+    applyMaterials()
+  end
+end)
+
+pcall(function()
+  v:setHelpText(
+    "Gomboc Drop C (realistic)\n" ..
+    "  R  drop at random orientations\n" ..
+    "  U  stand them on their heads\n" ..
+    "  K  kick them up with a spin\n" ..
+    "  ]  one more     [  one fewer\n" ..
+    "Dark = tipped over, bright = upright.\n" ..
+    "The console reports upright and at-rest times.\n" ..
+    "At rest for 'redrop' s: pulled away, a new one let down\n" ..
+    "and dropped.")
+end)
+
+-- ---------------------------------------------------------------------
+-- every frame: our own physics steps, then shading and the race
+-- ---------------------------------------------------------------------
+
+-- all but the last step of the frame; bpp takes the last one after this
+v:preSim(function(N)
+  for k = 1, NSTEPS - 1 do
+    resist(STEP)
+    v:stepSimulation(STEP, 0, STEP)
+  end
+  resist(STEP)
+end)
+
+local LOGF = os.getenv("GC_LOG") and io.open(os.getenv("GC_LOG"), "w")
+if LOGF then LOGF:write("t,idx,name,tilt_deg,angvel_deg_s,speed_cm_s,y,x,z,qx,qy,qz,qw\n") end
+local simT = 0
+
+v:postSim(function(N)
+  simT = simT + FRAME_DT
+  if LOGF and N % 15 == 0 then
+    for _, g in ipairs(gombocs) do
+      local wx, wy, wz = getAngVelXYZ(g.obj)
+      local vx, vy, vz = getVelXYZ(g.obj)
+      local _, py, _ = getPosXYZ(g.obj)
+      local px, _, pz = getPosXYZ(g.obj)
+      local q = g.body:getOrientation()
+      LOGF:write(string.format("%.2f,%d,%s,%.3f,%.5f,%.5f,%.5f,%.5f,%.5f,%.6f,%.6f,%.6f,%.6f\n", simT, g.i, NAMES[g.i],
+        tiltDeg(g.body), math.deg(math.sqrt(wx*wx+wy*wy+wz*wz)), math.sqrt(vx*vx+vy*vy+vz*vz), py,
+        px, pz, q:getX(), q:getY(), q:getZ(), q:getW()))
+    end
+    LOGF:flush()
+  end
+
+  leaveStep()
+  if not race.running then
+    for _, g in ipairs(gombocs) do liftStep(g) end
+    return
+  end
+  race.t = race.t + FRAME_DT
+  for _, g in ipairs(gombocs) do liftStep(g) end      -- (as in Gomboc Variety: let go after the clock ticks)
+  local upright, rested = 0, 0
+  for _, g in ipairs(gombocs) do if not g.lift then
+    local tilt = tiltDeg(g.body)
+    g.tilt = tilt
+
+    local k = g.rightedAt and 10 or math.floor(10 * math.max(0, 1 - tilt / 90) + 0.5)
+    if k ~= g.shade then g.shade = k; g.obj.col = SHADES[g.i][k] end
+
+    if tilt < UPRIGHT_DEG then
+      upright = upright + 1
+      g.restSince = g.restSince or race.t
+      if not g.rightedAt and race.t - g.restSince >= HOLD then
+        g.rightedAt = g.restSince
+        print(string.format("  %-9s upright after %6.2f s", label(g), g.rightedAt - g.t0))
+      end
+    else
+      g.restSince = nil
+      if not g.rightedAt then maybeTap(g, tilt) end
+    end
+
+    -- at rest: hasn't moved in the last REST_HOLD-second window
+    local q = g.body:getOrientation()
+    local qx, qy, qz, qw = q:getX(), q:getY(), q:getZ(), q:getW()
+    local px, py, pz = getPosXYZ(g.obj)
+    local moved = true
+    if g.anchorT then
+      local dot = math.abs(qx * g.aq[1] + qy * g.aq[2] + qz * g.aq[3] + qw * g.aq[4])
+      local turn = 2 * math.acos(math.min(1, dot))
+      local dx, dy, dz = px - g.ap[1], py - g.ap[2], pz - g.ap[3]
+      moved = turn > REST_TURN or math.sqrt(dx * dx + dy * dy + dz * dz) > REST_MOVE
+    end
+    if not moved and race.t - g.anchorT >= REST_HOLD then
+      -- still for a whole window: (now) at rest; start the next window here
+      g.anchorT, g.aq, g.ap = race.t, { qx, qy, qz, qw }, { px, py, pz }
+      if not g.restedAt then
+        g.restedAt, g.restSeenAt = race.t - REST_HOLD, race.t
+        local why = touching(g)
+        g.touching = why
+        local rx, _, rz = getPosXYZ(g.obj)
+        print(string.format("  %-9s at rest after %6.2f s, %.1f deg off upright  pos %.1f %.1f on %s%s%s",
+                            label(g), g.restedAt - g.t0, tilt, rx, rz, tableHeight(rx, rz) > 0 and "RAMP" or "flat",
+                            tilt < UPRIGHT_DEG and "" or "  ** NOT UPRIGHT **",
+                            why and ("  -- touching " .. why) or ""))
+      end
+    elseif moved then
+      g.anchorT, g.aq, g.ap = race.t, { qx, qy, qz, qw }, { px, py, pz }
+      g.restedAt, g.restSeenAt = nil, nil          -- (it moved again)
+    end
+    if g.restedAt then rested = rested + 1 end
+  end end
+
+  -- re-drop the ones that have been at rest long enough
+  local wait = v:getParam("redrop")
+  if wait > 0 then
+    for _, g in ipairs(gombocs) do
+      if not g.lift and g.restSeenAt and race.t - g.restSeenAt >= wait then
+        rested = rested - 1
+        redrop(g)
+      end
+    end
+    if race.t >= race.nextTally then
+      race.nextTally = race.nextTally + 60
+      tally()
+    end
+  end
+
+  if race.t >= race.nextReport then
+    race.nextReport = race.nextReport + (race.t < 20 and 1 or 5)
+    local tilts = {}
+    for _, g in ipairs(gombocs) do tilts[#tilts + 1] = g.tilt and string.format("%3.0f", g.tilt) or "  -" end
+    print(string.format("t=%5.1fs  upright %d/%d  at rest %d/%d  tilt(deg): %s", race.t,
+                        upright, #gombocs, rested, #gombocs, table.concat(tilts, " ")))
+  end
+
+  if wait <= 0 and (rested == #gombocs or race.t >= RACE_LIMIT) then
+    race.running = false
+    if rested == #gombocs then
+      print(string.format("--- all %d at rest after %.2f s ---", #gombocs, race.t))
+    else
+      print(string.format("--- %d of %d at rest after %.0f s; stopped watching ---",
+                          rested, #gombocs, race.t))
+    end
+    standings()
+    print("R: drop again   U: headstands   K: kick")
+  end
+end)
+
+math.randomseed(envnum("GC_SEED", os.time()))
+if os.getenv("GC_START") == "headstand" then headstand() else drop() end
