@@ -22,3 +22,10 @@ Run 2 (18 Nov 2026), angle penalty at every stage, 20 min each, K=3 L=4:
   t2_r120  target 120, random:             (1,1) at 0.5 um, angle 84, top on crease (e-type again)
 None reached its target; the angle penalty loses to the equilibrium-count stages.
 t2_r180 is a smooth (1,1) at 56 deg, an angle no known shape has, but its lever is very weak.
+
+Run 3 (18 Nov 2026), checking t2_r180:
+  Drops (edged_drop.py 120 e_best_t2_r180.npy): upright 0 of 120, stops spread 10-163 deg (median 84).
+    Mathematically (1,1), physically not self-righting: the lever (0.028 mm/rad) is too weak for friction.
+  Polish: TARGET=56, X0=e_best_t2_r180.npy, 20 min, seeds 51 and 52 (t3_p56a, t3_p56b):
+    both LOST (1,1) (3/3 and 1/4 at 0.5 um), angle 63-64, Q 0.011 and 0.002. No stronger 56 deg body nearby.
+  Verdict: the 56 deg smooth body is a fragile point, not a usable new type.

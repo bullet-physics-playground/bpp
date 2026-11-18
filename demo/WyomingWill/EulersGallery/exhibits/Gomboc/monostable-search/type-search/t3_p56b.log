@@ -1,0 +1,28 @@
+run 0 pop 16 it 20 t=35s best: not convex  sigma 0.0352
+run 0 pop 16 it 40 t=87s best: not convex  sigma 0.0302
+run 0 pop 16 it 60 t=117s best: not convex  sigma 0.0234
+run 0 pop 16 it 80 t=150s best: extra 14128 um  sigma 0.0183
+run 0 pop 16 it 100 t=187s best: extra 9678 um  sigma 0.0141
+run 0 pop 16 it 120 t=223s best: extra 8845 um  sigma 0.0125
+run 0 pop 16 it 140 t=265s best: extra 5171 um  sigma 0.0099
+run 0 pop 16 it 160 t=310s best: extra 3764 um  sigma 0.0094
+run 0 pop 16 it 180 t=356s best: extra 3022 um  sigma 0.0092
+run 0 pop 16 it 200 t=401s best: extra 3022 um  sigma 0.0080
+run 0 pop 16 it 220 t=448s best: extra 3022 um  sigma 0.0064
+run 0 pop 16 it 240 t=494s best: extra 2982 um  sigma 0.0057
+run 0 pop 16 it 260 t=543s best: extra 2982 um  sigma 0.0051
+run 0 pop 16 it 280 t=593s best: extra 2894 um  sigma 0.0049
+run 0 pop 16 it 300 t=640s best: extra 2492 um  sigma 0.0053
+run 0 pop 16 it 320 t=685s best: extra 2492 um  sigma 0.0046
+run 0 pop 16 it 340 t=731s best: extra 1973 um  sigma 0.0043
+run 0 pop 16 it 360 t=780s best: extra 1811 um  sigma 0.0038
+run 0 pop 16 it 380 t=829s best: extra 1811 um  sigma 0.0035
+run 0 pop 16 it 400 t=879s best: extra 1811 um  sigma 0.0031
+run 0 pop 16 it 420 t=932s best: extra 1480 um  sigma 0.0028
+run 0 pop 16 it 440 t=985s best: extra 1205 um  sigma 0.0024
+run 0 pop 16 it 460 t=1036s best: extra 986 um  sigma 0.0020
+run 0 pop 16 it 480 t=1089s best: extra 832 um  sigma 0.0017
+run 0 pop 16 it 500 t=1142s best: extra 832 um  sigma 0.0016
+run 0 pop 16 it 520 t=1199s best: extra 747 um  sigma 0.0016
+FINAL L6: convexity 0.00 um  counts (0.5,2,5,20 um): 1/4, 1/4, 1/4, 1/3  pieces on surface 1  rest 42.45 top 46.16 mm  Q 0.002 mm/rad
+e_best_p56b.npy angle  63.3  rest  42.4  top  46.2  extents 89x89x86  mirror miss 1.3 mm  pieces 1  top on crease False  rest on crease False
