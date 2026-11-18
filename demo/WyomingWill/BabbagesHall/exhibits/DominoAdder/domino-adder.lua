@@ -29,6 +29,7 @@
 --   G  GO: push the first domino
 --   R  set the board up again, the inputs as they are
 --   Z  slow motion (1/4) <-> real time
+--   H  the manual (MANUAL.pdf) in the PDF viewer
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md. The dominoes are the
 -- standard 48 x 24 x 7.5 mm; they stand in the pockets of a printed
@@ -45,7 +46,7 @@
 -- Headless: DA_IN="AB" (the inputs that are 1), DA_TOUR=0 (no tour: one
 -- run of DA_IN), DA_RUN=seconds per sum, DA_FRICTION, DA_JIT=cm and
 -- DA_SEED (every domino misplaced at random within its pocket),
--- DA_DEBUG=1 (which lines fell), DA_EXPORT=parts/layout.scad (write the
+-- DA_DEBUG=1 (which lines fell; 2: every domino, x fallen), DA_EXPORT=parts/layout.scad (write the
 -- layout for the printed parts).
 --
 
@@ -393,7 +394,7 @@ local function report()
         if f then k = k + 1 end
         str = str .. (f and "x" or ".")
       end
-      parts[#parts + 1] = string.format("%s %d/%d %s", n, k, #byLine[n], #str <= 30 and str or "")
+      parts[#parts + 1] = string.format("%s %d/%d %s", n, k, #byLine[n], (#str <= 30 or os.getenv("DA_DEBUG") == "2") and str or "")
     end
     print("    fell: " .. table.concat(parts, " | "))
   end
@@ -498,6 +499,12 @@ v:addShortcut("A", function() tour = nil; inputs.A = 1 - inputs.A; setUp() end)
 v:addShortcut("B", function() tour = nil; inputs.B = 1 - inputs.B; setUp() end)
 v:addShortcut("G", function() if not running then goPending = false; push() end end)
 v:addShortcut("R", function() tour = nil; setUp(); goPending = false end)
+-- H: this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the hall,
+-- the hall's own H does it
+if not hallPath then
+  local MANUAL = dofile(DIR .. "../../open-manual.lua")
+  v:addShortcut("H", function() MANUAL.open(DIR, "the Domino Half Adder's manual") end)
+end
 v:addShortcut("Z", function()
   local sp = v:getParam("speed") < 0.5 and 1 or 0.25
   v:addParam("speed", sp, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
@@ -516,6 +523,7 @@ pcall(function()
     "  T  the tour: all four sums      G  GO",
     "  A  input A: 1 <-> 0             B  input B: 1 <-> 0",
     "  R  stand them all up again      Z  slow motion <-> real time",
+    "  H  the manual (MANUAL.pdf, in your PDF viewer)",
     "",
     "A computer of dominoes: it adds two one-bit numbers, A and B. The",
     "answer is the two tiles at the far end, CARRY and SUM: each shows 0,",
