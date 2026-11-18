@@ -16,6 +16,7 @@
 #include <QUrl>
 
 #include "code.h"
+#include "appenv.h"
 
 CodeEditor::CodeEditor(QSettings *s, QWidget *parent, bool enableCompletion)
     : QPlainTextEdit(parent), completer(nullptr), completionDocumentation(nullptr),
@@ -225,8 +226,7 @@ QMessageBox::warning(this, tr("Application error"),
     return false;
   }
 
-  QTextStream os(&file);
-  QString p = os.readAll();
+  QString p = scriptText(file.readAll());
   file.close();
   setPlainText(p);
   // Resolve to an absolute path now, before anything changes the process's
@@ -260,10 +260,8 @@ bool CodeEditor::saveAs(QString filename) {
   QSaveFile file(filename);
   bool written = file.open(QIODevice::WriteOnly);
   if (written) {
-    QTextStream os(&file);
-    os << toPlainText();
-    os.flush();
-    written = os.status() == QTextStream::Ok && file.commit();
+    const QByteArray bytes = toPlainText().toUtf8();   // (UTF-8 on every system)
+    written = file.write(bytes) == bytes.size() && file.commit();
   }
   if (!written) {
     QMessageBox::warning(this, tr("Application error"),

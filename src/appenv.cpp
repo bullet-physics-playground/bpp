@@ -38,6 +38,14 @@ QSettings *newSettings(QObject *parent) {
   return new QSettings(SETTINGS_ORGANIZATION, SETTINGS_APPLICATION, parent);
 }
 
+QString scriptText(const QByteArray &bytes) {
+  const QString utf8 = QString::fromUtf8(bytes);
+  // (bytes that aren't UTF-8 decode to U+FFFD, unless the file has one)
+  if (!utf8.contains(QChar::ReplacementCharacter) || bytes.contains("\xEF\xBF\xBD"))
+    return utf8;
+  return QString::fromLocal8Bit(bytes);
+}
+
 QString userCacheDir() {
   if (!userDirOverride().isEmpty())
     return under("cache");
