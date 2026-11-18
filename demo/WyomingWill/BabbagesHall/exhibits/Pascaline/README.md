@@ -2,6 +2,11 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
+**`MANUAL.pdf`** is the manual: adding with the stylus, the sautoir's
+carry, subtracting by complements, with pictures, and the exhibit's keys
+(`F1` opens it, here or in the hall: the Pascaline's `H` is the
+hundreds). This README is the builder's reference.
+
 Babbage's Hall, west bay 4. Blaise Pascal's adding machine (1642), with
 three digits and his own carry: the **sautoir** ("jumper").
 
@@ -62,6 +67,7 @@ carry), + 84 = 99, + 1 = 100 (a double ripple). It prints
 | `R` | reset to 000 |
 | `D` | the tour again |
 | `Z` | slow motion (1/4 speed) on and off |
+| `F1` | the manual, `MANUAL.pdf`, opened in your PDF viewer |
 
 Sliders: `friction` (0.15 to 0.45 checked), `turn rate` (how fast the hand
 turns a digit), `speed`.
@@ -75,6 +81,10 @@ rest: see below), `PA_REST_LOG=1` (says when it rests), `PA_DET_T_MM`
 Once the hand is done and nothing moves, the machine rests: it stops
 stepping until the next key or tour step, which saves the processor and
 changes nothing it computes.
+
+The manual's figures: `python3 manual/make-figures.py` (OpenSCAD's
+pictures of the parts, through `manual/views.scad`, set to the states the
+simulation reported); `fig-exhibit.png` is a screenshot.
 
 ## How it is built
 
