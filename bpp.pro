@@ -430,12 +430,24 @@ linux:link_pkgconfig {
 # Without it bpp uses the system Bullet, as always.
 bundled_bullet {
   BULLET_MT = $$PWD/lib/bullet-mt
-  !exists($$BULLET_MT/lib/libBulletDynamics.a): error("bundled_bullet: run scripts/bullet-threads.sh first")
+  # CMake appends the build type to the installed .a names under MinGW
+  # (libBulletDynamics_RelWithDebugInfo.a), so match either spelling.
+  BULLET_MT_SOFTBODY_FILES   = $$files($$BULLET_MT/lib/libBulletSoftBody*.a)
+  BULLET_MT_DYNAMICS_FILES   = $$files($$BULLET_MT/lib/libBulletDynamics*.a)
+  BULLET_MT_COLLISION_FILES  = $$files($$BULLET_MT/lib/libBulletCollision*.a)
+  BULLET_MT_LINEARMATH_FILES = $$files($$BULLET_MT/lib/libLinearMath*.a)
+  BULLET_MT_SOFTBODY   = $$first(BULLET_MT_SOFTBODY_FILES)
+  BULLET_MT_DYNAMICS   = $$first(BULLET_MT_DYNAMICS_FILES)
+  BULLET_MT_COLLISION  = $$first(BULLET_MT_COLLISION_FILES)
+  BULLET_MT_LINEARMATH = $$first(BULLET_MT_LINEARMATH_FILES)
+  !exists($$BULLET_MT_DYNAMICS) | !exists($$BULLET_MT_COLLISION) | \
+  !exists($$BULLET_MT_SOFTBODY) | !exists($$BULLET_MT_LINEARMATH) {
+    error("bundled_bullet: run scripts/bullet-threads.sh first")
+  }
   message(Using Bullet with threads from $$BULLET_MT)
   PKGCONFIG -= bullet
   QMAKE_CXXFLAGS += -isystem $$BULLET_MT/include/bullet
-  LIBS += $$BULLET_MT/lib/libBulletSoftBody.a $$BULLET_MT/lib/libBulletDynamics.a \
-          $$BULLET_MT/lib/libBulletCollision.a $$BULLET_MT/lib/libLinearMath.a
+  LIBS += $$BULLET_MT_SOFTBODY $$BULLET_MT_DYNAMICS $$BULLET_MT_COLLISION $$BULLET_MT_LINEARMATH
   DEFINES += BT_THREADSAFE=1
 }
 

@@ -57,9 +57,10 @@ contains(DEFINES, WIN32_LINK_BULLET) {
   # INCLUDEPATH += $$WIN32_DIR_BULLET\\src
   # LIBS += -L$$WIN32_DIR_BULLET\\build\\lib
 
-  # Link
+  # Link. CONFIG+=bundled_bullet links the threaded static libs from
+  # bpp.pro instead of these system DLL import libs.
 
-  LIBS += -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath
+  !bundled_bullet: LIBS += -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath
 }
 
 contains(DEFINES, WIN32_LINK_LUABIND) {

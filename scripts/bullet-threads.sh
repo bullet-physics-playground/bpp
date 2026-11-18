@@ -25,7 +25,7 @@ SRC=lib/bullet3
 OUT=$PWD/lib/bullet-mt
 [ -d "$SRC/.git" ] || git -c advice.detachedHead=false clone --depth 1 --branch "$TAG" https://github.com/bulletphysics/bullet3.git "$SRC"
 [ "$(git -C "$SRC" rev-parse HEAD)" = "$COMMIT" ] || { echo "$SRC is not Bullet $TAG; remove it and run this again"; exit 1; }
-cmake -S "$SRC" -B "$SRC/build-mt" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_SHARED_LIBS=OFF \
+cmake -S "$SRC" -B "$SRC/build-mt" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_SHARED_LIBS=OFF \
   -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DUSE_DOUBLE_PRECISION=OFF -DBULLET2_MULTITHREADING=ON \
   -DBUILD_EXTRAS=OFF -DBUILD_BULLET2_DEMOS=OFF -DBUILD_OPENGL3_DEMOS=OFF -DBUILD_CPU_DEMOS=OFF \
   -DBUILD_UNIT_TESTS=OFF -DBUILD_PYBULLET=OFF -DINSTALL_LIBS=ON -DCMAKE_INSTALL_PREFIX="$OUT" > /dev/null
