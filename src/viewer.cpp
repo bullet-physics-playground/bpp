@@ -1648,6 +1648,18 @@ void Viewer::savePOV(bool force) {
   scene.light1 = _light1;
   scene.diffuse = _gl_diffuse;
   scene.settingsInc = _pov_settings_inc;
+  if (_settings != nullptr) {
+    // (the POV-Ray menu's choices: Gui::writePovraySetting)
+    static const QRegularExpression name("^use_\\w+$");
+    _settings->beginGroup("povray");
+    for (const QString &key : _settings->childKeys()) {
+      bool ok = false;
+      const int value = _settings->value(key).toInt(&ok);
+      if (ok && name.match(key).hasMatch())
+        scene.declares.insert(key, value);
+    }
+    _settings->endGroup();
+  }
   if (!PovExport::writeMain(fileMain, byline, scene)) {
     unwritable(fileMain);
     return;

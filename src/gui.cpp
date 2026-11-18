@@ -9,6 +9,7 @@
 #include <Qt>
 
 #include "gui.h"
+#include "povexport.h"
 
 #include <QActionGroup>
 #include <QFile>
@@ -386,9 +387,10 @@ struct PovrayOption {
 /**
  * @brief One POV-Ray render setting, as presented in the POV-Ray menu.
  *
- * The settings are not stored in the application's QSettings: each one names a
- * @c \#declare in @c includes/settings.inc, which the exported scenes include,
- * and the menu reads and writes that file directly.
+ * Each one names a @c \#declare that @c includes/settings.inc makes, as a
+ * default (@c \#ifndef). The menu keeps the user's choices in the settings
+ * (@c povray/<name>), and the export declares them in each scene's @c .pov
+ * before it includes @c settings.inc; the menu writes no file.
  */
 struct PovraySetting {
   const char *name;        // #declare name in includes/settings.inc
@@ -584,16 +586,21 @@ void Gui::populateDemoMenu(QMenu *menu, const QDir &dir) {
 }
 
 QString Gui::povraySettingsPath() const {
-  return startupWorkingDir() + QDir::separator() + "includes" +
-         QDir::separator() + "settings.inc";
+  // (the file the export copies and the scenes include, wherever bpp was
+  // started from)
+  return PovExport::findSettingsInc("settings.inc", startupWorkingDir());
 }
 
 int Gui::readPovraySetting(const QString &name, int defaultValue) const {
+  const QString key = "povray/" + name;
+  if (settings->contains(key))
+    return settings->value(key).toInt();
   QFile file(povraySettingsPath());
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     return defaultValue;
   }
-  QRegularExpression rx(QString("^\\s*#declare\\s+%1\\s*=\\s*(-?\\d+)\\s*;").arg(name));
+  // (its default: "#ifndef (use_rad) #declare use_rad = 0; #end")
+  QRegularExpression rx(QString("#declare\\s+%1\\s*=\\s*(-?\\d+)\\s*;").arg(name));
   while (!file.atEnd()) {
     QString line = QString::fromUtf8(file.readLine());
     QRegularExpressionMatch m = rx.match(line);
@@ -605,26 +612,10 @@ int Gui::readPovraySetting(const QString &name, int defaultValue) const {
 }
 
 void Gui::writePovraySetting(const QString &name, int value) {
-  QString path = povraySettingsPath();
-  QFile file(path);
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    return;
-  }
-  QString content = QString::fromUtf8(file.readAll());
-  file.close();
-
-  QRegularExpression rx(QString("(#declare\\s+%1\\s*=\\s*)-?\\d+(\\s*;)").arg(name));
-  if (rx.match(content).capturedStart() < 0) {
-    return; // setting not found in the file, don't touch it
-  }
-  content.replace(rx, QString("\\1%1\\2").arg(value));
-
-  QSaveFile out(path);   // (all or nothing, as a script's save)
-  if (!out.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    return;
-  }
-  out.write(content.toUtf8());
-  out.commit();
+  // (the user's, in the settings: not includes/settings.inc, which may be
+  // a file in a source checkout, read-only once installed, or -- when bpp
+  // was started elsewhere -- not the one the export uses at all)
+  settings->setValue("povray/" + name, value);
 }
 
 void Gui::updateRecentFileActions() {

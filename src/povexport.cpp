@@ -180,15 +180,7 @@ QString byline() {
   return QString("%1 by %2").arg(timestamp, name);
 }
 
-void copySettingsIncludes(const QString &settingsInc, const QString &startupDir,
-                          const QString &sceneDir) {
-  // Keep sceneDir self-contained: copy the include the main scene pulls in
-  // (includes/settings.inc, or the file a script names with v.pov_settings)
-  // alongside the exported scene, rather than relying on the +L library
-  // path to find the original when the scene is rendered later, elsewhere.
-  // A name with no file under includes/ leaves sceneDir's copy alone. Outside
-  // a source checkout (the Docker image runs from /work) includes/ is the
-  // installed /usr/share/bpp/includes.
+QString findSettingsInc(const QString &settingsInc, const QString &startupDir) {
   // Search the places bpp's shipped includes can live: next to the
   // executable (build tree and macOS .app bundle), above it, the launch
   // directory, and the usual system install locations.  macOS apps keep
@@ -203,14 +195,24 @@ void copySettingsIncludes(const QString &settingsInc, const QString &startupDir,
           << "/usr/local/share/bpp/includes"
           << "/opt/homebrew/share/bpp/includes"
           << "/usr/share/bpp/includes";
+  if (settingsInc.isEmpty())
+    return QString();
+  for (const QString &dir : incDirs)
+    if (QFile::exists(dir + QDir::separator() + settingsInc))
+      return dir + QDir::separator() + settingsInc;
+  return QString();
+}
 
-  QString settingsIncPath;
-  for (const QString &dir : incDirs) {
-    if (QFile::exists(dir + QDir::separator() + settingsInc)) {
-      settingsIncPath = dir + QDir::separator() + settingsInc;
-      break;
-    }
-  }
+void copySettingsIncludes(const QString &settingsInc, const QString &startupDir,
+                          const QString &sceneDir) {
+  // Keep sceneDir self-contained: copy the include the main scene pulls in
+  // (includes/settings.inc, or the file a script names with v.pov_settings)
+  // alongside the exported scene, rather than relying on the +L library
+  // path to find the original when the scene is rendered later, elsewhere.
+  // A name with no file under includes/ leaves sceneDir's copy alone. Outside
+  // a source checkout (the Docker image runs from /work) includes/ is the
+  // installed /usr/share/bpp/includes.
+  const QString settingsIncPath = findSettingsInc(settingsInc, startupDir);
 
   if (!settingsInc.isEmpty() && !settingsIncPath.isEmpty() &&
       QFile::exists(settingsIncPath)) {
@@ -379,6 +381,13 @@ bool writeMain(const QString &path, const QString &byline, const Scene &scene) {
   smain << "#declare GL_Diffuse = <" << scene.diffuse.x() << ", "
         << scene.diffuse.y() << ", " << scene.diffuse.z() << ">;" << "\n"
         << "\n";
+
+  // The POV-Ray menu's render settings, those changed from the include's
+  // defaults (it declares each one #ifndef), as the lights above.
+  for (auto it = scene.declares.constBegin(); it != scene.declares.constEnd(); ++it)
+    smain << "#declare " << it.key() << " = " << it.value() << ";" << "\n";
+  if (!scene.declares.isEmpty())
+    smain << "\n";
 
   if (!scene.settingsInc.isEmpty()) {
     smain << "#include \"" + scene.settingsInc + "\"" << "\n"

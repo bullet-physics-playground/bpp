@@ -56,7 +56,17 @@ struct Scene {
   btVector4 light1;        ///< The view's second light (GL_POSITION).
   btVector4 diffuse;       ///< The view's diffuse light colour.
   QString settingsInc;     ///< The include it pulls in (empty: none).
+  /// Render settings the POV-Ray menu changed (use_rad = 2, ...), declared
+  /// before the include, whose own values are the defaults.
+  QMap<QString, int> declares;
 };
+
+/**
+ * @brief Where bpp's shipped include @p settingsInc is: next to the
+ * executable, above it, in @p startupDir/includes, or installed.
+ * @return Its path, or an empty string when there is none.
+ */
+QString findSettingsInc(const QString &settingsInc, const QString &startupDir);
 
 /// Writes the main @c .pov file, which includes the frame of the clock.
 bool writeMain(const QString &path, const QString &byline, const Scene &scene);
