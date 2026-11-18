@@ -124,9 +124,11 @@ Once the operator is done and nothing moves, it rests: it stops stepping
 until the next key, which saves the processor and changes nothing it
 computes.
 
-The manual's figures: `python3 manual/make-figures.py` (a labelled
+The manuals' figures: `python3 manual/make-figures.py` (a labelled
 screenshot, the routes on the board's lattice, and the tour's two runs as
-the console printed them, in `manual/runs.txt`).
+the console printed them, in `manual/runs.txt`) and
+`python3 manual/make-figures-splitter.py` (a splitter drawn to its sizes,
+the five walls worked exactly, a labelled screenshot).
 
 ## How it is built
 

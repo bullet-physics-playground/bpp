@@ -34,3 +34,4 @@ pdf exhibits/GaltonBoard/README.md     --sub "West bay 5: balls that fall into t
 pdf exhibits/GaltonBoard/FINDINGS.md   --sub "West bay 5: the Galton board"
 pdf exhibits/GaltonBoard/MANUAL.md     --sub "West bay 5: how to run the board and read the bell"
 pdf exhibits/GaltonBoard/SPLITTERS.md  --sub "East bay 5: the splitter board and its splitters"
+pdf exhibits/GaltonBoard/MANUAL-splitter.md --sub "East bay 5: fair coins, and walls that swallow or send back"
