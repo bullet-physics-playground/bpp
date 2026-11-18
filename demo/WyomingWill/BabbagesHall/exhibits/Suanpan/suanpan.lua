@@ -30,6 +30,7 @@
 --   0 - 9      a number (shown on the slate)           Return   add it (or ...)
 --   Backspace  its last digit off                      C        clear the abacus
 --   T          the tour: each step using a rule of its own
+--   H          the manual (MANUAL.pdf) in the PDF viewer
 --
 -- PHYSICS: each bead is a body that slides on its rod (a slider; a motor at
 -- no speed and little force is the rod's friction, holding it where it is
@@ -270,11 +271,11 @@ end
 -- the slate: pictures swapped in (make-slate.py made them)
 -- ---------------------------------------------------------------------
 local function tile(w, h, x, y, pic)
-  local c = Cube(w, h, 0.05, 0)
+  local c = Cube(w, h, 0.01, 0)
   c.collides = false
   c.tex = slatePic(pic)
   v:add(c)
-  c.trans = btTransform(ident, btVector3(x, y, SZ + 0.06))     -- (just in front of the board's face, which is toward you, +z)
+  c.trans = btTransform(ident, btVector3(x, y, SZ + 0.04))     -- (just in front of the board's face, which is toward you, +z: the board stands a little proud of SZ; thin, or its top edge shows the picture squashed into a strip)
   return c
 end
 -- (the board's face is the parts file's y = 0, toward -y: in the hall z = SZ,
@@ -709,6 +710,12 @@ if WAY == "subtract" then
 end
 v:addShortcut("C", function() touring = nil; entry = ""; clearAll() end)
 v:addShortcut("T", function() tourStart() end)
+-- H: this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the hall,
+-- the hall's own H does it
+if not hallPath then
+  local MANUAL = dofile(DIR .. "../../open-manual.lua")
+  v:addShortcut("H", function() MANUAL.open(DIR, "the suanpan's manual") end)
+end
 v:onParamChanged(function(N, name, value)
   if name == "speed" then applyTiming()
   elseif name == "friction" then applyFriction() end
@@ -766,6 +773,9 @@ pcall(function()
   h[#h + 1] = ""
   h[#h + 1] = "The beads slide on their rods and push one another; friction holds them."
   h[#h + 1] = "The finger, the slate and the reading of the beads are the script's."
+  h[#h + 1] = ""
+  h[#h + 1] = "H: the manual (MANUAL.pdf, in your PDF viewer): reading the abacus, every rule"
+  h[#h + 1] = "with pictures, multiplying, and making one."
   v:setHelpText(table.concat(h, "\n"))
 end)
 if v.onHover then

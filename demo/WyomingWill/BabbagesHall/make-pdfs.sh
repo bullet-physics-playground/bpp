@@ -9,6 +9,7 @@ pdf MACHINES.md                        --sub "Every machine considered, in the o
 pdf HANDOFF.md                         --sub "For a new chat: how to work, build, test, and what's next"
 pdf exhibits/Suanpan/README.md         --sub "West bay 1: the Chinese abacus"
 pdf exhibits/Suanpan/FINDINGS.md       --sub "West bay 1: the suanpan"
+pdf exhibits/Suanpan/MANUAL.md         --sub "West bay 1: how to work a Chinese abacus"
 pdf exhibits/SlideRule/README.md       --sub "East bay 1: multiplying by adding lengths"
 pdf exhibits/SlideRule/MANUAL.md       --sub "East bay 1: how to work a slide rule"
 pdf exhibits/SlideRule/FINDINGS.md     --sub "East bay 1: the slide rule"
