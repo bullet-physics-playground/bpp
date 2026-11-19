@@ -29,10 +29,10 @@ global_settings{
 
 // Include CIE color transformation macros by Ive
 // needed by the Studio Lighting Kit
-#include "CIE.inc"
+#include "bpp_CIE.inc"
 CIE_ColorSystemWhitepoint(sRGB_ColSys, Illuminant_D65)
-#include "lightsys.inc" 
-#include "lightsys_constants.inc" 
+#include "bpp_lightsys.inc" 
+#include "bpp_lightsys_constants.inc" 
 #declare Lightsys_Brightness=.02; // adjust for a brighter/dimmer hdr
 
 
