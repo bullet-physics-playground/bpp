@@ -3,7 +3,7 @@ FAMILIES 1-3: SHARED BUILDER, SCORE AND SEARCH (families chat, 18 Nov 2026) -- w
   python3 fam.py FAMILY TAG SECONDS SEED [K] [START.npy]     (fam.py header has the details and env options)
 Families: c3 (one free piece copied at 0/120/240 deg about +Y, edged's polar axis, plus a round m = 0 piece),
 mirror (K pieces even under x -> -x), free (K pieces, MINPIECES must show). Symmetries are exact to 1e-15.
-Score: convex to 0.3 um, (1,1) at 0.5 um on levels 5 and 6, then the mean shortfall of the exact face lever
+Score: convex to 0.3 um, (1,1) at 0.5 um on levels 5 and 6, then the mean shortfall of the exact face lever (and, since 18 Nov, the same over the 10-25 deg bowl)
 below 0.45 mm at 36 mm (beyond 25 deg from upright, more than 10 deg from the top). 0.45 = friction 0.05 +
 a 1 deg slope push 0.3 + about 0.1 lost to printed layer flats (family0/README.txt).
 

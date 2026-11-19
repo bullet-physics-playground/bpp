@@ -78,10 +78,11 @@ TARGET = float(os.environ.get("TARGET", 0.45))   # mm at 36: 0.05 friction + a 1
 
 
 def deficit(lev, tilt, from_top):
-    """mean shortfall (mm at 36) of the exact lever below TARGET, over grid directions more than 25 deg from
-    upright and 10 deg from the top (grid directions are near-uniform)"""
+    """mean shortfall (mm at 36) of the exact lever below TARGET over grid directions more than 25 deg from
+    upright and 10 deg from the top, plus the same over the bowl at 10-25 deg (grid directions near-uniform)"""
     m = (tilt > 25) & (from_top > 10)
-    return np.maximum(0.0, TARGET - 0.4 * lev[m]).mean()
+    bowl = (tilt > 10) & (tilt <= 25)       # floor in the upright bowl too, so a run can't trade it away (shape chat)
+    return np.maximum(0.0, TARGET - 0.4 * lev[m]).mean() + np.maximum(0.0, TARGET - 0.4 * lev[bowl]).mean()
 
 
 def extras(B):
