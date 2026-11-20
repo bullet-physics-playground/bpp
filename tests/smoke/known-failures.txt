@@ -19,7 +19,6 @@ demo/WyomingWill/ArtificialPhysics/ch13/triangle.lua  error: [string "--..."]:61
 demo/WyomingWill/ArtificialPhysics/ch13/uav.lua  error: [string "--..."]:61: module 'fixedwing.model' not found:
 demo/WyomingWill/ArtificialPhysics/quadcopter/sound.lua  error: [string "--..."]:35: module 'quadcopter.flight' not found:
 demo/WyomingWill/ArtificialPhysics/quadcopter/vehicle.lua  error: [string "--..."]:40: module 'quadcopter.flight' not found:
-demo/WyomingWill/BabbagesHall/exhibits/DigiComp2/manual/dump-geometry.lua  error: [string "-- dump-geometry.lua <digicomp2-geometry.lu..."]:2: attempt to index global 'arg' (a nil value)
 demo/WyomingWill/EulersGallery/exhibits/Bille/reconstruction/pla/sim/pla-drop.lua  error: [string "--..."]:127: meshes/ not found
 demo/WyomingWill/EulersGallery/exhibits/Bille/reconstruction/w37/sim/w37-drop.lua  error: [string "--..."]:129: meshes/ not found
 demo/WyomingWill/EulersGallery/exhibits/BrazilNut/reconstruction/monitor/monitor.lua  skip: a batch run (180 simulated seconds) that writes CSV files into its directory

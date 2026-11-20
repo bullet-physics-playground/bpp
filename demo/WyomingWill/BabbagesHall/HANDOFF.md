@@ -419,6 +419,13 @@ there, in `release/`, or on the path; or set `BPP`.
   tube holding 82 for an expected 75 overflows in about one run in six.
   And a test for "everything is still" must leave out what can't move on
   anyway (a tall stack in a tube jitters without moving).
+- **A Lua tool under `demo/` needs a `.nomenu` beside it.** GitHub's CI
+  runs every `.lua` under `demo/` in bpp ("smoke run of every demo"), and
+  a plain-Lua helper (a manual's `manual/states.lua`, say) fails there. A
+  folder holding an empty `.nomenu` is left out of the run and the Demos
+  menu. check-all doesn't do this run; before pushing, run
+  `python3 tests/harness.py --bpp build/release/bpp -k BabbagesHall smoke`
+  from the top of the repository.
 - **Don't edit `tools/check-all.sh` while it runs:** bash reads a script
   as it goes, so lines added above the one running shift what it reads
   next (it would re-run or garble a line). Stop it, or edit a copy.
