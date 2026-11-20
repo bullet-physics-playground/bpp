@@ -21,7 +21,7 @@ comes to life.
 | west 1 | **The suanpan**: the Chinese abacus, worked by a finger by the old rules, a slate showing each; Tab: adding, taking away, multiplying | `exhibits/Suanpan/` |
 | east 1 | **The slide rule**: a Mannheim rule, worked by a finger, a slate showing each step and the estimate that places the point; Tab: multiplying and dividing, then squares, roots, cubes, reciprocals and logarithms | `exhibits/SlideRule/` |
 | west 2 | **Napier's bones**: ten four-sided rods (Napier's own set of tables), laid by a hand on a tilted board and read from where they lie; a slate shows the row and the adding; Tab: Genaille's rods, whose triangles carry | `exhibits/NapiersBones/` |
-| east 2 | **The combination lock**: three wheels behind a dial, set one at a time by the dialling rules; when every gate is under the fence it falls in, and the bolt can be drawn. A hand dials, a slate shows where each gate stands | `exhibits/CombinationLock/` |
+| east 2 | **The combination lock**: three wheels behind a dial, set one at a time by the dialling rules; when every gate is under the fence it falls in, and the bolt can be drawn. A hand dials, a slate shows where each gate stands. Two ways (`Tab`): dialling, and the safecracker's, which reads the combination off the lock by feeling the contact points and graphing them | `exhibits/CombinationLock/` |
 | west 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
 | east 3 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
 | west 4 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |

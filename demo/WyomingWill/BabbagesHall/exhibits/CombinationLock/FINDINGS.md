@@ -134,10 +134,114 @@ the bolt's friction and the wheels' drag at the fence together must stay
 under four times the spring's press. A printed bolt that drags needs
 sanding and wax, or a stronger spring.
 
+## The safecracker's way
+
+*Added 2026-11-20: `LK_WAY=safe`, MANUAL section 8.*
+
+**The leak, in the model.** With the cam's notch under it, the fence
+rests on the largest wheel whose gate isn't under it (`L.fenceOnWheels`),
+and rocked gently each way the dial stops where the fence meets the
+notch's chamfered walls (`L.contacts`: steps of 0.05 numbers, then halving
+to 0.0005). On wheel 1's rim (40.0 mm) the contact points are 3.505
+numbers apart; on wheel 2's (39.9) 3.346; on wheel 3's (39.8) 3.183. Each
+0.1 mm the fence drops narrows the gap by 0.159 numbers.
+
+**The method** (the exhibit's tour; `lock-test.lua` does the same in the
+model):
+
+1. All three wheels parked together on a number (left four times to the
+   first, then left to each in turn), every 2.5 numbers from 7.5 to 90; the
+   points more than 0.08 below the median are the narrowing, and its
+   middle is wheel 1's number. Then every half number, 2.5 either side.
+2. Wheel 1 left there, wheels 2 and 3 parked together (right three times
+   to the first, then right to each), every 2.5 numbers from just below
+   wheel 1's number down round to 12 above it, and then every half number:
+   wheel 2's number. (They can't be taken further: wheel 2 would carry
+   wheel 1 off.)
+3. The last wheel: every second number from just above wheel 2's number on
+   round to 8 below it, turning right to open each time (one off still
+   opens). The forbidden zone, 90 to 99, isn't tried.
+
+In the model, on 40 random locks (seed 7): both numbers found exactly in
+all 40, and all 40 opened by the last step, in 21.7 tries on average (5
+minutes, most of it `L.contacts`).
+
+**Blind spots.** The gap can't be felt with the wheels parked from about
+93 round to 7: the feel needs the dial at 4.5 or 95.5 first, and the
+parking turn would pass the wheels. A safecracker would graph those from
+the other side; the exhibit's locks keep their first two numbers out of
+there. The narrowing (more than 0.08 below the rest) is 3.5 numbers wide,
+the gate's 3.9 less where the fence's round touches its walls, so a graph
+every 2.5 numbers always has a point or two in it.
+
+**The physics against the model.** The feel: the hand turns at 3 numbers
+a second with at most 0.6 N cm, and the dial counts as stopped when it
+has moved more than 0.03 and then less than 0.25 numbers a second for 0.2
+s. Felt twice, the contact points agree to 0.006. Over the tour's 86
+points the gaps felt differ from the model's by 0.013 numbers (the
+median; 0.017 for nine in ten), against the 0.159 the method reads; the
+worst, 0.08, are at a narrowing's edges, where the fence is half on a gate's
+wall. The tour takes 43,000 frames (12 simulated minutes, about 4 minutes
+headless here); check-all allows 52,000, and 52,600 in the hall.
+
+| the safecracker's tour, as it is but | found, opened | gaps: the worst apart | frames |
+|---|---|---|---|
+| as it is (wheels' drag 0.8 N cm, feel 0.6 N cm) | 31-72-46 | 0.084 | 42,950 |
+| in the hall | 31-72-46 | 0.042 | 42,873 |
+| hand 30, 120 numbers a second | 31-72-46 | 0.106, 0.059 | 56,617, 39,166 |
+| wheels' drag 0.4, 1.5 N cm | 31-72-46 | 0.109, 0.029 | |
+| wheels' drag 0.1, 0.2 N cm | **31-77-47, 31-76-46**: the fence turns wheel 2 | 0.18 | |
+| surface friction 0.3, 0.6 | 31-72-46 | 0.026, 0.111 | |
+| 600, 2400 steps a second | 31-72-46 | 0.106, 0.018 | |
+| locks 12-58-71, 84-20-63, 50-9-88 | each its own | 0.138, 0.035, 0.114 | 38,793, 44,292, 47,126 |
+
+The dial way, with the wheels' drag 0.8 N cm: the tour on its own and in
+the hall, with the spring 0.2 N, and 12 random combinations (seed 2), all
+as the model says.
+
+## What went wrong on the way to the safecracker's way
+
+- **Seams stopped the feel.** The cam was built of convex pieces, and with
+  the gentle torque the dial stopped at 2.73 and 10.36, where the fence
+  crossed from one to the next: Bullet's internal edges. The dial way's
+  30 N cm never noticed. The notch's leading piece now takes in 25 degrees
+  of rim, so no seam lies where the fence slides while feeling.
+- **Wheel sizes.** First 40.0, 39.85, 39.7 mm: on the smallest wheel the
+  fence sat 0.7 mm down the notch, 0.1 mm above the foot of the 0.8 mm
+  chamfer, and half caught. 0.1 mm steps keep it on the chamfer.
+- **"Starting on it".** `goTo` counted the dial as on a number within 1:
+  stopped at 31.02, then told right three times to 30, it went a fourth
+  turn. And `toOpen`, from 99.97, went a whole turn. Both now allow half a
+  number either way.
+- **The fine look** used its own median, which a narrow window has inside
+  the narrowing: it uses the coarse graph's.
+- **The last wheel carried wheel 2.** Trying third numbers 0, 2, 4, ...
+  passes wheel 3 through the second number when the third is above it
+  (12-58-71: wheel 2 moved 9.6 at the try on 60, and the lock never
+  opened). The tries now start just above the second number. And "left
+  once to the next number" is wrong after the tries wrap past 0, or after
+  a try in the high 80s, where the right turn to open (the number, the
+  pull and 4 more) catches wheel 3 from behind: each try now turns left
+  from where the last left wheel 3, 2 more.
+- **Too strong a feel.** At 0.8 N cm, with surface friction 0.3 the fence
+  rode up the leading chamfer and the first contact was never felt. 0.5
+  and 0.65 felt it at friction 0.3, 0.45 and 0.6: now 0.6.
+- **Too light a drag.** With each wheel's drag 0.4 N cm (the dial way's)
+  and surface friction 0.6, the safecracker found wheel 2 at 78; at 0.2
+  and 0.1, 76 and 77; and the lock opened on those all the same. The
+  log showed why: as wheel 2's gate comes near the fence, the fence,
+  pressed down by its spring, meets the gate's edge and turns the wheel
+  into line, ahead of where its pin left it (+1.5 where the model has
+  +7.5, +5.0, +2.5). So the narrowing comes early. A safecracker's lock
+  that is too free does the same. Now 0.8 N cm; the dial way passes from 0.1
+  to 1.
+
 ## Sweeps
 
+The dial way's (2026-11-19, before the safecracker's way: each wheel's
+drag was 0.4 N cm, now 0.8; the safecracker's has its own table above).
 Each the tour (three tries and two closes), headless, everything else as
-it is: the hand 70 numbers a second, each wheel's drag 0.4 N cm, the bolt's
+it was: the hand 70 numbers a second, each wheel's drag 0.4 N cm, the bolt's
 friction 0.6 N, the spring 0.3 N at the fence, surface friction 0.45 (pairs
 0.2), 1200 steps a second.
 

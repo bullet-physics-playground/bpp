@@ -5,7 +5,8 @@ press `H` at the combination lock to open it.
 
 How a dial combination lock works, how to dial a combination and why the
 rules are what they are; how exact you must be, and which combinations a
-lock can't take; then the exhibit in the hall, and making one.
+lock can't take; how a safecracker reads the combination off the lock;
+then the exhibit in the hall, and making one.
 
 The wheels, the cam and the chart of the wheels turning in these pictures
 are drawn from the exhibit's own `lock.lua`: the same outlines its bodies
@@ -163,7 +164,68 @@ wrong: no combination opens early.
 - **A forbidden or too-close combination.** See section 6: the lock will
   never open to it.
 
-## 8. The lock in the hall
+## 8. The safecracker's way
+
+A lock that is never told its combination can still give it away. In the
+hall, press `Tab` at the lock: a second lock, the same, set to a
+combination the safecracker isn't told.
+
+**The leak.** No two wheels are exactly alike. Here wheel 1 is 0.1 mm
+larger in radius than wheel 2, and wheel 2 than wheel 3 (on purpose, and
+more than careful printing would leave them, so it can be seen). When the
+cam's notch comes under the fence, the fence drops off the cam, but only
+onto the largest wheel whose gate isn't under it. Rock the dial gently,
+first right, then left, and it stops each way where the fence meets one of
+the notch's chamfered walls: the **contact points**. If the fence is
+lower, it meets the walls further in, and the two come closer together.
+
+![The fence (circles) resting on wheel 1's rim and, lower, on wheel 3's, at the two places where the rocked dial stops. Lower, it meets both walls further in.](manual/fig-feel.png)
+
+So when a gate comes under the wheel that holds the fence up, the fence
+drops onto the next wheel, 0.1 mm lower, and the gap between the contact
+points narrows by 0.16 numbers. Safecrackers learn to read differences
+like that off the dial, and graph them just as here; the exhibit's hand
+reads them to a hundredth.
+
+1. **Park all three wheels together on a number**: left four times to it
+   (as for a first number). Turn right to the notch and feel the two
+   contact points; write down the gap. Then left to the next number, every
+   2.5 numbers round the dial. The gap stays the same, but near one number
+   it is narrower: there wheel 1's gate (the largest wheel's) is under the
+   fence. Look closer, every half number; the middle of the narrow stretch
+   is wheel 1's number, 31.
+2. **Leave wheel 1 there; park wheels 2 and 3 together**: left four times
+   to 31, then right to each number in turn, feeling the contact points
+   from the other side each time. Now wheel 2 holds the fence up (wheel 1's
+   gate is under it), and the gap narrows at wheel 2's number, 72. Wheels 2
+   and 3 can only be taken round from just below 31 to just above it:
+   further, and wheel 2 would carry wheel 1 off.
+3. **The last wheel needs no graph**: dial 31 and 72 by the rules, then try
+   every second number for the third, turning right to open each time; a
+   number one off still opens it. Start just above the second number (74)
+   and go on round, each time turning left from where the last try left
+   wheel 3, two more: wheel 3 can't be taken past 72 without carrying wheel 2
+   off, so the tries end just below it, at 64. The forbidden zone, 90 to 99,
+   is passed by. The lock opens on 46.
+
+![The two graphs, as the model has them: the gap between the contact points with the wheels parked on each number. Left, all three together: narrower at 31. Right, wheel 1 on 31 and the other two together: narrower at 72 (and none from 31 to 42, where they can't go).](manual/fig-graphs.png)
+
+The slate keeps the combination hidden (`??-??-??`), shows what has been
+found, the contact points and their gap as each is felt, and draws the
+graphs in chalk, a dot a number: white for the first, green for a closer
+look, orange for the second. `F` feels the contact points once, wherever
+the wheels are. The simulation's gaps agree with the model's to 0.02
+numbers (`FINDINGS.md`).
+
+Some numbers can't be graphed this way. From 93 round to 7 the dial
+would have to come round to the wheels again while feeling; a real
+safecracker would graph them from the other side. And the method only
+works because the wheels differ: lockmakers answered with wheels cut to
+finer tolerances, **false gates** that give false narrowings, and levers
+kept off the wheels until the dial is at one point. Sargent & Greenleaf's
+best locks are tested against expert manipulation for 20 man-hours.
+
+## 9. The lock in the hall
 
 ![The exhibit: the lock, the operator's thumb and finger on the knob, and the slate behind.](manual/fig-exhibit.png)
 
@@ -184,17 +246,20 @@ gate's floor is painted red.
 | `C` | close: left two turns, the bolt thrown, the wheels scrambled |
 | `M` | the camera close to the dial and its index; again: back |
 | `G` | the camera above the gates under the fence; again: back |
-| `T` | the tour: the lock's own combination (it opens), the last number five off (it doesn't), every number one off (it opens) |
+| `T` | the tour: the lock's own combination (it opens), the last number five off (it doesn't), every number one off (it opens). In the safecracker's way, its tour (section 8) |
+| `F` | (the safecracker's way) feel the contact points, the wheels where they are |
 | `H` or `F1` | this manual |
+| `Tab` | in the hall: on to the safecracker's way, and on |
 | `I` | in the hall: the lectern's label close up, and `PgDn` turns its pages |
 
 The sliders set the hand's speed, the wheels' drag and the simulation's
 speed. The slate warns before you dial a combination that breaks the rules
 of section 6, and then the lock does what it does.
 
-## 9. Making one
+## 10. Making one
 
 Every part but the steel pins, the fence, the spindle, a small spring and
 a wave washer can be printed; the wheels' gates are cut for the
-combination you choose. The README lists the parts, what to buy, and how to
+combination you choose, and their sizes differ by 0.2 mm across, for the
+safecracker's way. The README lists the parts, what to buy, and how to
 put it together, and `FINDINGS.md` what was measured in building it.

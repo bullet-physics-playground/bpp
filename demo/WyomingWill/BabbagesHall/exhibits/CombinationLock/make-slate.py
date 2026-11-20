@@ -40,19 +40,32 @@ def tile(name, w, h, lines, fonts, fill=CHALK, align="center", shrink=True):
 
 # the glyphs (85 x 110 px; the point 45 wide): the script's codes
 GLYPHS = {str(k): str(k) for k in range(10)}
-GLYPHS.update({"dash": "–", "plus": "+", "minus": "−", "point": ".", "blank": "", "under": "_"})
+GLYPHS.update({"dash": "–", "plus": "+", "minus": "−", "point": ".", "blank": "", "under": "_", "q": "?"})
 for name, ch in GLYPHS.items():
     tile(f"g-{name}", 45 if name == "point" else 85, 110, [ch], [bold(88)],
          fill=DIM if name == "under" else CHALK, shrink=False)
 
 # the labels at the rows' left
-for key, text in [("set", "SET TO"), ("try", "TRYING"), ("dial", "DIAL")]:
+for key, text in [("set", "SET TO"), ("try", "TRYING"), ("dial", "DIAL"), ("found", "FOUND"),
+                  ("low", "LOW"), ("high", "HIGH"), ("gap", "GAP")]:
     tile(f"label-{key}", 560, 110, [text], [bold(64)], align="left")
 tile("label-gates", 1600, 110, ["the gates, from under the fence (numbers):"], [serif(58)], fill=DIM, align="left")
 for i in (1, 2, 3):
     tile(f"label-wheel{i}", 260, 110, [f"wheel {i}"], [serif(54)], fill=DIM, align="left")
 tile("foot", 3200, 100, ["Turning left brings higher numbers to the index. Each wheel's gate is the notch with the red line."],
      [serif(52)], fill=DIM)
+
+# the safecracker's graph: its title, and its axis (0 to 100 across 2050 px)
+tile("label-graph", 2050, 80, ["the gap between the contact points, the wheels parked on each number"], [serif(46)], fill=DIM)
+im = Image.new("RGB", (2050, 70), SLATE)
+d = ImageDraw.Draw(im)
+d.line([(0, 6), (2049, 6)], fill=DIM, width=3)
+for n in range(0, 101, 5):
+    x = min(2048, int(n / 100 * 2049))
+    d.line([(x, 6), (x, 22 if n % 25 else 30)], fill=DIM, width=3)
+    if n % 25 == 0:
+        d.text((min(max(x, 30), 2020), 50), str(n), font=serif(34), fill=DIM, anchor="mm")
+im.quantize(colors=8).save(f"{OUT}/axis.png", optimize=True)
 
 # the lock's state
 tile("state-locked", 1100, 260, ["LOCKED", "the bolt is out"], [bold(110), serif(56)], fill=[RED, DIM])
@@ -87,11 +100,30 @@ SAYS = [
      "wheel 3, setting it, will come round to wheel 2 and carry it off"),
     ("warn-zone", "The last number is in the forbidden zone (90 to 99)",
      "turning right, the cam will carry wheel 3 off before it can draw the bolt"),
+    # the safecracker's way
+    ("s-intro", "The safecracker's way: the lock is set to a combination we aren't told",
+     "the wheels aren't quite alike, and the dial tells which one holds the fence up"),
+    ("s-graph1", "1. Park all three wheels together on each number, and feel the contact points",
+     "left to the number; right to the notch; then gently, each way, until the dial stops"),
+    ("s-fine1", "Narrower near one number: look closer, every half number",
+     "a gate under the wheel that held the fence up: it drops a hair onto the next"),
+    ("s-graph2", "2. Leave wheel 1 there; park wheels 2 and 3 together, number by number",
+     "turning right, from just below wheel 1's number round to just above it"),
+    ("s-fine2", "Narrower again: look closer",
+     "wheel 2's gate: the fence drops onto wheel 3, the smallest"),
+    ("s-last", "3. The last wheel: try every second number, turning right to open",
+     "a number one off still opens it"),
+    ("s-opened", "Open: the combination read off the lock, never told",
+     "the wheels' small differences leaked it; locks since are made to leak less"),
+    ("s-nodip", "No narrowing to be felt", "the wheels too nearly alike: the safecracker gives up"),
 ]
 lua = ["-- the slate's steps, in words (made by make-slate.py)", "return {"]
 for key, l1, l2 in SAYS:
     tile(f"say-{key}", 3200, 300, [l1, l2], [bold(92), serif(76)])
     lua.append(f'  ["{key}"] = {{ "{l1}", "{l2}" }},')
+tile("say-ready-safe", 3200, 300, ["T: the safecracker's tour;  F: feel the contact points where the wheels are",
+                                   "L, R: the dial a number;  Space: right until it stops;  C: close"],
+     [serif(88), serif(70)], fill=DIM)
 tile("say-ready", 3200, 300, ["Type six figures (31 72 46) and press Return",
                               "L, R: the dial a number;  Space: right until it stops;  C: close;  T: the tour"],
      [serif(88), serif(70)], fill=DIM)

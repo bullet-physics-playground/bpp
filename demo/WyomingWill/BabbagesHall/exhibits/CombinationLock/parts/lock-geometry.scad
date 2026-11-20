@@ -38,6 +38,7 @@ ROD_Z0 = 3;
 ROD_Z1 = 51;
 R_C = 40.4;
 R_W = 40;
+R_WHEELS = [40, 39.9, 39.8];
 SPINDLE_R = 4;
 STAND_Z0 = 56;
 STAND_Z1 = 62;

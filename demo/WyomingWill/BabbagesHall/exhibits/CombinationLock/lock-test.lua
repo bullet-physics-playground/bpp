@@ -116,7 +116,7 @@ local function opens(lock, a, b, c)
   local e = L.gateOffsets(s, gates)
   for i = 1, 3 do if math.abs(e[i]) > TOL + 0.5 then return false end end      -- (far off: no need to look)
   local wps = {}
-  for i = 1, 3 do wps[i] = L.wheelPieces(gates[i] * L.DEG) end
+  for i = 1, 3 do wps[i] = L.wheelPieces(gates[i] * L.DEG, i) end
   return L.rodFall(s, gates, wps, L.camPieces()) >= L.HOOK_DROP
 end
 local LOCK = { 31, 72, 46 }
@@ -138,3 +138,104 @@ end
 print(string.format("\nThe lock set to %s opens to %d of the million combinations (those within 3 of it tried;", L.text(LOCK[1], LOCK[2], LOCK[3]), count))
 print("  none further can open it): " .. table.concat(list, " "))
 if count > 0 then print(string.format("  So a thief has about %d really different combinations to try, not 1,000,000.", math.floor(N ^ 3 / count + 0.5))) end
+
+-- ---------------------------------------------------------------------
+-- the safecracker's way, in the model: the exhibit's method (graph the gap
+-- between the contact points with all three wheels parked together, then
+-- with wheel 1 left on what that found and wheels 2 and 3 parked together;
+-- each graph every 2.5 numbers, then every half number round the
+-- narrowing) on random locks. Every lock has its first number from 10 to
+-- 88 and its second one the exhibit's hand can graph (7.5 to 95.4, and not
+-- 0 to 12 above the first).
+-- ---------------------------------------------------------------------
+local cp = L.camPieces()
+local DIP = 0.08
+local function narrowest(xs, gaps, median)
+  local g = {}
+  for k = 1, #xs do g[#g + 1] = gaps[k] end
+  table.sort(g)
+  median = median or g[math.floor((#g + 1) / 2)]
+  local ref, lo, hi
+  for k = 1, #xs do
+    if gaps[k] < median - DIP then
+      ref = ref or xs[k]
+      local d = L.centred(xs[k] - ref)
+      lo, hi = math.min(lo or d, d), math.max(hi or d, d)
+    end
+  end
+  if not ref then return nil, median end
+  return L.wrap(ref + (lo + hi) / 2), median
+end
+local function crack(lock)
+  local gates = L.gates(lock[1], lock[2], lock[3])
+  local wps = {}
+  for i = 1, 3 do wps[i] = L.wheelPieces(gates[i] * L.DEG, i) end
+  local s
+  local function graph(xs, park, median)
+    local gaps = {}
+    for k, x in ipairs(xs) do park(k, x); local _, _, w = L.contacts(s, wps, cp); gaps[k] = w end
+    return narrowest(xs, gaps, median)
+  end
+  local function around(c, dir) local xs = {}; for k = -5, 5 do xs[#xs + 1] = c + dir * k * 0.5 end; return xs end
+  s = L.new(0, START)
+  local parkAll = function(k, x) L.turn(s, L.goTo(s.D, 1, x, k == 1 and 4 or 1) - s.D) end
+  local xs = {}
+  for x = 7.5, 90.01, 2.5 do xs[#xs + 1] = x end
+  local c1, m1 = graph(xs, parkAll)
+  if not c1 then return nil end
+  local a = math.floor(L.wrap((graph(around(c1, 1), parkAll, m1) or c1) + 0.5)) % N
+  local ys, y = {}, a - 1.5
+  while L.wrap(y - a) >= 12 or L.wrap(y - a) < 0.5 do
+    local r = L.wrap(y)
+    if r >= 7.5 and r <= N - L.FEEL_FROM - 0.1 then ys[#ys + 1] = y end
+    y = y - 2.5
+  end
+  local prev
+  local parkTwo = function(k, y)
+    if k == 1 then
+      L.turn(s, L.goTo(s.D, 1, a, 4) - s.D)
+      L.turn(s, L.goTo(s.D, -1, y, 3) - s.D)
+    else L.turn(s, -(L.wrap(s.D - prev) + L.wrap(prev - y))) end
+    prev = y
+  end
+  local c2, m2 = graph(ys, parkTwo)
+  if not c2 then return a end
+  local b = math.floor(L.wrap((graph(around(c2, -1), parkTwo, m2) or c2) + 0.5)) % N
+  -- the last wheel: from just above b round to just below it, every second
+  -- number but the forbidden zone, carrying wheel 3 on 2 each time, and
+  -- turning right to open (as far as the exhibit's hand does)
+  L.turn(s, L.goTo(s.D, 1, a, 4) - s.D); L.turn(s, L.goTo(s.D, -1, b, 3) - s.D)
+  local lastD, lastZ, c, tries = nil, nil, nil, 0
+  for k = 1, N / 2 - 1 do
+    local z = (b + 2 * k) % N
+    if L.wrap(b - z) <= 7 then break end
+    if z < N - 10 then
+      L.turn(s, (lastD and lastD + L.wrap(z - lastZ) or L.goTo(s.D, 1, z, 2)) - s.D)
+      lastD, lastZ, tries = s.D, z, tries + 1
+      local t = L.copy(s)
+      L.turn(t, L.toOpen(t.D) - t.D)
+      if L.rodFall(t, gates, wps, cp) >= L.HOOK_DROP then c = z; break end
+      L.turn(s, L.toOpen(s.D) - L.PULL - 4 - s.D)
+    end
+  end
+  return a, b, m1, m2, c, tries
+end
+local t1 = os.clock()
+local _, _, gapOn1 = crack({ 31, 72, 46 })
+math.randomseed(7)
+local tried, right, near, misses, opened, triesAll = 0, 0, 0, {}, 0, 0
+while tried < 40 do
+  local a, b, c = math.random(10, 88), math.random(0, 99), math.random(0, 89)
+  local rb = L.wrap(b)
+  if L.wrap(b - a) > 12 and L.wrap(b - c) > 7 and rb >= 7.5 and rb <= 95.4 then
+    tried = tried + 1
+    local fa, fb, _, _, fc, nt = crack({ a, b, c })
+    if fc then opened = opened + 1; triesAll = triesAll + nt end
+    if fa == a and fb == b then right = right + 1
+    elseif fa and fb and math.abs(L.centred(fa - a)) <= 1 and math.abs(L.centred(fb - b)) <= 1 then near = near + 1
+    else misses[#misses + 1] = string.format("%s (found %s-%s)", L.text(a, b, c), tostring(fa), tostring(fb)) end
+  end
+end
+print(string.format("\nThe safecracker's way, in the model, on %d random locks (%.0f s): both numbers found exactly in %d,", tried, os.clock() - t1, right))
+print(string.format("  within one (still opening) in %d more%s; the lock opened, trying the last wheel, in %d (%.1f tries each).", near, #misses > 0 and ("; missed: " .. table.concat(misses, ", ")) or "; none missed", opened, triesAll / math.max(1, opened)))
+print(string.format("  The gap narrows by %.3f numbers each time the fence drops from one wheel to the next (0.1 mm).", (gapOn1 or 0) - (select(4, crack({ 31, 72, 46 })) or 0)))

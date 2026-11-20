@@ -99,7 +99,7 @@ git push
 | `tools/rope-test.lua` | The rope experiment (for the tide predictor) |
 | `exhibits/NapiersBones/bones-test.lua` | Napier's set (every four-digit number laid), and both ways (Napier's, Genaille's) against plain arithmetic (`lua bones-test.lua`, from its folder) |
 | `exhibits/SlideRule/rule-test.lua` | The slide rule's plans against arithmetic, with the parts placed exactly and off by up to 0.2 mm (`lua rule-test.lua`, from its folder) |
-| `exhibits/CombinationLock/lock-test.lua` | The lock's model against all 1,000,000 combinations: which the dialling rules set, the forbidden zone, the tolerance, the 27 that open a lock (`lua lock-test.lua`, from its folder, 30 s) |
+| `exhibits/CombinationLock/lock-test.lua` | The lock's model against all 1,000,000 combinations: which the dialling rules set, the forbidden zone, the tolerance, the 27 that open a lock; the safecracker's method on 40 random locks (`lua lock-test.lua`, from its folder, 5 minutes) |
 | `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
 | `exhibits/DigiComp2/MANUAL.md`, `manual/` | The Digi-Comp's illustrated manual; `manual/make-figures.sh` redraws its figures from the geometry (lua, python3, matplotlib). `tools/md2pdf.py` puts a `.md` file's images into its PDF |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
@@ -455,6 +455,21 @@ there, in `release/`, or on the path; or set `BPP`.
   set wheels' gates, and the moving gate's wall dragged them along). And a
   part that drops onto an edge strikes it: chamfer what lets it down, so it
   comes down at the driver's pace.
+- **Gentle forces find seams.** A seam between two convex pieces of a
+  compound that a part slides over can catch it, even a round part: the
+  lock's dial way (the hand's 30 N cm) never noticed, but the
+  safecracker's feeling touch (then 0.8 N cm) stopped at every seam between the
+  cam's pieces. Keep seams away from where a part slides with small forces:
+  the cam's notch piece now takes in 25 degrees of rim.
+- **"Starting on it" needs a grace, not an edge.** The dialling rules'
+  "starting on the number doesn't count" was "less than 1 away": a hand
+  stopping 0.02 short of 31 then counted 30 as 0.98 away and turned a whole
+  extra turn, carrying a wheel off. Half a number either way is "on it".
+- **A procedure of many steps is clearest as a coroutine** (the
+  safecracker): it yields each thing for the hand to do and is resumed with
+  what was found, so its code reads in the order a person does it. Keep
+  its locals in a `do` block: Lua 5.1 allows 200 locals to a function, and
+  a long exhibit's top level reaches that.
 - **To edit `tools/check-all.sh` while it runs,** write the new version to
   another file and `mv` it over: bash goes on reading the old file (its
   inode), and the next run reads the new.
@@ -1074,10 +1089,37 @@ there, in `release/`, or on the path; or set `BPP`.
   overlapping but the press fits. check-all has two more lines; the smoke
   run (`-k BabbagesHall`) passes, 43 demos (`lock-test.lua`, a tool,
   returns at once when bpp opens it). **Not seen by William in the GUI
-  yet.** Offered, not done: a second way, the
-  safecracker's (the contact points: the notch meets the fence a little
-  earlier or later as each gate nears it, which is how manipulation reads a
-  lock), and wheels with a change key instead of reprinting.
+  yet.** Offered, not done: wheels with a change key instead of
+  reprinting.
+- **Done (2026-11-20): the lock's second way, the safecracker's**
+  (`LK_WAY=safe`; `Tab` in the hall; its own lectern card, three pages).
+  The wheels now differ on purpose (40.0, 39.9, 39.8 mm), and with the
+  cam's notch under it the fence rests on the largest wheel whose gate
+  isn't under it. A "feel" job turns the dial at 3 numbers a second with
+  only 0.6 N cm (the dial's own friction is 0.3), so it stops at the
+  contact points; a gate under the wheel
+  holding the fence up drops it 0.1 mm, and the gap between the contact
+  points narrows 0.16 numbers. The safecracker, a coroutine told nothing,
+  graphs the gap with all three wheels parked together (narrow at wheel
+  1's number), then with wheel 1 left there and wheels 2 and 3 parked
+  together (wheel 2's), each every 2.5 numbers and then every half number
+  round the narrowing, and tries every second number for wheel 3. The tour
+  (43,000 frames, about 12 simulated minutes; check-all allows 52,000)
+  finds 31 and 72 and opens on 46; the gaps felt differ from the model's
+  (`L.contacts`) by 0.013 numbers (the median), repeating to 0.006. Swept:
+  hand speed, wheel drag, surface friction, step rate, three other locks,
+  all pass. `lock-test.lua` runs the method in the model on 40
+  random locks: all found and opened. The slate hides the combination and draws the
+  graphs in chalk. FINDINGS has the way there: seams between the cam's
+  pieces stopped the gentle hand (section 5); 0.15 mm steps let the fence
+  onto the smallest wheel only 0.1 mm above the chamfer's foot, where it
+  half-caught; two "starting on it" roundings went a whole turn too far
+  (`goTo`, `toOpen`: now half a number of grace); the last wheel's tries
+  went through the second number and carried wheel 2 off (now from just
+  above it, on round). The wheels' drag is now 0.8 N cm (was 0.4; the
+  dial way passes at both): at 0.4 or less the fence turns a wheel whose
+  gate nears it into line, and with surface friction 0.6 that put wheel 2
+  at 78. The feel is 0.6 N cm (0.8 rode up the chamfer at friction 0.3).
 - **Next: the bead and spaghetti sorts** (MACHINES.md 5), the first with
   real physics. It goes in its place in the walking order (west 3), the
   bays after it moving along (step 1 of section 6).

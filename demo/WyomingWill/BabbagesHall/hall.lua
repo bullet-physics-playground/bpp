@@ -137,7 +137,16 @@ EXHIBITS = EXHIBITS or {
             "through each wheel carries the next round after nearly a turn, so the rules set one wheel\n" ..
             "at a time: left four times to the first number, right three to the second, left two to\n" ..
             "the third. If every gate is then under the fence, it falls into the cam's notch, and\n" ..
-            "turning right draws the bolt. Type 31 72 46, Return; M: the dial close up; G: the gates." },
+            "turning right draws the bolt. Type 31 72 46, Return; M: the dial close up; G: the gates.\n" ..
+            "Tab: the safecracker's way, which reads the combination off the lock, never told it.",
+    modes = {
+      { key = "dial", name = "the combination lock", card = "lock", env = { LK_WAY = "dial" } },
+      { key = "safe", name = "the combination lock: the safecracker's way", card = "lock-safecracker", env = { LK_WAY = "safe" },
+        about = "The safecracker's way: no two wheels are quite alike, and the fence rests on the largest.\n" ..
+                "Rocked gently, the dial stops where the fence meets the cam's notch: the contact points.\n" ..
+                "A gate under the wheel holding the fence up drops it a hair, and they close in. Two graphs\n" ..
+                "find two numbers; the last wheel is tried. T: the tour; F: feel the contact points." },
+    } },
   { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
     prefix = "Dominoes: ", floorY = -100,
     about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..

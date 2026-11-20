@@ -15,6 +15,21 @@
 -- lever and the bolt. This is Sargent & Greenleaf's arrangement, as in a
 -- safe's door, made big and open.
 --
+-- TWO WAYS (LK_WAY; in the hall, Tab steps through them)
+--   dial   dialling it by the rules (above)
+--   safe   the safecracker's: the combination read off the lock, never told.
+--          The wheels aren't quite alike (here 0.15 mm apart, on purpose),
+--          and the fence, when the cam's notch is under it, rests on the
+--          largest wheel whose gate isn't under it. Rocking the dial gently,
+--          it stops where the fence meets the notch's walls: the contact
+--          points. A gate coming under the wheel that holds the fence up
+--          drops it a hair onto the next, and the contact points come
+--          together. So: park all three wheels together on each number and
+--          graph the gap (it narrows at wheel 1's number); leave wheel 1
+--          there and graph wheels 2 and 3 together (it narrows at wheel
+--          2's); then try every second number for wheel 3, from just
+--          above wheel 2's on round.
+--
 -- KEYS
 --   0 - 9      a combination: six figures (31 72 46), then Return dials it
 --              and tries to open           Backspace  a figure off
@@ -22,7 +37,9 @@
 --   Space      right until the dial stops (open, if the fence can fall)
 --   C          close: left two turns (the bolt thrown, the wheels scrambled)
 --   M          the camera close to the dial; G close to the gates; again: back
---   T          the tour
+--   T          the tour (the way's own)
+--   F          (the safecracker's way) feel the contact points, the wheels
+--              where they are
 --   H          the manual (MANUAL.pdf) in the PDF viewer
 --
 -- PHYSICS: the dial's body (dial, spindle, cam and its pin), the three
@@ -42,11 +59,11 @@
 -- rod) and the wave washer: README.md.
 --
 -- Units: centimetres, kilograms, seconds.
--- Headless: LK_COMBO (the lock's combination, 31-72-46), LK_TOUR=0,
+-- Headless: LK_WAY (dial, safe), LK_COMBO (the lock's combination, 31-72-46), LK_TOUR=0,
 -- LK_LOG=1 (each move and the gates after it), LK_HAND (the hand's speed,
 -- numbers a second), LK_WHEEL_DRAG (each wheel's friction, kg cm^2/s^2),
 -- LK_BOLT_DRAG (the bolt's, kg cm/s^2), LK_PRESS (the lever's spring at
--- the fence, kg cm/s^2), LK_FRICTION (the parts' surfaces), LK_HZ,
+-- the fence, kg cm/s^2), LK_FRICTION (the parts' surfaces), LK_FEEL (the safecracker's gentle torque, 60), LK_HZ,
 -- LK_TRY=31-72-51 (one combination tried instead of the tour, as the model
 -- expects; for testing, fractions: 31-72-47.5), LK_RANDOM=n (n random
 -- combinations near the lock's), LK_SEED, LK_TRACE=1 (each frame near the
@@ -115,12 +132,14 @@ local function parseCombo(s)                  -- ("31-72-46"; for testing, "31-7
 end
 local COMBO = parseCombo(os.getenv("LK_COMBO")) or { 31, 72, 46 }
 local GATES = L.gates(COMBO[1], COMBO[2], COMBO[3])       -- (numbers, each wheel's own frame)
+local WAY = os.getenv("LK_WAY") or "dial"
+local SAFE = (WAY == "safe")
 
 -- ---------------------------------------------------------------------
 -- sliders, timing, the pause at every start
 -- ---------------------------------------------------------------------
 v:addParam("hand", envnum("LK_HAND", 70), 10, 150, 5, "how fast the hand turns the dial, numbers a second (100: a turn a second)")
-v:addParam("wheel drag", envnum("LK_WHEEL_DRAG", 40), 5, 200, 5, "each wheel's friction on the post: the torque it takes to turn it, kg cm^2/s^2 (100 is 1 N cm)")
+v:addParam("wheel drag", envnum("LK_WHEEL_DRAG", 80), 5, 200, 5, "each wheel's friction on the post: the torque it takes to turn it, kg cm^2/s^2 (100 is 1 N cm)")
 v:addParam("speed", 1, 0.05, 2, 0.05, "simulated seconds per real second")
 local BOLT_DRAG = envnum("LK_BOLT_DRAG", G.BOLT_DRAG * 100)       -- kg cm/s^2
 local PRESS = envnum("LK_PRESS", G.LEVER_PRESS * 100)           -- kg cm/s^2, at the fence
@@ -264,7 +283,7 @@ local wheels = {}
 for i = 1, 3 do
   local gateDeg = GATES[i] * L.DEG
   local c = btCompoundShape(true)
-  prisms(c, L.wheelPieces(gateDeg), G.T_W)
+  prisms(c, L.wheelPieces(gateDeg, i), G.T_W)
   local zmid = G.Z_W[i] + G.T_W / 2
   if i > 1 then pinSphere(c, GAP_Z[i - 1] - zmid) end             -- (meeting the pin of the wheel behind)
   pinSphere(c, GAP_Z[i] - zmid)                                    -- (and the next's: wheel 3's, the cam's)
@@ -422,7 +441,7 @@ local function tile(w, h, x, y, name)
 end
 local shown = {}
 local function show(t, name) if shown[t] ~= name then shown[t] = name; t.tex = pic("slate/" .. name) end end
-local GLYPH = { ["-"] = "dash", ["+"] = "plus", ["m"] = "minus", ["."] = "point", [" "] = "blank", ["_"] = "under" }
+local GLYPH = { ["-"] = "dash", ["+"] = "plus", ["m"] = "minus", ["."] = "point", [" "] = "blank", ["_"] = "under", ["?"] = "q" }
 local NARROW = { ["."] = true }
 local GW, GN, GH = 0.85, 0.45, 1.1
 local function glyphRow(n, x0, y)
@@ -459,25 +478,42 @@ end
 local slate = {}
 slate.setL = tile(5.6, 1.1, -13.8, 13.6, "label-set")
 slate.set = glyphRow(8, -10.8, 13.6)
-slate.tryL = tile(5.6, 1.1, -13.8, 12.0, "label-try")
-slate.try = glyphRow(8, -10.8, 12.0)
 slate.state = tile(11, 2.6, 10.5, 12.8, "state-locked")
-slate.say = tile(32, 3.0, 0, 8.9, "say-ready")
-slate.dialL = tile(5.6, 1.1, -13.8, 5.6, "label-dial")
-slate.dial = glyphRow(5, -10.8, 5.6)
-slate.gatesL = tile(16, 1.1, 6.6, 5.6, "label-gates")
-slate.gate = {}
-for i = 1, 3 do
-  local x = -13.6 + (i - 1) * 10.4
-  tile(2.6, 1.1, x + 1.3, 3.4, "label-wheel" .. i)
-  slate.gate[i] = glyphRow(5, x + 2.9, 3.4)
+if not SAFE then
+  slate.tryL = tile(5.6, 1.1, -13.8, 12.0, "label-try")
+  slate.try = glyphRow(8, -10.8, 12.0)
+  slate.say = tile(32, 3.0, 0, 8.9, "say-ready")
+  slate.dialL = tile(5.6, 1.1, -13.8, 5.6, "label-dial")
+  slate.dial = glyphRow(5, -10.8, 5.6)
+  slate.gatesL = tile(16, 1.1, 6.6, 5.6, "label-gates")
+  slate.gate = {}
+  for i = 1, 3 do
+    local x = -13.6 + (i - 1) * 10.4
+    tile(2.6, 1.1, x + 1.3, 3.4, "label-wheel" .. i)
+    slate.gate[i] = glyphRow(5, x + 2.9, 3.4)
+  end
+  slate.foot = tile(32, 1.0, 0, 1.6, "foot")
+else
+  -- (the safecracker's: what's found, the dial and the contact points down
+  -- the left, a graph of the gap on the right; the gates' places aren't
+  -- shown: that would give it away)
+  slate.tryL = tile(5.6, 1.1, -13.8, 12.0, "label-found")
+  slate.try = glyphRow(8, -10.8, 12.0)
+  slate.say = tile(32, 2.4, 0, 9.3, "say-ready-safe")
+  slate.dialL = tile(5.6, 1.1, -13.8, 6.4, "label-dial")
+  slate.dial = glyphRow(5, -10.8, 6.4)
+  for k, key in ipairs({ "low", "high", "gap" }) do
+    tile(5.6, 1.1, -13.8, 6.4 - 1.4 * k, "label-" .. key)
+    slate[key] = glyphRow(5, -10.8, 6.4 - 1.4 * k)
+  end
+  tile(20.5, 0.8, 5.75, 7.15, "label-graph")
+  tile(20.5, 0.7, 5.75, 1.35, "axis")
 end
-slate.foot = tile(32, 1.0, 0, 1.6, "foot")
 local function comboText(c)
   local function f(x) return (x == math.floor(x)) and string.format("%02d", x) or string.format("%04.1f", x) end
   return f(c[1]) .. "-" .. f(c[2]) .. "-" .. f(c[3])
 end
-showGlyphs(slate.set, comboText(COMBO))
+showGlyphs(slate.set, SAFE and "??-??-??" or comboText(COMBO))
 local function signed(x)
   local s = string.format("%.1f", math.abs(x))
   if s == "0.0" then return " 0.0" end
@@ -492,8 +528,10 @@ local function slateLive(force)
   local t = string.format("%.1f", r)
   if t == "100.0" then t = "0.0" end
   showGlyphs(slate.dial, t)
-  local e = gateOffsets()
-  for i = 1, 3 do showGlyphs(slate.gate[i], signed(e[i])) end
+  if slate.gate then
+    local e = gateOffsets()
+    for i = 1, 3 do showGlyphs(slate.gate[i], signed(e[i])) end
+  end
   show(slate.state, boltAt() > G.BOLT_TRAVEL - 1 and "state-open" or (boltAt() > 1 and "state-moving" or "state-locked"))
 end
 
@@ -550,6 +588,11 @@ local function startJob()
     job = { to = q.to, t = 0, near = 0, vmax = q.vmax, tmax = math.abs(q.to - Dnow) / vmax * 1.6 + 4, done = q.done }
     return
   end
+  if q.feel then
+    -- gently, one way, until the dial stops (the fence meeting the notch's wall)
+    job = { feel = q.feel, t = 0, still = 0, from = Dnow, done = q.done }
+    return
+  end
   if q.open then
     -- right until the dial stops, or until it is well past where the bolt
     -- would have been drawn back
@@ -558,6 +601,10 @@ local function startJob()
   end
 end
 -- each simulation step: the dial's motor
+-- feeling for the contact points: slowly, and with only enough torque to
+-- turn the dial against its own friction (the hand's lightest touch): it
+-- stops where the fence meets the notch's chamfered wall
+local FEEL_V, FEEL_TORQUE = 3, envnum("LK_FEEL", 60)   -- numbers a second; kg cm^2/s^2 (the dial's friction 30; with slippy parts, friction 0.3, 80 rides up the chamfer)
 local function steer()
   local j = job
   if not j then return end
@@ -567,6 +614,8 @@ local function steer()
     drive(math.max(-vmax, math.min(vmax, GAIN * err)))
   elseif j.open then
     drive(-0.6 * v:getParam("hand"))
+  elseif j.feel then
+    drive(j.feel * FEEL_V, FEEL_TORQUE)
   end
 end
 local function stepJob(dt)
@@ -586,6 +635,16 @@ local function stepJob(dt)
       local d = j.done
       job = nil
       if d then d() end
+      startJob()
+    end
+  elseif j.feel then
+    local moved = math.abs(Dnow - j.from)
+    if moved > 0.03 and math.abs(dialSpeed()) < 0.25 then j.still = j.still + dt else j.still = 0 end
+    if j.still > 0.2 or moved > 12 or j.t > 15 then
+      letGo()
+      local d, r = j.done, (j.still > 0.2) and Dnow or nil
+      job = nil
+      if d then d(r) end
       startJob()
     end
   elseif j.open then
@@ -622,7 +681,7 @@ end
 -- the round fence, pressed on a gate's edge, may turn that wheel the last
 -- bit itself (FINDINGS.md: it does from 1.5 below to 1.8 above)
 local wheelPieces = {}
-for i = 1, 3 do wheelPieces[i] = L.wheelPieces(GATES[i] * L.DEG) end
+for i = 1, 3 do wheelPieces[i] = L.wheelPieces(GATES[i] * L.DEG, i) end
 local camPieces = L.camPieces()
 local BAND = 2.0
 local function modelSays(s)
@@ -697,6 +756,222 @@ local function close()
   end })
 end
 
+-- ---------------------------------------------------------------------
+-- the safecracker's way: a coroutine, the safecracker's own steps in
+-- order. It yields each thing for the hand to do ({ to }, { feel }, { open
+-- }, { say }) and is resumed, when the hand has done it, with what was
+-- found (the dial's reading where it stopped; whether it stopped). It is
+-- never told the combination: it reads the dial and nothing else. The
+-- model, turned as the dial is, gives the gaps it expects, for the log.
+-- ---------------------------------------------------------------------
+local frame = 0
+local cracker, crackFails, graphLog = nil, 0, {}    -- (the safecracker's coroutine, its failures, what it felt)
+local SC = {}                                     -- (what the rest of the script calls of it)
+do
+local crackerResult
+local found = {}
+local msafe                                   -- (the model, kept turned as the dial is)
+local DIP = 0.08                              -- numbers: narrower than the median by this much is a dip (the leak is 0.16)
+local DOTS = {}                               -- (the graph's chalk dots)
+local GX0, GW, GY0, GH, GAP0, GAP1 = -4.5, 20.5, 1.9, 4.6, 2.7, 3.7
+local dotCols = { "#ece8d6", "#9ad69a", "#e8b070", "#9ad69a" }
+local function dot(graph, x, gap)
+  if not SAFE or not gap then return end
+  local c = Cube(graph % 2 == 1 and 0.32 or 0.26, graph % 2 == 1 and 0.32 or 0.26, 0.01, 0)
+  c.collides = false
+  c.col = dotCols[graph]
+  v:add(c)
+  local f = math.max(0, math.min(1, (gap - GAP0) / (GAP1 - GAP0)))
+  c.trans = btTransform(ident, btVector3(SX + GX0 + L.wrap(x) / L.N * GW, SY + GY0 + f * GH, SZ + 0.006 + 0.001 * graph))
+  DOTS[#DOTS + 1] = c
+end
+local function clearDots()
+  for _, c in ipairs(DOTS) do c.trans = btTransform(ident, HIDE) end
+end
+local function act(q) return coroutine.yield(q) end
+local function say(k, w) act({ say = k, waitS = w or 1.6 }) end
+local function turnTo(D, vmax)
+  act({ to = D, vmax = vmax })
+  L.turn(msafe, Dnow - msafe.D)               -- (the model follows every move: lost motion doesn't add up)
+end
+local function feel(dir) local r = act({ feel = dir }); L.turn(msafe, Dnow - msafe.D); return r end
+local function foundText(c)
+  local t = {}
+  for i = 1, 3 do t[i] = c[i] and string.format("%02d", c[i]) or "__" end
+  return table.concat(t, "-")
+end
+-- the contact points: from above (turning right to the notch, then feeling
+-- right, then left), or from below (left, then left, then right)
+local function contacts(fromAbove)
+  local lo, hi
+  if fromAbove then
+    turnTo(Dnow - L.wrap(Dnow - (L.OPEN_AT + L.FEEL_FROM)))
+    lo = feel(-1); hi = feel(1)
+  else
+    turnTo(Dnow + L.wrap(L.OPEN_AT - L.FEEL_FROM - Dnow))
+    hi = feel(1); lo = feel(-1)
+  end
+  local mlo, mhi, mgap = L.contacts(msafe, wheelPieces, camPieces)
+  if lo then showGlyphs(slate.low, string.format("%.2f", L.wrap(lo))) end
+  if hi then showGlyphs(slate.high, string.format("%.2f", L.wrap(hi))) end
+  local gap = (lo and hi) and (hi - lo) or nil
+  showGlyphs(slate.gap, gap and string.format("%.2f", gap) or "")
+  return gap, mgap, lo, hi
+end
+local function measure(graph, x, fromAbove)
+  local gap, mgap, lo, hi = contacts(fromAbove)
+  dot(graph, x, gap)
+  graphLog[#graphLog + 1] = { graph = graph, x = x, gap = gap, model = mgap }
+  if LOG then
+    local e, m = gateOffsets(), L.gateOffsets(msafe, GATES)   -- (for the log only: the safecracker isn't shown them)
+    print(string.format("    graph %d at %5.1f: the gap %s (the model %.3f); contacts %s %s; gates %+.1f %+.1f %+.1f (the model %+.1f %+.1f %+.1f); f%d",
+      graph, L.wrap(x), gap and string.format("%.3f", gap) or "not felt", mgap, lo and string.format("%.2f", L.wrap(lo)) or "-",
+      hi and string.format("%.2f", L.wrap(hi)) or "-", e[1], e[2], e[3], m[1], m[2], m[3], frame))
+  end
+  return gap
+end
+-- where the narrowing is: the points more than DIP under the median gap;
+-- their middle (round the dial, from the first of them)
+local function narrowest(xs, gaps, median)    -- (median: the coarse graph's, for a closer look)
+  local g = {}
+  for k = 1, #xs do if gaps[k] then g[#g + 1] = gaps[k] end end
+  if #g < 3 then return nil end
+  table.sort(g)
+  median = median or g[math.floor((#g + 1) / 2)]
+  local ref, lo, hi
+  for k = 1, #xs do
+    if gaps[k] and gaps[k] < median - DIP then
+      ref = ref or xs[k]
+      local d = L.centred(xs[k] - ref)
+      lo, hi = math.min(lo or d, d), math.max(hi or d, d)
+    end
+  end
+  if not ref then return nil end
+  return L.wrap(ref + (lo + hi) / 2), median
+end
+local function graphOne(graph, xs, park, fromAbove, median)
+  local gaps = {}
+  for k, x in ipairs(xs) do
+    park(k, x)
+    gaps[k] = measure(graph, x, fromAbove)
+  end
+  return narrowest(xs, gaps, median)
+end
+local function around(c, step, n, dir)        -- n points either side of c, step apart, in the order dir turns
+  local xs = {}
+  for k = -n, n do xs[#xs + 1] = c + dir * k * step end
+  return xs
+end
+local function safeTour()
+  msafe = L.new(Dnow, Wnow)
+  found = {}
+  clearDots()
+  showGlyphs(slate.set, "??-??-??")
+  showGlyphs(slate.try, foundText(found))
+  say("s-intro", 2.6)
+  -- 1. all three wheels parked together, turning left: the narrowing is wheel 1's number
+  say("s-graph1", 2.4)
+  local xs = {}
+  for x = 7.5, 90.01, 2.5 do xs[#xs + 1] = x end
+  local parkAll = function(k, x) turnTo(L.goTo(Dnow, 1, x, k == 1 and 4 or 1)) end
+  local c1, m1 = graphOne(1, xs, parkAll, true)
+  if not c1 then say("s-nodip", 3); crackFails = crackFails + 1; return end
+  say("s-fine1", 2.4)
+  local c1f = graphOne(2, around(c1, 0.5, 5, 1), parkAll, true, m1)
+  found[1] = math.floor(L.wrap((c1f or c1) + 0.5)) % L.N
+  showGlyphs(slate.try, foundText(found))
+  print(string.format("  wheel 1: the gap narrowest about %.1f (closer: %s): %d", c1, c1f and string.format("%.2f", c1f) or "-", found[1]))
+  -- 2. wheel 1 left there; wheels 2 and 3 parked together, turning right,
+  -- from just below its number round to just above (wheel 2 can't go
+  -- further without carrying wheel 1 off), leaving out those the hand
+  -- can't feel from below without coming round to wheel 3 again
+  say("s-graph2", 2.4)
+  local a = found[1]
+  local ys = {}
+  local y = a - 1.5
+  while L.wrap(y - a) >= 12 or L.wrap(y - a) < 0.5 do
+    local r = L.wrap(y)
+    if r >= 7.5 and r <= L.N - L.FEEL_FROM - 0.1 then ys[#ys + 1] = y end
+    y = y - 2.5
+  end
+  local prev
+  local parkTwo = function(k, y)
+    if k == 1 then
+      turnTo(L.goTo(Dnow, 1, a, 4))
+      turnTo(L.goTo(Dnow, -1, y, 3))
+    else                                      -- (right to where the wheels were left, and on)
+      turnTo(Dnow - (L.wrap(Dnow - prev) + L.wrap(prev - y)))
+    end
+    prev = y
+  end
+  local c2, m2 = graphOne(3, ys, parkTwo, false)
+  if not c2 then say("s-nodip", 3); crackFails = crackFails + 1; return end
+  say("s-fine2", 2.4)
+  local c2f = graphOne(4, around(c2, 0.5, 5, -1), parkTwo, false, m2)
+  found[2] = math.floor(L.wrap((c2f or c2) + 0.5)) % L.N
+  showGlyphs(slate.try, foundText(found))
+  print(string.format("  wheel 2: the gap narrowest about %.1f (closer: %s): %d", c2, c2f and string.format("%.2f", c2f) or "-", found[2]))
+  -- 3. the last wheel: every second number, turning right to open each time
+  say("s-last", 2.4)
+  turnTo(L.goTo(Dnow, 1, found[1], 4))
+  turnTo(L.goTo(Dnow, -1, found[2], 3))
+  -- (from just above the second number round to just below it: wheel 3
+  -- can't be turned past the second number without carrying wheel 2 off,
+  -- nor to 0 to 7 below it. Each try carries wheel 3 on from where the last
+  -- left it, 2 more; the forbidden zone, 90 to 99, isn't tried.)
+  local lastD, lastZ
+  for k = 1, L.N / 2 - 1 do
+    local z = (found[2] + 2 * k) % L.N
+    if L.wrap(found[2] - z) <= 7 then break end
+    if z < L.N - 10 then
+      found[3] = z
+      showGlyphs(slate.try, foundText(found))
+      turnTo(lastD and lastD + L.wrap(z - lastZ) or L.goTo(Dnow, 1, z, 2))
+      lastD, lastZ = Dnow, z
+      local stopped = act({ open = true })
+      if LOG then
+        local e = gateOffsets()
+        print(string.format("    the last wheel on %d: the dial %s at %.1f, the bolt %.1f mm; gates %+.1f %+.1f %+.1f",
+          z, stopped and "stopped" or "turned on", L.wrap(Dnow), boltAt(), e[1], e[2], e[3]))
+      end
+      if boltAt() > G.BOLT_TRAVEL - 1 then break end
+      found[3] = nil
+    end
+  end
+  local ok = found[3] ~= nil
+  for i = 1, 3 do ok = ok and found[i] and math.abs(L.centred(found[i] - COMBO[i])) <= 2 end
+  showGlyphs(slate.set, comboText(COMBO))
+  print(string.format("  %s: found %s; the lock is set to %s", found[3] and "OPEN" or "NOT OPENED", foundText(found), L.text(COMBO[1], COMBO[2], COMBO[3])))
+  -- the physics' gaps against the model's
+  local worst, n = 0, 0
+  for _, g in ipairs(graphLog) do
+    if g.gap then n = n + 1; worst = math.max(worst, math.abs(g.gap - g.model)) end
+  end
+  print(string.format("  the gaps felt against the model's: %d points, the worst %.3f numbers apart", n, worst))
+  if not ok then crackFails = crackFails + 1 end
+  if found[3] then
+    say("s-opened", 3)
+    say("close", 0.9)
+    local D0 = Dnow
+    turnTo(D0 + CLOSE_SLOW, CLOSE_V)
+    turnTo(D0 + 2 * L.N)
+  end
+end
+-- (each frame, when the hand is idle: the coroutine's next step)
+local function crackerNext()
+  if not cracker or not idle() then return end
+  local ok, q = coroutine.resume(cracker, crackerResult)
+  crackerResult = nil
+  if not ok then print("the safecracker: " .. tostring(q)); crackFails = crackFails + 1; cracker = nil; return end
+  if coroutine.status(cracker) == "dead" then cracker = nil; return end
+  local d = q.done
+  q.done = function(r) crackerResult = r; if d then d(r) end end
+  push(q)
+end
+SC.next, SC.tour, SC.contacts = crackerNext, safeTour, contacts
+SC.fresh = function() msafe = L.new(Dnow, Wnow) end
+end
+
 -- the tour: the lock's own combination; one number off by five; every number off by one
 local TOUR = {
   { COMBO, "t-own", true },
@@ -705,6 +980,7 @@ local TOUR = {
   { { (COMBO[1] + 1) % L.N, (COMBO[2] - 1) % L.N, (COMBO[3] + 1) % L.N }, "t-near", true },
   "close",
 }
+if SAFE then TOUR = { "safe" } end
 local tryOne = parseCombo(os.getenv("LK_TRY"))
 if tryOne then TOUR = { { tryOne } } end
 local RANDOM_N = envnum("LK_RANDOM", 0)
@@ -721,28 +997,37 @@ if RANDOM_N > 0 then
   end
 end
 local touring = nil
-local frame = 0
 local function tourStart()
   touring, fails, tried = 1, 0, 0
-  queue, job = {}, nil
+  queue, job, cracker, crackFails, graphLog = {}, nil, nil, 0, {}
   letGo()
+  if SAFE and TOUR[1] == "safe" then
+    print("\nTHE COMBINATION LOCK -- the safecracker's tour: the lock is set to " .. L.text(COMBO[1], COMBO[2], COMBO[3]) .. ", and the safecracker isn't told")
+    return
+  end
   print("\nTHE COMBINATION LOCK -- the tour: the lock is set to " .. L.text(COMBO[1], COMBO[2], COMBO[3]) ..
     (tryOne and "; trying " .. L.text(tryOne[1], tryOne[2], tryOne[3]) or
      (RANDOM_N > 0 and ("; " .. RANDOM_N .. " combinations near it") or "; its own combination, one number five off, every number one off")))
 end
 local function tourNext()
-  if not touring or not idle() then return end
+  if not touring or not idle() or cracker then return end
   if touring > #TOUR then
     touring = nil
-    print(string.format("RESULT combination lock tour: %s  (%d tried, %d not as expected; frame %d)",
-      (fails == 0 and tried > 0) and "PASS" or "FAIL", tried, fails, frame))
-    show(slate.say, "say-ready")
+    if TOUR[1] == "safe" then
+      print(string.format("RESULT combination lock safecracker tour: %s  (frame %d)", crackFails == 0 and "PASS" or "FAIL", frame))
+      show(slate.say, "say-ready-safe")
+    else
+      print(string.format("RESULT combination lock tour: %s  (%d tried, %d not as expected; frame %d)",
+        (fails == 0 and tried > 0) and "PASS" or "FAIL", tried, fails, frame))
+      show(slate.say, "say-ready")
+    end
     return
   end
   local t = TOUR[touring]
   touring = touring + 1
   push({ wait = touring == 2 and 0.3 or 0.6 })
-  if t == "close" then close() else try(t[1], t[2], t[3]) end
+  if t == "safe" then cracker = coroutine.create(SC.tour)
+  elseif t == "close" then close() else try(t[1], t[2], t[3]) end
 end
 
 -- ---------------------------------------------------------------------
@@ -855,6 +1140,7 @@ v:postSim(function(N)
     if (os.getenv("LK_TOUR") or "1") ~= "0" then tourStart() end
   end
   stepJob(FRAME_DT)
+  SC.next()
   tourNext()
   restPost()
 end)
@@ -867,14 +1153,14 @@ local function showEntry()
   local t = entry .. string.rep("_", 6 - #entry)
   showGlyphs(slate.try, t:sub(1, 2) .. "-" .. t:sub(3, 4) .. "-" .. t:sub(5, 6))
 end
-local function stopTour() touring = nil end
+local function stopTour() touring = nil; cracker = nil end
 local function busy() return not idle() end
 for d = 0, 9 do
   v:addShortcut(tostring(d), function()
     stopTour()
     if #entry < 6 then entry = entry .. d end
     showEntry()
-    show(slate.say, "say-ready")
+    show(slate.say, SAFE and "say-ready-safe" or "say-ready")
   end)
 end
 v:addShortcut("Backspace", function() entry = entry:sub(1, -2); showEntry() end)
@@ -901,6 +1187,17 @@ v:addShortcut("Space", function()
   end })
 end)
 v:addShortcut("C", function() if not busy() then stopTour(); close() end end)
+if SAFE then
+  v:addShortcut("F", function()
+    if busy() then return end
+    stopTour()
+    SC.fresh()
+    cracker = coroutine.create(function()
+      local gap, mgap = SC.contacts(true)
+      print(string.format("  the contact points felt: the gap %s (the model %.3f)", gap and string.format("%.3f", gap) or "not felt", mgap))
+    end)
+  end)
+end
 v:addShortcut("T", function() tourStart() end)
 v:addShortcut("M", function() viewOn("dial") end)
 v:addShortcut("G", function() viewOn("gates") end)
@@ -914,8 +1211,10 @@ v:onParamChanged(function(N, name, value)
 end)
 pcall(function()
   local h = {
-    "THE COMBINATION LOCK  (Babbage's Hall)",
+    SAFE and "THE COMBINATION LOCK: THE SAFECRACKER'S WAY  (Babbage's Hall)" or "THE COMBINATION LOCK  (Babbage's Hall)",
     "",
+    SAFE and "  T  the safecracker's tour: graph the contact points, find the numbers, open it" or "",
+    SAFE and "  F  feel the contact points, the wheels where they are" or "",
     "KEYS",
     "  0 - 9  a combination, six figures (31 72 46); Return dials it and tries to open",
     "  Backspace  a figure off      L, R  the dial one number left, right",
@@ -950,7 +1249,8 @@ if v.onHover then
     KEY[objectKey(boltObj)] = "the bolt: thrown into the keeper, the door is locked"
     KEY[objectKey(keeperObj)] = "the keeper, on the door's frame: the bolt goes into it"
     KEY[objectKey(standObj)] = "the front standard (the door): the dial's bearing, and the index at its top"
-    KEY[objectKey(slateObj)] = "the slate (the script's): the combination tried, the dial, and where each gate stands from the fence"
+    KEY[objectKey(slateObj)] = SAFE and "the slate (the script's): what the safecracker has found, the contact points felt, and a graph of the gap between them"
+      or "the slate (the script's): the combination tried, the dial, and where each gate stands from the fence"
     KEY[objectKey(fingersObj)] = "the operator's fingers (the script's)"
   end
   v:onHover(function(N, obj, x, y, z)

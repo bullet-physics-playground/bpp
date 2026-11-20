@@ -35,7 +35,9 @@ local L = {}
 
 local G = {
   -- the wheels
-  R_W = 40, T_W = 5,                 -- radius, thickness
+  R_W = 40, T_W = 5,                 -- radius (wheel 1's, the largest), thickness
+  R_WHEELS = { 40.0, 39.9, 39.8 },   -- each wheel's: not quite alike, as real ones never are (here on
+                                     -- purpose, and more: so the safecracker's way can feel which holds the fence up)
   GATE_HALF = 7.0,                   -- degrees either side of its middle (radial walls): 9.8 mm at the rim
   GATE_DEPTH = 5.5,
   HUB_R = 6.2,                       -- the bore, on the 12 mm post
@@ -110,11 +112,11 @@ local function sectors(r, a0, a1, out)   -- a0 to a1 (a1 > a0) in pieces of 30 d
   return out
 end
 
--- a wheel whose gate's middle is at gateDeg (its own frame)
-function L.wheelPieces(gateDeg)
-  local h = G.GATE_HALF
-  local out = { sector(G.R_W - G.GATE_DEPTH, gateDeg - h, gateDeg + h) }
-  return sectors(G.R_W, gateDeg + h, gateDeg - h + 360, out)
+-- wheel i (1 if not given), its gate's middle at gateDeg (its own frame)
+function L.wheelPieces(gateDeg, i)
+  local h, r = G.GATE_HALF, G.R_WHEELS[i or 1]
+  local out = { sector(r - G.GATE_DEPTH, gateDeg - h, gateDeg + h) }
+  return sectors(r, gateDeg + h, gateDeg - h + 360, out)
 end
 
 -- the cam: its notch's floor from aL to aT (own frame), at the top when
@@ -167,14 +169,18 @@ end
 function L.camPieces()
   local k = L.camNotch()
   local out = { sector(G.NOTCH_R, k.aL, k.aT) }
-  -- (the leading wall's piece: the ray at aR, the rim to the chamfer's top,
-  -- the chamfer and the wall down to the floor's corner, the ray at aL)
+  -- (the leading wall's piece: 25 degrees of rim up to the chamfer's top,
+  -- the chamfer and the wall down to the floor's corner, the ray at aL. It
+  -- takes in that much rim so that no seam between pieces is near the
+  -- notch: the fence sliding over a seam can catch on the next piece's side,
+  -- which the safecracker's gentle feeling stopped at)
   local rin = G.HUB_R
-  local p = arc(G.R_C, k.aR, k.aR)
+  local a0 = k.aR - 25
+  local p = arc(G.R_C, a0, k.aR)
   p[#p + 1] = k.rampFoot
   p[#p + 1] = k.corner
   p[#p + 1] = { rin * math.cos(math.rad(k.aL)), rin * math.sin(math.rad(k.aL)) }
-  p[#p + 1] = { rin * math.cos(math.rad(k.aR)), rin * math.sin(math.rad(k.aR)) }
+  p[#p + 1] = { rin * math.cos(math.rad(a0)), rin * math.sin(math.rad(a0)) }
   out[#out + 1] = p
   -- (the chamfer's piece: the ray at aT up to the chamfer's foot, the
   -- chamfer, the rim on to aC + 20)
@@ -183,7 +189,7 @@ function L.camPieces()
   for _, pt in ipairs(arc(G.R_C, k.aC, a1)) do q[#q + 1] = pt end
   q[#q + 1] = { rin * math.cos(math.rad(a1)), rin * math.sin(math.rad(a1)) }
   out[#out + 1] = q
-  return sectors(G.R_C, a1, k.aR + 360, out)
+  return sectors(G.R_C, a1, a0 + 360, out)
 end
 -- the cam's whole outline, anticlockwise (for OpenSCAD)
 function L.camOutline()
@@ -309,15 +315,47 @@ function L.rodFall(s, gates, wheelPieces, camPieces)
 end
 
 -- ---------------------------------------------------------------------
+-- the contact points: with the cam's notch under the fence, the fence
+-- rests on the largest wheel whose gate isn't under it. Rocking the dial,
+-- it meets the notch's chamfered walls: the dial's readings there, below
+-- and above OPEN_AT. The deeper the fence, the further in it meets them,
+-- so a gate coming under the wheel that holds the fence up brings the two
+-- together. In numbers, to the nearest 0.0005.
+-- ---------------------------------------------------------------------
+function L.fenceOnWheels(s, wheelPieces)       -- the fence's fall onto the wheels, mm (the cam left out)
+  local d = 8
+  for i = 1, 3 do d = math.min(d, L.fall(wheelPieces[i], L.DEG * L.wheel(s, i), d)) end
+  return d
+end
+function L.contacts(s, wheelPieces, camPieces)
+  local y = G.ROD_Y - L.fenceOnWheels(s, wheelPieces)
+  local function touches(d) return hits(camPieces, L.DEG * (L.OPEN_AT + d), y) end
+  local function edge(dir)                     -- (out from the middle in steps of 0.05, then halving to 0.0005)
+    local a, b = 0, 0.05
+    while b < 10 and not touches(dir * b) do a, b = b, b + 0.05 end
+    while b - a > 0.0005 do
+      local m = (a + b) / 2
+      if touches(dir * m) then b = m else a = m end
+    end
+    return L.OPEN_AT + dir * b
+  end
+  local lo, hi = edge(-1), edge(1)
+  return lo, hi, hi - lo
+end
+-- the safecracker's parking: all three wheels left together on x (turning
+-- left), and the dial's places for each step of feeling the contacts
+L.FEEL_FROM = 4.5                     -- (numbers either side of OPEN_AT: where the hand slows to feel)
+
+-- ---------------------------------------------------------------------
 -- dialling: the four moves for a combination, from the dial as it stands.
 -- Each { dir = 1 (left) or -1 (right), to = D's target, num, times, say }.
 -- "Left four times to a": a comes under the index four times, the last
--- time stopping there; starting on it doesn't count.
+-- time stopping there; starting on it (within half a number) doesn't count.
 -- ---------------------------------------------------------------------
 local function goTo(D, dir, num, times)
   local r = wrap(D)
   local d = wrap(dir * (num - r))
-  if d < 1 then d = d + L.N end
+  if d < 0.5 then d = d + L.N end
   return D + dir * (d + L.N * (times - 1))
 end
 L.goTo = goTo
@@ -329,8 +367,9 @@ function L.plan(D, a, b, c)
   for _, s in ipairs(m) do s.to = goTo(D, s.dir, s.num, s.times); D = s.to end
   return m
 end
--- (turning right from the last number to where the notch is under the rod)
-function L.toOpen(D) return D - wrap(D - L.OPEN_AT) end
+-- (turning right from the last number to where the notch is under the
+-- fence; on it already, within half a number either way, is there)
+function L.toOpen(D) return D - (wrap(D - L.OPEN_AT + 0.5) - 0.5) end
 -- the dial's travel right from the notch arriving to the bolt drawn back:
 -- the notch's floor passing under the rod, and the pull (the rod's centre on
 -- a circle of the floor's radius plus its own, moved the bolt's travel)

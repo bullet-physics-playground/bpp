@@ -42,7 +42,7 @@ local gates = L.gates(a, b, c)
 local out = { G = G, delta = L.DELTA, top = L.TOP, gates = gates, pull = L.PULL, hook = L.HOOK_DROP }
 out.cam = L.camOutline()
 out.wheel = {}
-for i = 1, 3 do out.wheel[i] = L.wheelPieces(gates[i] * L.DEG) end
+for i = 1, 3 do out.wheel[i] = L.wheelPieces(gates[i] * L.DEG, i) end
 -- the dialling, from a scrambled start: the dial's travel and each gate's place, a point a number
 local s = L.new(0, { 13, 58, 91 })
 local plan = L.plan(s.D, a, b, c)
@@ -66,6 +66,39 @@ local wp = L.wheelPieces(90)
 local fall = {}
 for e = -2.5, 2.501, 0.02 do fall[#fall + 1] = { e, L.fall(wp, e * L.DEG, 8) } end
 out.fall = fall
+-- the safecracker's: where the fence meets the notch's walls when it rests on
+-- each wheel's rim, and the two graphs (every half number)
+out.contacts = {}
+for i = 1, 3 do
+  local y = G.ROD_Y - (G.R_C - G.R_WHEELS[i])
+  local function edge(dir)
+    local d = 0
+    while not L.hits(L.camPieces(), L.DEG * (L.OPEN_AT + dir * d), y) do d = d + 0.001 end
+    return dir * d
+  end
+  out.contacts[i] = { edge(-1), edge(1), G.R_C - G.R_WHEELS[i] }
+end
+local wp = {}
+for i = 1, 3 do wp[i] = L.wheelPieces(gates[i] * L.DEG, i) end
+local cp = L.camPieces()
+local g1, g2 = {}, {}
+s = L.new(0, { 13, 58, 91 })
+L.turn(s, L.goTo(s.D, 1, 7.5, 4) - s.D)
+for x = 7.5, 90.01, 0.5 do
+  L.turn(s, L.goTo(s.D, 1, x, 1) - s.D)
+  local _, _, w = L.contacts(s, wp, cp)
+  g1[#g1 + 1] = { x, w }
+end
+s = L.new(0, { 13, 58, 91 })
+L.turn(s, L.goTo(s.D, 1, 31, 4) - s.D)
+L.turn(s, L.goTo(s.D, -1, 29.5, 3) - s.D)
+local y = 29.5
+while L.wrap(y - 31) >= 12 or L.wrap(y - 31) < 0.5 do
+  local _, _, w = L.contacts(s, wp, cp)
+  g2[#g2 + 1] = { L.wrap(y), w }
+  L.turn(s, -0.5); y = y - 0.5
+end
+out.g1, out.g2 = g1, g2
 print(J(out))
 '''
 code = DATA_LUA.replace("@LOCK@", os.path.join(TOP, "lock.lua"))
@@ -209,6 +242,45 @@ ax.set_ylabel("the fence's fall (mm)")
 ax.set_xlim(-2.5, 2.5); ax.set_ylim(0, 4.6)
 for s in ("top", "right"): ax.spines[s].set_visible(False)
 save(fig, "fig-tolerance.png")
+
+# ---------------------------------------------------------------------
+# fig-feel: the fence resting on each wheel's rim, at the two places the
+# rocked dial stops: deeper, it meets the walls further in
+# ---------------------------------------------------------------------
+fig, axs = plt.subplots(1, 2, figsize=(11, 3.4))
+for ax, side in zip(axs, (0, 1)):
+    for i, col in zip((0, 2), (COLS[0], COLS[2])):
+        lo, hi, fall = D["contacts"][i]
+        at = (lo, hi)[side]
+        cam = turned(D["cam"], at * DEG)
+        ax.add_patch(Polygon(cam, closed=True, fc="none", ec=col, lw=1.2))
+        ax.add_patch(Circle((0, G["ROD_Y"] - fall), G["ROD_D"] / 2, fc="none", ec=col, lw=1.2))
+        ax.text(-6.8 if side == 0 else 1.5, 45.2 - 0.9 * (i // 2), "on wheel %d's rim (%.1f mm down): the dial stops at %.2f" % (i + 1, fall, at % 100),
+                color=col, fontsize=8)
+    ax.set_xlim(-7, 7); ax.set_ylim(37.5, 46); ax.set_aspect("equal"); ax.axis("off")
+    ax.set_title("turning right: the steep wall's chamfer" if side == 0 else "turning left: the sloping wall's chamfer", fontsize=9)
+save(fig, "fig-feel.png")
+
+# ---------------------------------------------------------------------
+# fig-graphs: the gap between the contact points, as the model has it
+# ---------------------------------------------------------------------
+fig, axs = plt.subplots(1, 2, figsize=(11, 3.3), sharey=True)
+for ax, g, title, col in ((axs[0], D["g1"], "1. all three wheels parked together on each number", COLS[0]),
+                          (axs[1], D["g2"], "2. wheel 1 left on 31; wheels 2 and 3 parked together", COLS[1])):
+    pts = sorted(g)
+    xs, ys = [], []
+    for k, (x, w) in enumerate(pts):
+        if k and x - pts[k - 1][0] > 1:
+            ax.plot(xs, ys, color=col, lw=1.4); xs, ys = [], []
+        xs.append(x); ys.append(w)
+    ax.plot(xs, ys, color=col, lw=1.4)
+    ax.set_xlim(0, 100); ax.set_title(title, fontsize=9)
+    ax.set_xlabel("the number the wheels are parked on")
+    for sp in ("top", "right"): ax.spines[sp].set_visible(False)
+axs[0].set_ylabel("the gap (numbers)")
+axs[0].annotate("31", xy=(31, 3.36), xytext=(40, 3.38), fontsize=9, arrowprops=dict(arrowstyle="-", lw=0.6))
+axs[1].annotate("72", xy=(72, 3.20), xytext=(80, 3.22), fontsize=9, arrowprops=dict(arrowstyle="-", lw=0.6))
+save(fig, "fig-graphs.png")
 
 # ---------------------------------------------------------------------
 # the lock, and the wheel pack taken apart: OpenSCAD's drawings

@@ -142,6 +142,33 @@ LABELS = {
         "Richard Feynman, Surely You're Joking, Mr. Feynman! (1985): Safecracker "
         "Meets Safecracker.",
     )],
+    "lock-safecracker": [(          # (manipulation: Blaze 2004; UL 768 Group 1 and S&G's 20 man-hours; US patent 4,901,546 on false gates)
+        "THE SAFECRACKER'S WAY",
+        "Reading a lock without its combination",
+        "No two wheels are quite alike, and the fence rests on the largest. "
+        "Rocked gently, the dial stops where the fence meets the cam's notch: "
+        "the contact points. When a gate of the wheel holding the fence up comes "
+        "under it, the fence drops a hair onto the next wheel, and the contact "
+        "points close in.\n"
+        "Press T and watch the graph on the slate.",
+    ), (
+        "ONE WHEEL AT A TIME",
+        "Two graphs and a few tries",
+        "Park all three wheels together on each number in turn, and feel the "
+        "contact points each time: the gap narrows at wheel 1's number. Leave "
+        "wheel 1 there and park the other two together: it narrows at wheel 2's. "
+        "The last wheel needs no graph: try every second number, and the lock "
+        "opens on the right one.",
+    ), (
+        "LOCKS THAT LEAK LESS",
+        "What safecrackers taught the lockmakers",
+        "Makers answered with wheels cut to finer tolerances, false gates that "
+        "give false narrowings, and levers kept off the wheels until the dial "
+        "is at one point only. Sargent & Greenleaf's best locks are tested "
+        "against expert manipulation for 20 man-hours (Underwriters "
+        "Laboratories' Group 1).\n"
+        "These wheels differ by 0.1 mm, on purpose, so the leak can be seen.",
+    )],
     "napier": [(                     # (1617, Rabdologiae, Napier's death that year; the set of ten rods and four-digit
         "NAPIER'S BONES",            #  numbers: Wikipedia, MacTutor (Glaisher); 4138 x 567's rows: MacTutor)
         "The multiplication table, cut into rods",

@@ -36,7 +36,24 @@ A slate behind shows the combination the lock is set to and the one being
 tried, each step, the dial's reading, where each gate stands from under the
 fence (in the dial's numbers), and whether the bolt is out.
 
-    bpp -f combination-lock.lua        (or walk to it in the hall)
+**The safecracker's way** (`LK_WAY=safe`; in the hall, `Tab`) reads the
+combination off the lock without being told it, as safecrackers
+manipulate real dial locks. The three wheels aren't quite alike (40.0,
+39.9 and 39.8 mm in radius: here on purpose, and more than printing would
+leave them), and when the cam's notch is under the fence, the fence rests
+on the largest wheel whose gate isn't under it. Rocked gently, the dial
+stops where the fence meets the notch's two chamfered walls: the **contact
+points**. When a gate comes under the wheel holding the fence up, the
+fence drops 0.1 mm onto the next, meets the walls further in, and the gap
+between the contact points narrows by 0.16 numbers. So the safecracker
+parks all three wheels together on each number and graphs the gap: it
+narrows at wheel 1's number. With wheel 1 left there, wheels 2 and 3
+parked together give wheel 2's. The last wheel is tried, every second
+number, until the lock opens. The slate hides the combination until then,
+and draws the graph in chalk.
+
+    bpp -f combination-lock.lua            (or walk to it in the hall)
+    LK_WAY=safe bpp -f combination-lock.lua
 
 | Key | |
 |---|---|
@@ -47,7 +64,8 @@ fence (in the dial's numbers), and whether the bolt is out.
 | `C` | close: left two turns (the bolt thrown, the wheels scrambled) |
 | `M` | the camera close to the dial (again: back; walking on puts the view back too) |
 | `G` | the camera above the gates under the fence (again: back) |
-| `T` | the tour: the lock's own combination (it opens), the last number five off (it doesn't), every number one off (it opens) |
+| `T` | the tour: the lock's own combination (it opens), the last number five off (it doesn't), every number one off (it opens). In the safecracker's way, the safecracker's tour (about 11 minutes; the speed slider hurries it) |
+| `F` | (the safecracker's way) feel the contact points, the wheels where they are, and show them and their gap |
 | `H` | the manual, `MANUAL.pdf`, opened in your PDF viewer |
 
 The slate warns before dialling a combination the rules can't set (the
@@ -76,8 +94,14 @@ bolt's guides); the lever is pressed down by a torsion spring on its pivot
 pin (a steady torque, 0.3 N at the fence). The operator's hand is the
 script's: it turns the dial as a person does, at up to 70 numbers a
 second, slowing to stop on a number, and turns the first 20 numbers of a
-close steadily. The slate, its numbers and its warnings are the script's
-too. Whether the lock opens is the bolt's own position at the end.
+close steadily. Feeling for a contact point, it turns the dial at 3
+numbers a second with not much more torque than the dial's own friction
+(0.6 N cm against 0.3), so the dial stops where the fence
+meets the wall, and the hand reads it there. The safecracker is the
+script's too, but it is told nothing: it reads the dial, and its steps are
+a coroutine in the order a person takes them. The slate, its numbers, its
+graph and its warnings are the script's. Whether the lock opens is the
+bolt's own position at the end.
 
 ## The parts
 
@@ -88,10 +112,10 @@ parts that change; `lua lock.lua gates 12 34 56` gives their angles).
 
 | Part | Print | Notes |
 |---|---|---|
-| `wheel-1.stl`, `wheel-2.stl`, `wheel-3.stl` | 1 each | the wheels, 80 mm, 5 mm thick, each with its gate cut for its number and its number cut in its face; a hole for its pin |
+| `wheel-1.stl`, `wheel-2.stl`, `wheel-3.stl` | 1 each | the wheels, 80.0, 79.8 and 79.6 mm across (a little different on purpose: the safecracker's way feels which holds the fence up), 5 mm thick, each with its gate cut for its number and its number cut in its face; a hole for its pin |
 | `cam.stl` | 1 | the drive cam, 80.8 mm, its notch (a steep wall and a sloping one, both chamfered at the top); a flat-sided hole for the spindle |
 | `dial.stl` | 1 | the dial and its knob, in one, knob down |
-| `dial-marks.stl` | 1 | the dial's marks and numbers, raised 0.6 mm: print in a second colour on top of the dial, or paint them |
+| `dial-marks.stl` | 1 | the dial's marks and numbers, raised 0.6 mm: print in a second colour on top of the dial, or paint them (119 separate marks: not a part on its own) |
 | `washer.stl` | 3 | spacers between the wheels on the post |
 | `back-plate.stl` | 1 | the back plate with the wheel post (12 mm) |
 | `base.stl` | 1 | the base the back plate, the front standard and the keeper stand on |
@@ -125,6 +149,13 @@ should be at the top, under the fence; glue the dial there.
 
 Each wheel's drag should be light but steady (the dial turns the pack
 with a finger; a wheel left alone doesn't move when the next is turned).
+For the safecracker's way, measure the wheels across with calipers: they
+should come out 0.2 mm apart, largest wheel 1. A printer that doesn't hold
+that can sand the rims to it. The wheels need a firmer drag for it than
+for dialling: in the simulation each is 0.8 N cm (dialling works from 0.1
+to 1), and at 0.4 or less the fence, dropping onto a wheel as its gate
+comes near, turns it into line and the graph's narrowing comes too soon
+(`FINDINGS.md`).
 The bolt must slide easily: in the simulation the relock fails once the
 bolt's friction is more than about three times the spring's press at the
 fence (`FINDINGS.md`). Sand and wax the bolt, or use a stronger spring.
@@ -135,7 +166,7 @@ fence (`FINDINGS.md`). Sand and wax the bolt, or use a stronger spring.
 |---|---|
 | `combination-lock.lua` | the exhibit |
 | `lock.lua` | the geometry, the convex pieces, the model of the wheels, the gates for a combination, the dialling rules; `lua lock.lua scad` writes `parts/lock-geometry.scad` |
-| `lock-test.lua` | every combination through the model: which the rules set, the forbidden zone, the tolerance, how many combinations open the lock (`lua lock-test.lua`) |
+| `lock-test.lua` | every combination through the model: which the rules set, the forbidden zone, the tolerance, how many combinations open the lock; and the safecracker's method on 40 random locks (`lua lock-test.lua`, 5 minutes) |
 | `parts/combination-lock.scad`, `parts/lock-geometry.scad` | every part's shape; the sizes (written by `lock.lua`: don't edit) |
 | `make-slate.py`, `slate/` | the slate's pictures, and the steps' words |
 | `make-stls.sh` | the STL files (not kept in the repository) |

@@ -25,12 +25,14 @@ module gateCut(gate, r, depth, t) {
     polygon([[0, 0], [2 * r * cos(GATE_HALF), 2 * r * sin(GATE_HALF)],
              [2 * r * cos(GATE_HALF), -2 * r * sin(GATE_HALF)]]);
 }
-module wheel(gate, n = 1) difference() {
-  cylinder(r = R_W, h = T_W, center = true);
+// (each wheel its own size, R_WHEELS: 0.1 mm apart on purpose, for the
+// safecracker's way; its gate the same depth from its own rim)
+module wheel(gate, n = 1) let (rw = R_WHEELS[n - 1]) difference() {
+  cylinder(r = rw, h = T_W, center = true);
   cylinder(r = HUB_R, h = T_W + 2, center = true, $fn = 48);
   difference() {
-    gateCut(gate, R_W, GATE_DEPTH, T_W);
-    cylinder(r = R_W - GATE_DEPTH, h = T_W + 4, center = true);
+    gateCut(gate, rw, GATE_DEPTH, T_W);
+    cylinder(r = rw - GATE_DEPTH, h = T_W + 4, center = true);
   }
   // the pin's hole (a press fit for a 3 mm dowel)
   rotate([0, 0, PIN_AT]) translate([PIN_R, 0, 0]) cylinder(d = PIN_D - 0.1, h = T_W + 2, center = true, $fn = 24);
