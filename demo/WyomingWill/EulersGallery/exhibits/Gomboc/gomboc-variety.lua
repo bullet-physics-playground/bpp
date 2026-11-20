@@ -26,7 +26,9 @@
 -- equilibrium: the point farthest from the centre of mass). The balancing
 -- point need not be straight above the resting point: at home the dot is
 -- within ~1 deg of the top on Gomboc-C, ~5 deg on beta 0.07 and ~35 deg on
--- beta 0.08, whose one resting valley is long and nearly level.
+-- beta 0.08, whose one resting valley is long and nearly level. (On
+-- f0_best_b, mono-g3b, mono-e2 and the loaves the dot marks the point straight
+-- above the resting point instead, so it points up at home: see below.)
 --
 -- THE SHAPES (all in gomboc-meshes/):
 --
@@ -84,8 +86,11 @@
 --   mono-s2/s4  self-righting LOAVES: low, wedge-like, one resting point but 3+
 --               balancing points; slope barely matters to them. The white dot
 --               marks the highest balancing point.
---   On the creased Gombocs and the loaves the balancing point is far from the
---   top (80-100 deg away), so the white dot sits on the side at home.
+--   On these the balancing point is far from the top (80-100 deg away on the
+--   creased ones, mono-g3b and the loaves), so their white dot marks instead
+--   the point straight above the resting point ("plumb" in each .lua): it
+--   points straight up when the body is home, as on Gomboc-C. (U still
+--   stands them on the true balancing point.)
 --
 -- Physics as in Gomboc Drop C: convex-hull contact, exact mass and inertia,
 -- rolling resistance (a couple of at most delta*m*g through each physics
@@ -147,7 +152,7 @@ local BASE = {}
 do
   local h = load("gomboc-hull")
   BASE.C = { title = "Gomboc-C", obj = "gomboc.obj", points = h.points, mass = h.volume * RESIN,
-             K2 = h.inertia, down = { 0, -1, 0 }, top = { 0, h.topHeight, 0 },
+             K2 = h.inertia, down = { 0, -1, 0 }, top = { 0, h.topHeight, 0 }, dot = { 0, h.topHeight, 0 },
              topHeight = h.topHeight, margin = 0.04 }
   for _, b in ipairs({ { "beta1-07", "Sloan beta 0.07" }, { "beta1-08", "Sloan beta 0.08" },
                         { "l4", "L4 (tuned Gomboc-C)" }, { "f2", "F2 (reshaped Gomboc-C)" },
@@ -156,7 +161,8 @@ do
                         { "mono-s2", "mono-s2 (loaf, not a Gomboc)" }, { "mono-s4", "mono-s4 (loaf, not a Gomboc)" } }) do
     local d = load(b[1])
     BASE[b[1]] = { title = b[2], obj = b[1] .. ".obj", points = d.points, mass = d.volume * RESIN,
-                   K2 = d.inertia, down = d.down, top = d.top, topHeight = d.topHeight, margin = 0.04 }
+                   K2 = d.inertia, down = d.down, top = d.top, dot = d.plumb or d.top,
+                   topHeight = d.topHeight, margin = 0.04 }
   end
 end
 
@@ -209,6 +215,7 @@ local function spec(kind, s)
     kind = kind, s = s, file = file, hull = hull, mass = m, K2 = K2,
     inertia = btVector3(K2[1] * m, K2[2] * m, K2[3] * m),
     down = b.down, top = { b.top[1] * s, b.top[2] * s, b.top[3] * s },
+    dot = { b.dot[1] * s, b.dot[2] * s, b.dot[3] * s },
     topHeight = b.topHeight * s, margin = b.margin * s,
     title = (kind == "C" and s ~= 1) and string.format("%s at %d%%", b.title, math.floor(s * 100 + 0.5)) or b.title,
   }
@@ -430,11 +437,11 @@ end
 local function placeDot(g)
   local L = g.lift
   if L and L.copy then                    -- (being let down: on its copy)
-    local x, y, z = turn(L.q1, g.sp.top)
+    local x, y, z = turn(L.q1, g.sp.dot)
     g.dot.pos = btVector3(L.p1[1] + x, L.y + y, L.p1[3] + z)
     return
   end
-  local x, y, z = toWorldPoint(g, g.sp.top)
+  local x, y, z = toWorldPoint(g, g.sp.dot)
   g.dot.pos = btVector3(x, y, z)
 end
 
@@ -614,7 +621,7 @@ local function pullAway(g)
   end
   g.lift = nil
   if not copy then return nil end
-  local dx, dy, dz = turn(q, g.sp.top)
+  local dx, dy, dz = turn(q, g.sp.dot)
   local r = { obj = copy, q = q, p = p, n = -GRIP_N, side = (g.i % 2 == 1) and -1 or 1, dot = g.dot, dp = { dx, dy, dz } }
   g.dot = nil                               -- (its dot goes with it)
   leaving[#leaving + 1] = r
@@ -931,10 +938,10 @@ pcall(function()
     "'shapes': 1 Gomboc-C, 2 beta, 3 the printable\n" ..
     "Gombocs, 4 the loaves (one resting point, more\n" ..
     "than one balancing point: not Gombocs).\n" ..
-    "The white dot is the balancing point; at home it\n" ..
-    "is near the top on Gomboc-C, L4, F2, on the side\n" ..
-    "on the creased ones and the loaves. The beta\n" ..
-    "shapes often stop on their sides.\n" ..
+    "The white dot points straight up when a body is\n" ..
+    "home (on Gomboc-C, L4, F2 and the beta shapes it\n" ..
+    "is also the balancing point). The beta shapes\n" ..
+    "often stop on their sides.\n" ..
     "'tilt' tips the table a few degrees: watch\n" ..
     "which shapes still get home.\n" ..
     "Weighted bodies (Bille, spiral polyhedra):\n" ..

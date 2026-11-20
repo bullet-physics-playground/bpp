@@ -8,6 +8,7 @@ return {
   inertia = { 1.247768, 4.713717, 4.586692 },   -- squared radii of gyration, cm^2
   down = { 0.004675, -0.999885, -0.014421 },      -- outward normal at the resting point (lowest face of the hull)
   top = { 4.681294, 0.208383, 1.078757 },       -- the balancing point (farthest point from the centre of mass)
+  plumb = { -0.008233, 1.760760, 0.025395 },     -- straight above the resting point (opposite down): where the white dot goes
   restHeight = 1.48858, topHeight = 4.80850,
   points = {
     4.67750,0.21668,1.08186,
