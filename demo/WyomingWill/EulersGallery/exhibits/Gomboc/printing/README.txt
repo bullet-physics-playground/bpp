@@ -5,6 +5,9 @@ gomboc_split.scad   OpenSCAD (Customizer): splits a body into two halves for sup
   shape   gomboc900 | l4 | f2 | mono_p1 | mono_s2 | mono_s4
   cut     across (recommended), along, current, old8, custom (the loaves: across only)
   size    long-axis length in mm (36 tested). Pin holes and chamfer are not scaled.
+  plumb_mark: a 1.6 mm dent at the top of the vertical through the centre of mass. With the across cut it
+          lies on the seam; resting upright, it sits straight above the contact point and the seam is
+          vertical, so you can judge "upright" by eye on any shape. The hull bridges it (no effect).
   seam_line auto: Z seam along the TOP for the gombocs, along the UNDERSIDE for the loaves.
           Each piece is turned on the bed so that side faces the slicer's seam position;
           slicer_seam = front matches the profiles here. Place the STLs in Cura without rotating.
