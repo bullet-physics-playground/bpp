@@ -1,10 +1,8 @@
 # Artificial Physics demos — fixes list
 
-Issues found while building and examining the demos in this folder
-(identical copies live in `demo/WyomingWillJakob/ArtificialPhysics/`).
+Issues found while building and examining the demos in this folder.
 Items 4 and 5 have been applied to `Uniform_Coverage.lua` and items 2 and 8
-to `Formations-Newtonian.lua` in this folder (not to the WyomingWillJakob
-copies); the others are not applied unless marked.
+to `Formations-Newtonian.lua`; the others are not applied unless marked.
 
 ## Behaviour
 
