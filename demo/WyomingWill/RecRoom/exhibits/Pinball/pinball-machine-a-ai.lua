@@ -33,7 +33,7 @@
 
 return function(TF)
   local ai = { on = false }
-  local BRAIN_FILE = "pinball-machine-a-brain.lua"
+  local BRAIN_FILE = (TF.here or "") .. "pinball-machine-a-brain.lua"
 
   -- learning settings
   local ALPHA = 0.15          -- how far each lesson moves an estimate

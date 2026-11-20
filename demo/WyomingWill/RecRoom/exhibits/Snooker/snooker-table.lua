@@ -65,8 +65,16 @@
 
 local common = require "common"
 
-local SOUND_DIR = "snooker-table-sounds/"
-local MESH_DIR = "snooker-table-meshes/"
+-- (this folder, as the names below are relative to it: "" when bpp runs
+-- the script from here, as its window and Demos menu do; else, run from the
+-- repository's top, the way there)
+local HERE = ""
+do
+  local f = io.open("snooker-table.lua", "r")
+  if f then f:close() else HERE = "demo/WyomingWill/RecRoom/exhibits/Snooker/" end
+end
+local SOUND_DIR = HERE .. "snooker-table-sounds/"
+local MESH_DIR = HERE .. "snooker-table-meshes/"
 local PREFS_PREFIX = "snooker-table/"
 
 -- ---------------------------------------------------------------------

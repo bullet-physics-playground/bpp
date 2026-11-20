@@ -60,8 +60,16 @@
 
 local common = require "common"
 
-local SOUND_DIR = "bumper-pool-sounds/"
-local MESH_DIR = "bumper-pool-meshes/"
+-- (this folder, as the names below are relative to it: "" when bpp runs
+-- the script from here, as its window and Demos menu do; else, run from the
+-- repository's top, the way there)
+local HERE = ""
+do
+  local f = io.open("bumper-pool.lua", "r")
+  if f then f:close() else HERE = "demo/WyomingWill/RecRoom/exhibits/BumperPool/" end
+end
+local SOUND_DIR = HERE .. "bumper-pool-sounds/"
+local MESH_DIR = HERE .. "bumper-pool-meshes/"
 local PREFS_PREFIX = "bumper-pool/"
 
 -- ---------------------------------------------------------------------

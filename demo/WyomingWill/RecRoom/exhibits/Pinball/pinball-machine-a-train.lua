@@ -10,7 +10,9 @@
 -- table loads the next time you press P.
 --
 package.path = "../../../../module/?.lua;" .. package.path
-dofile("pinball-machine-a.lua")
+local f = io.open("pinball-machine-a.lua", "r")   -- (here, or from the repository's top)
+if f then f:close(); dofile("pinball-machine-a.lua")
+else dofile("demo/WyomingWill/RecRoom/exhibits/Pinball/pinball-machine-a.lua") end
 TF.clock = function() return TF.frame() / 60 end   -- the plunger times itself by this
 local ai = TF.ai
 math.randomseed(tonumber(os.getenv("SEED") or tostring(os.time())))

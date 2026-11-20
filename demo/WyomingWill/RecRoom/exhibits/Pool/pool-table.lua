@@ -74,8 +74,16 @@
 
 local common = require "common"
 
-local SOUND_DIR = "pool-table-sounds/"
-local MESH_DIR = "pool-table-meshes/"
+-- (this folder, as the names below are relative to it: "" when bpp runs
+-- the script from here, as its window and Demos menu do; else, run from the
+-- repository's top, the way there)
+local HERE = ""
+do
+  local f = io.open("pool-table.lua", "r")
+  if f then f:close() else HERE = "demo/WyomingWill/RecRoom/exhibits/Pool/" end
+end
+local SOUND_DIR = HERE .. "pool-table-sounds/"
+local MESH_DIR = HERE .. "pool-table-meshes/"
 local PREFS_PREFIX = "pool-table/"
 
 -- ---------------------------------------------------------------------

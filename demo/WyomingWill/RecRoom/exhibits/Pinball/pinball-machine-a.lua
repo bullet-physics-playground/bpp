@@ -78,6 +78,17 @@ local common = require "common"
 
 local RULES_FILE = "pinball-machine-a-rules.lua"
 local SOUND_DIR = "pinball-machine-a-sounds/"
+-- (the names are relative to this folder, where bpp runs the script from
+-- its window and Demos menu; run from the repository's top, they're found
+-- the way there. No local of its own: this chunk is at Lua's 200.)
+do
+  local f = io.open("pinball-machine-a.lua", "r")
+  if f then f:close()
+  else
+    RULES_FILE = "demo/WyomingWill/RecRoom/exhibits/Pinball/" .. RULES_FILE
+    SOUND_DIR = "demo/WyomingWill/RecRoom/exhibits/Pinball/" .. SOUND_DIR
+  end
+end
 
 local rules
 do
@@ -2776,6 +2787,7 @@ TF = { onKey = function(key, down) return onKey(frame, key, down) end, gate = ga
        hit = function(name) onSwitch(switchByName[name]) end,
        drain = function() ballDrained() end, startGame = startGame, nudge = function() nudger.nudge() end,
        -- for the computer player
+       here = RULES_FILE:match("^(.*/)") or "",   -- (its brain is in this folder)
        now = function() return now() end, laneIn = LANE_IN, inOuthole = function(u, w) return inOuthole(u, w) end,
        ballVelUW = function() local bv = ball.vel return bv.x, -bv.z end,
        ballY = function() return ball.pos.y end, ramp = rampway,
@@ -2980,7 +2992,7 @@ placeBall(SHOOT_U, SHOOT_W)
 
 -- the computer player, if its file is here
 do
-  local ok, mod = pcall(dofile, "pinball-machine-a-ai.lua")
+  local ok, mod = pcall(dofile, (RULES_FILE:match("^(.*/)") or "") .. "pinball-machine-a-ai.lua")
   if ok and type(mod) == "function" then TF.ai = mod(TF)
   elseif not ok then print("Computer player not loaded: " .. tostring(mod)) end
 end
