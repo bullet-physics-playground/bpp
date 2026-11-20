@@ -27,7 +27,7 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   far end. `MACHINES.md` has the order and why (re-ordered 2026-11-14:
   it was by interest alone).
 - Built so far, in walking order: **the suanpan** (west 1, since
-  2026-11-15), **the slide rule** (east 1, since 2026-11-16), **Napier's bones** (west 2, since 2026-11-16), **the Domino Half Adder** (west 3),
+  2026-11-15), **the slide rule** (east 1, since 2026-11-16), **Napier's bones** (west 2, since 2026-11-16), **the combination lock** (east 2, since 2026-11-19), **the Domino Half Adder** (west 3),
   **the Differential** (east 3), **the Pascaline** (west 4), **the Galton
   board** (west 5, since 2026-11-12), **the splitter board** (east 5,
   facing it, since 2026-11-14), **Lehmer's number sieve** (west 6), and
@@ -36,7 +36,7 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
   a cup of balls and a bought rotary damper; each program has only its
   parts on the board, and the operator's hand is shown).
-  Covered bays wait for the combination lock (east 2), Amsler's planimeter (east 4), Kelvin's
+  Covered bays wait for Amsler's planimeter (east 4), Kelvin's
   tide predictor (west 7), the Differential Analyser (east 7) and the
   Difference Engine (west 8): fifteen bays, eight pairs.
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
@@ -99,6 +99,7 @@ git push
 | `tools/rope-test.lua` | The rope experiment (for the tide predictor) |
 | `exhibits/NapiersBones/bones-test.lua` | Napier's set (every four-digit number laid), and both ways (Napier's, Genaille's) against plain arithmetic (`lua bones-test.lua`, from its folder) |
 | `exhibits/SlideRule/rule-test.lua` | The slide rule's plans against arithmetic, with the parts placed exactly and off by up to 0.2 mm (`lua rule-test.lua`, from its folder) |
+| `exhibits/CombinationLock/lock-test.lua` | The lock's model against all 1,000,000 combinations: which the dialling rules set, the forbidden zone, the tolerance, the 27 that open a lock (`lua lock-test.lua`, from its folder, 30 s) |
 | `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
 | `exhibits/DigiComp2/MANUAL.md`, `manual/` | The Digi-Comp's illustrated manual; `manual/make-figures.sh` redraws its figures from the geometry (lua, python3, matplotlib). `tools/md2pdf.py` puts a `.md` file's images into its PDF |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
@@ -429,6 +430,34 @@ there, in `release/`, or on the path; or set `BPP`.
 - **Don't edit `tools/check-all.sh` while it runs:** bash reads a script
   as it goes, so lines added above the one running shift what it reads
   next (it would re-run or garble a line). Stop it, or edit a copy.
+- **Two touching cylinders give false normals** (the combination lock,
+  2026-11-19). The wheels' pins rest touching after a push; Bullet's
+  contacts between two parallel `btCylinderShapeZ` came out with normals
+  such as (0.99, 0.15) where the pins' centre line was (−0.6, 0.8), and
+  their friction dragged a resting wheel 9 numbers when the next one
+  moved off. Where two such parts only meet in one plane, give each a
+  sphere of its radius there: sphere on sphere is exact.
+- **A flat face sliding over a compound of convex pieces** (the same lock)
+  sometimes takes a piece's inner face for the contact's normal: a square
+  fence over the cam's pieces was shoved sideways (normal −0.98, −0.19,
+  far from any edge of the outline) at every pass, and the bolt crept back.
+  Bullet's internal-edge problem; its fix (`btAdjustInternalEdgeContacts`)
+  is for triangle meshes. A round part over the pieces didn't meet it.
+- **A round part pressed on an edge turns what it rests on.** The lock's
+  round fence, resting on the corner of a gate nearly under it, pushes
+  along the line to its centre, and the sideways part of its spring's force
+  turned the wheel the last bit, even at four times the wheel's drag: it
+  opened 1.5 numbers below and 1.8 above, where the geometry says 1.14.
+  When a follower must not move what it touches, measure the band, and
+  say what the test expects in it.
+- **Rest a follower on what drives it, not on what it reads** (the lock's
+  first fence rested on the wheels: a passing gate let it drop into the
+  set wheels' gates, and the moving gate's wall dragged them along). And a
+  part that drops onto an edge strikes it: chamfer what lets it down, so it
+  comes down at the driver's pace.
+- **To edit `tools/check-all.sh` while it runs,** write the new version to
+  another file and `mv` it over: bash goes on reading the old file (its
+  inode), and the next run reads the new.
 - **Rebuilding in a build folder that has a `release/bpp`** can go wrong:
   the precompiled header has the program's name (`PRECOMPILED_HEADER` in
   `bpp.pro`), and when it must be remade gcc can take the binary for the
@@ -1007,12 +1036,51 @@ there, in `release/`, or on the path; or set `BPP`.
   in a tube (`maxvFree`). All three starts and the default pass their
   tours; the default board's geometry is unchanged. check-all has a line
   for gambler's ruin now (SPLITTERS.md, "A tube too short").
-- **Then (William, 2026-11-15): the combination lock (east 2)**, the last
-  of the four simple hand-worked pieces; its covered bay and placard are
-  there. Then the
-  bead and spaghetti sorts (5), the first with real physics. Each new
-  machine goes in its place in the walking order, the bays after it moving
-  along.
+- **Done (2026-11-19): the combination lock** (east 2), the last of the
+  four simple hand-worked pieces. Sargent & Greenleaf's arrangement, made
+  big and open: a dial and drive cam, three printed wheels loose on a post,
+  a steel pin through each (lost motion: each picks up the next after 96.2
+  numbers), a lever on the bolt laying a steel fence across the rims, the
+  cam 0.4 mm bigger so the fence rests on it, clear of the wheels. Every
+  push is a contact (pin on pin, the fence on the rims, in the gates and the
+  cam's notch); the wheels and the dial on hinges, the bolt on a slider,
+  each held by friction; the lever's torsion spring a steady torque. The
+  hand dials by the rules (left four, right three, left two, right until it
+  stops) and the slate shows each gate's distance from the fence, live. Set
+  to 31-72-46; the tour opens it, fails with the last number five off, and
+  opens with every number one off. `lock.lua` is the single source: the
+  geometry, the convex pieces (the bodies and OpenSCAD's outlines alike),
+  a model of the wheels, the gates for a combination. `lock-test.lua`: of
+  the million combinations, the rules can't set those with the second
+  number 0 to 11 above the first or the third 0 to 7 below the second; a
+  last number 90 to 99 is the forbidden zone; none opens early; 27 open a
+  given lock (about 37,000 really different, in Matt Blaze's range for
+  real safe locks). The physics sets every gate to 0.03 numbers of the
+  model. FINDINGS has the way there: the fence on the wheels dragged set
+  wheels; the notch's steep wall shoved a fence that had only dropped onto
+  the rims (chamfered now, both walls); the pins as cylinders (now spheres
+  where they meet, section 5); a round fence turns a wheel nearly there
+  (the lock opens 1.5 below to 1.8 above; the exhibit expects "either" in
+  that band); a square fence hit Bullet's internal edges; closing fast
+  lifted the fence before the bolt was thrown (the hand closes the first
+  20 numbers at 40 a second). The relock needs the bolt's friction and the
+  wheels' drag under about four times the spring's press. Four lectern
+  pages (one of history and reading: Yale's Monitor Bank Lock, Sargent's
+  time lock, Blaze, Feynman). Printed: three wheels (cut for the
+  combination: `COMBO=12-34-56 ./make-stls.sh`), cam, dial and its marks
+  (a second colour), back plate with the post, base, standard, guides,
+  keeper, bolt, lever, the slate; steel pins, fence, spindle, a spring and
+  a wave washer bought. All STLs watertight, under 200 mm, none
+  overlapping but the press fits. check-all has two more lines; the smoke
+  run (`-k BabbagesHall`) passes, 43 demos (`lock-test.lua`, a tool,
+  returns at once when bpp opens it). **Not seen by William in the GUI
+  yet.** Offered, not done: a second way, the
+  safecracker's (the contact points: the notch meets the fence a little
+  earlier or later as each gate nears it, which is how manipulation reads a
+  lock), and wheels with a change key instead of reprinting.
+- **Next: the bead and spaghetti sorts** (MACHINES.md 5), the first with
+  real physics. It goes in its place in the walking order (west 3), the
+  bays after it moving along (step 1 of section 6).
   The covered bays (the planimeter, the tide predictor, the Differential
   Analyser, the Difference Engine) wait for their turn in the list.
   Still offered, not asked for: printing only a Digi-Comp program's parts
@@ -1035,6 +1103,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step: the combination lock]. Deliver
+> step: the bead and spaghetti sorts]. Deliver
 > each step as a patch on test-harness, with its documents and PDFs, and
 > the git commands.

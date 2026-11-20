@@ -21,7 +21,7 @@ comes to life.
 | west 1 | **The suanpan**: the Chinese abacus, worked by a finger by the old rules, a slate showing each; Tab: adding, taking away, multiplying | `exhibits/Suanpan/` |
 | east 1 | **The slide rule**: a Mannheim rule, worked by a finger, a slate showing each step and the estimate that places the point; Tab: multiplying and dividing, then squares, roots, cubes, reciprocals and logarithms | `exhibits/SlideRule/` |
 | west 2 | **Napier's bones**: ten four-sided rods (Napier's own set of tables), laid by a hand on a tilted board and read from where they lie; a slate shows the row and the adding; Tab: Genaille's rods, whose triangles carry | `exhibits/NapiersBones/` |
-| east 2 | The combination lock | in preparation |
+| east 2 | **The combination lock**: three wheels behind a dial, set one at a time by the dialling rules; when every gate is under the fence it falls in, and the bolt can be drawn. A hand dials, a slate shows where each gate stands | `exhibits/CombinationLock/` |
 | west 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
 | east 3 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
 | west 4 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
@@ -175,7 +175,7 @@ museum label on a brass post at its table's right front corner, turned to
 face the visitor walking up (the exhibit's first stop), is built when
 its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
 card, the name, a line and a few sentences, as
-`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All nine exhibits on
+`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All eleven exhibits on
 show have one. A label can have **pages**, a list of cards: the first
 `lectern-<key>.png`, then `lectern-<key>-2.png` and on, each numbered;
 `PgDn` turns them. An exhibit with ways has a label for each way (its
@@ -208,7 +208,7 @@ Every exhibit stands on the same kind of table, drawn by `exhibit-table.lua`:
 - **Size:** the machine's footprint plus 30 cm on every side, rounded up to
   the next 10 cm, and never smaller than 80 x 60 cm. The machine keeps its
   real, printable size: the suanpan's table is 100 x 90, the slide rule's
-  100 x 80 and Napier's bones' 110 x 90 (each with its slate), the Differential's 80 x 80, Lehmer's
+  100 x 80, Napier's bones' 110 x 90 and the combination lock's 100 x 80 (each with its slate), the Differential's 80 x 80, Lehmer's
   sieve's 120 x 80 (with its board), the Galton board's 110 x 70 and the
   splitter board's 130 x 70 (each with its sign), the Pascaline's 110 x 80,
   the Domino Half Adder's 180 x 230, the Digi-Comp II's 110 x 220.

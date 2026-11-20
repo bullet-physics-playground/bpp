@@ -108,6 +108,40 @@ LABELS = {
         "The products are added by the rules for adding; the slate shows each. "
         "Rods are named A to G from the left.",
     ), ABACUS_READING],
+    "lock": [(                       # (the wheel pack and the 4-3-2 rules: Wikipedia, Rotary combination lock; Blaze 2004)
+        "THE COMBINATION LOCK",
+        "A lock that tests a number",
+        "Three wheels turn loose behind the dial, each with a notch in its "
+        "rim, its gate. A pin through each wheel carries the next round after "
+        "nearly a turn, so the dialling rules set one wheel at a time. Only when "
+        "every gate is under the fence can it fall in, and the bolt be drawn.\n"
+        "Type 31 72 46 and press Return. G looks down at the gates.",
+    ), (
+        "LEFT, RIGHT, LEFT",
+        "Four turns, three, then two",
+        "Left four times to the first number: by then the cam has picked up all "
+        "three wheels, and wheel 1, at the back, is left there. Right three times "
+        "to the second: wheel 1 stays, wheel 2 is set. Left twice to the third: "
+        "wheel 3. Then right, until the cam's notch catches the fallen fence and "
+        "pulls the bolt.",
+    ), (
+        "NOT A MILLION",
+        "What the fence lets through",
+        "A gate need only be within a number or so of the fence: 27 of the "
+        "million combinations open this lock, so a thief has about 37,000 to "
+        "try. Matt Blaze put a real safe lock's at 22,000 to 111,000.\n"
+        "Nor can every number be used: a last number from 90 to 99 is in the "
+        "forbidden zone, where the cam carries wheel 3 off before it draws the bolt.",
+    ), (
+        "FURTHER READING",
+        "Dial locks and their weaknesses",
+        "Linus Yale Jr.'s Monitor Bank Lock (1862) began the banks' change from "
+        "keys to dials; James Sargent showed the early dial locks could be "
+        "picked, and in 1873 added the time lock.\n"
+        "Matt Blaze, Safecracking for the Computer Scientist (2004). Free online.\n"
+        "Richard Feynman, Surely You're Joking, Mr. Feynman! (1985): Safecracker "
+        "Meets Safecracker.",
+    )],
     "napier": [(                     # (1617, Rabdologiae, Napier's death that year; the set of ten rods and four-digit
         "NAPIER'S BONES",            #  numbers: Wikipedia, MacTutor (Glaisher); 4138 x 567's rows: MacTutor)
         "The multiplication table, cut into rods",

@@ -133,8 +133,11 @@ EXHIBITS = EXHIBITS or {
     } },
   { dir = "exhibits/CombinationLock/", file = "combination-lock.lua", name = "the combination lock", label = "lock",
     prefix = "Lock: ", floorY = -100,
-    about = "The combination lock: its wheels' notches must all line up before the fence\n" ..
-            "drops in. A lock that tests a number. In preparation." },
+    about = "The combination lock: three wheels behind the dial, each with a gate in its rim. A pin\n" ..
+            "through each wheel carries the next round after nearly a turn, so the rules set one wheel\n" ..
+            "at a time: left four times to the first number, right three to the second, left two to\n" ..
+            "the third. If every gate is then under the fence, it falls into the cam's notch, and\n" ..
+            "turning right draws the bolt. Type 31 72 46, Return; M: the dial close up; G: the gates." },
   { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
     prefix = "Dominoes: ", floorY = -100,
     about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..
