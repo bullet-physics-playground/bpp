@@ -16,6 +16,9 @@ import edged
 
 L = int(os.environ.get('L', 4))
 CONV = float(os.environ.get('CONV', 0.0003))
+C3_BOUND = float(os.environ.get('C3_BOUND', 0.08))     # c3: largest |coefficient| the search can set
+C3_TILT_A = float(os.environ.get('C3_TILT_A', 0.15))   # c3: fixed y-tilt of the three copies
+C3_TILT_B = float(os.environ.get('C3_TILT_B', 0.40))   # c3: fixed y-tilt of the round piece (steeper)
 _M = {}
 
 
@@ -44,7 +47,11 @@ def build(fam, x, K=3):
     """genome -> (K', nb) coefficient matrix"""
     n = nb()
     if fam == 'c3':
-        a = x[:n]; b = np.zeros(n); b[m0_index()] = x[n:n + L + 1]
+        # bounded genome (|coefficient| <= C3_BOUND) on fixed tilts along Y_1^0 (= y), both upward, the round
+        # piece's steeper: it is the smaller piece at the bottom (the rest) and the larger at the top, where the
+        # copies, tall toward +y, meet in the tip (the top). Neither piece can vanish or swap ends.
+        bd = C3_BOUND * np.tanh(np.asarray(x, float) / C3_BOUND)
+        a = bd[:n].copy(); a[2] += C3_TILT_A; b = np.zeros(n); b[m0_index()] = bd[n:n + L + 1]; b[2] += C3_TILT_B
         return np.array([a] + [_transform('rot', 2 * np.pi * k / 3) @ a for k in (1, 2)] + [b])
     if fam == 'mirror':
         P = (np.eye(n) + _transform('ref')) / 2
@@ -98,6 +105,9 @@ def score(x, fam, K=3, min_pieces=0):
         if not np.isfinite(B['X']).all(): return 1e5
         shown = len(np.unique(B['piece']))
         pen = 20.0 * max(0, min_pieces - shown)
+        if fam == 'c3':     # the round piece (index 3) must own the bottom cap and stay off the top: 30 deg each
+            Ny = B['g'].N[:, 1]; pc = B['piece'][:len(Ny)]; cy = np.cos(np.radians(30))
+            pen += 200.0 * ((pc[Ny < -cy] != 3).mean() + (pc[Ny > cy] == 3).mean())
         if B['conv'] > CONV: return 1e4 + 1e3 * B['conv'] + pen
         eS, eU = extras(B)
         if eS + eU > 0.0005: return 100 + 100 * (3 * eS + eU) + pen
@@ -122,7 +132,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 6: x0 = np.load(sys.argv[6]); sig = float(os.environ.get('SIGMA', 0.004))
     else:
         x0 = rng.normal(0, 0.03, n); sig = float(os.environ.get('SIGMA', 0.05))
-        if fam == 'c3': x0[nb():nb() + 2] += [0.05, 0.15]     # round piece below the three copies at the bottom
+        if fam == 'c3': x0[3] += 0.05                          # copies tilted outward a little: a three-sided tip
     out = os.path.join(HERE, f'best_{fam}_{tag}.npy')
     best, t0 = (score(x0, fam, K, mp), x0), time.time(); print(f'{fam} K={K} L={L} n={n} start {best[0]:.4f}', flush=True)
     es = cma.CMAEvolutionStrategy(x0, sig, {'popsize': int(os.environ.get('POP', 16)), 'seed': seed, 'verbose': -9})
