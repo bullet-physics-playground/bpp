@@ -107,7 +107,9 @@
 --
 -- Sliders: count; shapes (0 = the cycle above, 1 = Gomboc-C only, 2 = beta
 -- only, 3 = the printable Gombocs L4, F2, f0_best_b, mono-g3b, mono-e2, 4 = the
--- loaves mono-s2, mono-s4); speed, steps, friction, restitution, rolling (microns), spin
+-- loaves mono-s2, mono-s4); tilt (the whole table, -3 to +3 degrees: a real
+-- table is rarely level to better than a degree, and a tilt is what stops a
+-- Gomboc partway home -- watch the loaves shrug it off); speed, steps, friction, restitution, rolling (microns), spin
 -- friction, air drag, redrop. The tally every minute (while re-dropping)
 -- lists each shape separately.
 --
@@ -234,6 +236,8 @@ param("restitution", envnum("GV_REST", 0.1), 0.0, 0.8, 0.05, "bounciness (Bullet
 param("rolling", envnum("GV_ROLL", 150), 0, 300, 5, "rolling resistance lever arm, microns (constant moment, any tilt)")
 param("spin friction", envnum("GV_SPIN", 0.7), 0, 5, 0.1, "deceleration of spin about the vertical, rad/s^2")
 param("air drag", envnum("GV_DRAG", 0), 0, 1.5, 0.05, "Bullet velocity damping; real air drag is ~0")
+param("tilt", envnum("GV_TILT", 0), -3, 3, 0.25,
+      "table tilt, degrees (+ = the right-hand side, +x, lower); the whole tray tips about its centre line")
 param("redrop", envnum("GV_REDROP", 5), 0, 30, 1,
       "seconds at rest before one is pulled away and the next shape let down and dropped in its colour (0 = off)")
 
@@ -283,9 +287,12 @@ local RAMP_TOP = RAMP_W * math.tan(math.rad(RAMP_DEG))
 
 local WOOD, RIM_WOOD = "#7a4a24", "#4e2e15"
 local TABLE_FRICTION = 0.8
+local TRAY = {}          -- the tray's parts and their level poses, for the "tilt" slider
 local function slab(sx, sy, sz, x, y, z, col, rot)
   local c = Cube(sx, sy, sz, 0)
   c.trans = btTransform(rot or btQuaternion(0, 0, 0, 1), btVector3(x, y, z))
+  local q = rot or btQuaternion(0, 0, 0, 1)
+  TRAY[#TRAY + 1] = { c, { q:getX(), q:getY(), q:getZ(), q:getW() }, { x, y, z } }
   c.col = col
   -- (Bullet multiplies these by a body's own: with the sliders' 0.5 and
   -- 0.1, friction 0.4 and restitution 0.02 at the table; body on body,
@@ -322,11 +329,27 @@ local floor = Plane(0, 1, 0, -80, 400)
 floor.col = "#3b3f45"
 v:add(floor)
 
+-- tilt: the whole tray turns about the z axis through the table's centre
+-- (gravity stays straight down, as the rolling-resistance step assumes)
+local TILT = 0                             -- radians, + = the +x side lower
+local function applyTilt()
+  TILT = math.rad(v:getParam("tilt"))
+  local c, sn = math.cos(TILT), math.sin(TILT)
+  local hz, hw = -math.sin(TILT / 2), math.cos(TILT / 2)   -- rotation by -TILT about z
+  for _, t in ipairs(TRAY) do
+    local q, p = t[2], t[3]
+    local x, y, z, w = q[1], q[2], q[3], q[4]
+    local nq = btQuaternion(hw * x - hz * y, hw * y + hz * x, hw * z + hz * w, hw * w - hz * z)
+    t[1].trans = btTransform(nq, btVector3(c * p[1] + sn * p[2], -sn * p[1] + c * p[2], p[3]))
+  end
+end
+applyTilt()
+
 local TAN_A = math.tan(a)
 local function tableHeight(x, z)
   local ex = math.max(0, math.abs(x) - FLAT_W / 2)
   local ez = math.max(0, math.abs(z) - FLAT_D / 2)
-  return math.min(RAMP_W, math.max(ex, ez)) * TAN_A
+  return math.min(RAMP_W, math.max(ex, ez)) * TAN_A * math.cos(TILT) - x * math.sin(TILT)
 end
 
 common.setCamera(btVector3(0, 105, 140), btVector3(0, 0, 6))
@@ -886,6 +909,9 @@ v:onParamChanged(function(N, name, value)   -- bpp passes (frame, name, value)
     applyTiming()
   elseif name == "rolling" or name == "spin friction" then
     applyResistance()
+  elseif name == "tilt" then
+    applyTilt()
+    for _, g in ipairs(bodies) do if g.body then g.body:activate(true) end end
   else
     applyMaterials()
   end
@@ -909,6 +935,8 @@ pcall(function()
     "is near the top on Gomboc-C, L4, F2, on the side\n" ..
     "on the creased ones and the loaves. The beta\n" ..
     "shapes often stop on their sides.\n" ..
+    "'tilt' tips the table a few degrees: watch\n" ..
+    "which shapes still get home.\n" ..
     "Weighted bodies (Bille, spiral polyhedra):\n" ..
     "see ../Bille/bille-drop.lua.\n" ..
     "Dark = tipped over, bright = upright.\n" ..
