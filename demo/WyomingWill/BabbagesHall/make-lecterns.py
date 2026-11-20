@@ -152,6 +152,15 @@ LABELS = {
         "points close in.\n"
         "Press T and watch the graph on the slate.",
     ), (
+        "LISTEN",
+        "The clicks are the lock's; the tone is ours",
+        "Contact can be heard as well as felt: a microphone on the case picks "
+        "up a click as the fence meets each wall of the notch, one each way. "
+        "After each pair the exhibit sounds a tone pitched by the gap between "
+        "them, a fourth higher for every tenth of a millimetre the fence drops. "
+        "When the tone steps up, a gate is under the fence.\n"
+        "A real lock makes only the clicks.",
+    ), (
         "ONE WHEEL AT A TIME",
         "Two graphs and a few tries",
         "Park all three wheels together on each number in turn, and feel the "

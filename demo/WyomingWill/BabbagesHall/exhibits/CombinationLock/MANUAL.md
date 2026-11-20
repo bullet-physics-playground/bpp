@@ -217,6 +217,20 @@ look, orange for the second. `F` feels the contact points once, wherever
 the wheels are. The simulation's gaps agree with the model's to 0.02
 numbers (`FINDINGS.md`).
 
+**Listening.** Contact can be heard as well as felt. A contact
+microphone on the case picks up a click as the fence meets a wall, and
+safecrackers have used amplifiers for that. The exhibit plays one each
+time a wall stops the gentle dial: a bright click for the steep wall
+(turning right), a duller one for the sloping wall (turning left). The
+clicks tell when contact happens; the reading is still the dial at that
+moment, and a 0.16-number narrowing changes the time between the clicks by
+only a twentieth of a second. So after each pair the exhibit also sounds a
+tone pitched by the gap: E (330 Hz) for the gap on wheel 1's rim, a
+fourth higher for each 0.159 numbers narrower, so A when wheel 1's gate is
+under the fence and D when wheel 2's is too. The tone is the exhibit's,
+made to be heard; a real lock makes only the clicks. `F` plays the clicks
+alone. In the hall, the lock is heard only while you're at it.
+
 Some numbers can't be graphed this way. From 93 round to 7 the dial
 would have to come round to the wheels again while feeling; a real
 safecracker would graph them from the other side. And the method only
@@ -247,7 +261,7 @@ gate's floor is painted red.
 | `M` | the camera close to the dial and its index; again: back |
 | `G` | the camera above the gates under the fence; again: back |
 | `T` | the tour: the lock's own combination (it opens), the last number five off (it doesn't), every number one off (it opens). In the safecracker's way, its tour (section 8) |
-| `F` | (the safecracker's way) feel the contact points, the wheels where they are |
+| `F` | (the safecracker's way) feel the contact points, the wheels where they are (the clicks, no tone) |
 | `H` or `F1` | this manual |
 | `Tab` | in the hall: on to the safecracker's way, and on |
 | `I` | in the hall: the lectern's label close up, and `PgDn` turns its pages |

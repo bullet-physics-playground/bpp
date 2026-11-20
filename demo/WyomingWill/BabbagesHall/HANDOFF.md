@@ -455,6 +455,12 @@ there, in `release/`, or on the path; or set `BPP`.
   set wheels' gates, and the moving gate's wall dragged them along). And a
   part that drops onto an edge strikes it: chamfer what lets it down, so it
   comes down at the driver's pace.
+- **To check sound headless,** run with `SDL_AUDIODRIVER=dummy` (else
+  there's no audio device, `loadSound` returns -1 and nothing plays) and
+  `-e`: what plays, and the synth's tones, go into the export's `.wav`, on
+  its timeline of 25 frames a second (frame 847 at 33.88 s). Export writes
+  about 100 KB a frame, so keep the run short; for a longer listen, log
+  the sounds and mix them.
 - **Gentle forces find seams.** A seam between two convex pieces of a
   compound that a part slides over can catch it, even a round part: the
   lock's dial way (the hand's 30 N cm) never noticed, but the
@@ -1120,6 +1126,15 @@ there, in `release/`, or on the path; or set `BPP`.
   dial way passes at both): at 0.4 or less the fence turns a wheel whose
   gate nears it into line, and with surface friction 0.6 that put wheel 2
   at 78. The feel is 0.6 N cm (0.8 rode up the chamfer at friction 0.3).
+- **Done (2026-11-20): the safecracker's way, heard.** A click as each
+  notch wall stops the gentle dial (`sounds/`, made by `make-sounds.py`:
+  a contact microphone's click, steep wall bright, sloping wall dull) and,
+  after each pair, a tone from bpp's synth (`v:setTone`, voice 20) pitched
+  by the gap: E, then a fourth up (A, D) for each wheel the fence drops
+  onto. The tone is the exhibit's, and the lectern says so (a fourth page,
+  LISTEN); `F` plays the clicks alone; in the hall, heard only while
+  you're at the lock. Checked through bpp's own export (FINDINGS: the
+  safecracker's way, heard).
 - **Next: the bead and spaghetti sorts** (MACHINES.md 5), the first with
   real physics. It goes in its place in the walking order (west 3), the
   bays after it moving along (step 1 of section 6).

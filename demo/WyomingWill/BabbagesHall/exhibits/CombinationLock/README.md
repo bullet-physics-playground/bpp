@@ -50,7 +50,10 @@ parks all three wheels together on each number and graphs the gap: it
 narrows at wheel 1's number. With wheel 1 left there, wheels 2 and 3
 parked together give wheel 2's. The last wheel is tried, every second
 number, until the lock opens. The slate hides the combination until then,
-and draws the graph in chalk.
+and draws the graph in chalk. It can be heard too: a click as each wall
+stops the dial (what a contact microphone on the case would pick up), and
+after each pair a tone pitched by the gap, a fourth higher for each wheel
+the fence drops onto (the exhibit's, not the lock's; MANUAL section 8).
 
     bpp -f combination-lock.lua            (or walk to it in the hall)
     LK_WAY=safe bpp -f combination-lock.lua
@@ -169,6 +172,7 @@ fence (`FINDINGS.md`). Sand and wax the bolt, or use a stronger spring.
 | `lock-test.lua` | every combination through the model: which the rules set, the forbidden zone, the tolerance, how many combinations open the lock; and the safecracker's method on 40 random locks (`lua lock-test.lua`, 5 minutes) |
 | `parts/combination-lock.scad`, `parts/lock-geometry.scad` | every part's shape; the sizes (written by `lock.lua`: don't edit) |
 | `make-slate.py`, `slate/` | the slate's pictures, and the steps' words |
+| `make-sounds.py`, `sounds/` | the safecracker's clicks, one for each notch wall (`python3 make-sounds.py`; numpy). The tone is bpp's synth (`v:setTone`), voice 20 |
 | `make-stls.sh` | the STL files (not kept in the repository) |
 | `FINDINGS.md` | what was measured |
 | `MANUAL.md`, `manual/` | the manual and its figures (`python3 manual/make-figures.py` redraws them from `lock.lua` and the parts, but for `fig-exhibit.png`, a screenshot) |

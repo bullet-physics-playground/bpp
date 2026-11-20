@@ -199,6 +199,35 @@ The dial way, with the wheels' drag 0.8 N cm: the tour on its own and in
 the hall, with the spring 0.2 N, and 12 random combinations (seed 2), all
 as the model says.
 
+## The safecracker's way, heard
+
+*Added 2026-11-20.* A click as each wall stops the gentle dial (two
+sounds, `make-sounds.py`: a contact microphone's click, made up, not
+worked out from the physics), and after each pair of contact points a tone
+from bpp's synth, `v:setTone`, pitched by the gap: 329.6 Hz for 3.505, a
+fourth (5 semitones) higher for each 0.159 narrower.
+
+- **The click's moment.** Played on the first frame the dial, having
+  moved, turns slower than 0.25 numbers a second: the wall has stopped it.
+  The two clicks of a pair come 1.4 s apart (85 frames), the tone 0.2 s
+  after the second (when the feel is sure the dial has stopped).
+- **Heard, checked.** Headless bpp has no audio device and loads no
+  sounds; with SDL's dummy driver (`SDL_AUDIODRIVER=dummy`) it plays them,
+  and with `-e` they go into the exported scene's `.wav`. 1000 frames on
+  lock 30-15-46: the clicks at frames 847 and 932, the tone at 944 (the
+  export's 25 frames a second: 33.88, 37.28, 37.76 s), the tone's peak
+  329.0 Hz (329.5 asked). The tone was a tenth of the clicks' level at 0.12
+  of full scale: now 0.25.
+- **What the ear gets.** The tour on 30-15-46: the tones on wheel 1's rim
+  about E, one A at 30 (the narrowing, 3.342); then A, and D at 16 and
+  13.5 (3.170, 3.168). The gaps' scatter (0.013 numbers, the median) is
+  0.4 of a semitone, so the E's are a little out of tune; the steps are 5
+  semitones. Mixed from the run's log at its own pace (the clicks and the
+  synth's tone, 8 harmonics falling off as k^-2.5), two minutes of graph
+  1 and graph 2 across the narrowings.
+- **In the hall,** only while you're at the lock (`v:onEnter` and
+  `v:onLeave`); away, the lock doesn't run anyway.
+
 ## What went wrong on the way to the safecracker's way
 
 - **Seams stopped the feel.** The cam was built of convex pieces, and with

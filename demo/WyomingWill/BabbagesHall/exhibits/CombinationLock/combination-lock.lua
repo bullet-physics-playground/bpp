@@ -28,7 +28,9 @@
 --          graph the gap (it narrows at wheel 1's number); leave wheel 1
 --          there and graph wheels 2 and 3 together (it narrows at wheel
 --          2's); then try every second number for wheel 3, from just
---          above wheel 2's on round.
+--          above wheel 2's on round. Heard: a click as each wall stops
+--          the dial, and after each pair a tone pitched by the gap (the
+--          exhibit's: a fourth up for each wheel the fence drops onto).
 --
 -- KEYS
 --   0 - 9      a combination: six figures (31 72 46), then Return dials it
@@ -39,7 +41,7 @@
 --   M          the camera close to the dial; G close to the gates; again: back
 --   T          the tour (the way's own)
 --   F          (the safecracker's way) feel the contact points, the wheels
---              where they are
+--              where they are (the clicks, no tone)
 --   H          the manual (MANUAL.pdf) in the PDF viewer
 --
 -- PHYSICS: the dial's body (dial, spindle, cam and its pin), the three
@@ -600,6 +602,53 @@ local function startJob()
     return
   end
 end
+local frame = 0                                   -- (frames simulated: for the log)
+-- ---------------------------------------------------------------------
+-- the safecracker's ears (its way only): a click as the fence meets a
+-- notch wall, what a contact microphone on the case would pick up
+-- (make-sounds.py: the steep wall's brighter, the sloping wall's duller),
+-- played the moment the wall stops the dial; and after each pair of contact
+-- points a short tone whose pitch is their gap. The tone is the exhibit's,
+-- not the lock's: a fourth higher for each 0.159 numbers narrower (the
+-- fence 0.1 mm lower), so each wheel it drops onto is a step up: E, A, D.
+-- Heard only while you're at the lock (in the hall, v:onEnter/onLeave).
+-- ---------------------------------------------------------------------
+local EAR = { snd = {}, voice = 20, toneS = 0.6, left = 0, heard = not hallPath,
+              GAP0 = 3.505, STEP = 0.159, F0 = 329.63 }         -- (the gap on wheel 1's rim and each step: lock-test.lua)
+if SAFE and v.loadSound and v.playSound then
+  for _, k in ipairs({ "steep", "slope" }) do
+    local ok, id = pcall(function() return v:loadSound(DIR .. "sounds/click-" .. k .. ".wav") end)
+    if ok and id and id >= 0 then EAR.snd[k] = id end
+  end
+end
+EAR.tones = SAFE and pcall(function() v:setTone(EAR.voice, 0, 0); v:setToneTimbre(EAR.voice, 0.25, 0) end)
+if SAFE and LOG then print(string.format("    sound: clicks %s, tone %s", (EAR.snd.steep and EAR.snd.slope) and "loaded" or "not loaded (no audio device?)", EAR.tones and "ready" or "not available")) end
+function EAR.hush()
+  EAR.left = 0
+  if EAR.tones then pcall(function() v:setTone(EAR.voice, 0, 0) end) end
+end
+function EAR.click(dir)                          -- (dir -1: turning right, onto the steep wall)
+  local k = dir < 0 and "steep" or "slope"
+  if LOG then print(string.format("    sound: click, the %s wall (f%d%s)", dir < 0 and "steep" or "sloping", frame, EAR.heard and "" or "; not heard")) end
+  local id = EAR.snd[k]
+  if EAR.heard and id then pcall(function() v:playSound(id, 0.8) end) end
+end
+function EAR.pitch(gap) return EAR.F0 * 2 ^ (5 / 12 * (EAR.GAP0 - gap) / EAR.STEP) end
+function EAR.tone(gap)
+  local f = EAR.pitch(gap)
+  if LOG then print(string.format("    sound: the tone for the gap %.3f, %.1f Hz (f%d%s)", gap, f, frame, EAR.heard and "" or "; not heard")) end
+  if EAR.heard and EAR.tones then
+    pcall(function() v:setTone(EAR.voice, f, 0.25) end)
+    EAR.left = EAR.toneS
+  end
+end
+function EAR.step(dt)
+  if EAR.left > 0 then
+    EAR.left = EAR.left - dt
+    if EAR.left <= 0 then EAR.hush() end
+  end
+end
+function EAR.hear(on) EAR.heard = on; if not on then EAR.hush() end end
 -- each simulation step: the dial's motor
 -- feeling for the contact points: slowly, and with only enough torque to
 -- turn the dial against its own friction (the hand's lightest touch): it
@@ -639,7 +688,10 @@ local function stepJob(dt)
     end
   elseif j.feel then
     local moved = math.abs(Dnow - j.from)
-    if moved > 0.03 and math.abs(dialSpeed()) < 0.25 then j.still = j.still + dt else j.still = 0 end
+    if moved > 0.03 and math.abs(dialSpeed()) < 0.25 then
+      if j.still == 0 and not j.clicked then j.clicked = true; EAR.click(j.feel) end   -- (the wall has stopped it)
+      j.still = j.still + dt
+    else j.still = 0 end
     if j.still > 0.2 or moved > 12 or j.t > 15 then
       letGo()
       local d, r = j.done, (j.still > 0.2) and Dnow or nil
@@ -764,7 +816,6 @@ end
 -- never told the combination: it reads the dial and nothing else. The
 -- model, turned as the dial is, gives the gaps it expects, for the log.
 -- ---------------------------------------------------------------------
-local frame = 0
 local cracker, crackFails, graphLog = nil, 0, {}    -- (the safecracker's coroutine, its failures, what it felt)
 local SC = {}                                     -- (what the rest of the script calls of it)
 do
@@ -802,7 +853,7 @@ local function foundText(c)
 end
 -- the contact points: from above (turning right to the notch, then feeling
 -- right, then left), or from below (left, then left, then right)
-local function contacts(fromAbove)
+local function contacts(fromAbove, quiet)     -- (quiet: no tone, the clicks only)
   local lo, hi
   if fromAbove then
     turnTo(Dnow - L.wrap(Dnow - (L.OPEN_AT + L.FEEL_FROM)))
@@ -816,6 +867,7 @@ local function contacts(fromAbove)
   if hi then showGlyphs(slate.high, string.format("%.2f", L.wrap(hi))) end
   local gap = (lo and hi) and (hi - lo) or nil
   showGlyphs(slate.gap, gap and string.format("%.2f", gap) or "")
+  if gap and not quiet then EAR.tone(gap) end
   return gap, mgap, lo, hi
 end
 local function measure(graph, x, fromAbove)
@@ -1140,6 +1192,7 @@ v:postSim(function(N)
     if (os.getenv("LK_TOUR") or "1") ~= "0" then tourStart() end
   end
   stepJob(FRAME_DT)
+  EAR.step(FRAME_DT)
   SC.next()
   tourNext()
   restPost()
@@ -1193,7 +1246,7 @@ if SAFE then
     stopTour()
     SC.fresh()
     cracker = coroutine.create(function()
-      local gap, mgap = SC.contacts(true)
+      local gap, mgap = SC.contacts(true, true)
       print(string.format("  the contact points felt: the gap %s (the model %.3f)", gap and string.format("%.3f", gap) or "not felt", mgap))
     end)
   end)
@@ -1205,7 +1258,8 @@ if not hallPath then
   local MANUAL = dofile(DIR .. "../../open-manual.lua")
   for _, k in ipairs({ "H", "F1" }) do v:addShortcut(k, function() MANUAL.open(DIR, "the combination lock's manual") end) end
 end
-pcall(function() v:onLeave(function() viewOff(false) end) end)
+pcall(function() v:onLeave(function() viewOff(false); EAR.hear(false) end) end)
+pcall(function() v:onEnter(function() EAR.hear(true) end) end)
 v:onParamChanged(function(N, name, value)
   if name == "speed" then applyTiming() end
 end)
@@ -1214,7 +1268,7 @@ pcall(function()
     SAFE and "THE COMBINATION LOCK: THE SAFECRACKER'S WAY  (Babbage's Hall)" or "THE COMBINATION LOCK  (Babbage's Hall)",
     "",
     SAFE and "  T  the safecracker's tour: graph the contact points, find the numbers, open it" or "",
-    SAFE and "  F  feel the contact points, the wheels where they are" or "",
+    SAFE and "  F  feel the contact points, the wheels where they are (listen: a click each way)" or "",
     "KEYS",
     "  0 - 9  a combination, six figures (31 72 46); Return dials it and tries to open",
     "  Backspace  a figure off      L, R  the dial one number left, right",
