@@ -76,12 +76,13 @@ EXHIBITS = EXHIBITS or {
   -- shape and spin decide what it does. Facing pairs across the aisle.
   { dir = "exhibits/Gomboc/", file = "gomboc-variety.lua", name = "Gömböc Variety", label = "gomboc-variety",
     prefix = "Variety: ", floorY = -80, stand = { 172, 145 },
-    about = "Gömböc Variety: Gomboc-C at three sizes and the lumpier Sloan beta shapes,\n" ..
-            "all of uniform density. The white dot is each one's balancing point." },
+    about = "Gömböc Variety: Gomboc-C, the lumpier Sloan beta shapes, the printable candidates\n" ..
+            "(L4, F2, f0_best_b, mono-g3b, mono-e2) and two self-righting loaves, all of uniform\n" ..
+            "density. The white dot is each one's balancing point." },
   { dir = "exhibits/Bille/", file = "bille-drop.lua", name = "Bille and the polyhedra", label = "bille",
     prefix = "Bille: ", floorY = -80, stand = { 272, 210 },
     about = "Bille Drop: the weighted monostable tetrahedron (Bille), the 21-, 26- and 37-\n" ..
-            "corner spiral polyhedra and a PLA-only \"faceted Weeble\". Edges and corners light up on the table." },
+            "corner spiral polyhedra. Edges and corners light up on the table." },
   { dir = "exhibits/GalileoRamp/", file = "galileo-ramp.lua", name = "Galileo's ramp", label = "galileo-ramp",
     prefix = "Ramp: ", floorY = -75,
     about = "Galileo's ramp: a ball, a disc, a hoop and a can of soup race down a ramp.\n" ..

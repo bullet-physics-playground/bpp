@@ -1,14 +1,18 @@
 --
--- Gomboc Variety: uniform-density Gombocs -- Gomboc-C and Sloan's beta shapes
+-- Gomboc Variety: uniform-density Gombocs -- Gomboc-C, Sloan's beta shapes, the
+-- printable candidates (L4, F2, f0_best_b, mono-g3b, mono-e2) and two self-righting loaves
 --
 -- The same table, physics and race as Gomboc Drop C (gomboc-drop-c.lua), but
 -- every drop brings the next shape in a cycle:
 --
---   Gomboc-C (9 cm)  ->  a beta shape  ->  Gomboc-C at 75%  ->  the other
---   beta shape  ->  Gomboc-C at 125%  ->  ...  and round again
+--   Gomboc-C (9 cm)  ->  L4  ->  F2  ->  f0_best_b  ->  mono-g3b  ->  mono-e2
+--   ->  mono-s2  ->  mono-s4  ->  beta 0.07  ->  beta 0.08  ->  Gomboc-C at 75%
+--   ->  Gomboc-C at 125%  ->  ...  and round again
 --
 -- Every body here has UNIFORM DENSITY: its shape alone gives it one resting
--- point and one balancing point -- the true Gomboc problem. (The weighted
+-- point and one balancing point -- the true Gomboc problem. (The two loaves,
+-- mono-s2 and mono-s4, also have one resting point, but more than one
+-- balancing point: they always right themselves without being Gombocs.) (The weighted
 -- bodies -- Bille and the 21-, 26- and 37-corner spiral polyhedra, which work
 -- because of where their mass is -- are in ../Bille/bille-drop.lua.)
 --
@@ -67,6 +71,22 @@
 --               shape that actually gets there needs the steep, sharp-edged
 --               design of the real one. ("shapes" 1 leaves them out.)
 --
+--   The printable candidates (Nov 2026, from the shape, families and printing
+--   chats; meshes in gomboc-meshes/, each .lua says where it came from):
+--   L4          GOMBOC900 with its bottom tuned for a stronger push near upright
+--               (at most 0.11 mm different: looks identical). Prints: 79/80 on glass.
+--   F2          GOMBOC900 reshaped against flat spots partway through the roll;
+--               the best classic-looking one on a tilted table.
+--   f0_best_b   a creased pebble, a new-looking Gomboc; the best one on a slope
+--               (BPP printed hulls: 92% upright on a 1.5 deg table).
+--   mono-g3b    a smooth, lopsided new Gomboc (96% level, 78% at 1.5 deg).
+--   mono-e2     the first creased pebble, f0_best_b's ancestor.
+--   mono-s2/s4  self-righting LOAVES: low, wedge-like, one resting point but 3+
+--               balancing points; slope barely matters to them. The white dot
+--               marks the highest balancing point.
+--   On the creased Gombocs and the loaves the balancing point is far from the
+--   top (80-100 deg away), so the white dot sits on the side at home.
+--
 -- Physics as in Gomboc Drop C: convex-hull contact, exact mass and inertia,
 -- rolling resistance (a couple of at most delta*m*g through each physics
 -- step, demo/module/rolling.lua: it now holds a body still where gravity's
@@ -86,7 +106,8 @@
 --   ]   one more (and drop)      [   one fewer
 --
 -- Sliders: count; shapes (0 = the cycle above, 1 = Gomboc-C only, 2 = beta
--- only); speed, steps, friction, restitution, rolling (microns), spin
+-- only, 3 = the printable Gombocs L4, F2, f0_best_b, mono-g3b, mono-e2, 4 = the
+-- loaves mono-s2, mono-s4); speed, steps, friction, restitution, rolling (microns), spin
 -- friction, air drag, redrop. The tally every minute (while re-dropping)
 -- lists each shape separately.
 --
@@ -126,7 +147,11 @@ do
   BASE.C = { title = "Gomboc-C", obj = "gomboc.obj", points = h.points, mass = h.volume * RESIN,
              K2 = h.inertia, down = { 0, -1, 0 }, top = { 0, h.topHeight, 0 },
              topHeight = h.topHeight, margin = 0.04 }
-  for _, b in ipairs({ { "beta1-07", "Sloan beta 0.07" }, { "beta1-08", "Sloan beta 0.08" } }) do
+  for _, b in ipairs({ { "beta1-07", "Sloan beta 0.07" }, { "beta1-08", "Sloan beta 0.08" },
+                        { "l4", "L4 (tuned Gomboc-C)" }, { "f2", "F2 (reshaped Gomboc-C)" },
+                        { "f0_best_b", "f0_best_b (creased Gomboc)" }, { "mono-g3b", "mono-g3b (smooth Gomboc)" },
+                        { "mono-e2", "mono-e2 (creased Gomboc)" },
+                        { "mono-s2", "mono-s2 (loaf, not a Gomboc)" }, { "mono-s4", "mono-s4 (loaf, not a Gomboc)" } }) do
     local d = load(b[1])
     BASE[b[1]] = { title = b[2], obj = b[1] .. ".obj", points = d.points, mass = d.volume * RESIN,
                    K2 = d.inertia, down = d.down, top = d.top, topHeight = d.topHeight, margin = 0.04 }
@@ -136,6 +161,8 @@ end
 -- the cycle (shapes slider 0) and the single-kind cycles (1, 2, 3)
 local C_SIZES = { 1.0, 0.75, 1.25 }
 local BETAS = { "beta1-07", "beta1-08" }
+local NEW_GOMBOCS = { "l4", "f2", "f0_best_b", "mono-g3b", "mono-e2" }
+local LOAVES = { "mono-s2", "mono-s4" }
 
 -- a shape at a size: built once, then shared (Bullet allows sharing shapes)
 local SPECS = {}
@@ -198,8 +225,8 @@ local function param(name, value, lo, hi, step, info) v:addParam(name, value, lo
 local function envnum(name, default) return tonumber(os.getenv(name) or "") or default end
 local CPT = envnum("GV_CPT", 0.001)        -- contact processing threshold, cm (set on each body below)
 param("count", envnum("GV_COUNT", 6), 1, MAX_COUNT, 1, "how many to drop")
-param("shapes", envnum("GV_SHAPES", 0), 0, 2, 1,
-      "0 = Gomboc-C, beta, Gomboc-C resized, beta, ...; 1 = Gomboc-C only; 2 = beta only")
+param("shapes", envnum("GV_SHAPES", 0), 0, 4, 1,
+      "0 = all in turn; 1 = Gomboc-C only (3 sizes); 2 = Sloan beta only; 3 = printable Gombocs (L4, F2, f0_best_b, mono-g3b, mono-e2); 4 = loaves (mono-s2, mono-s4)")
 param("speed", 1, 0.25, 4, 0.25, "simulated seconds per real second")
 param("steps", envnum("GV_STEPS", 1200), 300, 4800, 300, "physics steps per simulated second")
 param("friction", 0.5, 0.05, 1.0, 0.05, "friction coefficient, 1 = grippiest (Bullet multiplies it by the table's 0.8)")
@@ -330,14 +357,16 @@ local SEQ = {}
 do
   local function C(sz) return { "C", sz } end
   local function Bt(k) return { BETAS[k] } end
-  local full, c, b = {}, 0, 0
-  for n = 1, 2 * #C_SIZES * #BETAS do          -- C, beta, C, beta, ...
-    if n % 2 == 1 then c = c % #C_SIZES + 1; full[#full + 1] = C(C_SIZES[c])
-    else b = b % #BETAS + 1; full[#full + 1] = Bt(b) end
-  end
+  local function K(k) return { k } end
+  local full = { C(1.0) }                      -- Gomboc-C, the new ones, the loaves, beta, Gomboc-C resized
+  for _, k in ipairs(NEW_GOMBOCS) do full[#full + 1] = K(k) end
+  for _, k in ipairs(LOAVES) do full[#full + 1] = K(k) end
+  full[#full + 1] = Bt(1); full[#full + 1] = Bt(2); full[#full + 1] = C(0.75); full[#full + 1] = C(1.25)
   SEQ[0] = full
   SEQ[1] = { C(1.0), C(0.75), C(1.25) }
   SEQ[2] = { Bt(1), Bt(2) }
+  SEQ[3] = {}; for _, k in ipairs(NEW_GOMBOCS) do SEQ[3][#SEQ[3] + 1] = K(k) end
+  SEQ[4] = {}; for _, k in ipairs(LOAVES) do SEQ[4][#SEQ[4] + 1] = K(k) end
 end
 local function nextSpec(g)
   local seq = SEQ[math.floor(v:getParam("shapes") + 0.5)] or SEQ[0]
@@ -870,13 +899,16 @@ pcall(function()
     "  K  kick them up with a spin\n" ..
     "  ]  one more     [  one fewer\n" ..
     "Uniform-density Gombocs. Each drop brings the\n" ..
-    "next shape: Gomboc-C, a Sloan beta shape,\n" ..
-    "Gomboc-C at 75%, the other beta, Gomboc-C at\n" ..
-    "125%, ... The white dot is the balancing point;\n" ..
-    "at home it is at or near the top (beta 0.08:\n" ..
-    "~35 deg off). The beta shapes are so gently\n" ..
-    "sloped that rolling resistance often stops them\n" ..
-    "on their sides ('shapes' 1 leaves them out).\n" ..
+    "next shape: Gomboc-C, L4, F2, f0_best_b,\n" ..
+    "mono-g3b, mono-e2, the loaves mono-s2 and s4,\n" ..
+    "the Sloan beta shapes, Gomboc-C at 75% and 125%.\n" ..
+    "'shapes': 1 Gomboc-C, 2 beta, 3 the printable\n" ..
+    "Gombocs, 4 the loaves (one resting point, more\n" ..
+    "than one balancing point: not Gombocs).\n" ..
+    "The white dot is the balancing point; at home it\n" ..
+    "is near the top on Gomboc-C, L4, F2, on the side\n" ..
+    "on the creased ones and the loaves. The beta\n" ..
+    "shapes often stop on their sides.\n" ..
     "Weighted bodies (Bille, spiral polyhedra):\n" ..
     "see ../Bille/bille-drop.lua.\n" ..
     "Dark = tipped over, bright = upright.\n" ..
