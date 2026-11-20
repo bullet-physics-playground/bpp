@@ -28,3 +28,15 @@ RESULT: mono-g3b = gdeficit.py ../genomes/mono-g3.npy g3b.npy 25   (gdeficit_g3b
 FILES: ../genomes/mono-g3b.npy, ../meshes/mono-g3b.obj/.lua (build.py --write; like mono-g1's, this faceted mesh
   has shallow false resting faces: 18 deeper than 5 um, 1 deeper than 20 um).
 NOT DONE: printed-hull BPP drops (printing chat's rig); a fine mesh for printing.
+
+THE 86 DEG TIP (20 Nov 2026)
+  Printing chat, 1.5 deg BPP, recounted by body (families/common/recount.py): mono-g3b level 16/16, 17/19;
+  1.5 deg 14/17, 13/17; 5 of the 9 missed bodies stop at 84-88 deg, lying on the shorter horizontal tip, held
+  by the flat top layer the across cut leaves there (centre of mass 637 um inside it on a 1.5 deg slope).
+  tip.py: the smooth levers there are already 0.74-0.91 mm at 36 mm at 84-88 deg; rolling off the flat needs about 1.5.
+  gtip.py (gdeficit.py + a cap 80-92 deg from the rest, within 15 deg of that tip, target 1.5 mm, weight 20):
+    CAP=hx_g3b.npy python3 gtip.py ../genomes/mono-g3b.npy g3t.npy 30          (gtip_g3b.log)
+  Result: no. Every step that helps makes a second balancing point; the cap minimum rose only 0.56 -> 0.61 mm
+  and the exact-checked result is mono-g3b unchanged. The one balancing point is the LONG tip (161 deg away), so
+  the short tip has to stay a gentle slope, which caps its levers. The fix belongs to the print: a cut or
+  orientation that leaves no flat on that tip.

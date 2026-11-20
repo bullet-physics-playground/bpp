@@ -1,0 +1,11 @@
+start score 0.1100 plain 0.0087 cap min 0.560  below 6.2%  min 0.070  counts (1, 1)  radius 0.25
+  reject: counts (1, 2) radius 0.249 deficit 0.0523 (now 0.1100)
+  reject: counts (1, 2) radius 0.250 deficit 0.0754 (now 0.1100)
+  reject: counts (1, 2) radius 0.250 deficit 0.0919 (now 0.1100)
+  reject: counts (1, 2) radius 0.250 deficit 0.1007 (now 0.1100)
+   82s kept 1  score 0.1053 plain 0.0087 cap min 0.594  below 6.3%  min 0.070  radius 0.25  r 0.0000
+  reject: counts (1, 2) radius 0.250 deficit 0.0984 (now 0.1053)
+  reject: counts (1, 2) radius 0.250 deficit 0.1018 (now 0.1053)
+  142s kept 2  score 0.1035 plain 0.0087 cap min 0.607  below 6.3%  min 0.070  radius 0.25  r 0.0000
+  reject: counts (1, 2) radius 0.250 deficit 0.1009 (now 0.1035)
+FINAL score 0.1100 plain 0.0087 cap min 0.560  below 6.2%  min 0.070  radius 0.25
