@@ -50,6 +50,8 @@ Half Adder sixth, with the Pascaline and the Galton board (all scored 4),
 and Lehmer's sieve second, for its modest mechanism, though factoring by
 modular wheels asks far more of a visitor than adding does.
 
+**Changes (2026-11-16):** the slide rule is built, then Napier's bones.
+
 **Changes (2026-11-14):** the list is in walking order (below); the
 splitter board is added (built); the Domino Half Adder is scored 3 for
 interest, not 4 (it does one thing once).
@@ -72,8 +74,8 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 | # | Tier | Machine | Year | What it does | In bpp, and printed | Int. | Cx. | Status |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 1 | Abacus, suanpan | ancient | beads | built: seven rods, 49 printed beads sliding on steel rods, held by friction; a finger adds, takes away and multiplies by the old rules (Tab: the three ways), a slate shows each | 1 | 1 | built |
-| 2 | 1 | Slide rule | 1620s | multiplies by adding logarithms | one slide; nothing to simulate | 2 | 1 | bay |
-| 3 | 1 | Napier's bones, Genaille–Lucas rulers | 1617 / 1891 | rods laid side by side give a product to read off | no moving mechanism: printable, nothing to simulate | 2 | 1 | bay |
+| 2 | 1 | Slide rule | 1620s | multiplies by adding logarithms | built: a 25 cm Mannheim rule (A, B, CI, C, D, K, L), the slide and cursor bodies on sliders held by friction, set by a finger against each other; printed in halves, the scales printed on paper; a slate shows each step and the estimate that places the point (Tab: multiplying and dividing; squares, roots, cubes, reciprocals, logarithms) | 2 | 1 | built |
+| 3 | 1 | Napier's bones, Genaille–Lucas rulers | 1617 / 1891 | rods laid side by side give a product to read off | built: Napier's set of ten four-sided rods (Glaisher), bodies laid by a hand on a tilted board, pressed together and read from where they lie (face up, cell level with the index); a slate shows the row, the diagonals and the rows added (Tab: Genaille's rods, the path along the triangles marked) | 2 | 1 | built |
 | 4 | 1 | Mechanical combination lock |  | the wheels' notches must line up: a lock that tests a number | wheels and a fence; simple | 2 | 2 | bay |
 | 5 | 1 | Bead sort and spaghetti sort | modern | physical sorting: beads fall on rods, or rods are stood on end | beads and rods under gravity: easy | 3 | 1 |  |
 | 6 | 1 | Domino Half Adder | modern | dominoes falling add two bits | built: 268 dominoes on printed tiles | 3 | 2 | built |
@@ -160,7 +162,7 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 The hall's bays are walked in the list's order, so a new exhibit goes in
 its place in it and the bays after it move along one (the hall grows by a
 pair of facing bays when it needs one). With fifteen bays (since
-2026-11-15) the hall holds the eight built and the seven covered "in
+2026-11-15) the hall holds the ten built and the five covered "in
 preparation", in this order: the suanpan and the slide rule (west 1, east
 1), Napier's bones and the combination lock (west 2, east 2), the Domino
 Half Adder and the Differential (west 3, east 3), the Pascaline and the

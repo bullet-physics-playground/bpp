@@ -79,6 +79,16 @@ const QString &userDirOverride();
  */
 QSettings *newSettings(QObject *parent = nullptr);
 
+/**
+ * @brief A script's text from its file's bytes: UTF-8, as bpp's scripts are
+ * written, or -- not valid UTF-8 -- the system's 8-bit code page, which bpp
+ * built with Qt 5 read and saved scripts in on Windows before.
+ *
+ * (Qt 5's QTextStream decodes with the system code page by default, so on
+ * Windows a UTF-8 "°" came in as "Â°". Qt 6's default is UTF-8.)
+ */
+QString scriptText(const QByteArray &bytes);
+
 /// The OpenSCAD mesh cache, which POV-Ray scenes also search (+L).
 QString userCacheDir();
 

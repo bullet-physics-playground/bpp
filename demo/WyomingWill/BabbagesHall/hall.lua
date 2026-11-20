@@ -70,6 +70,7 @@ local function findDir(cands, file)
   error("Babbage's Hall: can't find " .. file)
 end
 local HERE = findDir({ "./", "demo/WyomingWill/BabbagesHall/" }, "hall.lua")
+local MANUAL = dofile(HERE .. "open-manual.lua")   -- (H: the manual, in the PDF viewer)
 local MESH = HERE .. "hall-meshes/"
 local LABELS = dofile(MESH .. "labels.lua")
 
@@ -109,12 +110,25 @@ EXHIBITS = EXHIBITS or {
     } },
   { dir = "exhibits/SlideRule/", file = "slide-rule.lua", name = "the slide rule", label = "slide-rule",
     prefix = "Slide rule: ", floorY = -100,
-    about = "The slide rule (1620s): scales of logarithms slid along each other multiply\n" ..
-            "by adding lengths. In preparation." },
+    about = "The slide rule (1620s): on D a number v stands log v along; C on the slide is the same.\n" ..
+            "C's 1 over a puts every b on C over a x b on D: the slide adds the lengths. A finger\n" ..
+            "sets the slide and the cursor; the slate shows each step, the reading and the estimate\n" ..
+            "that places the point. Type 2.5 X 3.2 (or 7.5 / 2.5), Return; M: close to the hairline.\n" ..
+            "Tab: squares, roots, cubes, reciprocals and logarithms; PgDn turns its label's pages.",
+    modes = {
+      { key = "multiply", name = "the slide rule", card = "slide-rule", env = { SR_WAY = "multiply" } },
+      { key = "powers", name = "the slide rule: squares and roots", card = "slide-rule-powers", env = { SR_WAY = "powers" } },
+    } },
   { dir = "exhibits/NapiersBones/", file = "napiers-bones.lua", name = "Napier's bones", label = "napier",
     prefix = "Napier: ", floorY = -100,
-    about = "Napier's bones (1617): rods carrying the multiplication table; laid side by side,\n" ..
-            "they give a product to be read off, adding along the diagonals. In preparation." },
+    about = "Napier's bones (1617): rods carrying the multiplication table. A hand lays the rods\n" ..
+            "for a number beside the index, each turned to its digit; a row then holds every digit's\n" ..
+            "multiple, and adding along the diagonals gives the product. Type 4138 X 567, Return;\n" ..
+            "M: close to the board. Tab: Genaille's rods (1891), whose triangles do the carrying.",
+    modes = {
+      { key = "napier", name = "Napier's bones", card = "napier", env = { NB_WAY = "napier" } },
+      { key = "genaille", name = "Napier's bones: Genaille's rods", card = "napier-genaille", env = { NB_WAY = "genaille" } },
+    } },
   { dir = "exhibits/CombinationLock/", file = "combination-lock.lua", name = "the combination lock", label = "lock",
     prefix = "Lock: ", floorY = -100,
     about = "The combination lock: its wheels' notches must all line up before the fence\n" ..
@@ -932,12 +946,14 @@ local function sheet(b, about)
   CASTING = false
   return objs
 end
+local nCovered = 0                 -- (bays in preparation; each of an exhibit's ways is one of all)
 for i, b in ipairs(BAYS) do
   local e = EXHIBITS[i]
   if not e then
     emptyBay(b)
   elseif not exists(e.dir .. e.file) then
     coveredBay(b, e)
+    nCovered = nCovered + 1
   else
     local off = btVector3(b.x, -(e.floorY or 0), b.z)
     -- (in a world of its own, at its own coordinates, drawn in its bay)
@@ -1192,7 +1208,8 @@ local function header(g)
     return "BABBAGE'S HALL -- at " .. g.name .. ways ..
            (out and ".   Tab: step in" or (".   Tab: on to " .. nextStop(g, 1).name)) ..
            ";   Shift+Tab: " .. ((g.approach and not out) and "step back" or ("back to " .. nextStop(g, -1).name)) ..
-           (g.lecternView and ";   I: its label, close up (again: back)" or "") .. pages .. "\n"
+           (g.lecternView and ";   I: its label, close up (again: back)" or "") .. pages ..
+           ";   H: its manual (a PDF)\n"
   end
 end
 local function wrapHelp(g)
@@ -1221,6 +1238,7 @@ local function hallHelp(s)
          "On show:\n" .. table.concat(live, "\n") .. "\n\n" ..
          (#coming > 0 and ("In preparation:\n" .. table.concat(coming, "\n") .. "\n\n") or "") ..
          "Tab / Shift+Tab   walk on / back\n" ..
+         "H                  at an exhibit: its manual (a PDF); here: the hall's guide\n" ..
          "the mouse          looks round as usual\n"
 end
 
@@ -1560,6 +1578,15 @@ realV:onKey(function(N, key, down)
     end
     return true
   end
+  -- (H: the manual of the exhibit you're at, in the PDF viewer, or at the
+  -- views the hall's own guide; unless the exhibit has H itself)
+  if key == "H" and not (g and g.shortcuts[key]) then
+    if down then
+      if here.isView then MANUAL.open(HERE, "the hall's guide")
+      else MANUAL.open(here.dir, here.name) end
+    end
+    return true
+  end
   if not g then
     if key == "P" then
       if down then print("HALL: P (save every frame for POV-Ray) is held back here; use the POV-Ray menu.") end
@@ -1649,7 +1676,7 @@ if START then
 end
 goTo(here, true)
 print(string.format("HALL: %d exhibits to set up, %d in preparation, %d empty bays; the nave %.0f m long",
-                    #all, #EXHIBITS - #all, #BAYS - #EXHIBITS, (ZS - ZN) / 100))
+                    #all, nCovered, #BAYS - #EXHIBITS, (ZS - ZN) / 100))
 
 -- the exhibits loaded, one a frame from the second on (the hall is shown
 -- first): next, the one you're at or walking to, else the next one on
@@ -1717,6 +1744,6 @@ loadSome = function()
     status("")
     if here.isView then realV:setHelpText(hallHelp(here)) end
     print(string.format("HALL: %d exhibits on show, %d in preparation, %d empty bays",
-                        #exhibits, #EXHIBITS - #all, #BAYS - #EXHIBITS))
+                        #exhibits, nCovered, #BAYS - #EXHIBITS))
   end
 end

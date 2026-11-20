@@ -793,6 +793,15 @@ public:
   void addVehicle(btRaycastVehicle *veh);
 
   /**
+   * @brief v:addVehicle(veh): adds a script's vehicle, which bpp then owns.
+   *
+   * Adding one already in the world does nothing; nil is an error.
+   *
+   * @param handle The script's handle to the vehicle.
+   */
+  void addVehicleLua(const luabind::object &handle);
+
+  /**
    * @brief Removes a constraint from the dynamics world.
    *
    * The constraint itself is not deleted; ownership passes back to the caller.
@@ -801,6 +810,29 @@ public:
    * @return @p con.
    */
   btTypedConstraint *removeConstraint(btTypedConstraint *con);
+
+  /**
+   * @brief v:addConstraint(c): adds a script's constraint, which bpp then
+   * owns until the script ends.
+   *
+   * Adding one already in the world does nothing, and one removed earlier
+   * goes back in.
+   *
+   * @param handle The script's handle to the constraint.
+   */
+  void addConstraintLua(const luabind::object &handle);
+
+  /**
+   * @brief v:removeConstraint(c): takes a constraint out of the world.
+   *
+   * bpp keeps it (and frees it when the script ends), so the script's handle
+   * stays good and the constraint can be added back. One that isn't in the
+   * world is left as it is.
+   *
+   * @param handle The script's handle to the constraint.
+   * @return @p handle.
+   */
+  luabind::object removeConstraintLua(const luabind::object &handle);
 
   /**
    * @brief Binds a Lua function to a key sequence.
@@ -2315,6 +2347,8 @@ private:
                                                 ///< returns to.
   Vec _initialCameraUpVector; ///< Up vector it returns to; also the reference
                               ///< up used to keep the horizon level.
+  bool _cameraPlaced = false; ///< init() framed the scene (or parse() did,
+                              ///< headless, where init() never runs).
 
   QuadView _quad{this}; ///< The quad view (Tab): four panes, three orthographic.
 
@@ -2336,6 +2370,9 @@ private:
                                              ///< until their script lets go
                                              ///< (see reapRemoved()).
   OrderedSet<btTypedConstraint *> *_constraints; ///< Every constraint in the world, in the order added.
+  QSet<btTypedConstraint *> _consTakenFromLua; ///< Constraints v:addConstraint took from Lua.
+  QSet<btTypedConstraint *> _consKept;       ///< Removed constraints bpp still owns,
+                                             ///< until the script ends.
   QSet<btRaycastVehicle *> *_raycast_vehicles; ///< Every raycast vehicle.
 
   /**

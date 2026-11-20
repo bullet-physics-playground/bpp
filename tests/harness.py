@@ -734,6 +734,54 @@ def suite_render(ctx):
     print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "quick.lua", r.seconds))
     for w in why:
         print("         " + w)
+    return int(bool(why)) + render_disk_full(ctx, env) + render_menu_settings(ctx, env)
+
+
+def render_menu_settings(ctx, env):
+    """The POV-Ray menu's render settings, kept in bpp's settings
+    (povray/use_*), declared in the exported scene's .pov before it includes
+    settings.inc (whose own values are #ifndef defaults) -- and nothing else
+    from that group (povray/export is not a render setting)."""
+    wd = ctx.workdir("render-menu")
+    ini = os.path.join(user_dir(wd), "bpp.ini")
+    write(ini, "[povray]\nexport=%s\nuse_plane=1\nuse_background=2\n"
+          % os.path.join(wd, "export").replace("\\", "/"))
+    r = run_bpp(ctx.bpp, ["-f", "quick.lua", "-n", "2", "-e"], wd, 120, RENDER, env)
+    why = []
+    pov = os.path.join(wd, "export", "quick", "quick.pov")
+    text = open(pov).read() if os.path.exists(pov) else ""
+    inc = text.find('#include "settings.inc"')
+    for want in ("#declare use_background = 2;", "#declare use_plane = 1;"):
+        at = text.find(want)
+        if at < 0 or inc < 0 or at > inc:
+            why.append("no '%s' before the include" % want)
+    if "#declare export" in text:
+        why.append("declared povray/export")
+    print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "quick.lua -e, menu settings", r.seconds))
+    for w in why:
+        print("         " + w)
+    return int(bool(why))
+
+
+def render_disk_full(ctx, env):
+    """An export (bpp -e) whose second frame can't be written -- its .inc a
+    link to /dev/full, as a full disk -- must say so, stop and fail the run,
+    not go on and exit 0 with the frame lost."""
+    wd = ctx.workdir("render-full")
+    export = os.path.join(wd, "export", "quick")
+    os.makedirs(export)
+    os.symlink("/dev/full", os.path.join(export, "00002.inc"))
+    r = run_bpp(ctx.bpp, ["-f", "quick.lua", "-n", "4", "-e"], wd, 120, RENDER, env)
+    why = []
+    if r.rc != 1:
+        why.append("exit code %s, not 1" % r.rc)
+    if not any("Unable to write" in l and "00002.inc" in l for l in r.lines()):
+        why.append("no 'Unable to write ...00002.inc'")
+    if os.path.exists(os.path.join(export, "00003.inc")):
+        why.append("went on to export frame 3")
+    print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "quick.lua -e, disk full", r.seconds))
+    for w in why:
+        print("         " + w)
     return int(bool(why))
 
 

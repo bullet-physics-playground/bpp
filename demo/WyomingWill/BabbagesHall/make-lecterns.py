@@ -108,6 +108,110 @@ LABELS = {
         "The products are added by the rules for adding; the slate shows each. "
         "Rods are named A to G from the left.",
     ), ABACUS_READING],
+    "napier": [(                     # (1617, Rabdologiae, Napier's death that year; the set of ten rods and four-digit
+        "NAPIER'S BONES",            #  numbers: Wikipedia, MacTutor (Glaisher); 4138 x 567's rows: MacTutor)
+        "The multiplication table, cut into rods",
+        "Each face of a rod holds one digit's multiples, the tens above "
+        "each diagonal and the units below. Lay the rods for 4138 beside the "
+        "index, and row 6 holds 4~×~6, 1~×~6, 3~×~6 and "
+        "8~×~6 side by side. Add along the diagonals from the right, "
+        "carrying any ten.\n"
+        "Type 4138 X 567 and press Return. M takes you close to the board.",
+    ), (
+        "TEN RODS, FOUR FACES",
+        "Napier's own set",
+        "John Napier published the rods in 1617, in Rabdologiae, the year he "
+        "died. His ten rods carry four tables each: every digit is on four "
+        "rods and no rod has one twice, so any four-digit number can be laid.\n"
+        "Watch the hand lay 2222 with four different rods. Here each rod's "
+        "opposite faces make 9.",
+    ), (
+        "SEVERAL DIGITS",
+        "A row for each, then add",
+        "For 4138~×~567 the board stays as it is: row 5 gives 20690, row "
+        "6 gives 24828, row 7 gives 28966. Each is moved a place left of the "
+        "one after it and the three are added: 2346246.\n"
+        "The rods do the multiplying; the person still does the adding. Tab: "
+        "rods that do the carrying too.",
+    )],
+    "napier-genaille": [(            # (Genaille, Lucas, 1891, the rows 2 to 9: Wikipedia, Roegel, nzeldes)
+        "GENAILLE'S RODS",
+        "The carrying, drawn",
+        "Row m of each rod holds a number for every carry the rod to its "
+        "right can send: the units of digit~×~m plus that carry. Its "
+        "triangle points to the number on the next rod that the tens select.\n"
+        "Start at the last rod's top number in the row and follow the "
+        "triangles left: the numbers passed are the product. No adding.",
+    ), (
+        "AN ENGINEER'S ANSWER",
+        "Genaille and Lucas, 1891",
+        "The mathematician Édouard Lucas set the problem; Henri Genaille, "
+        "an engineer on the French state railways, answered it with these "
+        "rods, shown in 1891. They were popular for a few years, until "
+        "mechanical calculators took over.\n"
+        "They have no row for 1: times 1 is the number itself.",
+    ), (
+        "FURTHER READING",
+        "Napier's bones and Genaille's rods",
+        "Denis Roegel, Napier's Bones and Genaille-Lucas's Rods (2015). Free "
+        "online.\n"
+        "Michael R.~Williams, Early Calculation, in William Aspray (ed.), "
+        "Computing Before Computers (1990).\n"
+        "MacTutor History of Mathematics: Napier's rods.",
+    )],
+    "slide-rule": [(                 # (Gunter 1620, Oughtred c. 1622: MacTutor; Mannheim 1851: Oughtred Society,
+        "THE SLIDE RULE",            #  Smithsonian; Apollo 13's Pickett N600-ES: National Air and Space Museum)
+        "Multiplying by adding lengths",
+        "On D, every number stands as far along as its logarithm: 2 three "
+        "tenths of the way, 4 six tenths. C, on the slide, is the same. Put "
+        "C's 1 over 2 on D, and 3 on C stands over 6: the slide adds the two "
+        "lengths, as logarithms add when numbers multiply.\n"
+        "Type 2.5 X 3.2 and press Return. M takes you close to the hairline. "
+        "Tab: squares, roots and more.",
+    ), (
+        "THE DECIMAL POINT",
+        "Three figures, and an estimate",
+        "The rule shows only figures: 2~×~3 and 20~×~300 look the "
+        "same on it. You place the point by a rough estimate: 2.5~×~3.2 "
+        "is about 3~×~3~=~9, so the 8.00 the rule shows is 8, not 0.8 "
+        "or 80.\n"
+        "A 25~cm rule gives three figures. If C's 1 would put the answer off "
+        "the end, C's 10 goes over the first number instead.",
+    ), (
+        "FROM GUNTER TO THE MOON",
+        "Three and a half centuries",
+        "In 1620 Edmund Gunter drew a scale of logarithms on a rule and added "
+        "lengths on it with dividers. About 1622 William Oughtred slid two "
+        "such scales along each other.\n"
+        "In 1851 Am\u00e9d\u00e9e Mannheim, a French artillery officer, "
+        "settled the scales A, B, C and D and added the cursor. Apollo crews "
+        "carried slide rules; pocket calculators ended them after 1972.",
+    )],
+    "slide-rule-powers": [(
+        "SQUARES, ROOTS, CUBES",
+        "The slide rule's second way",
+        "The hairline reads every scale at once. A fits two decades into the "
+        "length of one, so over any number on D it shows the square; K fits "
+        "three, the cube. CI, in red, is C backward: over x on C it shows "
+        "1/x. L is even: it shows the logarithm itself.\n"
+        "Type a number, then S, R, K, I or L.",
+    ), (
+        "WHICH HALF OF A",
+        "Square roots, and logarithms",
+        "2 and 20 stand in different places on A, and their roots differ too: "
+        "1.414 and 4.47. Count the figures before the point: an odd number "
+        "(2, or 200) takes A's left half, an even number (20, or 2000) its right.\n"
+        "L gives a logarithm's figures; the whole number in front comes from "
+        "where the point is. Log~2 is 0.301, so log~2000 is 3.301.",
+    ), (
+        "FURTHER READING",
+        "The slide rule",
+        "Florian Cajori, A History of the Logarithmic Slide Rule and Allied "
+        "Instruments (1909). Free online.\n"
+        "Peter M.~Hopp, Slide Rules: Their History, Models and Makers (1999).\n"
+        "The Oughtred Society, oughtred.org: a beginner's guide and a "
+        "reference manual.",
+    )],
     "differential": (
         "THE DIFFERENTIAL",
         "Bevel gears that add",

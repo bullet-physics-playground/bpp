@@ -356,8 +356,7 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
       }
 
-      QTextStream in(&file);
-      txt = in.readAll();
+      txt = scriptText(file.readAll());
       file.close();
     } else if (!positionalLuaFile.isEmpty()) {
       QFile file(positionalLuaFile);
@@ -369,14 +368,14 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
       }
 
-      QTextStream in(&file);
-      txt = in.readAll();
+      txt = scriptText(file.readAll());
       file.close();
     }
 
     if (parser.isSet(luaStdinOption)) {
-      QTextStream in(stdin);
-      txt += "\n" + in.readAll();
+      QFile in;
+      in.open(stdin, QIODevice::ReadOnly | QIODevice::Text);
+      txt += "\n" + scriptText(in.readAll());
     }
 
     if (!luaExpression.isEmpty()) {

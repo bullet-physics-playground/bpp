@@ -9,6 +9,20 @@
  * on every translation unit. It declares nothing of its own.
  */
 
+// POV-Ray's vfe.h uses unqualified `Display` (resolved via `using namespace
+// pov_frontend`) and the nested `pov_frontend::Display::RGBA8`. Qt6's
+// qguiapplication_platform.h injects a global `typedef struct _XDisplay
+// Display;` which makes that unqualified `Display` ambiguous and hides
+// RGBA8. When VFE is enabled, parse povray's vfe.h here, before any Qt
+// header, so `Display` resolves unambiguously while `::Display` does not
+// exist yet. Qt's typedef is added afterwards; povray's headers are
+// include-guarded so they are not re-parsed in the translation units that
+// include them later. When VFE is disabled no povray header is parsed at
+// all, so there is nothing to guard against.
+#if USE_VFE
+#include "vfe.h"
+#endif
+
 // Qt Core
 #include <Qt>
 #include <QByteArray>

@@ -29,6 +29,10 @@ check() { # name, frames, script, env...
 check "Suanpan, on its own"       4000 $H/exhibits/Suanpan/suanpan.lua
 check "Suanpan subtracting, alone" 3600 $H/exhibits/Suanpan/suanpan.lua SU_WAY=subtract
 check "Suanpan multiplying, alone" 12000 $H/exhibits/Suanpan/suanpan.lua SU_WAY=multiply
+check "Slide rule, on its own"    9500 $H/exhibits/SlideRule/slide-rule.lua
+check "Slide rule powers, alone"   3600 $H/exhibits/SlideRule/slide-rule.lua SR_WAY=powers
+check "Napier's bones, on its own" 12500 $H/exhibits/NapiersBones/napiers-bones.lua
+check "Genaille's rods, alone"      9000 $H/exhibits/NapiersBones/napiers-bones.lua NB_WAY=genaille
 check "Differential, on its own"  2400 $H/exhibits/Differential/differential.lua
 check "Pascaline, on its own"     4200 $H/exhibits/Pascaline/pascaline.lua
 check "Domino Half Adder, on its own" 1750 $H/exhibits/DominoAdder/domino-adder.lua
@@ -39,6 +43,10 @@ check "Digi-Comp II, on its own"  135000 $H/exhibits/DigiComp2/digicomp2.lua
 check "Suanpan, in the hall"      4600 $H/hall.lua HALL_START=suanpan
 check "Suanpan subtracting, in the hall" 4200 $H/hall.lua HALL_START=subtraction
 check "Suanpan multiplying, in the hall" 12600 $H/hall.lua HALL_START=multiplication
+check "Slide rule, in the hall"   10100 $H/hall.lua HALL_START=slide
+check "Slide rule powers, in the hall" 4200 $H/hall.lua HALL_START=squares
+check "Napier's bones, in the hall" 13100 $H/hall.lua HALL_START=napier
+check "Genaille's rods, in the hall" 9600 $H/hall.lua HALL_START=genaille
 check "Differential, in the hall" 3000 $H/hall.lua HALL_START=differential
 check "Pascaline, in the hall"    4000 $H/hall.lua HALL_START=pascaline
 check "Domino Half Adder, in the hall" 2400 $H/hall.lua HALL_START=domino

@@ -85,9 +85,9 @@ Height=800
 #declare use_focal_blur = 0; // 0=off 1=low quality 10=high quality
 
 camera {
-  location < 0, 0, 0 >
+  location < 0, 0, -226.303 >
   right image_width/image_height*x
-  look_at <0, 0, 1e+06>   angle degrees(2*atan(tan(radians(45)/2)*image_width/image_height))
+  look_at <0, 0, 999774>   angle degrees(2*atan(tan(radians(45)/2)*image_width/image_height))
   sky <0, 1, 0>
 #if(use_focal_blur)
   aperture 0
@@ -2321,9 +2321,9 @@ sphere { <.0,.0,.0>, 1.12492
 #declare use_focal_blur = 0; // 0=off 1=low quality 10=high quality
 
 camera {
-  location < 0, 0, 0 >
+  location < 0, 0, -226.303 >
   right image_width/image_height*x
-  look_at <0, 0, 1e+06>   angle degrees(2*atan(tan(radians(45)/2)*image_width/image_height))
+  look_at <0, 0, 999774>   angle degrees(2*atan(tan(radians(45)/2)*image_width/image_height))
   sky <0, 1, 0>
 #if(use_focal_blur)
   aperture 0
@@ -4557,9 +4557,9 @@ sphere { <.0,.0,.0>, 1.12492
 #declare use_focal_blur = 0; // 0=off 1=low quality 10=high quality
 
 camera {
-  location < 0, 0, 0 >
+  location < 0, 0, -226.303 >
   right image_width/image_height*x
-  look_at <0, 0, 1e+06>   angle degrees(2*atan(tan(radians(45)/2)*image_width/image_height))
+  look_at <0, 0, 999774>   angle degrees(2*atan(tan(radians(45)/2)*image_width/image_height))
   sky <0, 1, 0>
 #if(use_focal_blur)
   aperture 0

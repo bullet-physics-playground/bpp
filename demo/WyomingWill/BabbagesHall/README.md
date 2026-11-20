@@ -9,7 +9,7 @@ be 3D printed and built**: each exhibit's folder holds its OpenSCAD sources,
 a script that makes its STL files, and a README saying what else to buy and
 how to put it together. What is printed is what is simulated.
 
-The machines **ask more of you as you walk on**, from the Domino Half Adder at
+The machines **ask more of you as you walk on**, from the suanpan at
 the entrance to Babbage's own Difference Engine at the far end: a bay on the
 west side, then the one facing it on the east, and on (`MACHINES.md` says
 how they are ordered). The bays still waiting for their machines stand covered,
@@ -19,8 +19,8 @@ comes to life.
 | Bay | Exhibit | |
 |---|---|---|
 | west 1 | **The suanpan**: the Chinese abacus, worked by a finger by the old rules, a slate showing each; Tab: adding, taking away, multiplying | `exhibits/Suanpan/` |
-| east 1 | The slide rule | in preparation |
-| west 2 | Napier's bones | in preparation |
+| east 1 | **The slide rule**: a Mannheim rule, worked by a finger, a slate showing each step and the estimate that places the point; Tab: multiplying and dividing, then squares, roots, cubes, reciprocals and logarithms | `exhibits/SlideRule/` |
+| west 2 | **Napier's bones**: ten four-sided rods (Napier's own set of tables), laid by a hand on a tilted board and read from where they lie; a slate shows the row and the adding; Tab: Genaille's rods, whose triangles carry | `exhibits/NapiersBones/` |
 | east 2 | The combination lock | in preparation |
 | west 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
 | east 3 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
@@ -50,8 +50,10 @@ runs on its own from its folder.
 | `Shift+Tab` | walk back |
 | `I` | at an exhibit with a lectern: its label, close up; again, back |
 | `PgDn`, `PgUp` | at an exhibit whose label has pages: the next page, the one before (the card says which, and "PgDn: more") |
+| `H` | at an exhibit: its manual, opened in your PDF viewer (its `MANUAL.pdf`; its `README.pdf` where it has no manual yet); at the entrance or the title wall: this guide |
 
-An exhibit can have **ways of its own**: the splitter board has five (a
+An exhibit can have **ways of its own**: the suanpan has three (adding,
+taking away, multiplying), the slide rule and Napier's bones two each, and the splitter board five (a
 wall that catches balls, gambler's ruin, a wall that sends balls back, the
 pile going flat, no walls). Each is a stop of its own, after the first's
 approach: Tab steps on through them, and the lectern's card changes to
@@ -173,12 +175,19 @@ museum label on a brass post at its table's right front corner, turned to
 face the visitor walking up (the exhibit's first stop), is built when
 its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
 card, the name, a line and a few sentences, as
-`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All seven exhibits on
+`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All nine exhibits on
 show have one. A label can have **pages**, a list of cards: the first
 `lectern-<key>.png`, then `lectern-<key>-2.png` and on, each numbered;
 `PgDn` turns them. An exhibit with ways has a label for each way (its
 mode's `card`): the splitter board's has two to four pages each, ending
 with a page of further reading.
+
+**Every machine gets a manual**, `MANUAL.pdf` in its folder: how to work
+it, step by step, with pictures, and the exhibit's keys; its README is the
+builder's reference and its FINDINGS the measurements. `H`, at the exhibit
+or running it on its own, opens the manual in your PDF viewer
+(`open-manual.lua`; where there is no manual yet, the README). Done so
+far: the slide rule's and the Digi-Comp II's.
 
 Every `.md` file has a typeset `.pdf` beside it; `./make-pdfs.sh` rebuilds
 them all (needs `pip install markdown playwright`). The STL files are not
@@ -195,7 +204,8 @@ Every exhibit stands on the same kind of table, drawn by `exhibit-table.lua`:
   `hall.lua` is -100.
 - **Size:** the machine's footprint plus 30 cm on every side, rounded up to
   the next 10 cm, and never smaller than 80 x 60 cm. The machine keeps its
-  real, printable size: the Differential's table is 80 x 80, Lehmer's
+  real, printable size: the suanpan's table is 100 x 90, the slide rule's
+  100 x 80 and Napier's bones' 110 x 90 (each with its slate), the Differential's 80 x 80, Lehmer's
   sieve's 120 x 80 (with its board), the Galton board's 110 x 70 and the
   splitter board's 130 x 70 (each with its sign), the Pascaline's 110 x 80,
   the Domino Half Adder's 180 x 230, the Digi-Comp II's 110 x 220.

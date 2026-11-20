@@ -27,7 +27,7 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   far end. `MACHINES.md` has the order and why (re-ordered 2026-11-14:
   it was by interest alone).
 - Built so far, in walking order: **the suanpan** (west 1, since
-  2026-11-15), **the Domino Half Adder** (west 3),
+  2026-11-15), **the slide rule** (east 1, since 2026-11-16), **Napier's bones** (west 2, since 2026-11-16), **the Domino Half Adder** (west 3),
   **the Differential** (east 3), **the Pascaline** (west 4), **the Galton
   board** (west 5, since 2026-11-12), **the splitter board** (east 5,
   facing it, since 2026-11-14), **Lehmer's number sieve** (west 6), and
@@ -36,8 +36,7 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
   a cup of balls and a bought rotary damper; each program has only its
   parts on the board, and the operator's hand is shown).
-  Covered bays wait for the slide rule (east 1), Napier's bones (west 2),
-  the combination lock (east 2), Amsler's planimeter (east 4), Kelvin's
+  Covered bays wait for the combination lock (east 2), Amsler's planimeter (east 4), Kelvin's
   tide predictor (west 7), the Differential Analyser (east 7) and the
   Difference Engine (west 8): fifteen bays, eight pairs.
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
@@ -98,6 +97,8 @@ git push
 | `tools/shots.sh`, `tools/keys.sh` | Screenshots on a virtual screen; with keys, hover, camera flights |
 | `tools/check-lua52.sh` | The Lua 5.2 sandbox check |
 | `tools/rope-test.lua` | The rope experiment (for the tide predictor) |
+| `exhibits/NapiersBones/bones-test.lua` | Napier's set (every four-digit number laid), and both ways (Napier's, Genaille's) against plain arithmetic (`lua bones-test.lua`, from its folder) |
+| `exhibits/SlideRule/rule-test.lua` | The slide rule's plans against arithmetic, with the parts placed exactly and off by up to 0.2 mm (`lua rule-test.lua`, from its folder) |
 | `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
 | `exhibits/DigiComp2/MANUAL.md`, `manual/` | The Digi-Comp's illustrated manual; `manual/make-figures.sh` redraws its figures from the geometry (lua, python3, matplotlib). `tools/md2pdf.py` puts a `.md` file's images into its PDF |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
@@ -376,6 +377,46 @@ there, in `release/`, or on the path; or set `BPP`.
   been ignoring, so a snap set there weeks before failed the first time a
   new part was needed (2026-11-14, William's machine). Point the preference
   at a packaged OpenSCAD.
+- **Set each part against the other as it stands** (the slide rule,
+  2026-11-16). Its first plans put the cursor at the place a mark on the
+  slide *would* be, from the plan's numbers: a slide left 10 mm short still
+  read right. A person sets C's 1 under the hairline wherever it is, and the
+  cursor to the mark wherever the slide is; done that way (`R.target`), an
+  error in one part is carried into the reading. Wherever the script places
+  a part relative to another, take the other's place from its body, not
+  from the plan. A sweep that slows the operator down finds such things.
+- **bpp's textures have no mipmaps** (linear filtering only): a texture far
+  finer than the screen shimmers and drops lines. The slide rule's scales
+  are 10 px a mm with no line under 1.5 px, and a close-up key (`M`) for
+  reading.
+- **Close up, in the hall, is 21 cm or more** (the slide rule's `M`,
+  2026-11-16). bpp's near clipping plane follows the whole scene's size
+  (QGLViewer: 0.005 × √3 × its radius): a camera 11 cm from a part, fine on
+  its own, showed the table's underside in the 42 m hall. Stand farther
+  off and narrow the view (`cam:setFieldOfView`; bpp leaves it at π/4, so
+  put it back, on the key and in `v:onLeave`, which the hall calls as you
+  walk on). And the hall's camera proxy turns `pos` and `look` into the
+  bay but passes `setUpVector` through as it is: keep it (0, 1, 0).
+- **bpp adds every body unable to sleep**, and Bullet's
+  `setActivationState` won't undo that; `forceActivationState(1)` does
+  (Napier's bones, 2026-11-16). Resting bodies there crept: Bullet's
+  contact tolerances assume metres, and in centimetres a rod let go crept
+  0.4 mm, the last one laid 2 mm in 15 s. A rod still for 2 s now sleeps
+  (`setSleepingThresholds`), and the hand keeps the one it holds awake
+  (`forceActivationState(4)`). Anything in the hall that should stay where
+  it was put, at rest, can do the same.
+- **A job that queues jobs must put them first**, not at the end of the
+  queue (Napier's bones' `soon`): appended, they ran after the clearing
+  the problem had already queued.
+- **Scripts get hover, not clicks** (bpp gives `v:onHover`, no click
+  hook; the Shortcuts pane is plain text, so no links). The manual opens on
+  a key, `H`, through the system's opener (`open-manual.lua`: `xdg-open`,
+  `open`, `start`; `MANUAL_OPENER` replaces it for testing). A click hook
+  on objects would let the lectern itself be clicked: that is bpp's C++,
+  for Jakob.
+- **Don't edit `tools/check-all.sh` while it runs:** bash reads a script
+  as it goes, so lines added above the one running shift what it reads
+  next (it would re-run or garble a line). Stop it, or edit a copy.
 - **Rebuilding in a build folder that has a `release/bpp`** can go wrong:
   the precompiled header has the program's name (`PRECOMPILED_HEADER` in
   `bpp.pro`), and when it must be remade gcc can take the binary for the
@@ -398,6 +439,14 @@ there, in `release/`, or on the path; or set `BPP`.
    turned to print; check the STLs and overlaps.
 5. Sweep friction and speed, record it in `FINDINGS.md`; `README.md` with
    the parts table, what to buy, assembly; both PDFs; a `make-pdfs.sh` line.
+   **A manual**, `MANUAL.md` and its PDF (William, 2026-11-17: one per
+   machine): how to work the machine, step by step, with worked examples
+   and pictures drawn from the same code as the simulation and the printed
+   parts (`manual/make-figures.py`), common mistakes, the exhibit's keys, a
+   short "making one" pointing to the README. The slide rule's is the
+   model for a simple machine, the Digi-Comp II's for a big one. Register
+   `H` to open it when the exhibit runs on its own (`if not hallPath`,
+   `open-manual.lua`); in the hall the hall's `H` does it.
 6. In the hall: its EXHIBITS entry (`floorY = -100`), placard lettering
    (`make-labels.py`; a new key needs its line in `labels.lua` first), the
    lectern card (`make-lecterns.py`; more than a card's worth of text goes
@@ -858,9 +907,73 @@ there, in `release/`, or on the path; or set `BPP`.
   check-all has four more lines (each way alone and in the hall). The 145
   new slate pictures are saved with an 8-colour palette (a third the
   size; the old ones untouched). Not done: division.
-- **Next (William, 2026-11-15): the slide rule (east 1), then Napier's
-  bones (west 2) and the combination lock (east 2)**, each a simple
-  hand-worked piece; their covered bays and placards are there. Then the
+- **Done (2026-11-16): the slide rule** (east 1), facing the suanpan. A
+  25 cm Mannheim rule: A; B, CI, C on the slide; D, K, L; a cursor. The
+  slide and the cursor are bodies on sliders (the grooves; the parts don't
+  touch), held by friction as the suanpan's beads are; a finger (the
+  script's) sets one at a time, each **against the other as it stands**
+  (section 5: the first version didn't, and a slide left 10 mm short still
+  read right). Two ways (`SR_WAY`; Tab in the hall, each with three lectern
+  pages): multiplying and dividing (C's 10 when C's 1 would run off; a
+  table at one setting: 1.609 x 2, 3, 5), and squares, roots (which half
+  of A), cubes, reciprocals and logarithms. A wide, low slate (34 x 12 cm)
+  shows the problem, each step, what the rule reads, the estimate that
+  places the point, and the answer; `M` takes the camera to the hairline
+  and follows it (the figures are too small to read from the exhibit's
+  view; in the hall it must stand 30 cm off with a narrow view, section 5). Readings are rounded to what a person reads (three figures, four
+  from 1 to 2 on C and D) and checked against the true answer within one
+  in the last figure. Both tours pass at every friction, finger speed and
+  step rate tried, and 40 random problems each way; they fail once the
+  finger leaves parts 0.05 mm off (3 x 4, read to four figures at D's left
+  end, goes first). `rule-test.lua`: 20,000 problems of each kind, none
+  wrong with the parts exactly placed. Printed: the stock and slide each in
+  halves joined by splice bars, the cursor (and a 2 mm acrylic window),
+  two feet tilting it 25 degrees, the slate; the scales on paper,
+  `scales.pdf` (A4, measured true to 0.01 mm at 600 dpi), drawn by
+  `make-scales.py`, which also makes the textures. All STLs watertight,
+  none overlapping. check-all has four more lines. The hall's summary line
+  counted each of an exhibit's ways as a bay (it said "-1 in
+  preparation"): it counts covered bays now. **Not seen by William in the
+  GUI yet.** Not done: S and T (trigonometry) scales, a printed rule.
+- **Done (2026-11-16): Napier's bones** (west 2). Napier's own set,
+  as Glaisher describes it: ten four-sided rods, four tables each (every
+  four-digit number can be laid; bones-test.lua tries all 10,000). The
+  rods are bodies; a hand (the script's) steers one at a time out of the
+  tray, turns it to the face it needs, sets it on the tilted board's
+  ledge beside the last and presses it home with 0.3 N. Every reading is
+  taken from where the rods lie: the face up from each rod's orientation,
+  the cell level with the index's row from its place (on Genaille's rods
+  the triangles are followed by height). Two ways (`NB_WAY`; Tab, three
+  lectern pages each): Napier's (the row, the diagonals, a row for each
+  of the multiplier's digits, added) and Genaille's rods (rows 2 to 9, the
+  carries drawn as triangles, the path dotted in red). Resting rods crept
+  (section 5); they sleep now. Both tours pass at every friction up to
+  0.85, hand speed, press, step rate and tilt tried, and 20 random
+  problems each way; at friction 1.0 a rod rolled over its edge and the
+  reading caught it (FINDINGS.md). Printed: eleven rods, the board, two
+  feet, the tray, the slate on its stand; the faces on paper,
+  `napier-faces.pdf` and `genaille-faces.pdf` (strips to wrap round the
+  rods, measured true to 0.1 mm). All STLs watertight and under 200 mm,
+  none overlapping. check-all has four more lines. **Not seen by William
+  in the GUI yet.** Not done: division and square roots on the bones
+  (Napier did both).
+- **Done (2026-11-17): manuals, and `H` to open them.** William asked for
+  a manual per machine, as a PDF, and a way to open it from the hall. `H`
+  opens the exhibit's `MANUAL.pdf` (else its README) in the PDF viewer, at
+  any exhibit in the hall, and at the entrance or title wall the hall's
+  guide (`open-manual.lua`, through `xdg-open` on William's Ubuntu; quoting
+  tested with a folder named with a space and an apostrophe). The slide
+  rule has the first: `MANUAL.md`, 8 pages, its rule pictures drawn by
+  `manual/make-figures.py` from `make-scales.py`'s own marks, the parts set
+  as the text says. **Waiting on William's verdict on the format.**
+- **Next: manuals for the other seven** once William approves the slide
+  rule's (the suanpan, Napier's bones, the Domino Half Adder, the
+  Differential, the Pascaline, the Galton and splitter boards, Lehmer's
+  sieve; the Digi-Comp II has one), each with `H` registered for running
+  on its own.
+- **Then (William, 2026-11-15): the combination lock (east 2)**, the last
+  of the four simple hand-worked pieces; its covered bay and placard are
+  there. Then the
   bead and spaghetti sorts (5), the first with real physics. Each new
   machine goes in its place in the walking order, the bays after it moving
   along.
@@ -886,6 +999,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step: the slide rule, the next machine on MACHINES.md's list]. Deliver
+> step: the manuals for the other machines, or the combination lock]. Deliver
 > each step as a patch on test-harness, with its documents and PDFs, and
 > the git commands.

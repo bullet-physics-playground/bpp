@@ -217,7 +217,7 @@ Mesh::~Mesh() {
   m_scene = nullptr;
   // (not the motion state of a body a script handed in: Lua owns it)
   if (body && _ownsBody && body->getMotionState()) {
-    delete body->getMotionState();
+    Object::freeMotionState(body->getMotionState());
   }
 }
 
@@ -753,7 +753,7 @@ void Mesh::recreate(btDiscreteDynamicsWorld *world) {
       world->removeRigidBody(body);
     }
     if (body->getMotionState()) {
-      delete body->getMotionState();
+      Object::freeMotionState(body->getMotionState());
     }
     delete body;
     body = nullptr;

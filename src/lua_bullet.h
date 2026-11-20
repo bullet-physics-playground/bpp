@@ -66,6 +66,13 @@ public:
    *        Lua, so Viewer::closeScript() calls this before closing Lua.
    */
   static void freeScriptMotionStates();
+
+  /**
+   * @brief Frees the joint feedback enableForces gave constraints. Only once
+   *        every constraint that has one is gone: Viewer::clear() calls it,
+   *        after the script's constraints are freed.
+   */
+  static void freeJointFeedback();
 signals:
 
 public slots:

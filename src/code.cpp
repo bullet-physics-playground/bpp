@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QSaveFile>
 #include <QSet>
 #include <QStandardItemModel>
 #include <QTextBrowser>
@@ -15,6 +16,7 @@
 #include <QUrl>
 
 #include "code.h"
+#include "appenv.h"
 
 CodeEditor::CodeEditor(QSettings *s, QWidget *parent, bool enableCompletion)
     : QPlainTextEdit(parent), completer(nullptr), completionDocumentation(nullptr),
@@ -224,8 +226,7 @@ QMessageBox::warning(this, tr("Application error"),
     return false;
   }
 
-  QTextStream os(&file);
-  QString p = os.readAll();
+  QString p = scriptText(file.readAll());
   file.close();
   setPlainText(p);
   // Resolve to an absolute path now, before anything changes the process's
@@ -252,15 +253,21 @@ bool CodeEditor::saveAs(QString filename) {
       return false;
   }
 
-  QFile file(filename);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+  // (QSaveFile: the script goes to a temporary file, put in the old one's
+  // place only once all of it is written. Writing over the file itself
+  // emptied it first, and a full disk left part of the script, reported
+  // as saved.)
+  QSaveFile file(filename);
+  bool written = file.open(QIODevice::WriteOnly);
+  if (written) {
+    const QByteArray bytes = toPlainText().toUtf8();   // (UTF-8 on every system)
+    written = file.write(bytes) == bytes.size() && file.commit();
+  }
+  if (!written) {
     QMessageBox::warning(this, tr("Application error"),
-                         tr("Cannot write file %1\n").arg(filename));
+                         tr("Cannot write file %1.\nThe file on disk is as it was.").arg(filename));
     return false;
   }
-  QTextStream os(&file);
-  os << toPlainText();
-  file.close();
   script_filename = filename;
 
   emit scriptSaved();

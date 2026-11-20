@@ -505,28 +505,26 @@ private:
   void populateDemoMenu(QMenu *menu, const QDir &dir);
 
   /**
-   * @brief Path of the POV-Ray settings include file.
-   * @return @c includes/settings.inc under the start-up working directory.
+   * @brief Path of the POV-Ray settings include file the export uses.
+   * @return @c settings.inc as PovExport::findSettingsInc() finds it (empty:
+   *         none).
    */
   QString povraySettingsPath() const;
 
   /**
-   * @brief Reads one @c \#declare value from the POV-Ray settings file.
-   * @param name         Name of the declaration to look for.
-   * @param defaultValue Returned if the file cannot be read or has no such
-   *                     declaration.
-   * @return The declared integer value, or @p defaultValue.
+   * @brief One POV-Ray render setting: the user's choice from the settings
+   * (@c povray/<name>), or else the default @c settings.inc declares.
+   * @param name         Name of the declaration.
+   * @param defaultValue Returned if neither has it.
+   * @return The value.
    */
   int readPovraySetting(const QString &name, int defaultValue) const;
 
   /**
-   * @brief Writes one @c \#declare value into the POV-Ray settings file.
-   *
-   * Rewrites the number in place, leaving the rest of the file untouched. If
-   * the declaration is not present the file is left alone rather than having
-   * anything appended to it.
-   *
-   * @param name  Name of the declaration to change.
+   * @brief Keeps the user's choice of one POV-Ray render setting, in the
+   * settings (@c povray/<name>); the export declares it in each scene's
+   * @c .pov, before @c settings.inc. No file is written.
+   * @param name  Name of the declaration.
    * @param value The new value.
    */
   void writePovraySetting(const QString &name, int value);

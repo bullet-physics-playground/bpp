@@ -12,7 +12,7 @@
 // Joint forces, for scripts (enableForces, then each step forceA/torqueA/forceB/
 // torqueB): what the solver last applied through the joint to each of its two
 // bodies, as force and torque (impulse over the step), world axes. Bullet's own
-// btJointFeedback, one per constraint, kept here for the constraint's lifetime.
+// btJointFeedback, one per constraint, kept here until the script ends.
 #include <memory>
 #include <unordered_map>
 static std::unordered_map<const btTypedConstraint *, std::unique_ptr<btJointFeedback>> &bppJointFeedback() {
@@ -26,6 +26,7 @@ static void bppEnableForces(btTypedConstraint &c) {
   c.setJointFeedback(fb.get());
   c.enableFeedback(true);
 }
+void LuaBullet::freeJointFeedback() { bppJointFeedback().clear(); }   // (one script's: see clear())
 static btVector3 bppForceA(const btTypedConstraint &c) { const btJointFeedback *f = c.getJointFeedback(); return f ? f->m_appliedForceBodyA : btVector3(0, 0, 0); }
 static btVector3 bppTorqueA(const btTypedConstraint &c) { const btJointFeedback *f = c.getJointFeedback(); return f ? f->m_appliedTorqueBodyA : btVector3(0, 0, 0); }
 static btVector3 bppForceB(const btTypedConstraint &c) { const btJointFeedback *f = c.getJointFeedback(); return f ? f->m_appliedForceBodyB : btVector3(0, 0, 0); }

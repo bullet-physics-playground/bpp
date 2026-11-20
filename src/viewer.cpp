@@ -575,6 +575,44 @@ btTypedConstraint *Viewer::removeConstraint(btTypedConstraint *con) {
   return con;
 }
 
+// A script's constraint changes hands once: luabind's adopt policy, used
+// here before, broke the script's handle when the same constraint was added
+// twice, and v:removeConstraint made a second handle that freed it while
+// the first still pointed at it.
+static btTypedConstraint *constraintOf(lua_State *L, const luabind::object &handle, const char *fn) {
+  btTypedConstraint *c = nullptr;
+  if (handle.is_valid() && luabind::type(handle) == LUA_TUSERDATA)
+    c = luabind::object_cast<btTypedConstraint *>(handle);   // (another class: luabind's own error)
+  if (c == nullptr)
+    luaFail(L, std::string(fn) + ": needs a constraint");
+  return c;
+}
+
+void Viewer::addConstraintLua(const luabind::object &handle) {
+  btTypedConstraint *c = constraintOf(L, handle, "addConstraint");
+  if (_constraints->contains(c))
+    return;
+  if (!_consTakenFromLua.contains(c)) {
+    handle.push(L);
+    luabind::detail::object_rep *rep = luabind::detail::get_instance(L, -1);
+    if (rep != nullptr)
+      rep->release();
+    lua_pop(L, 1);
+    _consTakenFromLua.insert(c);
+  }
+  _consKept.remove(c);
+  addConstraint(c);
+}
+
+luabind::object Viewer::removeConstraintLua(const luabind::object &handle) {
+  btTypedConstraint *c = constraintOf(L, handle, "removeConstraint");
+  if (!_constraints->contains(c))
+    return handle;
+  removeConstraint(c);
+  _consKept.insert(c);
+  return handle;
+}
+
 void Viewer::addConstraints(QList<btTypedConstraint *> cons) {
   for (int i = 0; i < cons.size(); ++i)
     if (cons[i])
@@ -585,6 +623,24 @@ btVehicleRaycaster *Viewer::createVehicleRaycaster() {
   btVehicleRaycaster *raycaster = new btDefaultVehicleRaycaster(dynamicsWorld);
   _vehicle_raycasters->insert(raycaster);
   return raycaster;
+}
+
+// (taken from Lua once, as a constraint is: see constraintOf above. nil
+// went into the world as a null vehicle, which crashed the next step.)
+void Viewer::addVehicleLua(const luabind::object &handle) {
+  btRaycastVehicle *veh = nullptr;
+  if (handle.is_valid() && luabind::type(handle) == LUA_TUSERDATA)
+    veh = luabind::object_cast<btRaycastVehicle *>(handle);
+  if (veh == nullptr)
+    luaFail(L, "addVehicle: needs a vehicle");
+  if (_raycast_vehicles->contains(veh))
+    return;
+  handle.push(L);
+  luabind::detail::object_rep *rep = luabind::detail::get_instance(L, -1);
+  if (rep != nullptr)
+    rep->release();
+  lua_pop(L, 1);
+  addVehicle(veh);
 }
 
 void Viewer::addVehicle(btRaycastVehicle *veh) {
@@ -1460,6 +1516,8 @@ Viewer::~Viewer() {
   }
   _constraints->clear();
   delete _constraints;
+  qDeleteAll(_consKept);                 // (removed ones the script kept)
+  _consKept.clear();
 
   {
     QList<btRaycastVehicle*> rvs = _raycast_vehicles->values();
@@ -1529,11 +1587,17 @@ void Viewer::savePOV(bool force) {
   // (No dialog for a directory that cannot be created: it would run an event
   // loop inside animate(), with the mutex held, that nobody can answer in a
   // headless run, and the animation timer firing in it blocks on that mutex.)
-  auto exportFailed = [this](const QString &dir) {
-    emitScriptOutput(tr("Unable to create directory %1.").arg(dir));
+  auto failedWith = [this](const QString &message) {
+    emitScriptOutput(message);
     _savePOV = false;
     _povExportFailed = true;
     emit POVStateChanged(false);
+  };
+  auto exportFailed = [&](const QString &dir) {
+    failedWith(tr("Unable to create directory %1.").arg(dir));
+  };
+  auto unwritable = [&](const QString &path) {
+    failedWith(tr("Unable to write %1.").arg(path));
   };
 
   if (!pwdDir.exists(exportDir)) {
@@ -1570,7 +1634,10 @@ void Viewer::savePOV(bool force) {
 
   const QString byline = PovExport::byline();
 
-  PovExport::writeIni(fileINI, byline, sceneName, _firstFrame, _frameNum);
+  if (!PovExport::writeIni(fileINI, byline, sceneName, _firstFrame, _frameNum)) {
+    unwritable(fileINI);
+    return;
+  }
 
   PovExport::Scene scene;
   scene.radiosity = _povRadiosityEnabled;
@@ -1581,12 +1648,31 @@ void Viewer::savePOV(bool force) {
   scene.light1 = _light1;
   scene.diffuse = _gl_diffuse;
   scene.settingsInc = _pov_settings_inc;
-  PovExport::writeMain(fileMain, byline, scene);
+  if (_settings != nullptr) {
+    // (the POV-Ray menu's choices: Gui::writePovraySetting)
+    static const QRegularExpression name("^use_\\w+$");
+    _settings->beginGroup("povray");
+    for (const QString &key : _settings->childKeys()) {
+      bool ok = false;
+      const int value = _settings->value(key).toInt(&ok);
+      if (ok && name.match(key).hasMatch())
+        scene.declares.insert(key, value);
+    }
+    _settings->endGroup();
+  }
+  if (!PovExport::writeMain(fileMain, byline, scene)) {
+    unwritable(fileMain);
+    return;
+  }
 
-  PovExport::writeMakefile(sceneDir);
+  if (!PovExport::writeMakefile(sceneDir)) {
+    unwritable(sceneDir + QDir::separator() + "GNUmakefile");
+    return;
+  }
 
   _decorations.update();   // (headless runs export without drawing)
-  PovExport::writeFrame(file, byline, mPreSDL, _cam, camera(), *_objects, mPostSDL, sceneDir);
+  if (!PovExport::writeFrame(file, byline, mPreSDL, _cam, camera(), *_objects, mPostSDL, sceneDir))
+    unwritable(file);
 }
 
 void Viewer::setCBPreStart(const luabind::object &fn) {

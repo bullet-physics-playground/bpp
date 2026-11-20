@@ -345,8 +345,16 @@ void Viewer::downloadFinished(int id) {
     return;
 
   const QByteArray rest = reply->readAll();
-  if (!rest.isEmpty() && d.file->write(rest) == rest.size())
-    d.bytes += rest.size();
+  if (!rest.isEmpty()) {
+    if (d.file->write(rest) == rest.size())
+      d.bytes += rest.size();
+    else if (d.error.isEmpty())
+      d.error = d.file->errorString();   // (the last of it lost: failed, even with no size to check)
+  }
+  // (QFile holds what it was given until here: a full disk shows only now,
+  // and a small download was reported done with nothing written)
+  if (!d.file->flush() && d.error.isEmpty())
+    d.error = d.file->errorString();
   d.file->close();
 
   const QString part = d.file->fileName();
