@@ -19,22 +19,22 @@ Weight-driven clocks simulated as real rigid bodies: a gear train, an escapement
 
 ## Pinball
 
-A playable pinball table in the style of Williams' 1983 *Time Fantasy*, with Bullet physics for the ball, flippers, pop bumpers and slingshots, an editable rules engine, a seven-segment backbox scoreboard, a layout editor for reshaping the playfield, and a computer player that learns as it plays (Q-learning on the flippers, a multi-armed bandit on the plunger). See `Pinball/README.md` for the files, the keys and the default rules.
+A playable pinball table in the style of Williams' 1983 *Time Fantasy*, with Bullet physics for the ball, flippers, pop bumpers and slingshots, an editable rules engine, a seven-segment backbox scoreboard, a layout editor for reshaping the playfield, and a computer player that learns as it plays (Q-learning on the flippers, a multi-armed bandit on the plunger). See `RecRoom/exhibits/Pinball/README.md` for the files, the keys and the default rules.
 
-*   `Pinball/pinball-machine-a.lua`: The table -- open this one.
-*   `Pinball/pinball-machine-a-rules.lua`: Points, target banks, bonus, multiplier, extra balls, balls per game, and which sound plays when. Edit it and reload.
-*   `Pinball/pinball-machine-a-ai.lua`: The computer player, bound to **P**.
-*   `Pinball/pinball-machine-a-brain.lua`: What it has learned so far (the one included has played about a thousand games). Delete it to start over.
-*   `Pinball/pinball-machine-a-train.lua`: Trains it headless and much faster than real time: `bpp -f pinball-machine-a-train.lua -n 1000000` from this folder.
-*   `Pinball/pinball_machine_sounds/`: Sound effects. Its README lists the expected names; missing ones are skipped.
+*   `RecRoom/exhibits/Pinball/pinball-machine-a.lua`: The table -- open this one.
+*   `RecRoom/exhibits/Pinball/pinball-machine-a-rules.lua`: Points, target banks, bonus, multiplier, extra balls, balls per game, and which sound plays when. Edit it and reload.
+*   `RecRoom/exhibits/Pinball/pinball-machine-a-ai.lua`: The computer player, bound to **P**.
+*   `RecRoom/exhibits/Pinball/pinball-machine-a-brain.lua`: What it has learned so far (the one included has played about a thousand games). Delete it to start over.
+*   `RecRoom/exhibits/Pinball/pinball-machine-a-train.lua`: Trains it headless and much faster than real time: `bpp -f pinball-machine-a-train.lua -n 1000000` from this folder.
+*   `RecRoom/exhibits/Pinball/pinball_machine_sounds/`: Sound effects. Its README lists the expected names; missing ones are skipped.
 
 ## Pool
 
-A one-player game of pool on a 9-foot table: fifteen numbered balls, a keyboard-driven cue, and a scoreboard, with Bullet doing the break, the cushions, the pockets and the cue ball's spin (follow, draw and side). Aiming guide, three camera positions, ball in hand, and a best-score save. See `Pool/README.md` for the keys and the physics notes.
+A one-player game of pool on a 9-foot table: fifteen numbered balls, a keyboard-driven cue, and a scoreboard, with Bullet doing the break, the cushions, the pockets and the cue ball's spin (follow, draw and side). Aiming guide, three camera positions, ball in hand, and a best-score save. See `RecRoom/exhibits/Pool/README.md` for the keys and the physics notes.
 
-*   `Pool/pool-table.lua`: The table -- open this one.
-*   `Pool/pool-table-meshes/`: The cue and the ball markings (number spots, stripes, the cue ball's dots).
-*   `Pool/pool-table-sounds/`: Sound effects. Its README lists the names; replace any with your own.
+*   `RecRoom/exhibits/Pool/pool-table.lua`: The table -- open this one.
+*   `RecRoom/exhibits/Pool/pool-table-meshes/`: The cue and the ball markings (number spots, stripes, the cue ball's dots).
+*   `RecRoom/exhibits/Pool/pool-table-sounds/`: Sound effects. Its README lists the names; replace any with your own.
 
 Both the pinball and the pool demos need bpp with the keyboard hook (`v:onKey`), the `v:playSound(id, volume)` overload and the `collides` object property -- the changes to `src/viewer.cpp`, `src/viewer.h`, `src/objects/object.cpp` and `src/objects/object.h` that come with them -- plus SDL_mixer for the sound.
 

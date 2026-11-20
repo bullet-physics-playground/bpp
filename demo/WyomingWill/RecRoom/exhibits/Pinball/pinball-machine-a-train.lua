@@ -9,7 +9,7 @@
 -- saves what it has learned to pinball-machine-a-brain.lua, which the
 -- table loads the next time you press P.
 --
-package.path = "../../module/?.lua;" .. package.path
+package.path = "../../../../module/?.lua;" .. package.path
 dofile("pinball-machine-a.lua")
 TF.clock = function() return TF.frame() / 60 end   -- the plunger times itself by this
 local ai = TF.ai
