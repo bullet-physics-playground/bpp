@@ -48,6 +48,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <limits>
 #include <new>
 #include <vector>
 
@@ -223,7 +224,7 @@ double shapeDist(const Shape &sh, double x, double y) {
     return std::sqrt(ox * ox + oy * oy) + luaMin(luaMax(qx, qy), 0);
   }
   const std::vector<double> &p = sh.pts;
-  double best = HUGE_VAL;
+  double best = std::numeric_limits<double>::infinity();
   for (size_t k = 0; k + 3 < p.size(); k += 2)
     best = luaMin(best, segDist(x, y, p[k], p[k + 1], p[k + 2], p[k + 3]));
   return best - sh.w / 2;
