@@ -48,6 +48,8 @@ runs on its own from its folder.
 |---|---|
 | `Tab` | walk on: the view from the entrance, the exhibits, the view from the title wall. An exhibit with a lectern is two stops: walking up to it (the table and its lectern), then stepping in (`Shift+Tab` the same, back) |
 | `Shift+Tab` | walk back |
+| `]`, `[` | on to the next exhibit, back to the one before: past the stepping in and an exhibit's other ways, to where Tab first arrives (the views at either end count as exhibits) |
+| `F3` | find an exhibit: type part of its name (any of its ways', a view's) or its number, the "Hall: stop" slider's. The status line shows the match and the pane the list; `Tab` and `Shift+Tab` pick among the matches, `Backspace` takes a letter off, `Return` goes there, `Esc` (or `F3`) leaves it. Every key is the finder's while it's open |
 | `I` | at an exhibit with a lectern: its label, close up; again, back |
 | `PgDn`, `PgUp` | at an exhibit whose label has pages: the next page, the one before (the card says which, and "PgDn: more") |
 | `H` (or `F1`) | at an exhibit: its manual, opened in your PDF viewer (its `MANUAL.pdf`; its `README.pdf` where it has no manual yet); at the entrance or the title wall: this guide. At the Pascaline and the Digi-Comp II, where `H` is the machine's own, `F1` |
@@ -69,6 +71,8 @@ Shortcuts pane lists them, at its top (one line of the hall's first: where
 Tab and Shift+Tab go). Resting the mouse on an exhibit's table, or its
 placard, says what it is. `HALL_START=differential` (any part of a name)
 starts at that exhibit, and `HALL_START=end` at the title wall.
+`HALL_KEYS="300:F3,l,o,c,k,Return;900:]"` presses keys at given frames and
+prints where each leaves you, for trying the hall's keys headless.
 
 On Tab and Shift+Tab the camera flies to the next stop, out of the bay, along
 the aisle and into the next bay, in 1.2 to 3.5 seconds. The exhibit you're

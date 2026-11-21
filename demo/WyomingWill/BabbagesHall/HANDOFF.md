@@ -99,7 +99,7 @@ git push
 | `tools/rope-test.lua` | The rope experiment (for the tide predictor) |
 | `exhibits/NapiersBones/bones-test.lua` | Napier's set (every four-digit number laid), and both ways (Napier's, Genaille's) against plain arithmetic (`lua bones-test.lua`, from its folder) |
 | `exhibits/SlideRule/rule-test.lua` | The slide rule's plans against arithmetic, with the parts placed exactly and off by up to 0.2 mm (`lua rule-test.lua`, from its folder) |
-| `exhibits/CombinationLock/lock-test.lua` | The lock's model against all 1,000,000 combinations: which the dialling rules set, the forbidden zone, the tolerance, the 27 that open a lock; the safecracker's method on 40 random locks (`lua lock-test.lua`, from its folder, 5 minutes) |
+| `exhibits/CombinationLock/lock-test.lua` | The lock's model against all 1,000,000 combinations: which the dialling rules set, the forbidden zone, the tolerance, the 27 that open a lock; the safecracker's method on 40 random locks (`lua lock-test.lua`, from its folder, 3.5 minutes) |
 | `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
 | `exhibits/DigiComp2/MANUAL.md`, `manual/` | The Digi-Comp's illustrated manual; `manual/make-figures.sh` redraws its figures from the geometry (lua, python3, matplotlib). `tools/md2pdf.py` puts a `.md` file's images into its PDF |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
@@ -517,8 +517,8 @@ there, in `release/`, or on the path; or set `BPP`.
    on pages, a list of cards, turned by PgDn), `tools/check-all.sh` (add it
    there), screenshots. An exhibit that can be built more than one way
    (by environment variables, as the splitter board's `SB_WALLS`) can show
-   them all: its EXHIBITS entry's `modes`, each a stop Tab steps through,
-   each with a label of its own.
+   them all: its EXHIBITS entry's `modes`, each a stop Tab steps through
+   (`]` and `[` pass them by), each with a label of its own.
 7. **Make it show its working in the 3D view from the start**, not only in
    the console and tooltips: William watches in the GUI. Lehmer's sieve
    first showed nothing of N, x or the answer, and its probe's depth was
@@ -1135,6 +1135,17 @@ there, in `release/`, or on the path; or set `BPP`.
   LISTEN); `F` plays the clicks alone; in the hall, heard only while
   you're at the lock. Checked through bpp's own export (FINDINGS: the
   safecracker's way, heard).
+- **Done (2026-11-20): walking the hall, and a quicker safecracker.**
+  Tab still walks every stop (up to an exhibit, a step in, each of its
+  ways); `]` and `[` go exhibit to exhibit, and `F3` finds one by typing
+  part of its name or its number, which keeps working as the hall grows
+  past 40 exhibits. `HALL_KEYS` presses keys at given frames, so the hall's
+  keys can be tried headless (README). The safecracker now stops each graph
+  at the first point back up after the narrowing and then finds its two
+  edges a half number at a time, on the way the dial turns (an edge it
+  can't feel: the other and the first graph's width): 43 readings and
+  25,400 frames for 31-72-46, against 86 and 42,950. The lectern and the
+  manual say a real safecracker graphs the whole dial, and why.
 - **Next: the bead and spaghetti sorts** (MACHINES.md 5), the first with
   real physics. It goes in its place in the walking order (west 3), the
   bays after it moving along (step 1 of section 6).

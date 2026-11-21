@@ -48,7 +48,9 @@ fence drops 0.1 mm onto the next, meets the walls further in, and the gap
 between the contact points narrows by 0.16 numbers. So the safecracker
 parks all three wheels together on each number and graphs the gap: it
 narrows at wheel 1's number. With wheel 1 left there, wheels 2 and 3
-parked together give wheel 2's. The last wheel is tried, every second
+parked together give wheel 2's. Each graph stops just past the narrowing,
+and then the narrowing's two edges are found a half number at a time
+(a real safecracker graphs the whole dial; MANUAL section 8 says why). The last wheel is tried, every second
 number, until the lock opens. The slate hides the combination until then,
 and draws the graph in chalk. It can be heard too: a click as each wall
 stops the dial (what a contact microphone on the case would pick up), and
@@ -169,7 +171,7 @@ fence (`FINDINGS.md`). Sand and wax the bolt, or use a stronger spring.
 |---|---|
 | `combination-lock.lua` | the exhibit |
 | `lock.lua` | the geometry, the convex pieces, the model of the wheels, the gates for a combination, the dialling rules; `lua lock.lua scad` writes `parts/lock-geometry.scad` |
-| `lock-test.lua` | every combination through the model: which the rules set, the forbidden zone, the tolerance, how many combinations open the lock; and the safecracker's method on 40 random locks (`lua lock-test.lua`, 5 minutes) |
+| `lock-test.lua` | every combination through the model: which the rules set, the forbidden zone, the tolerance, how many combinations open the lock; and the safecracker's method on 40 random locks (`lua lock-test.lua`, 3.5 minutes) |
 | `parts/combination-lock.scad`, `parts/lock-geometry.scad` | every part's shape; the sizes (written by `lock.lua`: don't edit) |
 | `make-slate.py`, `slate/` | the slate's pictures, and the steps' words |
 | `make-sounds.py`, `sounds/` | the safecracker's clicks, one for each notch wall (`python3 make-sounds.py`; numpy). The tone is bpp's synth (`v:setTone`), voice 20 |

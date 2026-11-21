@@ -150,21 +150,39 @@ numbers apart; on wheel 2's (39.9) 3.346; on wheel 3's (39.8) 3.183. Each
 model):
 
 1. All three wheels parked together on a number (left four times to the
-   first, then left to each in turn), every 2.5 numbers from 7.5 to 90; the
-   points more than 0.08 below the median are the narrowing, and its
-   middle is wheel 1's number. Then every half number, 2.5 either side.
+   first, then left to each in turn), every 2.5 numbers from 7.5 to 90,
+   until the first point back up after a narrowing (more than 0.08 below
+   the median so far, once there are four points). Then the narrowing's
+   edges, a half number at a time on the way the dial turns: from the last
+   point outside it until inside, from the last inside until out. Halfway
+   between is wheel 1's number.
 2. Wheel 1 left there, wheels 2 and 3 parked together (right three times
    to the first, then right to each), every 2.5 numbers from just below
-   wheel 1's number down round to 12 above it, and then every half number:
-   wheel 2's number. (They can't be taken further: wheel 2 would carry
-   wheel 1 off.)
+   wheel 1's number down round to 12 above it, the same way: wheel 2's
+   number. (They can't be taken further: wheel 2 would carry wheel 1 off.)
+   An edge in the part of the dial the hand can't feel from (second
+   numbers within about 2 of 7.5 or 95.4) comes from the other edge and
+   the first graph's width.
 3. The last wheel: every second number from just above wheel 2's number on
    round to 8 below it, turning right to open each time (one off still
    opens). The forbidden zone, 90 to 99, isn't tried.
 
 In the model, on 40 random locks (seed 7): both numbers found exactly in
-all 40, and all 40 opened by the last step, in 21.7 tries on average (5
-minutes, most of it `L.contacts`).
+all 40, from 51 readings a lock (the contact points felt), and all 40
+opened by the last step, in 21.7 tries on average (`lua lock-test.lua`, 3.5
+minutes, most of it `L.contacts`). Graphing the whole dial and then every
+half number round each narrowing took 86 readings for 31-72-46; this
+takes 43.
+
+A real safecracker graphs the whole dial, and from both sides: his
+readings scatter more, false gates and worn wheels narrow the gap where
+there's no gate, and the deepest narrowing only shows among them all.
+Here the gaps scatter 0.01 against 0.16, and with the wheels parked
+together only one wheel can narrow it, so the rest of the graph would only
+show it level. The first version of the edge scan stepped from the last
+point read, not from where it began, and so went a whole number at a
+time after the first step; in the model it missed 8 of 40 locks, all with
+a second number by the blind part of the dial.
 
 **Blind spots.** The gap can't be felt with the wheels parked from about
 93 round to 7: the feel needs the dial at 4.5 or 95.5 first, and the
@@ -181,8 +199,8 @@ s. Felt twice, the contact points agree to 0.006. Over the tour's 86
 points the gaps felt differ from the model's by 0.013 numbers (the
 median; 0.017 for nine in ten), against the 0.159 the method reads; the
 worst, 0.08, are at a narrowing's edges, where the fence is half on a gate's
-wall. The tour takes 43,000 frames (12 simulated minutes, about 4 minutes
-headless here); check-all allows 52,000, and 52,600 in the hall.
+wall. The tour took 43,000 frames (12 simulated minutes) with the full
+graphs; now 25,400 (7 minutes, the last wheel's 32 tries most of it).
 
 | the safecracker's tour, as it is but | found, opened | gaps: the worst apart | frames |
 |---|---|---|---|
@@ -194,6 +212,22 @@ headless here); check-all allows 52,000, and 52,600 in the hall.
 | surface friction 0.3, 0.6 | 31-72-46 | 0.026, 0.111 | |
 | 600, 2400 steps a second | 31-72-46 | 0.106, 0.018 | |
 | locks 12-58-71, 84-20-63, 50-9-88 | each its own | 0.138, 0.035, 0.114 | 38,793, 44,292, 47,126 |
+
+That table is from the full graphs (whole dial, then every half number).
+Stopping each graph past the narrowing and finding its edges (all pass;
+the frames, and what was found, the third one off where it opens):
+
+| the quicker tour, as it is but | found | gaps: the worst apart | frames |
+|---|---|---|---|
+| as it is | 31-72-46 | 0.045 | 25,392 |
+| in the hall | 31-72-46 | 0.032 | 25,410 |
+| hand 30 numbers a second | 31-72-46 | 0.017 | 35,118 |
+| surface friction 0.3, 0.6 | 31-72-46 | 0.015, 0.019 | 25,458, 25,425 |
+| 2400 steps a second | 31-72-46 | 0.017 | 25,430 |
+| locks 12-58-71, 84-20-63, 50-9-88 | 12-58-70, 84-20-62, 50-9-89 | 0.019, 0.018, 0.017 | 16,860, 37,343, 30,255 |
+| locks 51-8-68, 54-94-53 (the second by the blind part) | 51-8-68, 54-94-54 | 0.017, 0.091 | 29,935, 27,907 |
+
+Check-all now allows 32,000 frames, 32,600 in the hall.
 
 The dial way, with the wheels' drag 0.8 N cm: the tour on its own and in
 the hall, with the spring 0.2 N, and 12 random combinations (seed 2), all

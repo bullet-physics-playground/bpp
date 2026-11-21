@@ -192,14 +192,19 @@ reads them to a hundredth.
    contact points; write down the gap. Then left to the next number, every
    2.5 numbers round the dial. The gap stays the same, but near one number
    it is narrower: there wheel 1's gate (the largest wheel's) is under the
-   fence. Look closer, every half number; the middle of the narrow stretch
+   fence. Then find the narrow stretch's two edges, going on a half number
+   at a time from the last reading outside it until it narrows, and from
+   the last reading inside until it widens again. Halfway between the edges
    is wheel 1's number, 31.
 2. **Leave wheel 1 there; park wheels 2 and 3 together**: left four times
    to 31, then right to each number in turn, feeling the contact points
    from the other side each time. Now wheel 2 holds the fence up (wheel 1's
    gate is under it), and the gap narrows at wheel 2's number, 72. Wheels 2
    and 3 can only be taken round from just below 31 to just above it:
-   further, and wheel 2 would carry wheel 1 off.
+   further, and wheel 2 would carry wheel 1 off. (Where an edge falls in
+   the part of the dial the hand can't feel from, the other edge and the
+   narrowing's width, the first graph's, give the middle: every gate is cut
+   the same.)
 3. **The last wheel needs no graph**: dial 31 and 72 by the rules, then try
    every second number for the third, turning right to open each time; a
    number one off still opens it. Start just above the second number (74)
@@ -209,6 +214,15 @@ reads them to a hundredth.
    is passed by. The lock opens on 46.
 
 ![The two graphs, as the model has them: the gap between the contact points with the wheels parked on each number. Left, all three together: narrower at 31. Right, wheel 1 on 31 and the other two together: narrower at 72 (and none from 31 to 42, where they can't go).](manual/fig-graphs.png)
+
+**The whole dial.** The exhibit's safecracker stops each graph at the
+first reading back up after the narrowing. A real one graphs the whole
+dial, and again from the other side: his readings scatter more than
+these (0.01 numbers against a narrowing of 0.16), false gates and worn
+wheels give narrowings that aren't the gate, and the deepest one only
+shows once he has them all. Here, with all three wheels parked together,
+only one wheel can narrow the gap, so the rest of the graph would only
+show it level.
 
 The slate keeps the combination hidden (`??-??-??`), shows what has been
 found, the contact points and their gap as each is felt, and draws the

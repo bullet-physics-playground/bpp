@@ -163,11 +163,12 @@ LABELS = {
     ), (
         "ONE WHEEL AT A TIME",
         "Two graphs and a few tries",
-        "Park all three wheels together on each number in turn, and feel the "
-        "contact points each time: the gap narrows at wheel 1's number. Leave "
-        "wheel 1 there and park the other two together: it narrows at wheel 2's. "
-        "The last wheel needs no graph: try every second number, and the lock "
-        "opens on the right one.",
+        "Park all three wheels together on each number, feeling the contact "
+        "points: the gap narrows at wheel 1's number. Leave wheel 1 there and "
+        "park the other two: it narrows at wheel 2's. Then try every second "
+        "number for wheel 3.\n"
+        "Ours stops each graph past the narrowing. A real safecracker graphs "
+        "the whole dial: false gates narrow it too.",
     ), (
         "LOCKS THAT LEAK LESS",
         "What safecrackers taught the lockmakers",

@@ -143,47 +143,78 @@ if count > 0 then print(string.format("  So a thief has about %d really differen
 -- the safecracker's way, in the model: the exhibit's method (graph the gap
 -- between the contact points with all three wheels parked together, then
 -- with wheel 1 left on what that found and wheels 2 and 3 parked together;
--- each graph every 2.5 numbers, then every half number round the
--- narrowing) on random locks. Every lock has its first number from 10 to
+-- each graph every 2.5 numbers until just past the narrowing, then its
+-- edges every half number) on random locks. Every lock has its first number from 10 to
 -- 88 and its second one the exhibit's hand can graph (7.5 to 95.4, and not
 -- 0 to 12 above the first).
 -- ---------------------------------------------------------------------
 local cp = L.camPieces()
 local DIP = 0.08
-local function narrowest(xs, gaps, median)
+local readings = 0                 -- (contact-point pairs felt, all locks)
+local function median(gaps, n)
   local g = {}
-  for k = 1, #xs do g[#g + 1] = gaps[k] end
+  for k = 1, n do g[#g + 1] = gaps[k] end
   table.sort(g)
-  median = median or g[math.floor((#g + 1) / 2)]
-  local ref, lo, hi
-  for k = 1, #xs do
-    if gaps[k] < median - DIP then
-      ref = ref or xs[k]
-      local d = L.centred(xs[k] - ref)
-      lo, hi = math.min(lo or d, d), math.max(hi or d, d)
-    end
-  end
-  if not ref then return nil, median end
-  return L.wrap(ref + (lo + hi) / 2), median
+  return g[math.floor((#g + 1) / 2)]
 end
 local function crack(lock)
   local gates = L.gates(lock[1], lock[2], lock[3])
   local wps = {}
   for i = 1, 3 do wps[i] = L.wheelPieces(gates[i] * L.DEG, i) end
   local s
-  local function graph(xs, park, median)
+  local function feel() readings = readings + 1; local _, _, w = L.contacts(s, wps, cp); return w end
+  -- (each graph to the first point back up after the narrowing, once four
+  -- points give a baseline; then its two edges, half a number at a time,
+  -- on the way the dial turns: as the exhibit)
+  local function graphToDip(xs, park)
     local gaps = {}
-    for k, x in ipairs(xs) do park(k, x); local _, _, w = L.contacts(s, wps, cp); gaps[k] = w end
-    return narrowest(xs, gaps, median)
+    for k, x in ipairs(xs) do
+      park(k, x); gaps[k] = feel()
+      local m = k >= 4 and median(gaps, k)
+      if m and gaps[k] >= m - DIP then
+        for j = 1, k - 1 do if gaps[j] < m - DIP then return gaps, k, m end end
+      end
+    end
+    return gaps, #xs, median(gaps, #xs)
   end
-  local function around(c, dir) local xs = {}; for k = -5, 5 do xs[#xs + 1] = c + dir * k * 0.5 end; return xs end
+  local function closerLook(xs, gaps, n, m, park, dir, ok, width)
+    local first, last
+    for k = 1, n do if gaps[k] < m - DIP then first = first or k; last = k end end
+    if not first then return nil end
+    local k = 0
+    local function narrow(x) k = k + 1; park(k, x); return feel() < m - DIP end
+    local out, inside = first > 1 and xs[first - 1] or xs[first] - dir * 2.5, xs[first]
+  local felt = first > 1                       -- (out: a point felt, not supposed)
+    local from = out
+    for i = 1, 4 do
+      local x = from + dir * 0.5 * i
+      if (x - inside) * dir > -0.01 then break end
+      if ok(x) then if narrow(x) then inside = x; break end; out, felt = x, true end
+    end
+    local near = (felt and math.abs(out - inside) < 0.51) and (out + inside) / 2   -- (an edge found to half a number)
+  local nearB = (out + inside) / 2
+    inside, out = xs[last], last < n and xs[last + 1] or xs[last] + dir * 2.5
+  felt = last < n
+    from = inside
+    for i = 1, 4 do
+      local x = from + dir * 0.5 * i
+      if (x - out) * dir > -0.01 then break end
+      if ok(x) then if not narrow(x) then out, felt = x, true; break end; inside = x end
+    end
+    local far = (felt and math.abs(out - inside) < 0.51) and (inside + out) / 2
+    if near and far then return L.wrap((near + far) / 2), math.abs(far - near) end
+    if near and width then return L.wrap(near + dir * width / 2) end
+    if far and width then return L.wrap(far - dir * width / 2) end
+    return L.wrap((nearB + (inside + out) / 2) / 2)
+  end
   s = L.new(0, START)
   local parkAll = function(k, x) L.turn(s, L.goTo(s.D, 1, x, k == 1 and 4 or 1) - s.D) end
   local xs = {}
   for x = 7.5, 90.01, 2.5 do xs[#xs + 1] = x end
-  local c1, m1 = graph(xs, parkAll)
+  local g1, n1, m1 = graphToDip(xs, parkAll)
+  local c1, w1 = closerLook(xs, g1, n1, m1, parkAll, 1, function(x) return x >= 7.5 and x <= 90 end)
   if not c1 then return nil end
-  local a = math.floor(L.wrap((graph(around(c1, 1), parkAll, m1) or c1) + 0.5)) % N
+  local a = math.floor(c1 + 0.5) % N
   local ys, y = {}, a - 1.5
   while L.wrap(y - a) >= 12 or L.wrap(y - a) < 0.5 do
     local r = L.wrap(y)
@@ -198,9 +229,13 @@ local function crack(lock)
     else L.turn(s, -(L.wrap(s.D - prev) + L.wrap(prev - y))) end
     prev = y
   end
-  local c2, m2 = graph(ys, parkTwo)
+  local g2, n2, m2 = graphToDip(ys, parkTwo)
+  local c2 = closerLook(ys, g2, n2, m2, parkTwo, -1, function(y)
+    local r = L.wrap(y)
+    return r >= 7.5 and r <= N - L.FEEL_FROM - 0.1 and (L.wrap(y - a) >= 12 or L.wrap(y - a) < 0.5)
+  end, w1)
   if not c2 then return a end
-  local b = math.floor(L.wrap((graph(around(c2, -1), parkTwo, m2) or c2) + 0.5)) % N
+  local b = math.floor(c2 + 0.5) % N
   -- the last wheel: from just above b round to just below it, every second
   -- number but the forbidden zone, carrying wheel 3 on 2 each time, and
   -- turning right to open (as far as the exhibit's hand does)
@@ -238,4 +273,5 @@ while tried < 40 do
 end
 print(string.format("\nThe safecracker's way, in the model, on %d random locks (%.0f s): both numbers found exactly in %d,", tried, os.clock() - t1, right))
 print(string.format("  within one (still opening) in %d more%s; the lock opened, trying the last wheel, in %d (%.1f tries each).", near, #misses > 0 and ("; missed: " .. table.concat(misses, ", ")) or "; none missed", opened, triesAll / math.max(1, opened)))
+print(string.format("  The contact points felt %.1f times a lock, for the two numbers.", readings / math.max(1, tried)))
 print(string.format("  The gap narrows by %.3f numbers each time the fence drops from one wheel to the next (0.1 mm).", (gapOn1 or 0) - (select(4, crack({ 31, 72, 46 })) or 0)))

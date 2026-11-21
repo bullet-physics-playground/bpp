@@ -884,35 +884,83 @@ local function measure(graph, x, fromAbove)
 end
 -- where the narrowing is: the points more than DIP under the median gap;
 -- their middle (round the dial, from the first of them)
-local function narrowest(xs, gaps, median)    -- (median: the coarse graph's, for a closer look)
+-- (a real safecracker graphs the whole dial: his readings scatter more,
+-- false gates give false narrowings, and a worn lock can show more than
+-- one. Here the gaps scatter 0.01 against a narrowing of 0.16, and with
+-- the wheels parked together only one wheel can narrow it, so each graph
+-- stops at the first point back up after the narrowing, once four points
+-- have given it a baseline: the median, so far.)
+local function median(gaps, n)
   local g = {}
-  for k = 1, #xs do if gaps[k] then g[#g + 1] = gaps[k] end end
-  if #g < 3 then return nil end
+  for k = 1, n do if gaps[k] then g[#g + 1] = gaps[k] end end
+  if #g == 0 then return nil end
   table.sort(g)
-  median = median or g[math.floor((#g + 1) / 2)]
-  local ref, lo, hi
-  for k = 1, #xs do
-    if gaps[k] and gaps[k] < median - DIP then
-      ref = ref or xs[k]
-      local d = L.centred(xs[k] - ref)
-      lo, hi = math.min(lo or d, d), math.max(hi or d, d)
-    end
-  end
-  if not ref then return nil end
-  return L.wrap(ref + (lo + hi) / 2), median
+  return g[math.floor((#g + 1) / 2)]
 end
-local function graphOne(graph, xs, park, fromAbove, median)
+local function graphToDip(graph, xs, park, fromAbove)
   local gaps = {}
   for k, x in ipairs(xs) do
     park(k, x)
     gaps[k] = measure(graph, x, fromAbove)
+    local m = k >= 4 and median(gaps, k)
+    if m and gaps[k] and gaps[k] >= m - DIP then
+      for j = 1, k - 1 do
+        if gaps[j] and gaps[j] < m - DIP then return gaps, k, m end
+      end
+    end
   end
-  return narrowest(xs, gaps, median)
+  return gaps, #xs, median(gaps, #xs)
 end
-local function around(c, step, n, dir)        -- n points either side of c, step apart, in the order dir turns
-  local xs = {}
-  for k = -n, n do xs[#xs + 1] = c + dir * k * step end
-  return xs
+-- (and then a closer look at the narrowing's two edges, half a number at
+-- a time, always on the way the dial is turning: from the last point
+-- outside it until inside (the near edge), then from the last point inside
+-- until out again (the far edge). Its middle is halfway between. ok(x):
+-- whether the hand can feel there)
+local function closerLook(graph, xs, gaps, n, m, park, fromAbove, dir, ok, width)
+  local first, last
+  for k = 1, n do
+    if gaps[k] and gaps[k] < m - DIP then first = first or k; last = k end
+  end
+  if not first then return nil end
+  local k = 0
+  local function narrow(x)
+    k = k + 1
+    park(k, x)
+    local g = measure(graph, x, fromAbove)
+    return g ~= nil and g < m - DIP
+  end
+  local out, inside = first > 1 and xs[first - 1] or xs[first] - dir * 2.5, xs[first]
+  local felt = first > 1                       -- (out: a point felt, not supposed)
+  local from = out
+  for i = 1, 4 do
+    local x = from + dir * 0.5 * i
+    if (x - inside) * dir > -0.01 then break end
+    if ok(x) then
+      if narrow(x) then inside = x; break end
+      out, felt = x, true
+    end
+  end
+  local near = (felt and math.abs(out - inside) < 0.51) and (out + inside) / 2   -- (an edge found to half a number)
+  local nearB = (out + inside) / 2
+  inside, out = xs[last], last < n and xs[last + 1] or xs[last] + dir * 2.5
+  felt = last < n
+  from = inside
+  for i = 1, 4 do
+    local x = from + dir * 0.5 * i
+    if (x - out) * dir > -0.01 then break end
+    if ok(x) then
+      if not narrow(x) then out, felt = x, true; break end
+      inside = x
+    end
+  end
+  local far = (felt and math.abs(out - inside) < 0.51) and (inside + out) / 2
+  -- (an edge the hand couldn't feel, at the blind part of the dial: the
+  -- other one and the narrowing's width, which every wheel's gate shares:
+  -- the first graph's; failing that, the middle of what is known)
+  if near and far then return L.wrap((near + far) / 2), k, math.abs(far - near) end
+  if near and width then return L.wrap(near + dir * width / 2), k end
+  if far and width then return L.wrap(far - dir * width / 2), k end
+  return L.wrap((nearB + (inside + out) / 2) / 2), k
 end
 local function safeTour()
   msafe = L.new(Dnow, Wnow)
@@ -926,13 +974,14 @@ local function safeTour()
   local xs = {}
   for x = 7.5, 90.01, 2.5 do xs[#xs + 1] = x end
   local parkAll = function(k, x) turnTo(L.goTo(Dnow, 1, x, k == 1 and 4 or 1)) end
-  local c1, m1 = graphOne(1, xs, parkAll, true)
-  if not c1 then say("s-nodip", 3); crackFails = crackFails + 1; return end
+  local g1, n1, m1 = graphToDip(1, xs, parkAll, true)
   say("s-fine1", 2.4)
-  local c1f = graphOne(2, around(c1, 0.5, 5, 1), parkAll, true, m1)
-  found[1] = math.floor(L.wrap((c1f or c1) + 0.5)) % L.N
+  local c1, k1, w1 = closerLook(2, xs, g1, n1, m1, parkAll, true, 1, function(x) return x >= 7.5 and x <= 90 end)
+  if not c1 then say("s-nodip", 3); crackFails = crackFails + 1; return end
+  found[1] = math.floor(c1 + 0.5) % L.N
   showGlyphs(slate.try, foundText(found))
-  print(string.format("  wheel 1: the gap narrowest about %.1f (closer: %s): %d", c1, c1f and string.format("%.2f", c1f) or "-", found[1]))
+  print(string.format("  wheel 1: graphed to %.1f (%d points), the narrowing's middle %.2f (%d points closer): %d",
+                      xs[n1], n1, c1, k1, found[1]))
   -- 2. wheel 1 left there; wheels 2 and 3 parked together, turning right,
   -- from just below its number round to just above (wheel 2 can't go
   -- further without carrying wheel 1 off), leaving out those the hand
@@ -956,13 +1005,17 @@ local function safeTour()
     end
     prev = y
   end
-  local c2, m2 = graphOne(3, ys, parkTwo, false)
-  if not c2 then say("s-nodip", 3); crackFails = crackFails + 1; return end
+  local g2, n2, m2 = graphToDip(3, ys, parkTwo, false)
   say("s-fine2", 2.4)
-  local c2f = graphOne(4, around(c2, 0.5, 5, -1), parkTwo, false, m2)
-  found[2] = math.floor(L.wrap((c2f or c2) + 0.5)) % L.N
+  local c2, k2 = closerLook(4, ys, g2, n2, m2, parkTwo, false, -1, function(y)
+    local r = L.wrap(y)
+    return r >= 7.5 and r <= L.N - L.FEEL_FROM - 0.1 and (L.wrap(y - a) >= 12 or L.wrap(y - a) < 0.5)
+  end, w1)
+  if not c2 then say("s-nodip", 3); crackFails = crackFails + 1; return end
+  found[2] = math.floor(c2 + 0.5) % L.N
   showGlyphs(slate.try, foundText(found))
-  print(string.format("  wheel 2: the gap narrowest about %.1f (closer: %s): %d", c2, c2f and string.format("%.2f", c2f) or "-", found[2]))
+  print(string.format("  wheel 2: graphed to %.1f (%d points), the narrowing's middle %.2f (%d points closer): %d",
+                      L.wrap(ys[n2]), n2, c2, k2, found[2]))
   -- 3. the last wheel: every second number, turning right to open each time
   say("s-last", 2.4)
   turnTo(L.goTo(Dnow, 1, found[1], 4))

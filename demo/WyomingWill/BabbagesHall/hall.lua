@@ -13,6 +13,11 @@
 --   Tab         walk to the next exhibit (and the views from either end); at
 --               one with a lectern, first up to it, then a step in
 --   Shift+Tab   walk back (stepping back out first)
+--   ], [        on to the next exhibit, back to the one before (past the
+--               stepping in and an exhibit's other ways)
+--   F3          find an exhibit: type part of its name, or its number (the
+--               "Hall: stop" slider's); Tab, Shift+Tab pick among the
+--               matches, Return goes there, Esc (or F3) leaves it
 --   I           at an exhibit with a lectern: its label, close up (again: back)
 --   PgDn, PgUp  at an exhibit whose label has more than one page: the next
 --               page, the one before
@@ -335,6 +340,8 @@ local flight = nil         -- the camera on its way to the next stop (see "walki
 local loading = nil        -- the exhibit being loaded
 local loadSome             -- (loads the next exhibit; below)
 local hallStatus = ""      -- (the hall's own status line: what is loading)
+local finder = nil         -- (F3: finding an exhibit by name; the status line is the finder's meanwhile)
+local keysStep = nil       -- (HALL_KEYS: keys pressed at given frames, below)
 
 local function loadIn(file, env)
   if setfenv then
@@ -485,11 +492,11 @@ local function makeExhibit(e, bay)
     getParam = function(_, n) return realV:getParam(g.prefix .. n) end,
     setHelpText = function(_, text)
       g.help = text
-      if active == g then realV:setHelpText(g.wrapHelp(text)) end
+      if active == g and not finder then realV:setHelpText(g.wrapHelp(text)) end
     end,
     setStatusText = function(_, text)
       g.statusText = text or ""
-      if active == g then realV.statusText = g.statusText end
+      if active == g and not finder then realV.statusText = g.statusText end
     end,
     loadSound = function(_, path) return realV:loadSound(fix(path)) end,
     -- (its own steps, timed for the meter)
@@ -535,7 +542,7 @@ local function makeExhibit(e, bay)
       if TIMING[k] then g.timing[k] = val; return end
       if k == "statusText" then                -- (its status line: shown while you're at it)
         g.statusText = val or ""
-        if active == g then realV.statusText = g.statusText end
+        if active == g and not finder then realV.statusText = g.statusText end
         return
       end
       if k == "gravity" then realV.gravity = val; return end      -- (its world's)
@@ -1210,6 +1217,18 @@ local function nextStop(s, d)
   local i = indexOf(s) or 1
   return stops[(i - 1 + d) % #stops + 1]
 end
+-- (] and [: the next exhibit, or the one before, passing by the step in
+-- and an exhibit's other ways; the views at either end count as exhibits)
+local function exhibitOf(s) return s.group and s.group.modes[1] or s end
+local function nextExhibit(s, d)
+  local cur = exhibitOf(s)
+  local i = indexOf(cur) or 1
+  for k = 1, #stops do
+    local t = stops[(i - 1 + d * k) % #stops + 1]
+    if exhibitOf(t) == t and t ~= cur then return t end
+  end
+  return s
+end
 -- (at an exhibit with an approach: steppedIn is it once you've stepped in)
 local steppedIn = nil
 -- (an exhibit's pane: one line of the hall's, then its own, its keys at
@@ -1223,6 +1242,7 @@ local function header(g)
            (out and ".   Tab: step in" or (".   Tab: on to " .. nextStop(g, 1).name)) ..
            ";   Shift+Tab: " .. ((g.approach and not out) and "step back" or ("back to " .. nextStop(g, -1).name)) ..
            (g.lecternView and ";   I: its label, close up (again: back)" or "") .. pages ..
+           ";   ], [: on to " .. nextExhibit(g, 1).name .. ", back to " .. nextExhibit(g, -1).name .. ";   F3: find an exhibit" ..
            ((g.shortcuts and g.shortcuts["H"]) and ";   F1: its manual (a PDF)\n" or ";   H: its manual (a PDF)\n")
   end
 end
@@ -1245,13 +1265,18 @@ local function hallHelp(s)
     if not exists(e.dir .. e.file) then coming[#coming + 1] = "  " .. e.name end
   end
   return "BABBAGE'S HALL -- " .. s.name ..
-         "\n(Tab: walk on to " .. nextStop(s, 1).name .. "; Shift+Tab: back to " .. nextStop(s, -1).name .. ")\n\n" ..
+         "\n(Tab: walk on to " .. nextStop(s, 1).name .. "; Shift+Tab: back to " .. nextStop(s, -1).name ..
+         "; ]: on to " .. nextExhibit(s, 1).name .. "; [: back to " .. nextExhibit(s, -1).name .. ")\n\n" ..
          "Only the exhibit you're standing at runs; the others wait where they\n" ..
          "were and carry on when you come back. Rest the mouse on a placard or a\n" ..
          "covered bay to read it.\n\n" ..
          "On show:\n" .. table.concat(live, "\n") .. "\n\n" ..
          (#coming > 0 and ("In preparation:\n" .. table.concat(coming, "\n") .. "\n\n") or "") ..
-         "Tab / Shift+Tab   walk on / back\n" ..
+         "Tab / Shift+Tab   walk on / back, through every stop: up to an exhibit,\n" ..
+         "                  a step in, each of its ways\n" ..
+         "] / [             on to the next exhibit / back to the one before\n" ..
+         "F3                find an exhibit: type part of its name, or its\n" ..
+         "                  number (the \"Hall: stop\" slider's), then Return\n" ..
          "H (or F1)          at an exhibit: its manual (a PDF); here: the hall's guide\n" ..
          "the mouse          looks round as usual\n"
 end
@@ -1515,6 +1540,7 @@ realV:postSim(function(N)
   callActive("postSim")
   meter.scripts = meter.scripts + (now() - t)
   collectSome()
+  if keysStep then keysStep(N) end
 end)
 local tDraw = nil
 realV:preDraw(function(N)
@@ -1549,8 +1575,100 @@ realV:postDraw(function(N)
   end
 end)
 
+-- ---------------------------------------------------------------------
+-- F3: find an exhibit. Type part of its name (any of its ways', a view's)
+-- or its number, the "Hall: stop" slider's; the status line shows the
+-- match, Tab and Shift+Tab the next and the one before; Return goes there,
+-- Esc or F3 again leaves it. Every key is the finder's meanwhile.
+-- ---------------------------------------------------------------------
+local function plain(t) return (t:lower():gsub("[^%w ]", "")) end
+local function finderMatches(q)
+  local out = {}
+  if q:match("^%d+$") then
+    local s = stops[tonumber(q)]
+    if s then out[1] = s end
+    return out
+  end
+  q = plain(q)
+  for _, s in ipairs(stops) do
+    if q == "" or plain(s.name):find(q, 1, true) then out[#out + 1] = s end
+  end
+  return out
+end
+local function finderShow()
+  local f = finder
+  f.matches = finderMatches(f.query)
+  f.pick = math.max(1, math.min(f.pick, #f.matches))
+  local m = f.matches[f.pick]
+  local line = "FIND: " .. f.query .. "_   " ..
+    (m and ("-> " .. indexOf(m) .. " " .. m.name ..
+            (#f.matches > 1 and string.format("  (%d of %d: Tab, Shift+Tab)", f.pick, #f.matches) or "") ..
+            ";   Return: go there")
+       or "(no exhibit has that in its name)") .. ";   Esc: never mind"
+  pcall(function() realV.statusText = line end)
+  local rows = { "FIND AN EXHIBIT: type part of its name, or its number; Return goes there,",
+                 "Tab and Shift+Tab pick among the matches, Backspace takes a letter off,",
+                 "Esc (or F3) leaves it.", "" }
+  local shown = {}
+  for _, x in ipairs(f.matches) do shown[x] = true end
+  for i, x in ipairs(stops) do
+    if shown[x] then
+      rows[#rows + 1] = string.format("%s %2d  %s", x == m and "->" or "  ", i, x.name)
+    end
+  end
+  realV:setHelpText(table.concat(rows, "\n"))
+end
+local function finderClose(go)
+  local m = go and finder.matches[finder.pick]
+  finder = nil
+  if m and m ~= here then
+    goTo(m)
+  else
+    -- (as it was: the status line and the pane of where you are)
+    pcall(function() realV.statusText = (active and active.statusText ~= "" and active.statusText) or hallStatus end)
+    if here.isView then realV:setHelpText(hallHelp(here))
+    elseif here.ready then realV:setHelpText(here.wrapHelp(here.help)) end
+  end
+end
+local function finderKey(key)
+  local f = finder
+  -- (a new query starts at its first match; none at all, at where you are)
+  local function typed(q) f.query = q; f.pick = (q == "" and indexOf(here)) or 1; finderShow() end
+  if key == "Esc" or key == "Escape" or key == "F3" then finderClose(false)
+  elseif key == "Return" or key == "Enter" then finderClose(true)
+  elseif key == "Backspace" then typed(f.query:sub(1, -2))
+  elseif key == "Tab" or key == "Backtab" then
+    if #f.matches > 0 then f.pick = (f.pick - 1 + (key == "Tab" and 1 or -1)) % #f.matches + 1 end
+    finderShow()
+  elseif key == "Space" then typed(f.query .. " ")
+  elseif #key == 1 and key:match("[%w']") then typed(f.query .. key:lower())
+  end
+end
+
 local HELD_BACK = { S = true, D = true, R = true, P = true }
-realV:onKey(function(N, key, down)
+local function hallKey(N, key, down)
+  -- (the finder has every key while it's open)
+  if finder then
+    if down then finderKey(key) end
+    return true
+  end
+  if key == "F3" then
+    if down then
+      finder = { query = "", pick = indexOf(here) or 1 }
+      -- (let go of the exhibit's held keys, as when walking on)
+      if active then
+        local f = active.callbacks.onKey
+        for k in pairs(active.down) do if f then pcall(f, active.N, k, false) end end
+        active.down = {}
+      end
+      finderShow()
+    end
+    return true
+  end
+  if key == "BracketRight" or key == "]" or key == "BracketLeft" or key == "[" then
+    if down then goTo(nextExhibit(here, (key == "]" or key == "BracketRight") and 1 or -1)) end
+    return true
+  end
   if key == "Tab" or key == "Backtab" then
     -- (an exhibit with an approach is two stops: walking up to it, then
     -- stepping in; Shift+Tab the same, the other way)
@@ -1630,7 +1748,32 @@ realV:onKey(function(N, key, down)
   -- them for
   if not used and HELD_BACK[key] then return true end
   return used
-end)
+end
+realV:onKey(hallKey)
+
+-- (HALL_KEYS: keys pressed at given frames, for trying the hall's keys
+-- headless: "300:F3,l,o,c,k,Return;900:]" presses F3, l, o, c, k and Return
+-- at frame 300, ] at 900, and prints where each leaves you)
+local KEYS_AT = {}
+for at, list in (os.getenv("HALL_KEYS") or ""):gmatch("(%d+):([^;]+)") do
+  local keys = {}
+  for k in list:gmatch("[^,]+") do keys[#keys + 1] = k end
+  KEYS_AT[tonumber(at)] = keys
+end
+local keyFrame = 0
+if next(KEYS_AT) then keysStep = function(N)
+  keyFrame = keyFrame + 1
+  local keys = KEYS_AT[keyFrame]
+  if not keys then return end
+  for _, k in ipairs(keys) do
+    if #k == 1 then k = k:upper() end                 -- (bpp names a letter's key by its capital)
+    hallKey(N, k, true); hallKey(N, k, false)
+  end
+  local f = finder
+  print(string.format("HALL: keys at frame %d (%s): at %s%s", keyFrame, table.concat(keys, " "), here.name,
+                      f and string.format("; finding \"%s\": %s (%d of %d)", f.query,
+                                          f.matches[f.pick] and f.matches[f.pick].name or "none", f.matches[f.pick] and f.pick or 0, #f.matches) or ""))
+end end
 
 realV:onParamChanged(function(N, name, value)
   if name == METER_PARAM then
@@ -1700,7 +1843,7 @@ print(string.format("HALL: %d exhibits to set up, %d in preparation, %d empty ba
 local hallFrames = 0
 local function status(t)
   hallStatus = t
-  pcall(function() realV.statusText = (active and active.statusText ~= "" and active.statusText) or t end)
+  if not finder then pcall(function() realV.statusText = (active and active.statusText ~= "" and active.statusText) or t end) end
 end
 local function nextToLoad()
   if not here.isView and here.pending then return here end
