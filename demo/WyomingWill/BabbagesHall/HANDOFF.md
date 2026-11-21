@@ -457,7 +457,7 @@ there, in `release/`, or on the path; or set `BPP`.
   comes down at the driver's pace.
 - **To check sound headless,** run with `SDL_AUDIODRIVER=dummy` (else
   there's no audio device, `loadSound` returns -1 and nothing plays) and
-  `-e`: what plays, and the synth's tones, go into the export's `.wav`, on
+  `-e`: what plays, and bpp's synth tones, go into the export's `.wav`, on
   its timeline of 25 frames a second (frame 847 at 33.88 s). Export writes
   about 100 KB a frame, so keep the run short; for a longer listen, log
   the sounds and mix them.
@@ -1135,6 +1135,15 @@ there, in `release/`, or on the path; or set `BPP`.
   LISTEN); `F` plays the clicks alone; in the hall, heard only while
   you're at the lock. Checked through bpp's own export (FINDINGS: the
   safecracker's way, heard).
+- **Done (2026-11-21): chalk on the dial instead of the tone.** The tone
+  is gone (a real lock makes none, it repeated the graph, and it hid that
+  a click says *when* and the dial says *where*); the clicks stay. At each
+  click the dial is chalked at that reading (a tick), settled where the
+  feel stops, with the arc between the two, the gap, riding round with the
+  dial until the next reading's first click; blue when the gap reads
+  narrower than the graph's level (`CHALK` in the exhibit, `chalkTick` and
+  `chalkArc` in the scad). The lectern's second page is now LISTEN, AND
+  READ THE DIAL.
 - **Done (2026-11-20): walking the hall, and a quicker safecracker.**
   Tab still walks every stop (up to an exhibit, a step in, each of its
   ways); `]` and `[` go exhibit to exhibit, and `F3` finds one by typing

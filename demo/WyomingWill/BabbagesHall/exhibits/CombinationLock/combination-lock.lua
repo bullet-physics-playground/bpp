@@ -29,8 +29,8 @@
 --          there and graph wheels 2 and 3 together (it narrows at wheel
 --          2's); then try every second number for wheel 3, from just
 --          above wheel 2's on round. Heard: a click as each wall stops
---          the dial, and after each pair a tone pitched by the gap (the
---          exhibit's: a fourth up for each wheel the fence drops onto).
+--          the dial. Seen: chalk on the dial at the two contact points,
+--          and the arc between them, blue when the gap reads narrower.
 --
 -- KEYS
 --   0 - 9      a combination: six figures (31 72 46), then Return dials it
@@ -41,7 +41,7 @@
 --   M          the camera close to the dial; G close to the gates; again: back
 --   T          the tour (the way's own)
 --   F          (the safecracker's way) feel the contact points, the wheels
---              where they are (the clicks, no tone)
+--              where they are
 --   H          the manual (MANUAL.pdf) in the PDF viewer
 --
 -- PHYSICS: the dial's body (dial, spindle, cam and its pin), the three
@@ -276,6 +276,40 @@ local dialRiders = {}
 for _, r in ipairs({ { "dialFace()", "#1d1d1f" }, { "dialMarks()", "#e8d48a" }, { "union() { camPin(); spindle(); }", STEEL } }) do
   local m = part(r[1]); m.col = r[2]; v:add(m); dialRiders[#dialRiders + 1] = m
 end
+-- (the safecracker's way: chalk on the dial at the contact points it
+-- feels, a tick at each, laid as its click is heard, and the arc between
+-- them: the gap, riding round with the dial. The arc turns blue when the
+-- gap reads narrower than the graph's level, by the safecracker's own test)
+local CHALK
+if SAFE then
+  CHALK = { ticks = {}, arc = {}, WHITE = "#ece8d6", NARROW = "#7ec8f0" }
+  for i = 1, 2 do local m = part("chalkTick()"); m.col = "#f4f1e6"; v:add(m); CHALK.ticks[i] = { obj = m } end
+  for k = 1, 16 do local m = part("chalkArc()"); m.col = CHALK.WHITE; v:add(m); CHALK.arc[k] = { obj = m } end
+  function CHALK.all() local t = {}; for _, x in ipairs(CHALK.ticks) do t[#t + 1] = x end; for _, x in ipairs(CHALK.arc) do t[#t + 1] = x end; return t end
+  function CHALK.colour(col) for _, x in ipairs(CHALK.arc) do x.obj.col = col end end
+  function CHALK.clear() for _, x in ipairs(CHALK.all()) do x.at = nil end; CHALK.colour(CHALK.WHITE) end
+  function CHALK.tick(i, at)                  -- (1: the low contact point, turning right; 2: the high)
+    CHALK.ticks[i].at = at
+    local lo, hi = CHALK.ticks[1].at, CHALK.ticks[2].at
+    for _, x in ipairs(CHALK.arc) do x.at = nil end
+    if lo and hi then
+      local span = L.wrap(hi - lo)
+      for k, x in ipairs(CHALK.arc) do
+        local a = (k - 1) * 0.25
+        if a < span - 0.01 then x.at = lo + math.min(a, span - 0.25) end
+      end
+    end
+  end
+  function CHALK.mark(narrow)
+    CHALK.colour(narrow and CHALK.NARROW or CHALK.WHITE)
+    if narrow and os.getenv("LK_LOG") then print("    chalk: the arc blue, narrower than the graph's level") end
+  end
+  -- (a reading's chalk stays until the next reading's first click)
+  function CHALK.click(i, at)
+    if CHALK.done then CHALK.clear(); CHALK.done = false end
+    CHALK.tick(i, at)
+  end
+end
 local fingersObj = part("fingers()")
 fingersObj.col = "#e0b896"
 v:add(fingersObj)
@@ -391,6 +425,13 @@ end
 local function follow()
   local tr = dial.body:getCenterOfMassTransform()
   for _, m in ipairs(dialRiders) do m.trans = btTransform(tr:getRotation(), dial.body:getCenterOfMassPosition()) end
+  if CHALK then
+    local q, c = tr:getRotation(), dial.body:getCenterOfMassPosition()
+    for _, x in ipairs(CHALK.all()) do
+      x.obj.trans = x.at and btTransform(q * btQuaternion(btVector3(0, 0, 1), math.rad(-L.DEG * x.at)), c)
+                      or btTransform(ident, btVector3(c.x, -50, c.z))        -- (put away, under the floor)
+    end
+  end
   for _, w in ipairs(wheels) do
     local wt = btTransform(w.body:getCenterOfMassTransform():getRotation(), w.body:getCenterOfMassPosition())
     for _, m in ipairs(w.riders) do m.trans = wt end
@@ -610,48 +651,26 @@ local frame = 0                                   -- (frames simulated: for the 
 -- the safecracker's ears (its way only): a click as the fence meets a
 -- notch wall, what a contact microphone on the case would pick up
 -- (make-sounds.py: the steep wall's brighter, the sloping wall's duller),
--- played the moment the wall stops the dial; and after each pair of contact
--- points a short tone whose pitch is their gap. The tone is the exhibit's,
--- not the lock's: a fourth higher for each 0.159 numbers narrower (the
--- fence 0.1 mm lower), so each wheel it drops onto is a step up: E, A, D.
--- Heard only while you're at the lock (in the hall, v:onEnter/onLeave).
+-- played the moment the wall stops the dial (and the chalk laid there).
+-- The click says when the fence meets a wall; the reading is where the
+-- dial is then. Heard only while you're at the lock (in the hall,
+-- v:onEnter/onLeave).
 -- ---------------------------------------------------------------------
-local EAR = { snd = {}, voice = 20, toneS = 0.6, left = 0, heard = not hallPath,
-              GAP0 = 3.505, STEP = 0.159, F0 = 329.63 }         -- (the gap on wheel 1's rim and each step: lock-test.lua)
+local EAR = { snd = {}, heard = not hallPath }
 if SAFE and v.loadSound and v.playSound then
   for _, k in ipairs({ "steep", "slope" }) do
     local ok, id = pcall(function() return v:loadSound(DIR .. "sounds/click-" .. k .. ".wav") end)
     if ok and id and id >= 0 then EAR.snd[k] = id end
   end
 end
-EAR.tones = SAFE and pcall(function() v:setTone(EAR.voice, 0, 0); v:setToneTimbre(EAR.voice, 0.25, 0) end)
-if SAFE and LOG then print(string.format("    sound: clicks %s, tone %s", (EAR.snd.steep and EAR.snd.slope) and "loaded" or "not loaded (no audio device?)", EAR.tones and "ready" or "not available")) end
-function EAR.hush()
-  EAR.left = 0
-  if EAR.tones then pcall(function() v:setTone(EAR.voice, 0, 0) end) end
-end
+if SAFE and LOG then print(string.format("    sound: clicks %s", (EAR.snd.steep and EAR.snd.slope) and "loaded" or "not loaded (no audio device?)")) end
 function EAR.click(dir)                          -- (dir -1: turning right, onto the steep wall)
   local k = dir < 0 and "steep" or "slope"
   if LOG then print(string.format("    sound: click, the %s wall (f%d%s)", dir < 0 and "steep" or "sloping", frame, EAR.heard and "" or "; not heard")) end
   local id = EAR.snd[k]
   if EAR.heard and id then pcall(function() v:playSound(id, 0.8) end) end
 end
-function EAR.pitch(gap) return EAR.F0 * 2 ^ (5 / 12 * (EAR.GAP0 - gap) / EAR.STEP) end
-function EAR.tone(gap)
-  local f = EAR.pitch(gap)
-  if LOG then print(string.format("    sound: the tone for the gap %.3f, %.1f Hz (f%d%s)", gap, f, frame, EAR.heard and "" or "; not heard")) end
-  if EAR.heard and EAR.tones then
-    pcall(function() v:setTone(EAR.voice, f, 0.25) end)
-    EAR.left = EAR.toneS
-  end
-end
-function EAR.step(dt)
-  if EAR.left > 0 then
-    EAR.left = EAR.left - dt
-    if EAR.left <= 0 then EAR.hush() end
-  end
-end
-function EAR.hear(on) EAR.heard = on; if not on then EAR.hush() end end
+function EAR.hear(on) EAR.heard = on end
 -- each simulation step: the dial's motor
 -- feeling for the contact points: slowly, and with only enough torque to
 -- turn the dial against its own friction (the hand's lightest touch): it
@@ -692,7 +711,11 @@ local function stepJob(dt)
   elseif j.feel then
     local moved = math.abs(Dnow - j.from)
     if moved > 0.03 and math.abs(dialSpeed()) < 0.25 then
-      if j.still == 0 and not j.clicked then j.clicked = true; EAR.click(j.feel) end   -- (the wall has stopped it)
+      if j.still == 0 and not j.clicked then                       -- (the wall has stopped it)
+        j.clicked = true
+        EAR.click(j.feel)
+        if CHALK then CHALK.click(j.feel < 0 and 1 or 2, Dnow) end
+      end
       j.still = j.still + dt
     else j.still = 0 end
     if j.still > 0.2 or moved > 12 or j.t > 15 then
@@ -856,7 +879,7 @@ local function foundText(c)
 end
 -- the contact points: from above (turning right to the notch, then feeling
 -- right, then left), or from below (left, then left, then right)
-local function contacts(fromAbove, quiet)     -- (quiet: no tone, the clicks only)
+local function contacts(fromAbove)
   local lo, hi
   if fromAbove then
     turnTo(Dnow - L.wrap(Dnow - (L.OPEN_AT + L.FEEL_FROM)))
@@ -870,7 +893,9 @@ local function contacts(fromAbove, quiet)     -- (quiet: no tone, the clicks onl
   if hi then showGlyphs(slate.high, string.format("%.2f", L.wrap(hi))) end
   local gap = (lo and hi) and (hi - lo) or nil
   showGlyphs(slate.gap, gap and string.format("%.2f", gap) or "")
-  if gap and not quiet then EAR.tone(gap) end
+  if lo then CHALK.tick(1, lo) end                -- (where it settled)
+  if hi then CHALK.tick(2, hi) end
+  CHALK.done = true
   return gap, mgap, lo, hi
 end
 local function measure(graph, x, fromAbove)
@@ -906,6 +931,7 @@ local function graphToDip(graph, xs, park, fromAbove)
     park(k, x)
     gaps[k] = measure(graph, x, fromAbove)
     local m = k >= 4 and median(gaps, k)
+    if m and gaps[k] then CHALK.mark(gaps[k] < m - DIP) end
     if m and gaps[k] and gaps[k] >= m - DIP then
       for j = 1, k - 1 do
         if gaps[j] and gaps[j] < m - DIP then return gaps, k, m end
@@ -930,6 +956,7 @@ local function closerLook(graph, xs, gaps, n, m, park, fromAbove, dir, ok, width
     k = k + 1
     park(k, x)
     local g = measure(graph, x, fromAbove)
+    CHALK.mark(g ~= nil and g < m - DIP)
     return g ~= nil and g < m - DIP
   end
   local out, inside = first > 1 and xs[first - 1] or xs[first] - dir * 2.5, xs[first]
@@ -1248,7 +1275,6 @@ v:postSim(function(N)
     if (os.getenv("LK_TOUR") or "1") ~= "0" then tourStart() end
   end
   stepJob(FRAME_DT)
-  EAR.step(FRAME_DT)
   SC.next()
   tourNext()
   restPost()
@@ -1302,7 +1328,7 @@ if SAFE then
     stopTour()
     SC.fresh()
     cracker = coroutine.create(function()
-      local gap, mgap = SC.contacts(true, true)
+      local gap, mgap = SC.contacts(true)
       print(string.format("  the contact points felt: the gap %s (the model %.3f)", gap and string.format("%.3f", gap) or "not felt", mgap))
     end)
   end)

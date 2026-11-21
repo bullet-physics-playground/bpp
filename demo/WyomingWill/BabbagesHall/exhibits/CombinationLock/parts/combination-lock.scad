@@ -99,6 +99,15 @@ module dialMarks() translate([0, 0, DIAL_Z1 - CAM_MID]) {
     linear_extrude(0.6) text(str(n), size = 5.2, font = FONT, halign = "center", valign = "center");
 }
 
+// (the safecracker's chalk on the dial, drawn, not printed: a tick at
+// number 0, across the scale, and a piece of arc a quarter number long,
+// from 0 on round, in the clear band between the scale and the tens. The
+// exhibit turns them to the contact points it has felt)
+module chalkTick() translate([0, 0, DIAL_Z1 - CAM_MID]) rotate([0, 0, 90])
+  translate([DIAL_R - 10, -0.6, 0]) cube([9.4, 1.2, 0.9]);
+module chalkArc() translate([0, 0, DIAL_Z1 - CAM_MID]) rotate([0, 0, 90 - 0.9])
+  rotate_extrude(angle = 0.9, $fn = 400) translate([DIAL_R - 9.6, 0]) square([1.4, 0.9]);
+
 // ---------------------------------------------------------------------
 // the fixed parts, in the lock's frame
 // ---------------------------------------------------------------------

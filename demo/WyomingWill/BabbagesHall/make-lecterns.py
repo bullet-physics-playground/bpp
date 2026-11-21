@@ -152,14 +152,14 @@ LABELS = {
         "points close in.\n"
         "Press T and watch the graph on the slate.",
     ), (
-        "LISTEN",
-        "The clicks are the lock's; the tone is ours",
+        "LISTEN, AND READ THE DIAL",
+        "A click says when; the dial says where",
         "Contact can be heard as well as felt: a microphone on the case picks "
         "up a click as the fence meets each wall of the notch, one each way. "
-        "After each pair the exhibit sounds a tone pitched by the gap between "
-        "them, a fourth higher for every tenth of a millimetre the fence drops. "
-        "When the tone steps up, a gate is under the fence.\n"
-        "A real lock makes only the clicks.",
+        "At each click the safecracker reads the number under the index; the "
+        "gap is the difference.\n"
+        "Our safecracker chalks both on the dial, with the arc between them. "
+        "The arc turns blue when the gap reads narrower.",
     ), (
         "ONE WHEEL AT A TIME",
         "Two graphs and a few tries",
