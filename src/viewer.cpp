@@ -1126,6 +1126,20 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _joystickHandler.initialize();
   _joystickHandler.setUpdateInterval(40); // 25 fps
 
+  // MIDI input: libremidi when enabled, otherwise a no-op stub. Individual
+  // input ports are opened/closed from the MIDI menu (Gui::createMidiMenu);
+  // open() here only initialises the backend and opens nothing by default.
+  // Messages are delivered on libremidi's own thread, so the connection is
+  // queued to run on the GUI thread, where the Lua state and the mutex live.
+#if USE_LIBREMIDI
+  _midi = new MidiInterfaceLibremidi(this);
+#else
+  _midi = new MidiInterfaceNull(this);
+#endif
+  connect(_midi, &MidiInterface::messageReceived, this,
+          &Viewer::onMidiData, Qt::QueuedConnection);
+  _midi->open();
+
   // audio: short sound effects, e.g. an escapement's tick/tock, triggered
   // from Lua. SDL_INIT_JOYSTICK is already up by this point (see above);
   // SDL_InitSubSystem is safe to call again to add AUDIO on top of it.
@@ -1194,6 +1208,23 @@ void Viewer::onJoystickData(const JoystickInfo &ji) {
       luabind::call_function<void>(_cb_onJoystick, _frameNum, ji);
     } catch (const std::exception &e) {
       showLuaException(e, "onJoystick()");
+    }
+  }
+}
+
+void Viewer::onMidiData(const QByteArray &data) {
+  if (simHeld()) // (a dialog is open: see simHeld())
+    return;
+  QMutexLocker locker(&mutex);
+  // Only invoke the callback when it is actually a Lua function. luabind's
+  // object::operator bool() is true for any non-nil value, so a number or
+  // table stored in _cb_onMIDI would otherwise pass this check and make
+  // call_function raise "attempt to call a number value".
+  if (_cb_onMIDI && luabind::type(_cb_onMIDI) == LUA_TFUNCTION) {
+    try {
+      luabind::call_function<void>(_cb_onMIDI, _frameNum, data.toStdString());
+    } catch (const std::exception &e) {
+      showLuaException(e, "onMIDIReceived()");
     }
   }
 }
@@ -1533,6 +1564,10 @@ Viewer::~Viewer() {
   _vehicle_raycasters->clear();
   delete _vehicle_raycasters;
 
+  // Release the MIDI port before tearing down the device backends.
+  if (_midi)
+    _midi->close();
+
   delete _joystickInterface;
 
   // The depth map and the shader live in the GL context, so make it current
@@ -1726,6 +1761,12 @@ void Viewer::setAnimationPeriodMs(int ms) { setAnimationPeriod(ms); }
 void Viewer::setCBOnJoystick(const luabind::object &fn) {
   if (luabind::type(fn) == LUA_TFUNCTION) {
     _cb_onJoystick = fn;
+  }
+}
+
+void Viewer::setCBOnMIDIReceived(const luabind::object &fn) {
+  if (luabind::type(fn) == LUA_TFUNCTION) {
+    _cb_onMIDI = fn;
   }
 }
 

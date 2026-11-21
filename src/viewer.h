@@ -56,6 +56,10 @@
 #include "hover.h"
 #include "quadview.h"
 #include "scriptkeys.h"
+#include "midi.h"
+#if USE_LIBREMIDI
+#include "midilibremidi.h"
+#endif // USE_LIBREMIDI
 #include "params.h"
 #include "quickrender.h"
 #include "spacenavigator/spacenavigatorcamera.h"
@@ -1479,6 +1483,13 @@ public:
    */
   void postDraw() override;
 
+  /**
+   * @brief Returns the MIDI input backend, so the GUI can enumerate and
+   * toggle individual input ports.
+   * @return The MidiInterface owned by this viewer (never null).
+   */
+  MidiInterface *midiInterface() const { return _midi; }
+
 public slots:
   /**
    * @brief Closes the viewer widget.
@@ -1578,6 +1589,18 @@ public slots:
    *           Ignored if not a function.
    */
   void setCBOnJoystick(const luabind::object &fn);
+
+  /**
+   * @brief Sets the hook called for each received MIDI message.
+   *
+   * The function receives the frame number and the raw MIDI bytes as a Lua
+   * string (use string.byte(data, i) to inspect byte i and #data for the
+   * length). Ignored if not a function. With libremidi disabled
+   * (USE_LIBREMIDI=0) this is accepted but never fires.
+   *
+   * @param fn A Lua function as described. Ignored if not a function.
+   */
+  void setCBOnMIDIReceived(const luabind::object &fn);
 
   /**
    * @brief Sets the hook called when a key is pressed or released.
@@ -1921,6 +1944,12 @@ public slots:
    * @param ji The report.
    */
   void onJoystickData(const JoystickInfo &ji);
+
+  /**
+   * @brief Passes received MIDI bytes to the script's onMIDIReceived hook.
+   * @param data The raw MIDI bytes.
+   */
+  void onMidiData(const QByteArray &data);
 
   /**
    * @brief Passes raw 3D mouse axes to the script's onSpaceNavigator hook.
@@ -2564,6 +2593,7 @@ private:
   luabind::object _cb_preStop;   ///< Called before the script is replaced.
   luabind::object _cb_onCommand; ///< Called for a command line entry.
   luabind::object _cb_onJoystick; ///< Called for each joystick report.
+  luabind::object _cb_onMIDI;    ///< Called for each MIDI message (v:onMIDIReceived).
   ScriptKeys _keys;          ///< The script's onKey hook and shortcuts.
   luabind::object _cb_onSpaceNavigator; ///< Called for each 3D mouse report;
                                         ///< when set it also takes the device
@@ -2737,6 +2767,9 @@ private:
   // joystick handler
   JoystickInterfaceSDL *_joystickInterface; ///< SDL joystick backend.
   JoystickHandler _joystickHandler;         ///< Polls it and emits the reports.
+
+  // MIDI input (libremidi when USE_LIBREMIDI=1, otherwise a no-op stub).
+  MidiInterface *_midi;                     ///< Receives MIDI bytes, if any.
 
   // audio: short sound effects (ticks, tocks, bells, ...), triggered from
   // Lua postSim callbacks. Deliberately minimal -- one-shot chunk playback

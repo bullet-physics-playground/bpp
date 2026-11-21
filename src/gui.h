@@ -497,6 +497,17 @@ private:
    */
   void createDemosMenu();
 
+#if USE_LIBREMIDI
+  /**
+   * @brief Adds a MIDI menu listing every available input device, each as a
+   *   checkable action that routes that device's MIDI into bpp when on.
+   *
+   * The list is rebuilt each time the menu is shown so hot-plugged devices
+   * appear without restarting.
+   */
+  void createMidiMenu();
+#endif
+
   /**
    * @brief Recursively fills a Demos submenu from a directory.
    * @param menu Menu to append to.

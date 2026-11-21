@@ -370,6 +370,9 @@ void Gui::createMenus() {
 
   createPovrayMenu();
   createDemosMenu();
+#if USE_LIBREMIDI
+  createMidiMenu();
+#endif
 
   updateRecentFileActions();
 }
@@ -559,6 +562,42 @@ void Gui::createDemosMenu() {
 
   ui.menubar->insertMenu(ui.menuHelp->menuAction(), menuDemos);
 }
+
+#if USE_LIBREMIDI
+void Gui::createMidiMenu() {
+  QMenu *menuMidi = new QMenu(tr("&MIDI"), this);
+
+  // Rebuild the device list each time the menu is shown so hot-plugged
+  // devices appear without restarting bpp.
+  connect(menuMidi, &QMenu::aboutToShow, this, [this, menuMidi]() {
+    menuMidi->clear();
+
+    MidiInterface *midi = ui.viewer->midiInterface();
+    const QStringList ports = midi->portNames();
+    if (ports.isEmpty()) {
+      QAction *none = menuMidi->addAction(tr("No MIDI input devices found"));
+      none->setEnabled(false);
+      return;
+    }
+
+    for (int i = 0; i < ports.size(); ++i) {
+      QAction *action = menuMidi->addAction(ports[i]);
+      action->setCheckable(true);
+      action->setChecked(midi->isPortOpen(i));
+      // Capture i by value: the slot runs when the user toggles the item.
+      connect(action, &QAction::toggled, this,
+              [this, midi, i](bool on) {
+                if (on)
+                  midi->openPort(i);
+                else
+                  midi->closePort(i);
+              });
+    }
+  });
+
+  ui.menubar->insertMenu(ui.menuHelp->menuAction(), menuMidi);
+}
+#endif
 
 void Gui::populateDemoMenu(QMenu *menu, const QDir &dir) {
   const QFileInfoList entries =

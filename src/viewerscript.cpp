@@ -156,6 +156,7 @@ void Viewer::closeScript() {
   _cb_preStop = luabind::object();
   _cb_onCommand = luabind::object();
   _cb_onJoystick = luabind::object();
+  _cb_onMIDI = luabind::object();
   _keys.clear();                     // (shortcuts too: before Lua closes)
   _cb_cycleObject = luabind::object();
   _cb_onSpaceNavigator = luabind::object();

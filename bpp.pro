@@ -31,6 +31,38 @@ DEFINES += GLUT_DISABLE_ATEXIT_HACK
 isEmpty(USE_VFE): USE_VFE = 0
 DEFINES += USE_VFE=$$USE_VFE
 
+# Optional: libremidi MIDI input, for the v:onMIDIReceived script hook.
+# Off by default so bpp builds and runs without libremidi. Enable with
+#   qmake "USE_LIBREMIDI=1" [LIBREMIDI_PREFIX=/path/to/a-libremidi-checkout]
+# Without it, v:onMIDIReceived can be set from a script but never fires.
+isEmpty(USE_LIBREMIDI): USE_LIBREMIDI = 0
+DEFINES += USE_LIBREMIDI=$$USE_LIBREMIDI
+isEmpty(LIBREMIDI_PREFIX): LIBREMIDI_PREFIX = $$PWD/../libremidi
+equals(USE_LIBREMIDI, 1) {
+  !exists($$LIBREMIDI_PREFIX/include/libremidi/libremidi.hpp): \
+    error("USE_LIBREMIDI=1: libremidi not found at $$LIBREMIDI_PREFIX (set LIBREMIDI_PREFIX=...)")
+  INCLUDEPATH += $$LIBREMIDI_PREFIX/include
+  DEFINES += LIBREMIDI_HEADER_ONLY
+  # libremidi backend: pick the native MIDI API per platform.
+  # Without any of these macros libremidi falls back to its dummy backend,
+  # which finds no devices.
+  win32 {
+    DEFINES += LIBREMIDI_WINMM
+    LIBS += -lwinmm
+  }
+  macx {
+    DEFINES += LIBREMIDI_COREMIDI
+    LIBS += -framework CoreMIDI -framework CoreFoundation
+  }
+  linux {
+    DEFINES += LIBREMIDI_ALSA
+    LIBS += -lasound
+  }
+  # libremidi is C++20.
+  CONFIG -= c++11
+  QMAKE_CXXFLAGS += -std=gnu++20
+}
+
 # QMAKE_CXXFLAGS += -Wno-attributes -Wno-deprecated -Wno-deprecated-copy -Wno-deprecated-declarations -Wno-reorder -Wno-parentheses -Wno-ignored-qualifiers -Wno-unused-local-typedefs -Wno-terminate
 QMAKE_CXXFLAGS += -Wno-deprecated-copy
 QMAKE_CXXFLAGS_RELEASE += -O3
