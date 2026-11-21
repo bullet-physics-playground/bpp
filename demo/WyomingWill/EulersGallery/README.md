@@ -179,6 +179,12 @@ it).
 
 ## How it works
 
+The hall itself is shown at once, with a dust sheet over each exhibit's
+bay; then the exhibits are loaded one a frame, the one you're at (or
+walking to) first, and each sheet comes off as its exhibit arrives. The
+status bar says which one is loading. Walk to a bay still being set up and
+you see it from the aisle; it comes to life when its exhibit has loaded.
+
 Each exhibit is the unchanged script, loaded into a sandbox of its own (its
 own set of globals) that:
 
