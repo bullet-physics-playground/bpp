@@ -70,49 +70,78 @@ save(labelled(im, [
 
 # 2. flat: a gear rolling between two racks (A above, B below); its centre,
 #    where the carrier holds it, goes (a + b) / 2
-P = 30          # (pixels a tooth)
+P = 30          # (pixels a tooth: the racks' pitch, and the gear's along its pitch circle)
+NT = 12         # (the gear's teeth)
+MOD = P / math.pi                                     # (the module: teeth 20 degrees, addendum 1, dedendum 1.25)
+PA = math.radians(20)
+RP = NT * P / (2 * math.pi)                           # (the gear's pitch circle, which rolls on the racks' pitch lines)
+def inv(al): return math.tan(al) - al
+def gear_outline(cx, cy, turn):
+    """an involute gear of NT teeth, turned by turn (radians, clockwise on the page)"""
+    rb, ra, rf = RP * math.cos(PA), RP + MOD, RP - 1.25 * MOD
+    half = math.pi / (2 * NT) + inv(PA)               # (half a tooth's angle, at the base circle)
+    def flank(sign, t0):
+        out = []
+        for i in range(13):                           # (from the base circle to the tip)
+            r = rb + (ra - rb) * i / 12
+            psi = half - inv(math.acos(rb / r))
+            out.append((r, t0 + sign * psi))
+        return out
+    pts = []
+    for k in range(NT):
+        t0 = 2 * math.pi * k / NT
+        left = flank(-1, t0)
+        right = flank(1, t0)
+        pts.append((rf, t0 - half - 0.02))            # (up from the root, radially, to the base circle)
+        pts += left
+        tl, tr = left[-1][1], right[-1][1]
+        pts += [(ra, tl + (tr - tl) * j / 4) for j in range(1, 4)]   # (the tip, an arc)
+        pts += right[::-1]
+        pts.append((rf, t0 + half + 0.02))
+        t1 = t0 + 2 * math.pi / NT                    # (the root, an arc, to the next tooth)
+        pts += [(rf, (t0 + half + 0.02) + ((t1 - half - 0.02) - (t0 + half + 0.02)) * j / 4) for j in range(1, 4)]
+    return [(cx + r * math.sin(t + turn), cy - r * math.cos(t + turn)) for r, t in pts]
 def racks(a, b, title):
     """the racks moved a and b teeth (to the right +), the gear rolled between"""
     c = (a + b) / 2                                   # (the carrier: the gear's centre)
-    spin = (a - b) / 2                                # (its turn, in teeth at its rim)
-    Wd, Hd, R = 15 * P, 9 * P, 2.0 * P
+    spin = (a - b) / 2                                # (its turn, in teeth along its pitch circle)
+    Wd, Hd = 15 * P, 9 * P
     im = Image.new("RGB", (Wd, Hd + 70), (255, 255, 255))
     g = ImageDraw.Draw(im)
     x0, yc = 4.5 * P, Hd / 2
-    def rack(dx, y, down, col, name):
-        """a rack whose teeth start at y: its body above y and teeth down (down), or below and up"""
-        if down: g.rectangle([0, y - 0.6 * P, Wd, y], fill=col)
-        else: g.rectangle([0, y, Wd, y + 0.6 * P], fill=col)
+    def rack(dx, yp, down, col):
+        """a rack with its pitch line at yp, its teeth toward the gear: down (A, above) or up (B, below)"""
+        s = 1 if down else -1                         # (toward the gear)
+        root, tip = yp - s * 1.25 * MOD, yp + s * MOD
+        body = root - s * 0.6 * P
+        g.rectangle([0, min(root, body), Wd, max(root, body)], fill=col)
+        wr = P / 2 + 2 * 1.25 * MOD * math.tan(PA)    # (a tooth's width at its root and at its tip)
+        wt = P / 2 - 2 * MOD * math.tan(PA)
         for k in range(-6, 20):
-            x = (k + dx) * P
-            tip = y + (0.45 * P if down else -0.45 * P)
-            g.polygon([(x - 0.3 * P, y), (x + 0.3 * P, y), (x + 0.12 * P, tip), (x - 0.12 * P, tip)], fill=col)
-    top, bot = yc - R - 0.45 * P, yc + R + 0.45 * P
-    # (ghosts: where everything was)
-    g.line([(x0, top - 0.6 * P), (x0, bot + 0.6 * P)], fill=(200, 200, 200), width=2)
-    rack(a, top, True, (201, 160, 106), "")
-    rack(b, bot, False, (201, 160, 106), "")
+            x = (k + dx) * P                          # (a tooth at each whole pitch; at x0, a gap)
+            g.polygon([(x - wr / 2, root), (x + wr / 2, root), (x + wt / 2, tip), (x - wt / 2, tip)], fill=col)
+        return body
+    top, bot = yc - RP, yc + RP                       # (the racks' pitch lines, touching the gear's pitch circle)
+    # (ghost: where the centre was)
+    g.line([(x0, top), (x0, bot)], fill=(200, 200, 200), width=2)
+    topBody = rack(a, top, True, (201, 160, 106))
+    botBody = rack(b, bot, False, (201, 160, 106))
     cx = x0 + c * P
-    nt = 12
-    pts = []
-    for k in range(nt * 2):
-        ang = math.pi * k / nt + spin * P / R      # (rolled: the rim moves spin teeth)
-        r = R + (0.45 * P if k % 2 == 0 else -0.05 * P)
-        pts.append((cx + r * math.sin(ang), yc - r * math.cos(ang)))
-    g.polygon(pts, fill=(184, 134, 43), outline=(110, 80, 20))
+    turn = spin * P / RP                              # (rolled: its pitch circle moves spin teeth)
+    g.polygon(gear_outline(cx, yc, turn), fill=(184, 134, 43), outline=(110, 80, 20))
     g.ellipse([cx - 7, yc - 7, cx + 7, yc + 7], fill=(60, 60, 60))
-    m = spin * P / R
-    g.line([(cx + R * 0.8 * math.sin(m), yc - R * 0.8 * math.cos(m)), (cx, yc)], fill=(90, 60, 15), width=4)   # (a mark on the gear, to see it turn)
+    g.line([(cx + RP * 0.75 * math.sin(turn), yc - RP * 0.75 * math.cos(turn)), (cx, yc)], fill=(90, 60, 15), width=4)   # (a mark on the gear, to see it turn)
+    top, bot = topBody, botBody                       # (the arrows and labels go outside the racks)
     def arrow(xa, xb, y, col):
         if abs(xb - xa) < 1: return
         g.line([(xa, y), (xb, y)], fill=col, width=4)
         s = 12 if xb > xa else -12
         g.polygon([(xb, y), (xb - s, y - 7), (xb - s, y + 7)], fill=col)
-    arrow(x0, x0 + a * P, top - 0.6 * P - 16, RED)
-    arrow(x0, x0 + b * P, bot + 0.6 * P + 16, RED)
-    arrow(x0, cx, yc + R + 0.1 * P - 0.0, BLUE) if False else arrow(x0, cx, yc, BLUE)
-    g.text((Wd - 8, top - 0.6 * P - 16), f"A: {a:+g}", font=font(20, True), fill=RED, anchor="rm")
-    g.text((Wd - 8, bot + 0.6 * P + 16), f"B: {b:+g}", font=font(20, True), fill=RED, anchor="rm")
+    arrow(x0, x0 + a * P, top - 16, RED)
+    arrow(x0, x0 + b * P, bot + 16, RED)
+    arrow(x0, cx, yc, BLUE)
+    g.text((Wd - 8, top - 16), f"A: {a:+g}", font=font(20, True), fill=RED, anchor="rm")
+    g.text((Wd - 8, bot + 16), f"B: {b:+g}", font=font(20, True), fill=RED, anchor="rm")
     g.text((Wd - 8, yc), f"centre: {c:+g}", font=font(20, True), fill=BLUE, anchor="rm")
     g.text((Wd / 2, Hd + 30), title, font=font(22, True), fill=INK, anchor="mm")
     return im
