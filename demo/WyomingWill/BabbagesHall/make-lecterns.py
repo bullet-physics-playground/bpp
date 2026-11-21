@@ -158,8 +158,8 @@ LABELS = {
         "up a click as the fence meets each wall of the notch, one each way. "
         "At each click the safecracker reads the number under the index; the "
         "gap is the difference.\n"
-        "Our safecracker chalks both on the dial, with the arc between them. "
-        "The arc turns blue when the gap reads narrower.",
+        "Ours chalks both on the dial, with the arc between. When the gap "
+        "reads narrower, the arc turns blue, and so does the slate's reading.",
     ), (
         "ONE WHEEL AT A TIME",
         "Two graphs and a few tries",

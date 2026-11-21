@@ -44,6 +44,14 @@ GLYPHS.update({"dash": "–", "plus": "+", "minus": "−", "point": ".", "blank"
 for name, ch in GLYPHS.items():
     tile(f"g-{name}", 45 if name == "point" else 85, 110, [ch], [bold(88)],
          fill=DIM if name == "under" else CHALK, shrink=False)
+# (and in colour, for what matters in the safecracker's way: blue, a
+# reading narrower than the graph's level, as the chalk on the dial; gold,
+# a number found; green, the lock opened)
+BLUE, GOLD = (126, 200, 240), (240, 200, 90)
+for code, col in (("b", BLUE), ("y", GOLD), ("g", GREEN)):
+    for name, ch in GLYPHS.items():
+        if name in ("blank", "under", "q"): continue
+        tile(f"g{code}-{name}", 45 if name == "point" else 85, 110, [ch], [bold(88)], fill=col, shrink=False)
 
 # the labels at the rows' left
 for key, text in [("set", "SET TO"), ("try", "TRYING"), ("dial", "DIAL"), ("found", "FOUND"),

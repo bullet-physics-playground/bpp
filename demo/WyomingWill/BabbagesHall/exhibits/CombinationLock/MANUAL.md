@@ -227,7 +227,10 @@ show it level.
 The slate keeps the combination hidden (`??-??-??`), shows what has been
 found, the contact points and their gap as each is felt, and draws the
 graphs in chalk, a dot a number: white for the first, green for a closer
-look, orange for the second. `F` feels the contact points once, wherever
+look, orange for the second. Colour marks what matters. **Blue**: a
+reading narrower than the graph's level; its contact points, its gap and
+its dot turn blue, and so does the arc chalked on the dial. **Gold**: a
+number found. **Green**: the lock opened, the whole combination. `F` feels the contact points once, wherever
 the wheels are. The simulation's gaps agree with the model's to 0.02
 numbers (`FINDINGS.md`).
 

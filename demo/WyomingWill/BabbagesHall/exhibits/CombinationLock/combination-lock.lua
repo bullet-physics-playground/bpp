@@ -500,10 +500,14 @@ local function glyphRow(n, x0, y)
   end
   return row
 end
-local function showGlyphs(row, text)
+-- (col: in colour, one code for the whole row or one a character: "c"
+-- chalk, "b" blue, "y" gold, "g" green; the blank, the underline and the
+-- question mark are always chalk)
+local function showGlyphs(row, text, col)
   text = text or ""
-  if row.text == text then return end
-  row.text = text
+  col = col or "c"
+  if row.text == text and row.col == col then return end
+  row.text, row.col = text, col
   local x = row.x0
   for k = 1, #row.wide do
     local ch = text:sub(k, k)
@@ -513,7 +517,10 @@ local function showGlyphs(row, text)
     else
       local use, other, width = w, n, GW
       if NARROW[ch] then use, other, width = n, w, GN end
-      show(use, "g-" .. (GLYPH[ch] or ch))
+      local cc = #col == 1 and col or col:sub(k, k)
+      local name = GLYPH[ch] or ch
+      if cc == "" or cc == "c" or name == "blank" or name == "under" or name == "q" then cc = "" end
+      show(use, "g" .. cc .. "-" .. name)
       use.trans = btTransform(ident, btVector3(SX + x + width / 2, SY + row.y, SZ))
       other.trans = btTransform(ident, HIDE)
       x = x + width + 0.02
@@ -877,6 +884,20 @@ local function foundText(c)
   for i = 1, 3 do t[i] = c[i] and string.format("%02d", c[i]) or "__" end
   return table.concat(t, "-")
 end
+-- (the numbers found in gold; upTo: how many are found, not just being tried)
+local function foundCols(c, upTo)
+  local t = {}
+  for i = 1, 3 do t[i] = (c[i] and i <= (upTo or 3)) and "yy" or "cc" end
+  return table.concat(t, "c")
+end
+-- (a reading judged narrower than the graph's level, or not: blue on the
+-- slate's numbers, on its dot and on the dial's chalk)
+local BLUE = "#7ec8f0"
+local function markNarrow(narrow)
+  CHALK.mark(narrow)
+  for _, r in ipairs({ slate.low, slate.high, slate.gap }) do showGlyphs(r, r.text, narrow and "b" or "c") end
+  if narrow and DOTS[#DOTS] then DOTS[#DOTS].col = BLUE end
+end
 -- the contact points: from above (turning right to the notch, then feeling
 -- right, then left), or from below (left, then left, then right)
 local function contacts(fromAbove)
@@ -931,7 +952,7 @@ local function graphToDip(graph, xs, park, fromAbove)
     park(k, x)
     gaps[k] = measure(graph, x, fromAbove)
     local m = k >= 4 and median(gaps, k)
-    if m and gaps[k] then CHALK.mark(gaps[k] < m - DIP) end
+    if m and gaps[k] then markNarrow(gaps[k] < m - DIP) end
     if m and gaps[k] and gaps[k] >= m - DIP then
       for j = 1, k - 1 do
         if gaps[j] and gaps[j] < m - DIP then return gaps, k, m end
@@ -956,7 +977,7 @@ local function closerLook(graph, xs, gaps, n, m, park, fromAbove, dir, ok, width
     k = k + 1
     park(k, x)
     local g = measure(graph, x, fromAbove)
-    CHALK.mark(g ~= nil and g < m - DIP)
+    markNarrow(g ~= nil and g < m - DIP)
     return g ~= nil and g < m - DIP
   end
   local out, inside = first > 1 and xs[first - 1] or xs[first] - dir * 2.5, xs[first]
@@ -1009,7 +1030,7 @@ local function safeTour()
   local c1, k1, w1 = closerLook(2, xs, g1, n1, m1, parkAll, true, 1, function(x) return x >= 7.5 and x <= 90 end)
   if not c1 then say("s-nodip", 3); crackFails = crackFails + 1; return end
   found[1] = math.floor(c1 + 0.5) % L.N
-  showGlyphs(slate.try, foundText(found))
+  showGlyphs(slate.try, foundText(found), foundCols(found))
   print(string.format("  wheel 1: graphed to %.1f (%d points), the narrowing's middle %.2f (%d points closer): %d",
                       xs[n1], n1, c1, k1, found[1]))
   -- 2. wheel 1 left there; wheels 2 and 3 parked together, turning right,
@@ -1043,7 +1064,7 @@ local function safeTour()
   end, w1)
   if not c2 then say("s-nodip", 3); crackFails = crackFails + 1; return end
   found[2] = math.floor(c2 + 0.5) % L.N
-  showGlyphs(slate.try, foundText(found))
+  showGlyphs(slate.try, foundText(found), foundCols(found))
   print(string.format("  wheel 2: graphed to %.1f (%d points), the narrowing's middle %.2f (%d points closer): %d",
                       L.wrap(ys[n2]), n2, c2, k2, found[2]))
   -- 3. the last wheel: every second number, turning right to open each time
@@ -1060,7 +1081,7 @@ local function safeTour()
     if L.wrap(found[2] - z) <= 7 then break end
     if z < L.N - 10 then
       found[3] = z
-      showGlyphs(slate.try, foundText(found))
+      showGlyphs(slate.try, foundText(found), foundCols(found, 2))   -- (the third only being tried)
       turnTo(lastD and lastD + L.wrap(z - lastZ) or L.goTo(Dnow, 1, z, 2))
       lastD, lastZ = Dnow, z
       local stopped = act({ open = true })
@@ -1085,6 +1106,7 @@ local function safeTour()
   print(string.format("  the gaps felt against the model's: %d points, the worst %.3f numbers apart", n, worst))
   if not ok then crackFails = crackFails + 1 end
   if found[3] then
+    showGlyphs(slate.try, foundText(found), "g")    -- (opened: the combination in green)
     say("s-opened", 3)
     say("close", 0.9)
     local D0 = Dnow

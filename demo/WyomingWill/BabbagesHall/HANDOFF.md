@@ -1135,6 +1135,15 @@ there, in `release/`, or on the path; or set `BPP`.
   LISTEN); `F` plays the clicks alone; in the hall, heard only while
   you're at the lock. Checked through bpp's own export (FINDINGS: the
   safecracker's way, heard).
+- **Done (2026-11-21): colour on the slate for what matters** (the
+  safecracker's way). Blue: a reading narrower than the graph's level
+  (its LOW, HIGH and GAP numbers, its dot, and the dial's arc); gold: a
+  number found (the FOUND row); green: the lock opened (the whole
+  combination). Coloured glyph sets `gb-`, `gy-`, `gg-` from
+  `make-slate.py`; `showGlyphs(row, text, col)` takes a colour code for the
+  row or one a character; `markNarrow` judges and colours. William's
+  report: the clicks don't change at a narrowing, and nothing said why it
+  mattered.
 - **Done (2026-11-21): chalk on the dial instead of the tone.** The tone
   is gone (a real lock makes none, it repeated the graph, and it hid that
   a click says *when* and the dial says *where*); the clicks stay. At each

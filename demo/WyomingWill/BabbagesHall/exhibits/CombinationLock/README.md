@@ -52,7 +52,9 @@ parked together give wheel 2's. Each graph stops just past the narrowing,
 and then the narrowing's two edges are found a half number at a time
 (a real safecracker graphs the whole dial; MANUAL section 8 says why). The last wheel is tried, every second
 number, until the lock opens. The slate hides the combination until then,
-and draws the graph in chalk. It can be heard too: a click as each wall
+and draws the graph in chalk; a reading narrower than the graph's level
+turns blue there and on the dial, a number found turns gold, and the
+combination green when the lock opens. It can be heard too: a click as each wall
 stops the dial (what a contact microphone on the case would pick up). The
 dial is chalked at the two contact points, with the arc between them, the
 gap, blue when it reads narrower (MANUAL section 8).
