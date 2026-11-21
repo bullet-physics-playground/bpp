@@ -60,4 +60,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: demo-screenshots
           keep_files: false
+          force_orphan: true    # only the latest gallery: old ones made every clone ~160 MB bigger
           commit_message: "chore: regenerate demo screenshot gallery"
