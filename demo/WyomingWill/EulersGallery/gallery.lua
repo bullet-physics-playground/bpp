@@ -508,12 +508,17 @@ end
 
 local WALNUT, DARK, PANEL, GILT, GOLD = "#4a2c14", "#2a1a0c", "#5a3418", "#b8932e", "#d4af37"
 local FELT, CREAM = "#1f4d3a", "#b9ae94"
-local HALL_LIGHT0 = btVector4(HW + LB / 2, 1600, -WW / 2 + 400, 0.4)
+-- The gallery's light shines from high above the middle of the L (a light
+-- with w below 1 is at x/w, y/w, z/w: hence the 0.4s). At an exhibit it is
+-- at full strength; in the aisle and at the views, dimmed (AISLE_DIM), so an
+-- exhibit brightens when you step up to it and dims when you leave.
+local HALL_LIGHT0 = btVector4(0.4 * (XE - HW) / 2, 2000, 0.4 * (ZS + ZN) / 2, 0.4)
+local AISLE_DIM = 0.6
 local HALL_LIGHT1 = btVector4(-200, 100, 200, 0.2)            -- (bpp's own)
 realV.glLight0 = HALL_LIGHT0
--- At an exhibit, its lights come from where they would on its own (bpp's
--- defaults, or what it set), turned with its bay: so it is lit in the hall
--- as on its own, whichever way its bay faces.
+-- At an exhibit, the gallery's light, unless the exhibit sets its own
+-- (the solar system's Sun): that comes from where it would on its own,
+-- turned with its bay.
 local function bayLight(g, L)
   -- (a lamp, w = 1, is a place in the exhibit: it goes where the bay is;
   -- bpp's far lights, w below 1, are a direction, only turned)
@@ -526,16 +531,19 @@ local function bayLight(g, L)
 end
 -- The rest of an exhibit's lighting -- its ambient light, its lights'
 -- colours and its highlights (glSpecular) -- is its own too while you're
--- at it (set as it runs, at once), and the hall's (bpp's) again when you
--- leave.
+-- at it (set as it runs, at once), and the hall's (bpp's, the lights'
+-- colours dimmed) again when you leave.
 local HALL_LIGHTS = { glAmbient = realV.glAmbient, glModelAmbient = realV.glModelAmbient, glSpecular = realV.glSpecular,
                       glLight0Color = realV.glLight0Color, glLight1Color = realV.glLight1Color }
 LIGHTS = { glLight0 = true, glLight1 = true, glAmbient = true, glModelAmbient = true, glSpecular = true,
            glLight0Color = true, glLight1Color = true }
 applyLight = function(g, k)
   local val = g and g.vset[k]
-  if k == "glLight0" then realV.glLight0 = g and bayLight(g, val or btVector4(500, 500, 500, 0.4)) or HALL_LIGHT0
+  if k == "glLight0" then realV.glLight0 = (g and val) and bayLight(g, val) or HALL_LIGHT0
   elseif k == "glLight1" then realV.glLight1 = g and bayLight(g, val or HALL_LIGHT1) or HALL_LIGHT1
+  elseif not g and (k == "glLight0Color" or k == "glLight1Color") then
+    local c = HALL_LIGHTS[k]                                   -- (the aisle: dimmed)
+    realV[k] = btVector4(c.x * AISLE_DIM, c.y * AISLE_DIM, c.z * AISLE_DIM, c:getW())
   else
     if val == nil then val = HALL_LIGHTS[k] end
     realV[k] = val
