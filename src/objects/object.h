@@ -290,6 +290,30 @@ public:
   btScalar getRestitution() const;
 
   /**
+   * @brief Sets the object's rolling friction coefficient.
+   * @param rollingFriction The new rolling friction.
+   */
+  void setRollingFriction(btScalar rollingFriction);
+
+  /**
+   * @brief Returns the object's rolling friction coefficient.
+   * @return The rolling friction, or 0 if it has no body yet.
+   */
+  btScalar getRollingFriction() const;
+
+  /**
+   * @brief Sets the object's spinning friction coefficient.
+   * @param spinningFriction The new spinning friction.
+   */
+  void setSpinningFriction(btScalar spinningFriction);
+
+  /**
+   * @brief Returns the object's spinning friction coefficient.
+   * @return The spinning friction, or 0 if it has no body yet.
+   */
+  btScalar getSpinningFriction() const;
+
+  /**
    * @brief Sets the damping applied to linear motion.
    * @param linearDamping The new linear damping.
    */

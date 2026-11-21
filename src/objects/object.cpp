@@ -419,8 +419,16 @@ void Object::luaBind(lua_State *s) {
                      (void(Object::*)(btScalar)) & Object::setFriction)
 
            .property("restitution",
-                     (btScalar(Object::*)(void)) & Object::getRestitution,
-                     (void(Object::*)(btScalar)) & Object::setRestitution)
+                      (btScalar(Object::*)(void)) & Object::getRestitution,
+                      (void(Object::*)(btScalar)) & Object::setRestitution)
+
+           .property("rolling_friction",
+                      (btScalar(Object::*)(void)) & Object::getRollingFriction,
+                      (void(Object::*)(btScalar)) & Object::setRollingFriction)
+
+           .property("spinning_friction",
+                      (btScalar(Object::*)(void)) & Object::getSpinningFriction,
+                      (void(Object::*)(btScalar)) & Object::setSpinningFriction)
 
            .property("damp_lin",
                      (btScalar(Object::*)(void)) & Object::getLinearDamping,
@@ -704,6 +712,30 @@ void Object::setRestitution(btScalar restitution) {
 btScalar Object::getRestitution() const {
   if (body != nullptr) {
     return body->getRestitution();
+  }
+  return 0;
+}
+
+void Object::setRollingFriction(btScalar rollingFriction) {
+  if (body != nullptr)
+    body->setRollingFriction(rollingFriction);
+}
+
+btScalar Object::getRollingFriction() const {
+  if (body != nullptr) {
+    return body->getRollingFriction();
+  }
+  return 0;
+}
+
+void Object::setSpinningFriction(btScalar spinningFriction) {
+  if (body != nullptr)
+    body->setSpinningFriction(spinningFriction);
+}
+
+btScalar Object::getSpinningFriction() const {
+  if (body != nullptr) {
+    return body->getSpinningFriction();
   }
   return 0;
 }
