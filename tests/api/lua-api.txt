@@ -27,8 +27,10 @@ class BezierPatch
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -88,8 +90,10 @@ class Blob
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .threshold
   .trans
@@ -149,8 +153,10 @@ class Bound
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -231,8 +237,10 @@ class Cone
   .radius
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -297,8 +305,10 @@ class CsgObject
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -357,8 +367,10 @@ class Cube
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -415,8 +427,10 @@ class Cylinder
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -496,8 +510,10 @@ class Disc
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -560,9 +576,11 @@ class Heightfield
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .scale
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -674,8 +692,10 @@ class Mesh
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -733,8 +753,10 @@ class Object
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -791,8 +813,10 @@ class OpenSCAD
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -853,8 +877,10 @@ class Patch
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -914,8 +940,10 @@ class Plane
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -1073,8 +1101,10 @@ class ReferenceObject
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .target
   .targetName
   .tex
@@ -1148,9 +1178,11 @@ class SoftBody
   .pressure
   .render
   .restitution
+  .rolling_friction
   .sdl
   .self_collision
   .shape
+  .spinning_friction
   .stiffness
   .tex
   .trans
@@ -1230,8 +1262,10 @@ class Sphere
   .radius
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -1295,10 +1329,12 @@ class SuperQuadric
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .roundness
   .sdl
   .shape
   .size
+  .spinning_friction
   .tex
   .thickness
   .trans
@@ -1357,8 +1393,10 @@ class Sweep
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -1416,8 +1454,10 @@ class Terrain
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -1478,8 +1518,10 @@ class Torus
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -1537,8 +1579,10 @@ class Triangle
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
+  .spinning_friction
   .tex
   .trans
   .transparency
@@ -1595,9 +1639,11 @@ class TrueType
   .pre_sdl
   .render
   .restitution
+  .rolling_friction
   .sdl
   .shape
   .size
+  .spinning_friction
   .tex
   .text
   .trans
@@ -1715,6 +1761,7 @@ class Viewer
   onHover: void onHover(Viewer&,luabind::object const&)
   onJoystick: void onJoystick(Viewer&,luabind::object const&)
   onKey: void onKey(Viewer&,luabind::object const&)
+  onMIDIReceived: void onMIDIReceived(Viewer&,luabind::object const&)
   onParamChanged: void onParamChanged(Viewer&,luabind::object const&)
   onSpaceNavigator: void onSpaceNavigator(Viewer&,luabind::object const&)
   pauseMusic: void pauseMusic(Viewer&)
@@ -2034,6 +2081,8 @@ class btCollisionObject
   getInterpolationWorldTransform: btTransform& getInterpolationWorldTransform(btCollisionObject&)
   getIslandTag: int getIslandTag(btCollisionObject const&)
   getRestitution: custom [float] getRestitution(btCollisionObject const&)
+  getRollingFriction: custom [float] getRollingFriction(btCollisionObject const&)
+  getSpinningFriction: custom [float] getSpinningFriction(btCollisionObject const&)
   getUserPointer: void* getUserPointer(btCollisionObject const&)
   getWorldTransform: btTransform& getWorldTransform(btCollisionObject&)
   hasAnisotropicFriction: bool hasAnisotropicFriction(btCollisionObject const&,int)
@@ -2057,6 +2106,8 @@ class btCollisionObject
   setInterpolationWorldTransform: void setInterpolationWorldTransform(btCollisionObject&,btTransform const&)
   setIslandTag: void setIslandTag(btCollisionObject&,int)
   setRestitution: void setRestitution(btCollisionObject&,custom [float])
+  setRollingFriction: void setRollingFriction(btCollisionObject&,custom [float])
+  setSpinningFriction: void setSpinningFriction(btCollisionObject&,custom [float])
   setUserPointer: void setUserPointer(btCollisionObject&,void*)
   setWorldTransform: void setWorldTransform(btCollisionObject&,btTransform const&)
 class btCollisionShape
@@ -2778,6 +2829,36 @@ class btGeneric6DofSpringConstraint
   setStiffness: void setStiffness(btGeneric6DofSpringConstraint&,int,custom [float])
   torqueA: btVector3 torqueA(btTypedConstraint const&)
   torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btHeightfieldTerrainShape
+  .margin
+  .userPointer
+  __eq: void __eq(lua_State*,btHeightfieldTerrainShape const&,btHeightfieldTerrainShape const&)
+  __init: void __init(luabind::argument const&,int,int,void const*,custom [float],int,bool,bool)
+  __tostring: void __tostring(lua_State*,btHeightfieldTerrainShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btHeightfieldTerrainShape const&)
+  getMargin: custom [float] getMargin(btConcaveShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUpAxis: int getUpAxis(btHeightfieldTerrainShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  processAllTriangles: void processAllTriangles(btConcaveShape const&,custom [btTriangleCallback]*,btVector3 const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setFlipTriangleWinding: void setFlipTriangleWinding(btHeightfieldTerrainShape&,bool)
+  setLocalScaling: void setLocalScaling(btHeightfieldTerrainShape&,btVector3 const&)
+  setMargin: void setMargin(btConcaveShape&,custom [float])
+  setUseDiamondSubdivision: void setUseDiamondSubdivision(btHeightfieldTerrainShape&,bool)
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
 class btHinge2Constraint
   __eq: void __eq(lua_State*,btHinge2Constraint const&,btHinge2Constraint const&)
   __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btVector3&,btVector3&,btVector3&)
@@ -3066,6 +3147,8 @@ class btRigidBody
   getNumConstraintRefs: int getNumConstraintRefs(btRigidBody const&)
   getOrientation: btQuaternion getOrientation(btRigidBody const&)
   getRestitution: custom [float] getRestitution(btCollisionObject const&)
+  getRollingFriction: custom [float] getRollingFriction(btCollisionObject const&)
+  getSpinningFriction: custom [float] getSpinningFriction(btCollisionObject const&)
   getTotalForce: btVector3 const& getTotalForce(btRigidBody const&)
   getTotalTorque: btVector3 const& getTotalTorque(btRigidBody const&)
   getUserPointer: void* getUserPointer(btCollisionObject const&)
@@ -3111,7 +3194,9 @@ class btRigidBody
   setMotionState: void setMotionState(btRigidBody&,btMotionState*)
   setNewBroadphaseProxy: void setNewBroadphaseProxy(btRigidBody&,custom [btBroadphaseProxy]*)
   setRestitution: void setRestitution(btCollisionObject&,custom [float])
+  setRollingFriction: void setRollingFriction(btCollisionObject&,custom [float])
   setSleepingThresholds: void setSleepingThresholds(btRigidBody&,custom [float],custom [float])
+  setSpinningFriction: void setSpinningFriction(btCollisionObject&,custom [float])
   setUserPointer: void setUserPointer(btCollisionObject&,void*)
   setWorldTransform: void setWorldTransform(btCollisionObject&,btTransform const&)
   translate: void translate(btRigidBody&,btVector3 const&)
