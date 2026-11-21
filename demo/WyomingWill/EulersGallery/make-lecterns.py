@@ -27,7 +27,7 @@ LABELS = {
         "shape alone does it. The white dot marks each one's balancing point, "
         "its only other place of rest.\n"
         "Each colour drops the next shape in a cycle. R drops them again; U "
-        "stands them on their heads; K tosses them up; ] and [, one more or fewer.",
+        "stands them on their heads; K tosses them up; the count slider, how many.",
     ), (
         "ONE STABLE, ONE UNSTABLE",
         "The Gömböc problem",

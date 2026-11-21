@@ -9,8 +9,14 @@
 -- it is, mid-air if need be; come back and it carries on from there.
 --
 -- KEYS (click the 3D view first so it has the keyboard):
---   Tab         walk to the next exhibit (and the two views down the hall)
---   Shift+Tab   walk back
+--   Tab         walk to the next exhibit (and the two views down the hall);
+--               at each, first up to it, then a step in
+--   Shift+Tab   walk back (stepping back out first)
+--   ], [        on to the next exhibit, back to the one before (past the
+--               stepping in)
+--   F3          find an exhibit: type part of its name, or its number (the
+--               "Gallery: stop" slider's); Tab, Shift+Tab pick among the
+--               matches, Return goes there, Esc (or F3) leaves it
 --   I           at an exhibit: its lectern's label, close up (again: back)
 --   PgDn, PgUp  at an exhibit: the label's next and previous pages
 --   everything else goes to the exhibit you're at, with the same keys as
@@ -246,6 +252,9 @@ local active = nil         -- the exhibit you're at (nil: one of the views)
 local flight = nil         -- the camera on its way to the next stop (see "walking on")
 local loading = nil        -- the exhibit being loaded
 local loadSome             -- (loads the next exhibit; at the end)
+local steppedIn = nil      -- (at an exhibit with a walk-up: it, once you've stepped in)
+local hallStatus = nil     -- (what the status line says, the finder aside)
+local finder = nil         -- (F3: finding an exhibit by name; the status line is the finder's meanwhile)
 
 local function loadIn(file, env)
   if setfenv then
@@ -324,6 +333,9 @@ local function makeExhibit(e, bay)
   -- camera no other way: exhibits load while you're at another, and one
   -- standing the camera upright as it loaded turned the view you had level.)
   local camFns = {}
+  -- (only once you've stepped in to it: not at its walk-up, nor while its
+  -- label is close up, nor on the way)
+  local function inView() return active == g and not flight and (not g.approach or steppedIn == g) and not g.lecternBack end
   local cam = setmetatable({}, {
     __index = function(_, k)
       local c = realV.cam
@@ -332,7 +344,7 @@ local function makeExhibit(e, bay)
       if type(val) == "function" then
         local fn = camFns[k]
         if not fn then
-          fn = function(self, ...) if active == g and not flight then return val(realV.cam, ...) end end
+          fn = function(self, ...) if inView() then return val(realV.cam, ...) end end
           camFns[k] = fn
         end
         return fn
@@ -342,10 +354,10 @@ local function makeExhibit(e, bay)
     __newindex = function(_, k, val)
       if k == "pos" or k == "look" then
         if loading == g then g.view[k] = val
-        elseif active == g and not flight then realV.cam[k] = toScene(val) end
+        elseif inView() then realV.cam[k] = toScene(val) end
         return
       end
-      if active == g and not flight then realV.cam[k] = val end
+      if inView() then realV.cam[k] = val end
     end,
   })
 
@@ -358,7 +370,7 @@ local function makeExhibit(e, bay)
     getParam = function(_, n) return realV:getParam(g.prefix .. n) end,
     setHelpText = function(_, text)
       g.help = text
-      if active == g then realV:setHelpText(g.header() .. text) end
+      if active == g and not finder then realV:setHelpText(g.header() .. text) end
     end,
     setStatusText = function(_, text) if active == g and text and text ~= "" then print(text) end end,
     loadSound = function(_, path) return realV:loadSound(fix(path)) end,
@@ -813,12 +825,17 @@ end
 -- aisle; its card (make-lecterns.py: gallery-meshes/lectern-<label>.png,
 -- then -2, -3 ... for its other pages). Built only if the exhibit has a
 -- card. I looks at the card close up, and back; PgDn and PgUp turn its pages.
+-- With it the exhibit has a walk-up: the first Tab brings you to where a
+-- visitor coming up to it would stand, the exhibit and its lectern in view,
+-- the card turned to you; the next steps in, to the exhibit's own view.
 -- (An exhibit whose table reaches that corner can say where its lectern
 -- stands instead: lectern = { x, z }, in cm from the bay's middle, x to the
--- right as you face the bay, z toward the aisle.)
+-- right as you face the bay, z toward the aisle; and its walk-up too:
+-- approach = { pos = { x, y, z }, look = { x, y, z } }, in the same terms.)
 local LECTERN_TILT = 35                       -- degrees back from upright
 local LECTERN_AT = { 150, 115 }               -- (the bay's front right corner, inside the rug)
 local LECTERN_Y = 100                         -- the board's middle, cm up
+local APPROACH = { pos = { 95, 170, 300 }, look = { 55, 92, 0 } }   -- (the walk-up: at the aisle's edge, a little right)
 local BRASS, IRON2 = "#b5893a", "#2b2b2b"
 local function cardPages(key)
   local pages = {}
@@ -839,8 +856,11 @@ local function lectern(g)
   local b = g.bay
   local at = g.e.lectern or LECTERN_AT
   local lx, lz = at[1], at[2]
-  -- (turned to face a visitor in the middle of the aisle, before the bay)
-  local yaw = math.atan2(0 - lx, BAY_D / 2 + AISLE / 2 - lz)
+  -- (the walk-up, and the lectern turned to face it)
+  local A = g.e.approach or APPROACH
+  local function inBay(p) local wx, wz = rot(b.a, p[1], p[3]); return btVector3(b.x + wx, p[2], b.z + wz) end
+  g.approach = { pos = inBay(A.pos), look = inBay(A.look) }
+  local yaw = math.atan2(A.pos[1] - lx, A.pos[3] - lz)
   local q = yq(b.a) * yq(yaw)
   local tq = q * btQuaternion(btVector3(1, 0, 0), -math.rad(LECTERN_TILT))
   local sn, cs = math.sin(math.rad(LECTERN_TILT)), math.cos(math.rad(LECTERN_TILT))
@@ -945,12 +965,14 @@ local function nextStop(s, d)
 end
 local function header(g)
   return function()
+    local out = g.approach and steppedIn ~= g          -- (at its walk-up)
     return "EULER'S GALLERY -- at " .. g.name ..
-           "\n(Tab: walk on to " .. nextStop(g, 1).name .. "; Shift+Tab: back to " .. nextStop(g, -1).name .. ")\n" ..
-           "Its sliders are the \"" .. g.prefix .. "\" ones in the Params pane." ..
-           (g.lecternView and "\nI: its label, close up (again: back)" or "") ..
+           (out and ".   Tab: step in" or (".   Tab: on to " .. nextStop(g, 1).name)) ..
+           ";   Shift+Tab: " .. ((g.approach and not out) and "step back" or ("back to " .. nextStop(g, -1).name)) ..
+           (g.lecternView and ";   I: its label, close up (again: back)" or "") ..
            ((g.pages and #g.pages > 1) and string.format(";   PgDn, PgUp: its label's pages (%d of %d)", g.page or 1, #g.pages) or "") ..
-           "\n\n"
+           ";   ], [: on to " .. nextStop(g, 1).name .. ", back to " .. nextStop(g, -1).name .. ";   F3: find an exhibit\n" ..
+           "Its sliders are the \"" .. g.prefix .. "\" ones in the Params pane.\n\n"
   end
 end
 for _, g in ipairs(all) do g.header = header(g) end
@@ -970,7 +992,9 @@ local function hallHelp(s)
          "covered bay to read it.\n\n" ..
          "On show:\n" .. table.concat(live, "\n") .. "\n\n" ..
          (#coming > 0 and ("In preparation:\n" .. table.concat(coming, "\n") .. "\n\n") or "") ..
-         "Tab / Shift+Tab   walk on / back\n" ..
+         "Tab / Shift+Tab   walk on / back (at an exhibit: up to it, then a step in)\n" ..
+         "], [               on to the next exhibit, back to the one before\n" ..
+         "F3                find an exhibit: type part of its name, or its number\n" ..
          "I, PgDn, PgUp      at an exhibit: its lectern's label, close up; its pages\n" ..
          "the mouse          looks round as usual\n"
 end
@@ -1105,7 +1129,7 @@ local function moveCam(pos, look, instant, direct)
   c.look = look            -- (in that order: the look turns the view from where it now is)
 end
 
-local function goTo(s, instant)
+local function goTo(s, instant, stepIn)
   -- let go of any keys still held at the exhibit we're leaving (its world
   -- then waits, untouched, until you come back)
   if active then
@@ -1117,7 +1141,9 @@ local function goTo(s, instant)
     f = active.callbacks.onLeave
     if f then local ok, err = pcall(f, active.N); if not ok then print("GALLERY: " .. active.name .. " onLeave: " .. tostring(err)) end end
   end
+  local same = here == s                    -- (stepping in or back, at the same exhibit: straight there)
   here = s
+  steppedIn = (stepIn and not s.isView and s.approach) and s or nil
   -- (and where you are as a slider, "Gallery: stop": bpp's Restart runs the
   -- hall again from the start, then puts every slider back as it was --
   -- this one included, which brings you back here. Drag it to jump.)
@@ -1164,10 +1190,14 @@ local function goTo(s, instant)
     -- turns them off)
     realV.showConstraints = s.vset.showConstraints ~= false
     for k in pairs(LIGHTS) do applyLight(s, k) end            -- (its lights, as on its own)
-    local view = s.view
-    local pos = view.pos or btVector3(0, 150, 200)
-    local look = view.look or btVector3(0, 0, 0)
-    moveCam(s.toScene(pos), s.toScene(look), instant)
+    if s.approach and steppedIn ~= s then
+      moveCam(s.approach.pos, s.approach.look, instant, same)    -- (walking up: the exhibit and its lectern)
+    else
+      local view = s.view
+      local pos = view.pos or btVector3(0, 150, 200)
+      local look = view.look or btVector3(0, 0, 0)
+      moveCam(s.toScene(pos), s.toScene(look), instant, same)
+    end
     realV:setHelpText(s.header() .. s.help)
     -- (and tell it you've come, if it asked: v:onEnter)
     local f = s.callbacks.onEnter
@@ -1203,10 +1233,111 @@ realV:postSim(function(N) loadSome(); callActive("postSim") end)
 realV:preDraw(function(N) stepFlight(); callActive("preDraw") end)
 realV:postDraw(function(N) callActive("postDraw") end)
 
+-- ---------------------------------------------------------------------
+-- F3: find an exhibit. Type part of its name (or a view's) or its number,
+-- the "Gallery: stop" slider's; the status line shows the match, Tab and
+-- Shift+Tab the next and the one before; Return goes there, Esc or F3
+-- again leaves it. Every key is the finder's meanwhile.
+-- ---------------------------------------------------------------------
+local function statusLine(t) pcall(function() realV:setStatusText(t) end) end
+local function plain(t) return (t:lower():gsub("\195\182", "o"):gsub("[^%w ]", "")) end
+local function finderMatches(q)
+  local out = {}
+  if q:match("^%d+$") then
+    local s = stops[tonumber(q)]
+    if s then out[1] = s end
+    return out
+  end
+  q = plain(q)
+  for _, s in ipairs(stops) do
+    if q == "" or plain(s.name):find(q, 1, true) then out[#out + 1] = s end
+  end
+  return out
+end
+local function finderShow()
+  local f = finder
+  f.matches = finderMatches(f.query)
+  f.pick = math.max(1, math.min(f.pick, #f.matches))
+  local m = f.matches[f.pick]
+  statusLine("FIND: " .. f.query .. "_   " ..
+    (m and ("-> " .. indexOf(m) .. " " .. m.name ..
+            (#f.matches > 1 and string.format("  (%d of %d: Tab, Shift+Tab)", f.pick, #f.matches) or "") ..
+            ";   Return: go there")
+       or "(no exhibit has that in its name)") .. ";   Esc: never mind")
+  local rows = { "FIND AN EXHIBIT: type part of its name, or its number; Return goes there,",
+                 "Tab and Shift+Tab pick among the matches, Backspace takes a letter off,",
+                 "Esc (or F3) leaves it.", "" }
+  local shown = {}
+  for _, x in ipairs(f.matches) do shown[x] = true end
+  for i, x in ipairs(stops) do
+    if shown[x] then rows[#rows + 1] = string.format("%s %2d  %s", x == m and "->" or "  ", i, x.name) end
+  end
+  realV:setHelpText(table.concat(rows, "\n"))
+end
+local function finderClose(go)
+  local m = go and finder.matches[finder.pick]
+  finder = nil
+  statusLine(hallStatus or "")
+  if m and m ~= here then goTo(m)
+  elseif here.isView then realV:setHelpText(hallHelp(here))
+  elseif here.ready then realV:setHelpText(here.header() .. here.help)
+  else realV:setHelpText(here.header() .. "Being set up: it appears in a moment (the status bar says what is loading).") end
+end
+local function finderKey(key)
+  local f = finder
+  -- (a new query starts at its first match; none at all, at where you are)
+  local function typed(q) f.query = q; f.pick = (q == "" and indexOf(here)) or 1; finderShow() end
+  if key == "Esc" or key == "Escape" or key == "F3" then finderClose(false)
+  elseif key == "Return" or key == "Enter" then finderClose(true)
+  elseif key == "Backspace" then typed(f.query:sub(1, -2))
+  elseif key == "Tab" or key == "Backtab" then
+    if #f.matches > 0 then f.pick = (f.pick - 1 + (key == "Tab" and 1 or -1)) % #f.matches + 1 end
+    finderShow()
+  elseif key == "Space" then typed(f.query .. " ")
+  elseif #key == 1 and key:match("[%w']") then typed(f.query .. key:lower())
+  end
+end
+
 local HELD_BACK = { S = true, D = true, R = true, P = true }
 realV:onKey(function(N, key, down)
+  -- (the finder has every key while it's open)
+  if finder then
+    if down then finderKey(key) end
+    return true
+  end
+  if key == "F3" then
+    if down then
+      finder = { query = "", pick = indexOf(here) or 1 }
+      -- (let go of the exhibit's held keys, as when walking on)
+      if active then
+        local f = active.callbacks.onKey
+        for k in pairs(active.down) do if f then pcall(f, active.N, k, false) end end
+        active.down = {}
+      end
+      finderShow()
+    end
+    return true
+  end
+  -- (], [: on to the next exhibit, back to the one before, passing by the
+  -- step in; the hall's, before the exhibit's: the Gomboc and Bille tables'
+  -- one more and one fewer are their count sliders here)
+  if key == "BracketRight" or key == "]" or key == "BracketLeft" or key == "[" then
+    if down then goTo(nextStop(here, (key == "]" or key == "BracketRight") and 1 or -1)) end
+    return true
+  end
   if key == "Tab" or key == "Backtab" then
-    if down then goTo(nextStop(here, key == "Tab" and 1 or -1)) end
+    -- (an exhibit with a walk-up is two stops: walking up to it, then
+    -- stepping in; Shift+Tab the same, the other way)
+    if down then
+      local at = not here.isView and here.approach
+      if key == "Tab" then
+        if at and steppedIn ~= here then goTo(here, false, true)
+        else goTo(nextStop(here, 1)) end
+      else
+        if at and steppedIn == here then goTo(here, false, false)
+        else local p = nextStop(here, -1); goTo(p, false, p.approach ~= nil) end
+      end
+    end
     return true
   end
   local g = active
@@ -1319,7 +1450,7 @@ print(string.format("GALLERY: %d exhibits to set up, %d in preparation, %d empty
 -- first): next, the one you're at or walking to, else the next one on
 -- from where you are
 local hallFrames = 0
-local function status(t) pcall(function() realV:setStatusText(t) end) end
+local function status(t) hallStatus = t; if not finder then pcall(function() realV:setStatusText(t) end) end end
 local function nextToLoad()
   if not here.isView and here.pending then return here end
   local i = indexOf(here) or 1
@@ -1337,7 +1468,7 @@ loadSome = function()
   for _, x in ipairs(all) do if not x.pending then n = n + 1 end end
   status(string.format("Setting up %s (%d of %d) ...", g.name, n + 1, #all))
   loadExhibit(g)
-  if here == g then goTo(g, not FLY_ON)            -- (you're there: it comes to life)
+  if here == g then goTo(g, not FLY_ON, steppedIn == g)   -- (you're there: it comes to life)
   elseif active then setRandom(active) end
   if not nextToLoad() then
     status("")

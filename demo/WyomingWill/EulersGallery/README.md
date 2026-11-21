@@ -48,14 +48,23 @@ Click the 3D view first so it has the keyboard.
 
 | Key | Action |
 |---|---|
-| `Tab` | walk on: the view from the entrance, the exhibits in wing A, the view from the corner down wing B, the exhibits in wing B, then back to the entrance |
-| `Shift+Tab` | walk back |
+| `Tab` | walk on: the view from the entrance, the exhibits in wing A, the view from the corner down wing B, the exhibits in wing B, then back to the entrance. At each exhibit, first up to it (the walk-up), then a step in |
+| `Shift+Tab` | walk back (stepping back out first) |
+| `]`, `[` | on to the next exhibit, back to the one before, past the stepping in |
+| `F3` | find an exhibit: type part of its name, or its number (the "Gallery: stop" slider's); `Tab`, `Shift+Tab` pick among the matches, `Return` goes there, `Esc` (or `F3`) leaves it |
 | `I` | at an exhibit: its lectern's label, close up (again: back) |
 | `PgDn`, `PgUp` | at an exhibit: the label's next and previous pages |
 
+These are Babbage's Hall's keys too. The hall's keys come before an
+exhibit's: at the Gömböc and Bille tables `]` and `[` walk on rather than
+adding a body, and their count sliders do that here.
+
 Each exhibit has a lectern at the front right of its bay: a museum label of
 two or three pages, saying what to watch, why it happens, and a little of
-its history. The cards are made by `make-lecterns.py`
+its history. The walk-up stands where a visitor coming up to the exhibit
+would, a little right of its middle, the exhibit and its lectern in view and
+the card turned to you; the next Tab steps in to the exhibit's own view.
+An exhibit moves the camera itself only once you've stepped in. The cards are made by `make-lecterns.py`
 (`gallery-meshes/lectern-<label>.png`, `-2`, `-3`); an exhibit whose card
 isn't there gets no lectern.
 
@@ -175,6 +184,7 @@ Each exhibit is one line in `EXHIBITS` near the top of `gallery.lua`:
 | `stand` | `{ w, d }`: a walnut stand under it, for exhibits (the trays) that float above their ground plane on their own |
 | `about` | what its placard says when the mouse rests on it |
 | `lectern` | `{ x, z }`, optional: where its lectern stands, in cm from the bay's middle (x to the right as you face the bay, z toward the aisle), if its table reaches the front right corner |
+| `approach` | `{ pos = { x, y, z }, look = { x, y, z } }`, optional: its walk-up, in the same terms, if the usual one doesn't frame it |
 
 Add lines and the hall grows to fit: both wings get longer. `SPARE_BAYS`
 adds empty bays at the far end (0 now: twenty-one exhibits, twelve bays
