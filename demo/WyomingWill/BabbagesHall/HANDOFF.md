@@ -1152,6 +1152,23 @@ there, in `release/`, or on the path; or set `BPP`.
   gate's red mark; drawn, not printed), so the safecracker's 2.5-number
   steps show before a gate comes round. William's report: you couldn't tell
   the wheels were turning until the notch showed.
+- **Done (2026-11-21): exhibits brighten as you step up to them,** as in
+  Euler's Gallery (98c41481). The hall's light, high above the middle of
+  the nave (`HALL_LIGHT0`), stays on at an exhibit unless the exhibit sets
+  its own `glLight0` (none here does); in the aisle and at the views its
+  colours are dimmed to 60% (`AISLE_DIM`, in `applyLight`). Before, an
+  exhibit switched to a light from the front, which lit upright faces and
+  darkened table tops: four of ten measured dimmed on arrival (the slide
+  rule -8%, the Differential -9%, the Digi-Comp and the lock -5%). Now all
+  ten brighten, by 8-11% for the four seen mostly from above and 42-59%
+  for the rest (mean brightness of the 3D view, the same camera in the
+  aisle's light and in the exhibit's: `HALL_LIGHT_AS=aisle`). The buff
+  floor tiles went near white at full strength (as Galileo's ramp did in
+  the gallery): now #ae9d7b, buff at an exhibit (245, 221, 173 on screen),
+  a deeper buff in the aisle. They had been near white in the old aisle
+  too. The lectern cards and Napier's bones are near white at full strength,
+  but their text and figures stay sharp, and they were close to white
+  before.
 - **Next: the bead and spaghetti sorts** (MACHINES.md 5), the first with
   real physics. It goes in its place in the walking order (west 3), the
   bays after it moving along (step 1 of section 6).

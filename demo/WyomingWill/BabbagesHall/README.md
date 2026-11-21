@@ -73,6 +73,8 @@ placard, says what it is. `HALL_START=differential` (any part of a name)
 starts at that exhibit, and `HALL_START=end` at the title wall.
 `HALL_KEYS="300:F3,l,o,c,k,Return;900:]"` presses keys at given frames and
 prints where each leaves you, for trying the hall's keys headless.
+`HALL_LIGHT_AS=aisle` keeps the aisle's light at an exhibit too, for
+comparing it with the exhibit's on arrival (screenshots, `tools/shots.sh`).
 
 On Tab and Shift+Tab the camera flies to the next stop, out of the bay, along
 the aisle and into the next bay, in 1.2 to 3.5 seconds. The exhibit you're

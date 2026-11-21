@@ -716,13 +716,21 @@ end
 -- the hall's colours: cast iron painted Brunswick green, brass, red brick
 -- with buff bands, encaustic tiles
 local IRON, IRON2, BRASS, GOLD = "#24382c", "#1a2a21", "#b5893a", "#d4af37"
-local BRICK, BUFF, TILE1, TILE2, TILE3 = "#8a3b2a", "#cdb48a", "#9c4a2f", "#d9c49a", "#2a2422"
+local BRICK, BUFF, TILE1, TILE2, TILE3 = "#8a3b2a", "#cdb48a", "#9c4a2f", "#ae9d7b", "#2a2422"
+-- (the buff tiles were #d9c49a, which the hall's light at full strength,
+-- at an exhibit, turned near white)
 local GLASS, OAK, CANVAS = "#bcd6dc", "#6b4423", "#b9ae94"
+-- The hall's light shines from high above the middle of the nave (a light
+-- with w below 1 is at x/w, y/w, z/w). At an exhibit it is at full
+-- strength; in the aisle and at the views, dimmed (AISLE_DIM), so an
+-- exhibit brightens when you step up to it and dims when you leave (as in
+-- Euler's Gallery).
 local HALL_LIGHT0 = btVector4(0, 2000, (ZS + ZN) / 2, 0.4)
+local AISLE_DIM = 0.6
 local HALL_LIGHT1 = btVector4(-200, 100, 200, 0.2)            -- (bpp's own)
 realV.glLight0 = HALL_LIGHT0
--- At an exhibit, its lights come from where they would on its own, turned
--- with its bay (as in Euler's Gallery)
+-- At an exhibit, the hall's light, unless the exhibit sets its own: that
+-- comes from where it would on its own, turned with its bay.
 local function bayLight(g, L)
   if L:getW() == 1 then
     local a = g.toScene(btVector3(L.x, L.y, L.z))
@@ -731,14 +739,23 @@ local function bayLight(g, L)
   local a, b = g.toScene(btVector3(L.x, L.y, L.z)), g.toScene(btVector3(0, 0, 0))
   return btVector4(a.x - b.x, a.y - b.y, a.z - b.z, L:getW())
 end
+-- The rest of an exhibit's lighting -- its ambient light, its lights'
+-- colours and its highlights (glSpecular) -- is its own too while you're
+-- at it, and the hall's (bpp's, the lights' colours dimmed) again when you
+-- leave.
 local HALL_LIGHTS = { glAmbient = realV.glAmbient, glModelAmbient = realV.glModelAmbient, glSpecular = realV.glSpecular,
                       glLight0Color = realV.glLight0Color, glLight1Color = realV.glLight1Color }
 LIGHTS = { glLight0 = true, glLight1 = true, glAmbient = true, glModelAmbient = true, glSpecular = true,
            glLight0Color = true, glLight1Color = true }
+local LIGHT_AS_AISLE = os.getenv("HALL_LIGHT_AS") == "aisle"   -- (for comparing: the aisle's light at an exhibit too)
 applyLight = function(g, k)
+  if LIGHT_AS_AISLE then g = nil end
   local val = g and g.vset[k]
-  if k == "glLight0" then realV.glLight0 = g and bayLight(g, val or btVector4(500, 500, 500, 0.4)) or HALL_LIGHT0
+  if k == "glLight0" then realV.glLight0 = (g and val) and bayLight(g, val) or HALL_LIGHT0
   elseif k == "glLight1" then realV.glLight1 = g and bayLight(g, val or HALL_LIGHT1) or HALL_LIGHT1
+  elseif not g and (k == "glLight0Color" or k == "glLight1Color") then
+    local c = HALL_LIGHTS[k]                                   -- (the aisle: dimmed)
+    realV[k] = btVector4(c.x * AISLE_DIM, c.y * AISLE_DIM, c.z * AISLE_DIM, c:getW())
   else
     if val == nil then val = HALL_LIGHTS[k] end
     realV[k] = val
