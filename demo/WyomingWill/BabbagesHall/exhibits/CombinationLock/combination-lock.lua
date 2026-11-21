@@ -296,7 +296,10 @@ for i = 1, 3 do
   local b, h = onAxis(m, c, 0.0285, 0.0285 * (4.0 ^ 2 + 0.62 ^ 2) / 2 * 0.85, z, L.wheel(START, i))
   local pinObj = part("rotate([0, 0, PIN_AT]) translate([PIN_R, 0, 0]) pin()"); pinObj.col = STEEL; v:add(pinObj)
   local markObj = part(string.format("gateMark(%.4f)", gateDeg)); markObj.col = "#c0161a"; v:add(markObj)
-  wheels[i] = { obj = m, body = b, hinge = h, riders = { pinObj, markObj }, gate = GATES[i] }
+  -- (ticks across the rim, to see it turn before the gate comes round)
+  local ticksObj = part(string.format("rimTicks(%.4f, %d)", gateDeg, i)); ticksObj.col = "#3a2a14"; v:add(ticksObj)
+  local paleObj = part(string.format("rimTicks(%.4f, %d, true)", gateDeg, i)); paleObj.col = "#f2ead6"; v:add(paleObj)
+  wheels[i] = { obj = m, body = b, hinge = h, riders = { pinObj, markObj, ticksObj, paleObj }, gate = GATES[i] }
   hingeFriction[h] = function() return v:getParam("wheel drag") end
 end
 

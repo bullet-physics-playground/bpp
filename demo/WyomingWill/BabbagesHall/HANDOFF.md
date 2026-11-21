@@ -1146,6 +1146,12 @@ there, in `release/`, or on the path; or set `BPP`.
   can't feel: the other and the first graph's width): 43 readings and
   25,400 frames for 31-72-46, against 86 and 42,950. The lectern and the
   manual say a real safecracker graphs the whole dial, and why.
+- **Done (2026-11-21): ticks on the lock's wheels.** Dark ticks across
+  each wheel's rim every 30 degrees, a pale one opposite the gate
+  (`rimTicks` in `parts/combination-lock.scad`, riders like the pin and the
+  gate's red mark; drawn, not printed), so the safecracker's 2.5-number
+  steps show before a gate comes round. William's report: you couldn't tell
+  the wheels were turning until the notch showed.
 - **Next: the bead and spaghetti sorts** (MACHINES.md 5), the first with
   real physics. It goes in its place in the walking order (west 3), the
   bays after it moving along (step 1 of section 6).

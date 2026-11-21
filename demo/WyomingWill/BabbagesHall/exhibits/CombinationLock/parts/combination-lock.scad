@@ -46,6 +46,12 @@ module gateMark(gate) rotate([0, 0, gate]) intersection() {
   difference() { cylinder(r = R_W - GATE_DEPTH + 0.25, h = T_W - 0.4, center = true); cylinder(r = R_W - GATE_DEPTH - 0.5, h = T_W, center = true); }
   linear_extrude(height = T_W, center = true) polygon([[0, 0], [2 * R_W * cos(GATE_HALF - 0.3), 2 * R_W * sin(GATE_HALF - 0.3)], [2 * R_W * cos(GATE_HALF - 0.3), -2 * R_W * sin(GATE_HALF - 0.3)]]);
 }
+// (the exhibit's ticks across a wheel's rim, so it can be seen turning
+// before its gate comes round: one every 30 degrees but at the gate, the
+// one opposite the gate pale. Drawn, not printed: they stand 0.2 mm proud)
+module rimTicks(gate, n = 1, pale = false) let (r = R_WHEELS[n - 1])
+  for (k = [0 : 11]) if (k != 6 && (k == 0) == pale)
+    rotate([0, 0, gate + 180 + 30 * k]) translate([r - 0.3, -1.0, -(T_W - 0.4) / 2]) cube([0.5, 2.0, T_W - 0.4]);
 module pin() cylinder(d = PIN_D, h = PIN_L, center = true, $fn = 24);
 module washer() difference() {         // a spacer between wheels (fixed on the post: keyed)
   cylinder(r = WASHER_R, h = 5.4, center = true, $fn = 72);

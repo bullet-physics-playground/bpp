@@ -263,7 +263,10 @@ being tried, each step, the dial's reading, where each wheel's gate stands
 from under the fence (in the dial's numbers), and whether the bolt is out.
 Watch the gate numbers: in each move one of them comes to 0.0 and stays.
 `G` shows the gates from above, where the fence lies across them: each
-gate's floor is painted red.
+gate's floor is painted red. Dark ticks across each wheel's rim, every 30
+degrees (a pale one opposite the gate), show it turning long before its
+gate comes round: in the safecracker's way the wheels move only 2.5
+numbers at a time. They are the exhibit's, drawn, not printed.
 
 | Key | |
 |---|---|
