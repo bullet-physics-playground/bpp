@@ -145,7 +145,7 @@ do
   local th = 1.5
   local cx = BX0 + BL / 2 * math.cos(SLOPE)
   local cy = BY0 - BL / 2 * math.sin(SLOPE)
-  block(BL, th, BW, cx - NX * th / 2, cy - NY * th / 2, 0, "#c9a877", q)
+  block(BL, th, BW, cx - NX * th / 2, cy - NY * th / 2, 0, "#8a6a42", q)
   -- its legs at the top end, and the stop at the bottom
   block(3, BY0 - TABLE_Y, BW - 6, BX0 + 2, (BY0 + TABLE_Y) / 2 - 0.8, 0, "#6a4424")
 end
