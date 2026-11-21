@@ -203,6 +203,10 @@ void Viewer::luaBind(lua_State *s) {
                  (void(Viewer::*)(const luabind::object &fn)) &
                     Viewer::setCBOnJoystick,
                  adopt(luabind::result))
+            .def("onMIDIReceived",
+                 (void(Viewer::*)(const luabind::object &fn)) &
+                    Viewer::setCBOnMIDIReceived,
+                 adopt(luabind::result))
             .def("onKey",
                  (void(Viewer::*)(const luabind::object &fn)) &
                     Viewer::setCBOnKey,
