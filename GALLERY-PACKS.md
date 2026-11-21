@@ -71,8 +71,10 @@ cover them together.
   launch directory, or in `/usr/share/bpp/demo`. A folder with a
   `.nomenu` file is left out.
 - **The version:** `APP_VERSION` in `src/main.cpp` (0.3.40 now).
-- **Releases:** `.github/workflows/release.yml` builds `.deb` packages on a
-  version tag.
+- **Releases:** `.github/workflows/release.yml` builds, on a version tag,
+  `.deb` packages, a Windows installer (`bpp.nsi`) and macOS disk images
+  (`scripts/deploy-mac.sh`). All three copy the whole of `demo/` and
+  `includes/` in.
 
 ## What's missing
 
@@ -114,6 +116,197 @@ cover them together.
 - **Installed bpp.** The `.deb` puts demos in `/usr/share/bpp/demo`;
   decide what an installed bpp ships, and check that textures in
   `includes/` are still found (bpp looks beside and above its executable).
+
+## Questions for Jakob and Bill
+
+Step 1 of the plan. Each question says what the repository shows today
+(`test-harness` at a17aaeda, sizes from `du`), suggests an answer, and
+leaves a line for the real one.
+
+### For both
+
+1. **Which download is meant to get small?** The release downloads (the
+   `.deb`s, the Windows installer, the macOS disk images) each carry all of
+   `demo/` (104 MB) and `includes/` (74 MB). A clone stays the size it is
+   whatever we do here, because the galleries stay in the repository;
+   people who clone can be shown `git clone --depth 1` and a sparse
+   checkout in the README. Suggested: the three release downloads ship the
+   base demos only and get galleries from the menu; a clone keeps
+   everything, as now.
+
+   Also: 60 MB of `includes/` is the POV-Ray models of a Nissan Micra and a
+   Citroën GS (`includes/i_micra_*.inc`, `i_citroen_gs*.inc`), which no demo
+   uses; only `includes/citroen_gs_demo.pov` does. For the release
+   downloads they weigh more than any gallery but Euler's. Keep them, make
+   them a pack, or leave them out of the releases?
+
+   Answer:
+
+2. **When is a gallery published?** On `master` since 0.3.40 (4 November)
+   there are 92 commits to `src/` and 109 to `demo/WyomingWill/`, and
+   `APP_VERSION` is still 0.3.40. A pack built from `master` will often
+   need C++ that no release has yet, and would tell users it needs a bpp
+   they can't download. Three ways:
+   - (a) Packs are built when a bpp version is tagged, with the release.
+     Always consistent, but a gallery update waits for the next bpp release
+     (about monthly so far).
+   - (b) Packs are built on each merge to `master`, as designed above, and
+     `gallery.txt` names the bpp a gallery needs. An update needing only Lua
+     reaches users the same day; one needing new C++ shows "needs bpp
+     0.3.41" until that is out.
+   - (c) As (b), but CI holds back a pack whose `gallery.txt` names a bpp
+     newer than the latest release, and publishes it with that release, so
+     users never see an update they can't install.
+
+   Suggested: (c). Either (b) or (c) depends on `gallery.txt` being right,
+   which only Bill can know; a forgotten line gives users with the last
+   release a broken gallery. CI could catch that by running each new pack's
+   smoke test with the last released bpp too, at the cost of a second build
+   in the job. Worth it?
+
+   (There were 7 merges to `master` in the last month, so with (b) or (c) a
+   user would see about one notice a week at most.)
+
+   Answer:
+
+3. **The shared modules.** An installed gallery will still find
+   `require "common"` and `require "rolling"`: bpp looks for `demo/module/`
+   beside and above its executable and in the system places
+   (`getDefaultLuaPath`, `src/prefs.cpp`). But it gets the `module/` of the
+   bpp that is installed, not the one the gallery was written with.
+   Suggested: `demo/module/` counts as part of bpp, so a gallery that needs
+   a changed module says so with the bpp version, as for C++.
+
+   Answer:
+
+### For Bill
+
+4. **Which folders are galleries?** By size, suggested:
+
+   | Folder (in `demo/WyomingWill/`) | Size | |
+   |---|---|---|
+   | `EulersGallery/` | 41 MB | pack |
+   | `BabbagesHall/` | 30 MB | pack |
+   | `WalkerRoom/` | 11 MB | pack |
+   | `ArtificialPhysics/` | 9.2 MB | pack? |
+   | `RecRoom/` | 5.3 MB (4.0 MB of it sound) | pack? |
+
+   Everything else in `demo/` together is about 11 MB and stays in the base
+   download: `basic/`, `constraint/`, `mesh/`, `module/`, `sound/`,
+   `koppi/`, `claude/`, `jr/`, `jaimevives/`, and in `WyomingWill/` the
+   `Clocks/`, `Walkers/`, `Hover/` and `tests/` folders, the loose scripts
+   and the two shortcut PDFs. Is the Artificial Physics room a gallery? Is
+   the Rec Room big enough to be worth a pack?
+
+   Answer:
+
+5. **What the Rec Room and the Walker Room borrow.** The Rec Room uses
+   `../Clocks/`, `../Walkers/Jansen_6LegT.lua` and `../../koppi/marblerun.lua`
+   (`rec-room.lua`, lines 740 to 758), and quietly leaves out what it
+   doesn't find. The Walker Room loads its walkers from
+   `../Walkers_For_Room/`, which nothing else uses. Once installed in the
+   data folder, `../` is no longer `demo/WyomingWill/`, so these would just
+   be missing. Suggested:
+   - move `Walkers_For_Room/` into `WalkerRoom/` (640 KB, it already has a
+     `.nomenu`);
+   - for the Rec Room, `gallery.txt` lists the borrowed files and the pack
+     carries copies at the same relative places (about 1 MB), so the
+     scripts need no change.
+
+   The other way is a new `v:` property naming the base `demo/` folder, for
+   the rooms to look in as well; that is more code and a new API name.
+   (Euler's Gallery, Babbage's Hall and the Artificial Physics room borrow
+   nothing outside their folders but `demo/module/`, as far as a search of
+   their scripts shows; step 2's check will confirm it.)
+
+   Answer:
+
+6. **What goes in a pack.** The galleries carry more than their exhibits:
+   reports, handovers, PDFs and pictures (Babbage's Hall 13.6 MB of PNG and
+   10.8 MB of PDF; the Walker Room 7.9 MB of PNG; Euler's Gallery 22 MB of
+   `.obj` meshes, which its exhibits load). Suggested: a pack is the whole
+   folder, as in the repository; the alternative is a list of what to leave
+   out in `gallery.txt`. (A compiled Python file is tracked by mistake:
+   `EulersGallery/report/__pycache__/front.cpython-313.pyc`.)
+
+   Answer:
+
+7. **How the galleries are started.** Euler's Gallery finds its own folder
+   by trying `./` and then `demo/WyomingWill/EulersGallery/`; others do the
+   same. From the Demos menu bpp changes into the script's folder first, so
+   an installed gallery will be found at `./`. Do you start any of them
+   another way that an installed gallery would need too (a run script, a
+   command line), or are those only for working in the checkout?
+
+   Answer:
+
+8. **`gallery.txt`.** Suggested, one per gallery folder:
+
+   ```
+   name: The Rec Room
+   needs-bpp: 0.3.40
+   also: ../Clocks/
+   also: ../Walkers/Jansen_6LegT.lua
+   also: ../../koppi/marblerun.lua
+   ```
+
+   `needs-bpp` is raised by hand when a gallery starts relying on a newer
+   bpp (or on a changed `demo/module/`, question 3); `also` lines only where
+   question 5 needs them. Happy to keep `needs-bpp` up to date?
+
+   Answer:
+
+### For Jakob
+
+9. **Unpacking: zip with miniz, or `.tar.gz` with the system's `tar`?**
+   GNU tar, on Linux, reads `.tar.gz` but not `.zip`; the bsdtar of Windows
+   10 (from version 1803) and macOS reads both; older Windows has none.
+   With miniz (one `.c` and `.h`, MIT licence) the same code unpacks on
+   every platform, the tests for a bad or truncated pack test what users
+   run, and bpp needs no outside program. `bpp.pro` takes only `src/*.cpp`,
+   so miniz needs one `SOURCES` line. Suggested: miniz.
+
+   Answer:
+
+10. **Where packs live.** Suggested: a GitHub release with the tag
+    `galleries`, whose files the CI job replaces, rather than `gh-pages`:
+    release files don't go into git history, and `gh-pages`' 161 MB of old
+    screenshots shows what happens otherwise. The index is then always at
+    `https://github.com/bullet-physics-playground/bpp/releases/download/galleries/galleries.json`
+    (`v:download` already follows GitHub's redirect to its file server).
+    Two details: the release must be published with `make_latest: false`,
+    or the Releases page's "Latest" would point at the galleries instead of
+    bpp; and the tag stays clear of `release.yml`'s `[0-9]+.[0-9]+.[0-9]+`,
+    so it builds nothing. OK?
+
+    Answer:
+
+11. **Going online at start-up.** The design has bpp fetch the index at
+    every start, with a setting to turn it off. Some users and packagers
+    expect a program not to go online unasked. Suggested: on the first
+    start, bpp asks once ("Check for gallery updates when bpp starts?"),
+    and keeps the answer in its settings; the Galleries menu works either
+    way.
+
+    Answer:
+
+12. **Where galleries go, and how they show.** Suggested:
+    `v:dataDir()/galleries/`, keeping the folder's path from `demo/`
+    (`galleries/WyomingWill/EulersGallery/`), so the Demos menu shows it in
+    the same place as in a checkout and scripts' own files in
+    `v:dataDir()` stay apart. When bpp runs from a checkout, `demo/`
+    already holds every gallery: the Galleries menu shows those as "in
+    demo/", and the start-up check skips them, so developers never download
+    a pack or see a notice.
+
+    Answer:
+
+13. **C++ or Lua for the Galleries menu and the notice?** Suggested: C++
+    in `src/gui.cpp`, since the check runs at start-up before any script
+    and the menu is part of the window; the download code behind
+    `v:download` can be shared rather than called through a script.
+
+    Answer:
 
 ## A plan, step by step
 
