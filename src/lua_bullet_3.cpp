@@ -328,9 +328,13 @@ void luaBindBulletPart3(lua_State *s) {
            .def("isActive", &btCollisionObject::isActive)
            .def("setRestitution", &btCollisionObject::setRestitution)
            .def("getRestitution", &btCollisionObject::getRestitution)
-           .def("setFriction", &btCollisionObject::setFriction)
-           .def("getFriction", &btCollisionObject::getFriction)
-           .def("getWorldTransform", (btTransform & (btCollisionObject::*)()) &
+            .def("setFriction", &btCollisionObject::setFriction)
+            .def("getFriction", &btCollisionObject::getFriction)
+            .def("setRollingFriction", &btCollisionObject::setRollingFriction)
+            .def("getRollingFriction", &btCollisionObject::getRollingFriction)
+            .def("setSpinningFriction", &btCollisionObject::setSpinningFriction)
+            .def("getSpinningFriction", &btCollisionObject::getSpinningFriction)
+            .def("getWorldTransform", (btTransform & (btCollisionObject::*)()) &
                                          btCollisionObject::getWorldTransform)
            .def("setWorldTransform", &btCollisionObject::setWorldTransform)
            .def("getBroadphaseHandle",

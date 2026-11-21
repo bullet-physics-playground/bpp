@@ -9,6 +9,8 @@
 
 #include "lua_bullet_p.h"
 
+#include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
+
 /**
  * @brief Registers the second quarter of the Bullet API.
  * @param s The Lua state to register in.
@@ -197,5 +199,22 @@ void luaBindBulletPart2(lua_State *s) {
                     btTriangleIndexVertexArray::getIndexedMeshArray)
            .def("addaddIndexedMesh",
                 &btTriangleIndexVertexArray::addIndexedMesh)
+           .def(tostring(const_self))
+            .def(const_self == const_self)];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtHeightfieldTerrainShape.html
+      [class_<btHeightfieldTerrainShape, btConcaveShape>(
+           "btHeightfieldTerrainShape")
+           .def(constructor<int, int, const void *, btScalar, int, bool, bool>(),
+                adopt(result))
+           .def("setLocalScaling", &btHeightfieldTerrainShape::setLocalScaling)
+           .def("getLocalScaling",
+                (const btVector3 & (btHeightfieldTerrainShape::*)() const) &
+                    btHeightfieldTerrainShape::getLocalScaling)
+           .def("setUseDiamondSubdivision",
+                &btHeightfieldTerrainShape::setUseDiamondSubdivision)
+           .def("setFlipTriangleWinding",
+                &btHeightfieldTerrainShape::setFlipTriangleWinding)
+           .def("getUpAxis", &btHeightfieldTerrainShape::getUpAxis)
            .def(tostring(const_self))
            .def(const_self == const_self)];}
