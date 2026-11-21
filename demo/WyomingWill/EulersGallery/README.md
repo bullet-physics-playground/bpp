@@ -50,6 +50,14 @@ Click the 3D view first so it has the keyboard.
 |---|---|
 | `Tab` | walk on: the view from the entrance, the exhibits in wing A, the view from the corner down wing B, the exhibits in wing B, then back to the entrance |
 | `Shift+Tab` | walk back |
+| `I` | at an exhibit: its lectern's label, close up (again: back) |
+| `PgDn`, `PgUp` | at an exhibit: the label's next and previous pages |
+
+Each exhibit has a lectern at the front right of its bay: a museum label of
+two or three pages, saying what to watch, why it happens, and a little of
+its history. The cards are made by `make-lecterns.py`
+(`gallery-meshes/lectern-<label>.png`, `-2`, `-3`); an exhibit whose card
+isn't there gets no lectern.
 
 On Tab and Shift+Tab the camera flies to the next stop, out of the bay, along
 the aisle (round by the corner between the wings) and into the next bay, in
@@ -166,6 +174,7 @@ Each exhibit is one line in `EXHIBITS` near the top of `gallery.lua`:
 | `floorY` | the height of its own ground plane, in its own units: the hall's floor goes there |
 | `stand` | `{ w, d }`: a walnut stand under it, for exhibits (the trays) that float above their ground plane on their own |
 | `about` | what its placard says when the mouse rests on it |
+| `lectern` | `{ x, z }`, optional: where its lectern stands, in cm from the bay's middle (x to the right as you face the bay, z toward the aisle), if its table reaches the front right corner |
 
 Add lines and the hall grows to fit: both wings get longer. `SPARE_BAYS`
 adds empty bays at the far end (0 now: twenty-one exhibits, twelve bays

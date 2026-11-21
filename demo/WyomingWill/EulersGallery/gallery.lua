@@ -11,6 +11,8 @@
 -- KEYS (click the 3D view first so it has the keyboard):
 --   Tab         walk to the next exhibit (and the two views down the hall)
 --   Shift+Tab   walk back
+--   I           at an exhibit: its lectern's label, close up (again: back)
+--   PgDn, PgUp  at an exhibit: the label's next and previous pages
 --   everything else goes to the exhibit you're at, with the same keys as
 --   when it runs on its own; the Shortcuts pane shows them.
 --   Rest the mouse on an exhibit, a placard or a covered bay to see what it is.
@@ -806,6 +808,77 @@ for i, b in ipairs(BAYS) do
   end
 end
 
+-- an exhibit's lectern: a museum label on a brass post, standing on the
+-- floor at the bay's front right corner, tilted up and turned toward the
+-- aisle; its card (make-lecterns.py: gallery-meshes/lectern-<label>.png,
+-- then -2, -3 ... for its other pages). Built only if the exhibit has a
+-- card. I looks at the card close up, and back; PgDn and PgUp turn its pages.
+-- (An exhibit whose table reaches that corner can say where its lectern
+-- stands instead: lectern = { x, z }, in cm from the bay's middle, x to the
+-- right as you face the bay, z toward the aisle.)
+local LECTERN_TILT = 35                       -- degrees back from upright
+local LECTERN_AT = { 150, 115 }               -- (the bay's front right corner, inside the rug)
+local LECTERN_Y = 100                         -- the board's middle, cm up
+local BRASS, IRON2 = "#b5893a", "#2b2b2b"
+local function cardPages(key)
+  local pages = {}
+  local first = MESH .. "lectern-" .. key .. ".png"
+  if not exists(first) then return pages end
+  pages[1] = first
+  for n = 2, 20 do
+    local f = MESH .. "lectern-" .. key .. "-" .. n .. ".png"
+    if not exists(f) then break end
+    pages[n] = f
+  end
+  return pages
+end
+local function lectern(g)
+  g.pages, g.page = cardPages(g.e.card or g.e.label), 1
+  local file = g.pages[1]
+  if not file then return end
+  local b = g.bay
+  local at = g.e.lectern or LECTERN_AT
+  local lx, lz = at[1], at[2]
+  -- (turned to face a visitor in the middle of the aisle, before the bay)
+  local yaw = math.atan2(0 - lx, BAY_D / 2 + AISLE / 2 - lz)
+  local q = yq(b.a) * yq(yaw)
+  local tq = q * btQuaternion(btVector3(1, 0, 0), -math.rad(LECTERN_TILT))
+  local sn, cs = math.sin(math.rad(LECTERN_TILT)), math.cos(math.rad(LECTERN_TILT))
+  -- (a point in the lectern's own frame -- x across, y up, z out of its
+  -- face before the tilt -- to the hall's)
+  local function at3(x, y, z)
+    local ax, az = rot(yaw, x, z)
+    local wx, wz = rot(b.a, lx + ax, lz + az)
+    return btVector3(b.x + wx, y, b.z + wz)
+  end
+  local function put(o, p, rq) o.trans = btTransform(rq, p); return o end
+  local Y = LECTERN_Y
+  CASTING = true
+  local parts = {
+    put(vis(realCube(22, 1.2, 22, 0), IRON2), at3(0, 0.6, 0), q),                 -- (its foot)
+    put(vis(realCube(3, Y - 9, 3, 0), BRASS), at3(0, (Y - 9) / 2, 0), q),         -- (its post)
+    put(vis(realCube(42, 30, 1.6, 0), IRON2), at3(0, Y, 0), tq),                  -- (the board)
+    put(vis(realCube(43, 31, 1, 0), BRASS), at3(0, Y - 0.4 * sn, -0.4 * cs), tq), -- (its brass edge)
+  }
+  local card = realCube(36, 24, 0.2, 0)                                           -- (the card, 36 x 24 cm)
+  card.tex = file
+  local c = at3(0, Y + 0.95 * sn, 0.95 * cs)
+  parts[#parts + 1] = put(vis(card, "#ffffff"), c, tq)
+  CASTING = false
+  if objectKey then for _, o in ipairs(parts) do HOVER[objectKey(o)] = g.e.about end end
+  -- (I: from in front of it, square on, close enough to read)
+  local D = 1.35 * 36
+  local e = at3(0, Y + 0.95 * sn + D * sn, 0.95 * cs + D * cs)
+  g.lecternView = { pos = e, look = btVector3(c.x, c.y, c.z) }
+  g.lecternCard = card
+end
+-- (the card turned to one of its pages)
+local function showPage(g, n)
+  if not (g.lecternCard and g.pages and g.pages[n]) then return end
+  g.page = n
+  pcall(function() g.lecternCard.tex = g.pages[n] end)
+end
+
 -- loadExhibit(g): its script, into its sandbox and world, as on its own
 local function loadExhibit(g)
   local e = g.e
@@ -825,6 +898,12 @@ local function loadExhibit(g)
   end
   if ok then
     g.ready = true
+    do                                             -- (its lectern: the hall's, in its world)
+      local was = realV:currentWorld()
+      realV:useWorld(0)
+      lectern(g)
+      realV:useWorld(was)
+    end
     exhibits[#exhibits + 1] = g
     print(string.format("GALLERY: %s is in its bay (%s%s, %.1f s)", g.name, e.dir, e.file, realV:getTime() - t0))
     -- its first frame, now: everything put where it begins, so it shows
@@ -868,7 +947,10 @@ local function header(g)
   return function()
     return "EULER'S GALLERY -- at " .. g.name ..
            "\n(Tab: walk on to " .. nextStop(g, 1).name .. "; Shift+Tab: back to " .. nextStop(g, -1).name .. ")\n" ..
-           "Its sliders are the \"" .. g.prefix .. "\" ones in the Params pane.\n\n"
+           "Its sliders are the \"" .. g.prefix .. "\" ones in the Params pane." ..
+           (g.lecternView and "\nI: its label, close up (again: back)" or "") ..
+           ((g.pages and #g.pages > 1) and string.format(";   PgDn, PgUp: its label's pages (%d of %d)", g.page or 1, #g.pages) or "") ..
+           "\n\n"
   end
 end
 for _, g in ipairs(all) do g.header = header(g) end
@@ -889,6 +971,7 @@ local function hallHelp(s)
          "On show:\n" .. table.concat(live, "\n") .. "\n\n" ..
          (#coming > 0 and ("In preparation:\n" .. table.concat(coming, "\n") .. "\n\n") or "") ..
          "Tab / Shift+Tab   walk on / back\n" ..
+         "I, PgDn, PgUp      at an exhibit: its lectern's label, close up; its pages\n" ..
          "the mouse          looks round as usual\n"
 end
 
@@ -940,12 +1023,12 @@ local function dirOf(yaw, pitch)
   return btVector3(math.sin(yaw) * math.cos(pitch), math.sin(pitch), math.cos(yaw) * math.cos(pitch))
 end
 local function ease(t) if t < 0.5 then return 4 * t * t * t end local u = -2 * t + 2; return 1 - u * u * u / 2 end
-local function startFlight(pos1, look1)
+local function startFlight(pos1, look1, direct)
   local c = realV.cam
   local pos0 = c.pos
   -- the way: the camera, the aisle beside it, (round any corner,) the aisle
   -- beside the next stop, the stop; heights in between from one to the other
-  local raw = route(pos0, pos1)
+  local raw = direct and {} or route(pos0, pos1)
   local pts = { pos0 }
   for i, p in ipairs(raw) do
     local f = i / (#raw + 1)
@@ -1013,10 +1096,11 @@ local function stepFlight()
 end
 -- the camera to a stop: flown there, or put there at once (instant: as the
 -- hall starts, and with GALLERY_FLY=0)
-local function moveCam(pos, look, instant)
-  if FLY_ON and not instant then startFlight(pos, look); return end
+local function moveCam(pos, look, instant, direct)
+  if FLY_ON and not instant then startFlight(pos, look, direct); return end
   flight = nil
   local c = realV.cam
+  c:setUpVector(btVector3(0, 1, 0), true)
   c.pos = pos
   c.look = look            -- (in that order: the look turns the view from where it now is)
 end
@@ -1028,6 +1112,7 @@ local function goTo(s, instant)
     local f = active.callbacks.onKey
     for key in pairs(active.down) do if f then pcall(f, active.N, key, false) end end
     active.down = {}
+    active.lecternBack = nil
     -- (and tell it you're leaving, if it asked: v:onLeave)
     f = active.callbacks.onLeave
     if f then local ok, err = pcall(f, active.N); if not ok then print("GALLERY: " .. active.name .. " onLeave: " .. tostring(err)) end end
@@ -1125,6 +1210,30 @@ realV:onKey(function(N, key, down)
     return true
   end
   local g = active
+  -- (PgDn, PgUp: its label's pages; unless the exhibit uses them itself)
+  if (key == "PgDown" or key == "PgUp") and g and g.pages and #g.pages > 1 and not g.shortcuts[key] then
+    if down then
+      local n = math.max(1, math.min(#g.pages, (g.page or 1) + (key == "PgDown" and 1 or -1)))
+      if n ~= g.page then
+        showPage(g, n)
+        realV:setHelpText(g.header() .. g.help)
+      end
+    end
+    return true
+  end
+  -- (I: its lectern close up, and back; unless the exhibit has I itself)
+  if key == "I" and g and g.lecternView and not g.shortcuts[key] then
+    if down then
+      if g.lecternBack then moveCam(g.lecternBack.pos, g.lecternBack.look, false, true); g.lecternBack = nil
+      else
+        local c = realV.cam
+        local p, l = c.pos, c.look                 -- (copies: the camera's own would follow it)
+        g.lecternBack = { pos = btVector3(p.x, p.y, p.z), look = btVector3(l.x, l.y, l.z) }
+        moveCam(g.lecternView.pos, g.lecternView.look, false, true)
+      end
+    end
+    return true
+  end
   if not g then
     if key == "P" then
       if down then print("GALLERY: P (save every frame for POV-Ray) is held back here; use the POV-Ray menu.") end
