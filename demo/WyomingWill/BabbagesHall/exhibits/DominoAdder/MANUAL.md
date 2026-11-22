@@ -160,7 +160,7 @@ above all the wide spacing at the cut, which worked only between 4.1 and
 
 ![The exhibit (a screenshot of the simulation) at the end of 0 + 1: B's input, the collision line and SUM have fallen, and SUM's tell-tale shows 1.](manual/fig-exhibit.png)
 
-The Domino Half Adder stands in the west bay 3. The script stands every
+The Domino Half Adder stands in the east bay 3. The script stands every
 domino up in its pocket, sets the switches, and
 pushes GO, as a person would; the tour runs all four sums in turn. In the
 exhibit A, B and the collision line are white, the switches brass, GO red,

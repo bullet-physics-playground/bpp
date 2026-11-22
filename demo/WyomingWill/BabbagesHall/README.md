@@ -22,17 +22,18 @@ comes to life.
 | east 1 | **The slide rule**: a Mannheim rule, worked by a finger, a slate showing each step and the estimate that places the point; Tab: multiplying and dividing, then squares, roots, cubes, reciprocals and logarithms | `exhibits/SlideRule/` |
 | west 2 | **Napier's bones**: ten four-sided rods (Napier's own set of tables), laid by a hand on a tilted board and read from where they lie; a slate shows the row and the adding; Tab: Genaille's rods, whose triangles carry | `exhibits/NapiersBones/` |
 | east 2 | **The combination lock**: three wheels behind a dial, set one at a time by the dialling rules; when every gate is under the fence it falls in, and the bolt can be drawn. A hand dials, a slate shows where each gate stands. Two ways (`Tab`): dialling, and the safecracker's, which reads the combination off the lock by feeling the contact points and graphing them, with a click for each contact and a tone for each reading | `exhibits/CombinationLock/` |
-| west 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
-| east 3 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
-| west 4 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
-| east 4 | Amsler's planimeter | in preparation |
+| west 3 | **The bead sort**: numbers as rows of beads on nine rods; turned upright, gravity sorts them | `exhibits/BeadSort/` |
+| east 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
+| west 4 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
+| east 4 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
 | west 5 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
 | east 5 | **The splitter board**: a Galton board whose pins are independent coins, with a wall that swallows balls (first passage, exactly), or walls that send them back | `exhibits/GaltonBoard/` |
-| west 6 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
-| east 6 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
-| west 7 | Kelvin's tide predictor | in preparation |
-| east 7 | The Differential Analyser | in preparation |
-| west 8 | The Difference Engine | in preparation |
+| west 6 | Amsler's planimeter | in preparation |
+| east 6 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
+| west 7 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
+| east 7 | Kelvin's tide predictor | in preparation |
+| west 8 | The Differential Analyser | in preparation |
+| east 8 | The Difference Engine | in preparation |
 
 `HANDOFF.md` is where a new chat starts: how to work, build and test, and
 what's next. `MACHINES.md` lists every machine considered for the hall (48 of them),
@@ -181,7 +182,7 @@ museum label on a brass post at its table's right front corner, turned to
 face the visitor walking up (the exhibit's first stop), is built when
 its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
 card, the name, a line and a few sentences, as
-`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All eleven exhibits on
+`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All twelve exhibits on
 show have one. A label can have **pages**, a list of cards: the first
 `lectern-<key>.png`, then `lectern-<key>-2.png` and on, each numbered;
 `PgDn` turns them. An exhibit with ways has a label for each way (its

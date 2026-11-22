@@ -126,7 +126,7 @@ If the answer comes out below 0, the machine shows its complement instead:
 
 ![The exhibit (a screenshot of the simulation): the stylus in a hole of the units' dial, turning it.](manual/fig-exhibit.png)
 
-The Pascaline stands in the west bay 4. The stylus works it as yours
+The Pascaline stands in the east bay 4. The stylus works it as yours
 would, and lies on the table in front between strokes.
 
 - **With the mouse:** rest it on a hole of any dial. The stylus goes into

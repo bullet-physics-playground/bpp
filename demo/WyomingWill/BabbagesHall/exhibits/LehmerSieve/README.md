@@ -7,7 +7,7 @@ leave few remainders, pegging the wheels, running the sieve and checking
 its stops, with pictures, and the exhibit's keys (`H` opens it, here or in
 the hall). This README is the builder's reference.
 
-Babbage's Hall, west bay 6. A number sieve after Derrick Lehmer's (1926
+Babbage's Hall, east bay 6. A number sieve after Derrick Lehmer's (1926
 and 1932): wheels of different numbers of places, all moved on together,
 with holes where a number passes a test. Where every wheel has an open
 hole at the reading place, a probe falls right through, and the machine

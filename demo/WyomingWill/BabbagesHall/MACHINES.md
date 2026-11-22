@@ -83,7 +83,7 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 | 2 | 1 | Slide rule | 1620s | multiplies by adding logarithms | built: a 25 cm Mannheim rule (A, B, CI, C, D, K, L), the slide and cursor bodies on sliders held by friction, set by a finger against each other; printed in halves, the scales printed on paper; a slate shows each step and the estimate that places the point (Tab: multiplying and dividing; squares, roots, cubes, reciprocals, logarithms) | 2 | 1 | built |
 | 3 | 1 | Napier's bones, Genaille–Lucas rulers | 1617 / 1891 | rods laid side by side give a product to read off | built: Napier's set of ten four-sided rods (Glaisher), bodies laid by a hand on a tilted board, pressed together and read from where they lie (face up, cell level with the index); a slate shows the row, the diagonals and the rows added (Tab: Genaille's rods, the path along the triangles marked) | 2 | 1 | built |
 | 4 | 1 | Mechanical combination lock | 1862 | the wheels' notches must line up: a lock that tests a number | built: Sargent & Greenleaf's arrangement, open: a dial and drive cam, three printed wheels on a post picked up by steel pins (lost motion), a lever on the bolt laying a steel fence across the rims; every push a contact, the hand dialling by the rules (left four, right three, left two), a slate showing each gate's place; the model tries every combination (the forbidden zone, numbers too close, 27 opening each lock); a second way, the safecracker's: the wheels 0.1 mm apart in size, a gentle hand feels the contact points and graphs their gap, and reads the combination | 2 | 2 | built |
-| 5 | 1 | Bead sort and spaghetti sort | modern | physical sorting: beads fall on rods, or rods are stood on end | beads and rods under gravity: easy | 3 | 1 |  |
+| 5 | 1 | Bead sort and spaghetti sort | modern | physical sorting: beads fall on rods, or rods are stood on end | the bead sort built: nine steel rods on a printed frame, 72 printed beads on sliders held by friction; a hand threads each number's row, turns the frame upright on its hinge, and the rows are read from where the beads land; a slate shows the numbers laid and the rows. The spaghetti sort to come, as its second way | 3 | 1 | bead sort built |
 | 6 | 1 | Domino Half Adder | modern | dominoes falling add two bits | built: 268 dominoes on printed tiles | 3 | 2 | built |
 | 7 | 1 | Slide adder (troncet, Addiator) | 1889 / 1920 | slides moved with a stylus add and carry by a hook | flat slides; the carry hook is the trick | 3 | 2 |  |
 | 8 | 1 | Linkage function generators (the Peaucellier–Lipkin inverter and others) | 1864 / 1900s | bar linkages that compute a product, a square, a log; Peaucellier's computes 1/x | a few hinged bars each; a set of them would make one bay | 3 | 2 |  |
@@ -167,15 +167,18 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 
 The hall's bays are walked in the list's order, so a new exhibit goes in
 its place in it and the bays after it move along one (the hall grows by a
-pair of facing bays when it needs one). With fifteen bays (since
-2026-11-15) the hall holds the eleven built and the four covered "in
+pair of facing bays when it needs one). With sixteen bays (since
+2026-11-22) the hall holds the twelve built and the four covered "in
 preparation", in this order: the suanpan and the slide rule (west 1, east
-1), Napier's bones and the combination lock (west 2, east 2), the Domino
-Half Adder and the Differential (west 3, east 3), the Pascaline and the
-planimeter (west 4, east 4), the Galton board and the splitter board facing
-each other (west 5, east 5), Lehmer's sieve and the Digi-Comp II (west 6,
-east 6), the tide predictor and the Differential Analyser (west 7, east 7),
-the Difference Engine (west 8). The machines are being built from the start
+1), Napier's bones and the combination lock (west 2, east 2), the bead sort
+and the Domino Half Adder (west 3, east 3), the Differential and the
+Pascaline (west 4, east 4), the Galton board and the splitter board facing
+each other (west 5, east 5), the planimeter and Lehmer's sieve (west 6,
+east 6), the Digi-Comp II and the tide predictor (west 7, east 7), the
+Differential Analyser and the Difference Engine (west 8, east 8). One
+exception to the list's order: the planimeter (18 in the list) waits after
+the splitter board (26), so that the Galton board and the splitter board
+still face each other. The machines are being built from the start
 of the list on: the first four as simple hand-worked pieces at the start
 of the walk (William, 2026-11-15).
 

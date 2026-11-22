@@ -27,18 +27,20 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   far end. `MACHINES.md` has the order and why (re-ordered 2026-11-14:
   it was by interest alone).
 - Built so far, in walking order: **the suanpan** (west 1, since
-  2026-11-15), **the slide rule** (east 1, since 2026-11-16), **Napier's bones** (west 2, since 2026-11-16), **the combination lock** (east 2, since 2026-11-19), **the Domino Half Adder** (west 3),
-  **the Differential** (east 3), **the Pascaline** (west 4), **the Galton
+  2026-11-15), **the slide rule** (east 1, since 2026-11-16), **Napier's bones** (west 2, since 2026-11-16), **the combination lock** (east 2, since 2026-11-19), **the bead sort** (west 3, since 2026-11-22),
+  **the Domino Half Adder** (east 3), **the Differential** (west 4), **the
+  Pascaline** (east 4), **the Galton
   board** (west 5, since 2026-11-12), **the splitter board** (east 5,
-  facing it, since 2026-11-14), **Lehmer's number sieve** (west 6), and
-  the **Digi-Comp II** (east 6: it counts, adds, multiplies,
+  facing it, since 2026-11-14), **Lehmer's number sieve** (east 6), and
+  the **Digi-Comp II** (west 7: it counts, adds, multiplies,
   subtracts and divides, runs programs, and in AUTO runs a multiply by
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
   a cup of balls and a bought rotary damper; each program has only its
   parts on the board, and the operator's hand is shown).
-  Covered bays wait for Amsler's planimeter (east 4), Kelvin's
-  tide predictor (west 7), the Differential Analyser (east 7) and the
-  Difference Engine (west 8): fifteen bays, eight pairs.
+  Covered bays wait for Amsler's planimeter (west 6: after the splitter
+  board, so that it and the Galton board still face each other), Kelvin's
+  tide predictor (east 7), the Differential Analyser (west 8) and the
+  Difference Engine (east 8): sixteen bays, eight pairs.
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
   Jakob (koppi) wrote bpp. Clocks are William's own separate collection.
 
@@ -1198,9 +1200,38 @@ there, in `release/`, or on the path; or set `BPP`.
   too. The lectern cards (since printed darker) and Napier's bones were
   near white at full strength, but their text and figures stay sharp, and
   they were close to white before.
-- **Next: the bead and spaghetti sorts** (MACHINES.md 5), the first with
-  real physics. It goes in its place in the walking order (west 3), the
-  bays after it moving along (step 1 of section 6).
+- **Done (2026-11-22): the bead sort** (MACHINES.md 5), west 3, the
+  first exhibit whose answer comes from physics: nine rods, eight rows,
+  72 beads, each bead a hull body on a `btSliderConstraint` along its rod
+  (the motor at zero speed is its friction, the `friction` slider); the
+  frame a body on a `btHingeConstraint` turned by its motor, the hand's
+  speed the motor's limit. Type up to eight digits and Return: the hand
+  threads each row with the frame flat, turns it upright, waits for the
+  beads to stop and reads the rows from where they lie (the slate: the
+  numbers laid, the rows, what it is doing; green when sorted). The tour
+  (3 7 1 9 4 2 6 5; 5 0 5 2 8 2; 1 to 8) passes; a sweep of 23 lists each
+  (friction 0 to 4, the hand at 10 and 90°/s, 300 and 1200 steps a second,
+  two seeds) had none wrong, and friction 4.6, above a bead's weight,
+  fails as it should (FINDINGS.md). The first bead starts where
+  sin θ = F/mg says, logged about 5° later at 30°/s (the time it takes to
+  move 3 mm). Printed parts in `parts/bead-sort.scad`, ten STLs; the
+  manual has why it sorts, with figures. The bays after it moved along:
+  Domino E3, Differential W4, Pascaline E4, Galton W5, splitter E5. The
+  planimeter, which comes before the Galton board in MACHINES.md, now
+  waits at W6, after the splitter board, so the Galton board and the
+  splitter board still face each other (easily undone in `hall.lua`).
+  Learned: bpp's `setTiming(STEP,0,STEP)` gives one step a frame, so a
+  fast world steps itself the rest in `v:preSim`
+  (`v:stepSimulation(STEP,0,STEP)`); `btHingeConstraint:setLimit` needs
+  all five arguments; `btCylinderShape` isn't bound (use a hull);
+  `v.showConstraints=false` or sliders draw as orange tubes; judge
+  "settled" by each bead's movement along its rod, since the frame
+  chatters at its stop; and count a rod once in a row, since two falling
+  beads can share a row's band for a moment.
+- **Next: the spaghetti sort,** the bead sort's second way (Tab,
+  `BS_WAY=spaghetti`): rods cut to the numbers' lengths, gathered upright
+  and stood on a table, a hand lowered onto them takes the tallest first.
+  The placard may become THE BEAD AND SPAGHETTI SORTS.
   The covered bays (the planimeter, the tide predictor, the Differential
   Analyser, the Difference Engine) wait for their turn in the list.
   Still offered, not asked for: printing only a Digi-Comp program's parts
@@ -1223,6 +1254,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step: the bead and spaghetti sorts]. Deliver
+> step: the spaghetti sort, the bead sort's second way]. Deliver
 > each step as a patch on test-harness, with its documents and PDFs, and
 > the git commands.

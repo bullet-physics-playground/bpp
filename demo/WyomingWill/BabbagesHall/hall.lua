@@ -152,6 +152,13 @@ EXHIBITS = EXHIBITS or {
                 "A gate under the wheel holding the fence up drops it a hair, and they close in. Two graphs\n" ..
                 "find two numbers; the last wheel is tried. T: the tour; F: feel the contact points." },
     } },
+  { dir = "exhibits/BeadSort/", file = "bead-sort.lua", name = "the bead sort", label = "beadsort",
+    prefix = "Bead sort: ", floorY = -100,
+    about = "The bead sort: each number, 0 to 9, a row of beads laid from the left on nine rods.\n" ..
+            "The hand turns the frame upright; the beads slide down their rods, each until it rests\n" ..
+            "on the bead below, and the rows, read from the bottom, are the numbers sorted. The\n" ..
+            "beads keep their number's colour: the rows end up mixed, for the beads moved, not the\n" ..
+            "numbers. Type up to eight digits, Return; R: eight at random; C: clear; T: the tour." },
   { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
     prefix = "Dominoes: ", floorY = -100,
     about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..
@@ -167,10 +174,6 @@ EXHIBITS = EXHIBITS or {
             "lifts a weighted lever, the sautoir; passing 9 it drops, and its pawl kicks\n" ..
             "the next wheel on by one. Watch 99 + 1 ripple to 100. To add: rest the mouse\n" ..
             "on a dial's hole and press Space, or U/T/H to choose a wheel and 1-9." },
-  { dir = "exhibits/Planimeter/", file = "planimeter.lua", name = "Amsler's planimeter", label = "planimeter",
-    prefix = "Planimeter: ", floorY = -100,
-    about = "Amsler's polar planimeter (1856): trace round a shape and a wheel rolling\n" ..
-            "and slipping on the paper reads its area. In preparation." },
   { dir = "exhibits/GaltonBoard/", file = "galton.lua", name = "the Galton board", label = "galton",
     prefix = "Galton: ", floorY = -100,
     about = "The Galton board (1873): 150 balls fall through twelve rows of pins, going\n" ..
@@ -196,6 +199,13 @@ EXHIBITS = EXHIBITS or {
         env = { SB_WALLS = "flat" } },
       { key = "none", name = "the splitter board: no walls", card = "splitter-none", env = { SB_WALLS = "none" } },
     } },
+  -- (the planimeter comes before the Galton board in MACHINES.md; it waits
+  -- here, after the splitter board, so that the Galton board and the
+  -- splitter board still face each other across the nave)
+  { dir = "exhibits/Planimeter/", file = "planimeter.lua", name = "Amsler's planimeter", label = "planimeter",
+    prefix = "Planimeter: ", floorY = -100,
+    about = "Amsler's polar planimeter (1856): trace round a shape and a wheel rolling\n" ..
+            "and slipping on the paper reads its area. In preparation." },
   { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
     prefix = "Sieve: ", floorY = -100,
     about = "Lehmer's number sieve (1926): wheels of 9, 8, 7 and 5 places, each moved on one\n" ..

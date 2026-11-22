@@ -7,7 +7,7 @@ carry, subtracting by complements, with pictures, and the exhibit's keys
 (`F1` opens it, here or in the hall: the Pascaline's `H` is the
 hundreds). This README is the builder's reference.
 
-Babbage's Hall, west bay 4. Blaise Pascal's adding machine (1642), with
+Babbage's Hall, east bay 4. Blaise Pascal's adding machine (1642), with
 three digits and his own carry: the **sautoir** ("jumper").
 
 Each digit wheel carries ten pins and, behind them, a snail cam; in front

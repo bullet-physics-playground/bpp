@@ -316,6 +316,35 @@ LABELS = {
         "Lehmer built his first of bicycle chains, his second of gears, light "
         "and a photocell. This one factors a number by Fermat's way.",
     ),
+    "beadsort": [(                    # (Arulanandham, Calude and Dinneen, Bulletin of the EATCS 76, 2002)
+        "THE BEAD SORT",
+        "Sorting by gravity",
+        "Each number, 0 to 9, is a row of beads laid from the left on nine "
+        "rods: 3 is a bead on rods 1, 2 and 3. The first number is the "
+        "bottom row.\n"
+        "The hand turns the frame upright. Every bead slides down its rod "
+        "until it rests on the bead below, and the rows, read from the "
+        "bottom, are the numbers sorted, largest first. Type digits and "
+        "press Return; R lays eight at random.",
+    ), (
+        "WHY IT SORTS",
+        "Each rod counts",
+        "Rod 4 holds a bead for every number of 4 or more, and they all fall "
+        "to the bottom. So the bottom row reaches as far as the largest "
+        "number, the second row as far as the second largest, and so on.\n"
+        "Each bead keeps its number's colour. Afterwards the rows are mixed: "
+        "the beads moved, not the numbers. A bead sort sorts values, and "
+        "keeps nothing else that came with them.",
+    ), (
+        "A NATURAL ALGORITHM",
+        "Auckland, 2002",
+        "Joshua Arulanandham, Cristian Calude and Michael Dinneen described "
+        "the bead sort in 2002, as an algorithm found in nature.\n"
+        "All the beads fall at once, however many numbers there are; but it "
+        "takes a bead for every unit of every number, and sorts only whole "
+        "numbers. Done in a computer's memory it is slow: here gravity does "
+        "the work.",
+    )],
     "domino-adder": (                 # (Matt Parker: think-maths.co.uk, the Domino Computer, Oct. 2012)
         "THE DOMINO HALF ADDER",
         "Falling dominoes that add",
