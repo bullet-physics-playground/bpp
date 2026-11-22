@@ -240,7 +240,11 @@ numbers (`FINDINGS.md`).
 microphone on the case picks up a click as the fence meets a wall, and
 safecrackers have used amplifiers for that. The exhibit plays one each
 time a wall stops the gentle dial: a bright click for the steep wall
-(turning right), a duller one for the sloping wall (turning left). A
+(turning right), a duller one for the sloping wall (turning left). On
+the turns between, a lighter tick each time a pin picks up a wheel: the
+dial's pin wheel 3, wheel 3's wheel 2, and wheel 2's wheel 1, a turn
+apart on the first parking turn, then all three at once, as they are left
+pressed together. A
 click says only *when* the fence meets a wall. What the safecracker
 writes down is *where*: the number under the index at that moment. The
 time between the two clicks is just the distance between them over how

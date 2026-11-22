@@ -18,7 +18,10 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = "hall-meshes"
 FONTS = "/usr/share/fonts/truetype/dejavu/"
 W, H = 1440, 960                  # px: the card, 36 x 24 cm at 40 px a cm
-INK, CARD, RULE = (43, 30, 20), (239, 230, 207), (150, 110, 50)
+# (the card's paper is darker than it looks: the hall's light at full
+# strength, at an exhibit, takes it to about (245, 234, 208), a cream;
+# (239, 230, 207) went near white)
+INK, CARD, RULE = (43, 30, 20), (181, 173, 154), (150, 110, 50)
 
 # (the splitter board's last page, whichever way it is shown)
 READING = (

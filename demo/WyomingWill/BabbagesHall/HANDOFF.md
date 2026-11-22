@@ -1135,6 +1135,15 @@ there, in `release/`, or on the path; or set `BPP`.
   LISTEN); `F` plays the clicks alone; in the hall, heard only while
   you're at the lock. Checked through bpp's own export (FINDINGS: the
   safecracker's way, heard).
+- **Done (2026-11-21): pick-up clicks, and cream cards.** The
+  safecracker's way also clicks, more lightly, each time a pin picks up a
+  wheel on the turns (a wheel going from still to faster than 3 numbers a
+  second; one click when several start together), so the parking turns
+  sound like a real dial being worked. The lecterns' cards are printed
+  darker, paper (181, 173, 154) for (239, 230, 207): in the hall's light at
+  full strength they show cream again, (244, 233, 207) at the lock, and a
+  deeper cream in the aisle. (A tint on the card did nothing: bpp ignores
+  an object's colour once it has a texture.)
 - **Done (2026-11-21): colour on the slate for what matters** (the
   safecracker's way). Blue: a reading narrower than the graph's level
   (its LOW, HIGH and GAP numbers, its dot, and the dial's arc); gold: a
@@ -1186,9 +1195,9 @@ there, in `release/`, or on the path; or set `BPP`.
   floor tiles went near white at full strength (as Galileo's ramp did in
   the gallery): now #ae9d7b, buff at an exhibit (245, 221, 173 on screen),
   a deeper buff in the aisle. They had been near white in the old aisle
-  too. The lectern cards and Napier's bones are near white at full strength,
-  but their text and figures stay sharp, and they were close to white
-  before.
+  too. The lectern cards (since printed darker) and Napier's bones were
+  near white at full strength, but their text and figures stay sharp, and
+  they were close to white before.
 - **Next: the bead and spaghetti sorts** (MACHINES.md 5), the first with
   real physics. It goes in its place in the walking order (west 3), the
   bays after it moving along (step 1 of section 6).

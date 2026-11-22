@@ -3,7 +3,9 @@
 The safecracker's clicks: sounds/click-steep.wav and sounds/click-slope.wav,
 what a contact microphone on the lock's case picks up when the fence meets
 one of the cam's notch walls (the steep wall, turning right; the sloping
-one, turning left).
+one, turning left); and sounds/click-pickup.wav, a lighter tick, when a
+pin picks up a wheel (the dial's pin wheel 3, or a wheel's pin the next)
+on the turns.
 
 Not worked out from the physics, as the Newton's cradle's clack is: a
 4 mm steel rod nudging a printed wall at 3 numbers a second makes almost no
@@ -56,4 +58,5 @@ def write(path, x):
 
 os.makedirs("sounds", exist_ok=True)
 write("sounds/click-steep.wav", click([(2350, 0.012, 1.0), (4100, 0.007, 0.6), (6900, 0.004, 0.35), (880, 0.020, 0.3)], 6000, 0.9))
+write("sounds/click-pickup.wav", click([(3400, 0.006, 1.0), (5900, 0.004, 0.6), (8300, 0.003, 0.3)], 9000, 0.55))
 write("sounds/click-slope.wav", click([(1650, 0.014, 1.0), (2900, 0.008, 0.5), (620, 0.024, 0.35)], 2500, 0.7))

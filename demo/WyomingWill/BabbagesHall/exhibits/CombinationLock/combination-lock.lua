@@ -665,7 +665,7 @@ local frame = 0                                   -- (frames simulated: for the 
 -- ---------------------------------------------------------------------
 local EAR = { snd = {}, heard = not hallPath }
 if SAFE and v.loadSound and v.playSound then
-  for _, k in ipairs({ "steep", "slope" }) do
+  for _, k in ipairs({ "steep", "slope", "pickup" }) do
     local ok, id = pcall(function() return v:loadSound(DIR .. "sounds/click-" .. k .. ".wav") end)
     if ok and id and id >= 0 then EAR.snd[k] = id end
   end
@@ -678,6 +678,27 @@ function EAR.click(dir)                          -- (dir -1: turning right, onto
   if EAR.heard and id then pcall(function() v:playSound(id, 0.8) end) end
 end
 function EAR.hear(on) EAR.heard = on end
+-- (a pin picking up a wheel: the wheel, still, starts moving -- faster than
+-- 3 numbers a second, having been slower than 0.5 for a tenth of a second,
+-- so the fence's nudges don't count)
+EAR.wheels = { {}, {}, {} }
+function EAR.pickups(dt)
+  if not SAFE then return end
+  local picked = {}                 -- (wheels pressed together start at once: one click)
+  for i, w in ipairs(wheels) do
+    local st = EAR.wheels[i]
+    local sp = math.abs(w.body:getAngularVelocity().z) * 180 / math.pi / L.DEG
+    if sp < 0.5 then st.still = (st.still or 0) + dt else
+      if sp > 3 and (st.still or 0) > 0.1 then picked[#picked + 1] = i end
+      st.still = 0
+    end
+  end
+  if #picked > 0 then
+    if LOG then print(string.format("    sound: a pin picks up wheel%s %s (f%d%s)", #picked > 1 and "s" or "",
+                                    table.concat(picked, ", "), frame, EAR.heard and "" or "; not heard")) end
+    if EAR.heard and EAR.snd.pickup then pcall(function() v:playSound(EAR.snd.pickup, 0.6) end) end
+  end
+end
 -- each simulation step: the dial's motor
 -- feeling for the contact points: slowly, and with only enough torque to
 -- turn the dial against its own friction (the hand's lightest touch): it
@@ -1300,6 +1321,7 @@ v:postSim(function(N)
     if (os.getenv("LK_TOUR") or "1") ~= "0" then tourStart() end
   end
   stepJob(FRAME_DT)
+  EAR.pickups(FRAME_DT)
   SC.next()
   tourNext()
   restPost()

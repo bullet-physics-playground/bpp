@@ -176,7 +176,7 @@ fence (`FINDINGS.md`). Sand and wax the bolt, or use a stronger spring.
 | `lock-test.lua` | every combination through the model: which the rules set, the forbidden zone, the tolerance, how many combinations open the lock; and the safecracker's method on 40 random locks (`lua lock-test.lua`, 3.5 minutes) |
 | `parts/combination-lock.scad`, `parts/lock-geometry.scad` | every part's shape; the sizes (written by `lock.lua`: don't edit) |
 | `make-slate.py`, `slate/` | the slate's pictures, and the steps' words |
-| `make-sounds.py`, `sounds/` | the safecracker's clicks, one for each notch wall (`python3 make-sounds.py`; numpy). The chalk on the dial is `chalkTick` and `chalkArc` in `parts/combination-lock.scad` |
+| `make-sounds.py`, `sounds/` | the safecracker's clicks, one for each notch wall, and a lighter one as a pin picks up a wheel (`python3 make-sounds.py`; numpy). The chalk on the dial is `chalkTick` and `chalkArc` in `parts/combination-lock.scad` |
 | `make-stls.sh` | the STL files (not kept in the repository) |
 | `FINDINGS.md` | what was measured |
 | `MANUAL.md`, `manual/` | the manual and its figures (`python3 manual/make-figures.py` redraws them from `lock.lua` and the parts, but for `fig-exhibit.png`, a screenshot) |
