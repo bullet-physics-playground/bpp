@@ -59,11 +59,15 @@ These are Babbage's Hall's keys too. The hall's keys come before an
 exhibit's: at the Gömböc and Bille tables `]` and `[` walk on rather than
 adding a body, and their count sliders do that here.
 
-Each exhibit has a lectern at the front right of its bay: a museum label of
+Each exhibit has a lectern just past the front right corner of its table,
+as in Babbage's Hall (the gallery measures the table from what the exhibit
+adds as it loads): a museum label of
 two or three pages, saying what to watch, why it happens, and a little of
 its history. The walk-up stands where a visitor coming up to the exhibit
 would, a little right of its middle, the exhibit and its lectern in view and
-the card turned to you; the next Tab steps in to the exhibit's own view.
+the card turned to you; the next Tab steps in to the exhibit's own view,
+from 1.3 times as far back (its view fills the window when it runs on its
+own, and in the hall that came too close).
 An exhibit moves the camera itself only once you've stepped in. The cards are made by `make-lecterns.py`
 (`gallery-meshes/lectern-<label>.png`, `-2`, `-3`); an exhibit whose card
 isn't there gets no lectern.
@@ -183,7 +187,7 @@ Each exhibit is one line in `EXHIBITS` near the top of `gallery.lua`:
 | `floorY` | the height of its own ground plane, in its own units: the hall's floor goes there |
 | `stand` | `{ w, d }`: a walnut stand under it, for exhibits (the trays) that float above their ground plane on their own |
 | `about` | what its placard says when the mouse rests on it |
-| `lectern` | `{ x, z }`, optional: where its lectern stands, in cm from the bay's middle (x to the right as you face the bay, z toward the aisle), if its table reaches the front right corner |
+| `lectern` | `{ x, z }`, optional: where its lectern stands, in cm from the bay's middle (x to the right as you face the bay, z toward the aisle), if the measured corner of its table doesn't suit |
 | `approach` | `{ pos = { x, y, z }, look = { x, y, z } }`, optional: its walk-up, in the same terms, if the usual one doesn't frame it |
 
 Add lines and the hall grows to fit: both wings get longer. `SPARE_BAYS`

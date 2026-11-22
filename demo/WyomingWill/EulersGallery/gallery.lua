@@ -363,7 +363,13 @@ local function makeExhibit(e, bay)
 
   -- the viewer, as the exhibit sees it
   local vpFns = {}
+  g.added = {}
   local special = {
+    -- (what it adds as it loads, noted: its table is measured from them)
+    add = function(_, o, ...)
+      if loading == g then g.added[#g.added + 1] = o end
+      return realV:add(o, ...)
+    end,
     addShortcut = function(_, keys, fn) g.shortcuts[keys] = fn end,
     removeShortcut = function(_, keys) g.shortcuts[keys] = nil end,
     addParam = function(_, n, ...) return realV:addParam(g.prefix .. n, ...) end,
@@ -821,20 +827,24 @@ for i, b in ipairs(BAYS) do
 end
 
 -- an exhibit's lectern: a museum label on a brass post, standing on the
--- floor at the bay's front right corner, tilted up and turned toward the
--- aisle; its card (make-lecterns.py: gallery-meshes/lectern-<label>.png,
+-- floor just past its table's front right corner (as in Babbage's Hall),
+-- tilted up and turned toward its walk-up; its card (make-lecterns.py: gallery-meshes/lectern-<label>.png,
 -- then -2, -3 ... for its other pages). Built only if the exhibit has a
 -- card. I looks at the card close up, and back; PgDn and PgUp turn its pages.
 -- With it the exhibit has a walk-up: the first Tab brings you to where a
 -- visitor coming up to it would stand, the exhibit and its lectern in view,
 -- the card turned to you; the next steps in, to the exhibit's own view.
--- (An exhibit whose table reaches that corner can say where its lectern
--- stands instead: lectern = { x, z }, in cm from the bay's middle, x to the
--- right as you face the bay, z toward the aisle; and its walk-up too:
--- approach = { pos = { x, y, z }, look = { x, y, z } }, in the same terms.)
+-- Its table: what the exhibit added as it loaded (v:add), measured,
+-- leaving out anything reaching beyond its bay (a ground plane, things put
+-- out of sight), and its walnut stand if it has one. A table too long to
+-- leave room beside it has its lectern in front of that corner instead. (An exhibit can say where its lectern stands
+-- instead: lectern = { x, z }, in cm from the bay's middle, x to the right
+-- as you face the bay, z toward the aisle; and its walk-up too: approach =
+-- { pos = { x, y, z }, look = { x, y, z } }, in the same terms.)
 local LECTERN_TILT = 35                       -- degrees back from upright
-local LECTERN_AT = { 150, 115 }               -- (the bay's front right corner, inside the rug)
+local LECTERN_PAST = { dx = 12, dz = 14 }     -- (cm past its table's right edge, before its front edge: Babbage's Hall's)
 local LECTERN_Y = 100                         -- the board's middle, cm up
+local STEP_BACK = 1.3                         -- (stepping in: this much further back than the exhibit's own view)
 local APPROACH = { pos = { 95, 170, 300 }, look = { 55, 92, 0 } }   -- (the walk-up: at the aisle's edge, a little right)
 local BRASS, IRON2 = "#b5893a", "#2b2b2b"
 local function cardPages(key)
@@ -849,13 +859,40 @@ local function cardPages(key)
   end
   return pages
 end
+-- (its table's edges, x0 to x1 and z0 to z1, in its bay: nil if nothing to measure)
+local function tableOf(g)
+  local x0, x1, z0, z1
+  local function take(a0, a1, c0, c1)
+    x0, x1 = math.min(x0 or a0, a0), math.max(x1 or a1, a1)
+    z0, z1 = math.min(z0 or c0, c0), math.max(z1 or c1, c1)
+  end
+  local mn, mx = btVector3(0, 0, 0), btVector3(0, 0, 0)
+  for _, o in ipairs(g.added or {}) do
+    local ok = pcall(function() o.body:getAabb(mn, mx) end)
+    if ok and mn.x > -BAY_W / 2 and mx.x < BAY_W / 2 and mn.z > -BAY_D / 2 and mx.z < BAY_D / 2 then
+      take(mn.x, mx.x, mn.z, mx.z)
+    end
+  end
+  local st = g.e.stand
+  if st then take(-st[1] / 2, st[1] / 2, -st[2] / 2, st[2] / 2) end
+  return x0 and { x0 = x0, x1 = x1, z0 = z0, z1 = z1 }
+end
 local function lectern(g)
   g.pages, g.page = cardPages(g.e.card or g.e.label), 1
   local file = g.pages[1]
   if not file then return end
   local b = g.bay
-  local at = g.e.lectern or LECTERN_AT
-  local lx, lz = at[1], at[2]
+  local lx, lz
+  if g.e.lectern then lx, lz = g.e.lectern[1], g.e.lectern[2]
+  else
+    local t = tableOf(g) or { x1 = 100, z1 = 80 }
+    local xmax, zmax = BAY_W / 2 - 30, BAY_D / 2 - 30    -- (kept on the bay's rug, clear of its pilasters)
+    if t.x1 + LECTERN_PAST.dx + 12 <= xmax then
+      lx, lz = t.x1 + LECTERN_PAST.dx, math.min(t.z1 - LECTERN_PAST.dz, zmax)
+    else
+      lx, lz = math.min(t.x1, xmax) - 20, math.min(t.z1 + 25, zmax)
+    end
+  end
   -- (the walk-up, and the lectern turned to face it)
   local A = g.e.approach or APPROACH
   local function inBay(p) local wx, wz = rot(b.a, p[1], p[3]); return btVector3(b.x + wx, p[2], b.z + wz) end
@@ -1153,8 +1190,8 @@ local function goTo(s, instant, stepIn)
     realV:addParam(STOP_PARAM, i, 1, #stops, 1,
                    "where you are: 1 the entrance, then on round (Tab, Shift+Tab); drag to go there")
   end
-  local c = realV.cam
-  c:setUpVector(btVector3(0, 1, 0), true)
+  -- (not stood upright here: that turned the view level, and the flight
+  -- then began by looking at the wall; moveCam and the flight keep it upright)
   if not s.isView and not s.ready then
     -- (not loaded yet: its bay from the aisle; it comes to life when it has)
     active = nil
@@ -1196,6 +1233,9 @@ local function goTo(s, instant, stepIn)
       local view = s.view
       local pos = view.pos or btVector3(0, 150, 200)
       local look = view.look or btVector3(0, 0, 0)
+      -- (back along its own line of sight: its view fills the window when
+      -- it runs on its own, and in the hall that came too close)
+      pos = look + (pos - look) * STEP_BACK
       moveCam(s.toScene(pos), s.toScene(look), instant, same)
     end
     realV:setHelpText(s.header() .. s.help)
