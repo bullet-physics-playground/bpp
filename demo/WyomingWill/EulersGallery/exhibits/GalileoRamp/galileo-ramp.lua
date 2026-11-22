@@ -123,14 +123,14 @@ do
   local cx, cy = X0 + RL / 2 * DX, Y0 + RL / 2 * DY
   local ramp = Cube(RL, th, RW, 0)
   ramp.trans = btTransform(QR, btVector3(cx - NX * th / 2, cy - NY * th / 2, 0))
-  ramp.col = "#c9a877"
+  ramp.col = "#9a7a4c"                    -- (a mid oak: the white finish line shows on it)
   ramp.friction = 0.8                     -- (x the racer's 0.8: 0.64 where they touch)
   v:add(ramp)
   block(3, Y0 - TABLE_Y, RW, X0 + 1.5, (Y0 + TABLE_Y) / 2 - 1, 0, "#6a4424")
   -- the lanes, painted; the start and finish lines
   for k = -2, 3 do
     local z = (k - 0.5) * 12
-    block(RL - 2, 0.05, 0.3, cx, cy + 0.03, z, "#8a6a40", QR)
+    block(RL - 2, 0.05, 0.3, cx, cy + 0.03, z, "#5e4426", QR)
   end
   local fx, fy = X0 + (D_FINISH + 6) * DX, Y0 + (D_FINISH + 6) * DY
   block(1.0, 0.06, RW - 2, fx, fy + 0.03, 0, "#e8e0c8", QR)

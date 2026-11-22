@@ -24,8 +24,9 @@ the room comes with WyomingWill's Jansen walker, shrunk to the size of a
 cat, walking on its own patch of floor, and koppi's marble run on a small
 table against the back wall.
 
-The games are the real ones from `../pinball-machine-a/`, `../pool-table/`,
-`../snooker-table/` and `../bumper-pool/`, loaded unchanged. Everything
+The games are the real ones in `exhibits/Pinball/`, `exhibits/Pool/`,
+`exhibits/Snooker/` and `exhibits/BumperPool/`, loaded unchanged; each
+also runs on its own from its folder. Everything
 they do on their own works here too: scoring, sounds, the high scores,
 saved layouts, the ramp, nudging and tilt, the computer players, and the
 tables' cameras and aiming guides. All of it keeps running wherever you
@@ -33,17 +34,19 @@ stand: every computer player and the clock at once.
 
 ## Running it
 
-Open `rec-room.lua` in bpp. The game folders must be next to this one, as
-they are in the repository:
+Open `rec-room.lua` in bpp. The games are in `exhibits/`, as they are in
+the repository:
 
-```
-demo/claude/
-  pinball-machine-a/     (or Pinball/)
-  pool-table/            (or Pool/)
-  snooker-table/         (or Snooker/)       optional
-  bumper-pool/           (or BumperPool/)    optional
-  rec-room/              <- this folder
-```
+    demo/WyomingWill/RecRoom/
+      rec-room.lua           <- open this one
+      exhibits/
+        Pinball/
+        Pool/
+        Snooker/             optional
+        BumperPool/          optional
+
+(Folders named `pinball-machine-a/`, `pool-table/`, `snooker-table/` and
+`bumper-pool/` next to this one are found too.)
 
 The pinball machine and pool table are required. The snooker and bumper
 pool tables and the clock are used if they're found; without one, the room
@@ -73,16 +76,16 @@ where you are):
 - **At the pinball machine:** `Left Shift` / `Right Shift` (or `Z` / `/`)
   flippers, `Return` plunger, `Space` shake, `1` new game, `P` computer
   player, `V` its views, `E` edit the layout. See
-  `../pinball-machine-a/README.md`.
+  `exhibits/Pinball/README.md`.
 - **At the pool table:** arrows aim and set the force, `W` / `A` / `S` / `D`
   spin, `Space` shoot, `G` guide, `V` / `B` / `T` cameras, `P` computer
-  player, `N` re-rack. See `../pool-table/README.md`.
+  player, `N` re-rack. See `exhibits/Pool/README.md`.
 - **At the snooker table:** the same keys as the pool table. See
-  `../snooker-table/README.md`.
+  `exhibits/Snooker/README.md`.
 - **At the bumper pool table:** the same keys again, plus `O` (white: the
   computer or a second player) and `L` (the computer's level). On its own
   the table also uses `Tab` to choose your next ball; here `Tab` walks on,
-  so use `X` / `Z`, which do the same. See `../bumper-pool/README.md`.
+  so use `X` / `Z`, which do the same. See `exhibits/BumperPool/README.md`.
 - **At the clock:** `T` starts tuning its gravity toward 60 s for one turn
   of the second hand, `G` locks it, `S` turns the tick-tock on or off. Its
   gravity is the **clock_gravity** slider in the Params pane, and it
@@ -473,6 +476,6 @@ also lights the scene POV-Ray renders.
   physics time at rest. Now Bullet updates only moving objects, and before
   each frame bpp updates any fixed or sleeping object a script has moved.
 - OpenSCAD, for the clock's gears (as the clock needs on its own).
-- The game folders beside this one, at least at the versions in this
+- The game folders in `exhibits/`, at least at the versions in this
   commit. The pinball's flipper strength now
   follows the physics step, and older copies would flip weakly in the room.

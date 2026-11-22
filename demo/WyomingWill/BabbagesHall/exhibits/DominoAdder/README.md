@@ -2,6 +2,11 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
+**`MANUAL.pdf`** is the manual: how the dominoes add, the three tricks,
+the four sums with pictures, setting one up on a table, and the exhibit's
+keys (`H` opens it, here or in the hall). This README is the builder's
+reference.
+
 A computer made of nothing but dominoes standing on a table. It adds two
 one-bit numbers, A and B, and shows the answer as two tiles, CARRY and SUM,
 which fall over to show a 1:
@@ -26,6 +31,7 @@ after the other.
 | `G` | GO: push the first domino |
 | `R` | stand them all up again |
 | `Z` | slow motion <-> real time |
+| `H` | the manual, `MANUAL.pdf`, opened in your PDF viewer |
 
 ## How it computes
 
@@ -54,6 +60,11 @@ the binary answer.
 The layout is in `domino-layout.lua`, built from the junctions in
 `domino-lines.lua`. Both are plain Lua, so the same layout drives the
 simulation and the printed template.
+
+The manual's figures (`manual/`, `python3 manual/make-figures.py`) are
+drawn from the same layout, and from what the simulation reported fallen
+in each sum (`DA_DEBUG=2`, kept in `manual/fell.txt`; `--run` makes it
+again); `fig-exhibit.png` is a screenshot.
 
 ## Building it
 

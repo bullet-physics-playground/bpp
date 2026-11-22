@@ -1,0 +1,4 @@
+  bins: 4 4 5 5 22 23 32 19 26 7 2 1 0
+  150 of 150 balls in the bins; mean bin 5.73 (fair: 6.00), spread 2.18 (fair: 1.73); 0 backs of the crank; 27.8 s
+  bins: 0 0 3 7 25 23 42 15 24 6 2 0 3
+  150 of 150 balls in the bins; mean bin 6.01 (fair: 6.00), spread 1.90 (fair: 1.73); 0 backs of the crank; 28.0 s

@@ -59,6 +59,7 @@ end
 BOARD = {
   noWrite = walls ~= "first" or options.TOOTH_NECK ~= 10 or os.getenv("SB_WALL") ~= nil,   -- (only the default writes the sizes file; the others hand theirs to OpenSCAD in the part's text)
   name = "The splitter board",
+  manual = "MANUAL-splitter.pdf",       -- (H: its own manual; the Galton board's is MANUAL.pdf, in this folder too)
   result = "splitter",
   title = "THE SPLITTER BOARD",
   geometry = "splitter-geometry.lua",
@@ -77,6 +78,7 @@ BOARD = {
     "  Space  turn the crank: run the balls through (again: stop)",
     "  E      empty the tubes and bins into the drawer, pour it back",
     "  T      the tour: a run, empty and pour back, a second run",
+    "  H      the manual (MANUAL-splitter.pdf, in your PDF viewer)",
     "",
     "Every pin is a splitter: a ball drops straight down a neck onto it,",
     "goes left or right, and rolls down the tooth's slope into the next",

@@ -226,7 +226,7 @@ two ways, and `Tab` steps from one to the other:
 | `C` | close the rule: the slide home, the cursor to the left |
 | `M` | the camera close to the hairline, following it, to read the scales; again: back |
 | `T` | the tour: each kind of problem in turn |
-| `H` | this manual |
+| `H` or `F1` | this manual |
 | `I` | in the hall, in the first way: the lectern's label close up, and `PgDn` turns its pages (in the second way `I` is the reciprocal) |
 
 The finger sets each part against the other as it stands, as a person

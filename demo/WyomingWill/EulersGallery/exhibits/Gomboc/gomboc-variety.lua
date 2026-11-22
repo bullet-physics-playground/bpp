@@ -1,14 +1,18 @@
 --
--- Gomboc Variety: uniform-density Gombocs -- Gomboc-C and Sloan's beta shapes
+-- Gomboc Variety: uniform-density Gombocs -- Gomboc-C, Sloan's beta shapes, the
+-- printable candidates (L4, F2, f0_best_b, mono-g3b, mono-e2) and two self-righting loaves
 --
 -- The same table, physics and race as Gomboc Drop C (gomboc-drop-c.lua), but
 -- every drop brings the next shape in a cycle:
 --
---   Gomboc-C (9 cm)  ->  a beta shape  ->  Gomboc-C at 75%  ->  the other
---   beta shape  ->  Gomboc-C at 125%  ->  ...  and round again
+--   Gomboc-C (9 cm)  ->  L4  ->  F2  ->  f0_best_b  ->  mono-g3b  ->  mono-e2
+--   ->  mono-s2  ->  mono-s4  ->  beta 0.07  ->  beta 0.08  ->  Gomboc-C at 75%
+--   ->  Gomboc-C at 125%  ->  ...  and round again
 --
 -- Every body here has UNIFORM DENSITY: its shape alone gives it one resting
--- point and one balancing point -- the true Gomboc problem. (The weighted
+-- point and one balancing point -- the true Gomboc problem. (The two loaves,
+-- mono-s2 and mono-s4, also have one resting point, but more than one
+-- balancing point: they always right themselves without being Gombocs.) (The weighted
 -- bodies -- Bille and the 21-, 26- and 37-corner spiral polyhedra, which work
 -- because of where their mass is -- are in ../Bille/bille-drop.lua.)
 --
@@ -22,7 +26,9 @@
 -- equilibrium: the point farthest from the centre of mass). The balancing
 -- point need not be straight above the resting point: at home the dot is
 -- within ~1 deg of the top on Gomboc-C, ~5 deg on beta 0.07 and ~35 deg on
--- beta 0.08, whose one resting valley is long and nearly level.
+-- beta 0.08, whose one resting valley is long and nearly level. (On
+-- f0_best_b, mono-g3b, mono-e2 and the loaves the dot marks the point straight
+-- above the resting point instead, so it points up at home: see below.)
 --
 -- THE SHAPES (all in gomboc-meshes/):
 --
@@ -67,6 +73,25 @@
 --               shape that actually gets there needs the steep, sharp-edged
 --               design of the real one. ("shapes" 1 leaves them out.)
 --
+--   The printable candidates (Nov 2026, from the shape, families and printing
+--   chats; meshes in gomboc-meshes/, each .lua says where it came from):
+--   L4          GOMBOC900 with its bottom tuned for a stronger push near upright
+--               (at most 0.11 mm different: looks identical). Prints: 79/80 on glass.
+--   F2          GOMBOC900 reshaped against flat spots partway through the roll;
+--               the best classic-looking one on a tilted table.
+--   f0_best_b   a creased pebble, a new-looking Gomboc; the best one on a slope
+--               (BPP printed hulls: 92% upright on a 1.5 deg table).
+--   mono-g3b    a smooth, lopsided new Gomboc (96% level, 78% at 1.5 deg).
+--   mono-e2     the first creased pebble, f0_best_b's ancestor.
+--   mono-s2/s4  self-righting LOAVES: low, wedge-like, one resting point but 3+
+--               balancing points; slope barely matters to them. The white dot
+--               marks the highest balancing point.
+--   On these the balancing point is far from the top (80-100 deg away on the
+--   creased ones, mono-g3b and the loaves), so their white dot marks instead
+--   the point straight above the resting point ("plumb" in each .lua): it
+--   points straight up when the body is home, as on Gomboc-C. (U still
+--   stands them on the true balancing point.)
+--
 -- Physics as in Gomboc Drop C: convex-hull contact, exact mass and inertia,
 -- rolling resistance (a couple of at most delta*m*g through each physics
 -- step, demo/module/rolling.lua: it now holds a body still where gravity's
@@ -86,7 +111,10 @@
 --   ]   one more (and drop)      [   one fewer
 --
 -- Sliders: count; shapes (0 = the cycle above, 1 = Gomboc-C only, 2 = beta
--- only); speed, steps, friction, restitution, rolling (microns), spin
+-- only, 3 = the printable Gombocs L4, F2, f0_best_b, mono-g3b, mono-e2, 4 = the
+-- loaves mono-s2, mono-s4); tilt (the whole table, -3 to +3 degrees: a real
+-- table is rarely level to better than a degree, and a tilt is what stops a
+-- Gomboc partway home -- watch the loaves shrug it off); speed, steps, friction, restitution, rolling (microns), spin
 -- friction, air drag, redrop. The tally every minute (while re-dropping)
 -- lists each shape separately.
 --
@@ -124,18 +152,25 @@ local BASE = {}
 do
   local h = load("gomboc-hull")
   BASE.C = { title = "Gomboc-C", obj = "gomboc.obj", points = h.points, mass = h.volume * RESIN,
-             K2 = h.inertia, down = { 0, -1, 0 }, top = { 0, h.topHeight, 0 },
+             K2 = h.inertia, down = { 0, -1, 0 }, top = { 0, h.topHeight, 0 }, dot = { 0, h.topHeight, 0 },
              topHeight = h.topHeight, margin = 0.04 }
-  for _, b in ipairs({ { "beta1-07", "Sloan beta 0.07" }, { "beta1-08", "Sloan beta 0.08" } }) do
+  for _, b in ipairs({ { "beta1-07", "Sloan beta 0.07" }, { "beta1-08", "Sloan beta 0.08" },
+                        { "l4", "L4 (tuned Gomboc-C)" }, { "f2", "F2 (reshaped Gomboc-C)" },
+                        { "f0_best_b", "f0_best_b (creased Gomboc)" }, { "mono-g3b", "mono-g3b (smooth Gomboc)" },
+                        { "mono-e2", "mono-e2 (creased Gomboc)" },
+                        { "mono-s2", "mono-s2 (loaf, not a Gomboc)" }, { "mono-s4", "mono-s4 (loaf, not a Gomboc)" } }) do
     local d = load(b[1])
     BASE[b[1]] = { title = b[2], obj = b[1] .. ".obj", points = d.points, mass = d.volume * RESIN,
-                   K2 = d.inertia, down = d.down, top = d.top, topHeight = d.topHeight, margin = 0.04 }
+                   K2 = d.inertia, down = d.down, top = d.top, dot = d.plumb or d.top,
+                   topHeight = d.topHeight, margin = 0.04 }
   end
 end
 
 -- the cycle (shapes slider 0) and the single-kind cycles (1, 2, 3)
 local C_SIZES = { 1.0, 0.75, 1.25 }
 local BETAS = { "beta1-07", "beta1-08" }
+local NEW_GOMBOCS = { "l4", "f2", "f0_best_b", "mono-g3b", "mono-e2" }
+local LOAVES = { "mono-s2", "mono-s4" }
 
 -- a shape at a size: built once, then shared (Bullet allows sharing shapes)
 local SPECS = {}
@@ -180,6 +215,7 @@ local function spec(kind, s)
     kind = kind, s = s, file = file, hull = hull, mass = m, K2 = K2,
     inertia = btVector3(K2[1] * m, K2[2] * m, K2[3] * m),
     down = b.down, top = { b.top[1] * s, b.top[2] * s, b.top[3] * s },
+    dot = { b.dot[1] * s, b.dot[2] * s, b.dot[3] * s },
     topHeight = b.topHeight * s, margin = b.margin * s,
     title = (kind == "C" and s ~= 1) and string.format("%s at %d%%", b.title, math.floor(s * 100 + 0.5)) or b.title,
   }
@@ -198,8 +234,8 @@ local function param(name, value, lo, hi, step, info) v:addParam(name, value, lo
 local function envnum(name, default) return tonumber(os.getenv(name) or "") or default end
 local CPT = envnum("GV_CPT", 0.001)        -- contact processing threshold, cm (set on each body below)
 param("count", envnum("GV_COUNT", 6), 1, MAX_COUNT, 1, "how many to drop")
-param("shapes", envnum("GV_SHAPES", 0), 0, 2, 1,
-      "0 = Gomboc-C, beta, Gomboc-C resized, beta, ...; 1 = Gomboc-C only; 2 = beta only")
+param("shapes", envnum("GV_SHAPES", 0), 0, 4, 1,
+      "0 = all in turn; 1 = Gomboc-C only (3 sizes); 2 = Sloan beta only; 3 = printable Gombocs (L4, F2, f0_best_b, mono-g3b, mono-e2); 4 = loaves (mono-s2, mono-s4)")
 param("speed", 1, 0.25, 4, 0.25, "simulated seconds per real second")
 param("steps", envnum("GV_STEPS", 1200), 300, 4800, 300, "physics steps per simulated second")
 param("friction", 0.5, 0.05, 1.0, 0.05, "friction coefficient, 1 = grippiest (Bullet multiplies it by the table's 0.8)")
@@ -207,6 +243,8 @@ param("restitution", envnum("GV_REST", 0.1), 0.0, 0.8, 0.05, "bounciness (Bullet
 param("rolling", envnum("GV_ROLL", 150), 0, 300, 5, "rolling resistance lever arm, microns (constant moment, any tilt)")
 param("spin friction", envnum("GV_SPIN", 0.7), 0, 5, 0.1, "deceleration of spin about the vertical, rad/s^2")
 param("air drag", envnum("GV_DRAG", 0), 0, 1.5, 0.05, "Bullet velocity damping; real air drag is ~0")
+param("tilt", envnum("GV_TILT", 0), -3, 3, 0.25,
+      "table tilt, degrees (+ = the right-hand side, +x, lower); the whole tray tips about its centre line")
 param("redrop", envnum("GV_REDROP", 5), 0, 30, 1,
       "seconds at rest before one is pulled away and the next shape let down and dropped in its colour (0 = off)")
 
@@ -256,9 +294,12 @@ local RAMP_TOP = RAMP_W * math.tan(math.rad(RAMP_DEG))
 
 local WOOD, RIM_WOOD = "#7a4a24", "#4e2e15"
 local TABLE_FRICTION = 0.8
+local TRAY = {}          -- the tray's parts and their level poses, for the "tilt" slider
 local function slab(sx, sy, sz, x, y, z, col, rot)
   local c = Cube(sx, sy, sz, 0)
   c.trans = btTransform(rot or btQuaternion(0, 0, 0, 1), btVector3(x, y, z))
+  local q = rot or btQuaternion(0, 0, 0, 1)
+  TRAY[#TRAY + 1] = { c, { q:getX(), q:getY(), q:getZ(), q:getW() }, { x, y, z } }
   c.col = col
   -- (Bullet multiplies these by a body's own: with the sliders' 0.5 and
   -- 0.1, friction 0.4 and restitution 0.02 at the table; body on body,
@@ -295,11 +336,27 @@ local floor = Plane(0, 1, 0, -80, 400)
 floor.col = "#3b3f45"
 v:add(floor)
 
+-- tilt: the whole tray turns about the z axis through the table's centre
+-- (gravity stays straight down, as the rolling-resistance step assumes)
+local TILT = 0                             -- radians, + = the +x side lower
+local function applyTilt()
+  TILT = math.rad(v:getParam("tilt"))
+  local c, sn = math.cos(TILT), math.sin(TILT)
+  local hz, hw = -math.sin(TILT / 2), math.cos(TILT / 2)   -- rotation by -TILT about z
+  for _, t in ipairs(TRAY) do
+    local q, p = t[2], t[3]
+    local x, y, z, w = q[1], q[2], q[3], q[4]
+    local nq = btQuaternion(hw * x - hz * y, hw * y + hz * x, hw * z + hz * w, hw * w - hz * z)
+    t[1].trans = btTransform(nq, btVector3(c * p[1] + sn * p[2], -sn * p[1] + c * p[2], p[3]))
+  end
+end
+applyTilt()
+
 local TAN_A = math.tan(a)
 local function tableHeight(x, z)
   local ex = math.max(0, math.abs(x) - FLAT_W / 2)
   local ez = math.max(0, math.abs(z) - FLAT_D / 2)
-  return math.min(RAMP_W, math.max(ex, ez)) * TAN_A
+  return math.min(RAMP_W, math.max(ex, ez)) * TAN_A * math.cos(TILT) - x * math.sin(TILT)
 end
 
 common.setCamera(btVector3(0, 105, 140), btVector3(0, 0, 6))
@@ -330,14 +387,16 @@ local SEQ = {}
 do
   local function C(sz) return { "C", sz } end
   local function Bt(k) return { BETAS[k] } end
-  local full, c, b = {}, 0, 0
-  for n = 1, 2 * #C_SIZES * #BETAS do          -- C, beta, C, beta, ...
-    if n % 2 == 1 then c = c % #C_SIZES + 1; full[#full + 1] = C(C_SIZES[c])
-    else b = b % #BETAS + 1; full[#full + 1] = Bt(b) end
-  end
+  local function K(k) return { k } end
+  local full = { C(1.0) }                      -- Gomboc-C, the new ones, the loaves, beta, Gomboc-C resized
+  for _, k in ipairs(NEW_GOMBOCS) do full[#full + 1] = K(k) end
+  for _, k in ipairs(LOAVES) do full[#full + 1] = K(k) end
+  full[#full + 1] = Bt(1); full[#full + 1] = Bt(2); full[#full + 1] = C(0.75); full[#full + 1] = C(1.25)
   SEQ[0] = full
   SEQ[1] = { C(1.0), C(0.75), C(1.25) }
   SEQ[2] = { Bt(1), Bt(2) }
+  SEQ[3] = {}; for _, k in ipairs(NEW_GOMBOCS) do SEQ[3][#SEQ[3] + 1] = K(k) end
+  SEQ[4] = {}; for _, k in ipairs(LOAVES) do SEQ[4][#SEQ[4] + 1] = K(k) end
 end
 local function nextSpec(g)
   local seq = SEQ[math.floor(v:getParam("shapes") + 0.5)] or SEQ[0]
@@ -378,11 +437,11 @@ end
 local function placeDot(g)
   local L = g.lift
   if L and L.copy then                    -- (being let down: on its copy)
-    local x, y, z = turn(L.q1, g.sp.top)
+    local x, y, z = turn(L.q1, g.sp.dot)
     g.dot.pos = btVector3(L.p1[1] + x, L.y + y, L.p1[3] + z)
     return
   end
-  local x, y, z = toWorldPoint(g, g.sp.top)
+  local x, y, z = toWorldPoint(g, g.sp.dot)
   g.dot.pos = btVector3(x, y, z)
 end
 
@@ -562,7 +621,7 @@ local function pullAway(g)
   end
   g.lift = nil
   if not copy then return nil end
-  local dx, dy, dz = turn(q, g.sp.top)
+  local dx, dy, dz = turn(q, g.sp.dot)
   local r = { obj = copy, q = q, p = p, n = -GRIP_N, side = (g.i % 2 == 1) and -1 or 1, dot = g.dot, dp = { dx, dy, dz } }
   g.dot = nil                               -- (its dot goes with it)
   leaving[#leaving + 1] = r
@@ -857,6 +916,9 @@ v:onParamChanged(function(N, name, value)   -- bpp passes (frame, name, value)
     applyTiming()
   elseif name == "rolling" or name == "spin friction" then
     applyResistance()
+  elseif name == "tilt" then
+    applyTilt()
+    for _, g in ipairs(bodies) do if g.body then g.body:activate(true) end end
   else
     applyMaterials()
   end
@@ -870,13 +932,18 @@ pcall(function()
     "  K  kick them up with a spin\n" ..
     "  ]  one more     [  one fewer\n" ..
     "Uniform-density Gombocs. Each drop brings the\n" ..
-    "next shape: Gomboc-C, a Sloan beta shape,\n" ..
-    "Gomboc-C at 75%, the other beta, Gomboc-C at\n" ..
-    "125%, ... The white dot is the balancing point;\n" ..
-    "at home it is at or near the top (beta 0.08:\n" ..
-    "~35 deg off). The beta shapes are so gently\n" ..
-    "sloped that rolling resistance often stops them\n" ..
-    "on their sides ('shapes' 1 leaves them out).\n" ..
+    "next shape: Gomboc-C, L4, F2, f0_best_b,\n" ..
+    "mono-g3b, mono-e2, the loaves mono-s2 and s4,\n" ..
+    "the Sloan beta shapes, Gomboc-C at 75% and 125%.\n" ..
+    "'shapes': 1 Gomboc-C, 2 beta, 3 the printable\n" ..
+    "Gombocs, 4 the loaves (one resting point, more\n" ..
+    "than one balancing point: not Gombocs).\n" ..
+    "The white dot points straight up when a body is\n" ..
+    "home (on Gomboc-C, L4, F2 and the beta shapes it\n" ..
+    "is also the balancing point). The beta shapes\n" ..
+    "often stop on their sides.\n" ..
+    "'tilt' tips the table a few degrees: watch\n" ..
+    "which shapes still get home.\n" ..
     "Weighted bodies (Bille, spiral polyhedra):\n" ..
     "see ../Bille/bille-drop.lua.\n" ..
     "Dark = tipped over, bright = upright.\n" ..

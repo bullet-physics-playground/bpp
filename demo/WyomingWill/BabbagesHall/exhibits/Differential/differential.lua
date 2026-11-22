@@ -22,6 +22,7 @@
 --   1 / Q   input A: one unit forward / back
 --   2 / W   input B: one unit forward / back
 --   0       turn both back to 0
+--   H       the manual (MANUAL.pdf) in the PDF viewer
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md. The gears turn each
 -- other by their teeth alone, in the simulation as on the bench.
@@ -479,6 +480,12 @@ v:addShortcut("2", function() nudge("B", 1) end)
 v:addShortcut("W", function() nudge("B", -1) end)
 v:addShortcut("0", function() tour = nil; target.A, target.B = 0, 0 end)
 v:addShortcut("T", function() tour = 1; fails = 0; print("\nthe tour"); tourStep() end)
+-- H (or F1): this exhibit's manual (MANUAL.pdf) in the PDF viewer; in the
+-- hall, the hall's own H and F1 do it
+if not hallPath then
+  local MANUAL = dofile(DIR .. "../../open-manual.lua")
+  for _, k in ipairs({ "H", "F1" }) do v:addShortcut(k, function() MANUAL.open(DIR, "the Differential's manual") end) end
+end
 v:onParamChanged(function(N, name, value)
   if name == "speed" then applyTiming()
   elseif name == "friction" then applyFriction() end
@@ -490,6 +497,7 @@ pcall(function()
     "KEYS",
     "  1 / Q  A: one unit forward / back     2 / W  B: one unit forward / back",
     "  0      both back to 0                 T      the tour",
+    "  H      the manual (MANUAL.pdf, in your PDF viewer)",
     "",
     "Gears that add. The carrier -- the ring round the middle -- always turns",
     "half as far as the two inputs, A and B, put together:",

@@ -33,12 +33,15 @@ check "Slide rule, on its own"    9500 $H/exhibits/SlideRule/slide-rule.lua
 check "Slide rule powers, alone"   3600 $H/exhibits/SlideRule/slide-rule.lua SR_WAY=powers
 check "Napier's bones, on its own" 12500 $H/exhibits/NapiersBones/napiers-bones.lua
 check "Genaille's rods, alone"      9000 $H/exhibits/NapiersBones/napiers-bones.lua NB_WAY=genaille
+check "Combination lock, on its own" 6000 $H/exhibits/CombinationLock/combination-lock.lua
+check "Combination lock, the safecracker's" 32000 $H/exhibits/CombinationLock/combination-lock.lua LK_WAY=safe
 check "Differential, on its own"  2400 $H/exhibits/Differential/differential.lua
 check "Pascaline, on its own"     4200 $H/exhibits/Pascaline/pascaline.lua
 check "Domino Half Adder, on its own" 1750 $H/exhibits/DominoAdder/domino-adder.lua
 check "Lehmer's sieve, on its own"  2600 $H/exhibits/LehmerSieve/lehmer-sieve.lua
 check "Galton board, on its own"   6000 $H/exhibits/GaltonBoard/galton.lua
 check "Splitter board, on its own" 7000 $H/exhibits/GaltonBoard/splitter-board.lua
+check "Splitter board, gambler's ruin" 10000 $H/exhibits/GaltonBoard/splitter-board.lua SB_WALLS=ruin SB_START=1 GB_RUNS=1
 check "Digi-Comp II, on its own"  135000 $H/exhibits/DigiComp2/digicomp2.lua
 check "Suanpan, in the hall"      4600 $H/hall.lua HALL_START=suanpan
 check "Suanpan subtracting, in the hall" 4200 $H/hall.lua HALL_START=subtraction
@@ -47,6 +50,8 @@ check "Slide rule, in the hall"   10100 $H/hall.lua HALL_START=slide
 check "Slide rule powers, in the hall" 4200 $H/hall.lua HALL_START=squares
 check "Napier's bones, in the hall" 13100 $H/hall.lua HALL_START=napier
 check "Genaille's rods, in the hall" 9600 $H/hall.lua HALL_START=genaille
+check "Combination lock, in the hall" 6600 $H/hall.lua HALL_START=lock
+check "Combination lock, safecracker, hall" 32600 $H/hall.lua HALL_START=safecracker
 check "Differential, in the hall" 3000 $H/hall.lua HALL_START=differential
 check "Pascaline, in the hall"    4000 $H/hall.lua HALL_START=pascaline
 check "Domino Half Adder, in the hall" 2400 $H/hall.lua HALL_START=domino

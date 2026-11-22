@@ -8,8 +8,7 @@
 -- its colour, is let down from high above its drop spot and dropped:
 --
 --   Red, Yellow, Orange:   always Billes
---   Green, Blue, Purple:   21-corner -> 26-corner -> 37-corner polyhedron
---                          -> the PLA-only polyhedron -> ...
+--   Green, Blue, Purple:   21-corner -> 26-corner -> 37-corner polyhedron -> ...
 --
 -- so the table holds Billes and polyhedra half and half (a Bille settles in
 -- half a second, a polyhedron takes several, so alternating each colour's
@@ -22,9 +21,7 @@
 -- -- a ball at each corner, where its weight is, on rods along the edges --
 -- and each corner's ball lights up white while it touches the table (for
 -- at least 0.3 s on screen). The "polyhedra look" slider draws them as
--- solids instead (0); the physics is the same either way. The PLA-only
--- polyhedron has no corner weights, so it is always drawn solid; its corners
--- light up with the same white balls.
+-- solids instead (0); the physics is the same either way.
 --
 -- BILLE (Almadi, Dawson & Domokos, 2025) is a tetrahedron that can rest on
 -- only one of its four faces. Its frame is mostly hollow (carbon-fibre tubes
@@ -70,50 +67,6 @@
 --   Here they are scaled up 4.5x (40 cm tall) to stand beside Bille; size
 --   does not change where a body can rest, only how fast it tips (the
 --   masses scale with size^3).
---
--- THE PLA-ONLY POLYHEDRON ("ppla37", the gallery's own design -- not from a
--- paper): the same kind of spiral, an apex above 6 horizontal regular
--- hexagons (37 faces, 37 corners), but with NO added weights: one print in
--- PLA, 15 cm tall, 331 g. Below 23.65 mm (above the base) it is solid PLA;
--- above that is one closed air void with 1.0 mm walls. So it is
--- bottom-heavy: the centre of mass is 23.7 mm above the base. In effect it
--- is a FACETED WEEBLE, a self-righting toy with flat faces. Being bottom-
--- heavy is not enough on its own for a polyhedron: a round-bottomed toy rolls
--- smoothly home, but a polyhedron tips face to face and can stop on any face
--- whose centre-of-mass foot falls inside it (the 37-corner shape as PLA, its
--- bottom 10-40% solid, 0.8-1.2 mm walls, rests on 13-25 faces in all but one
--- knife-edge case: reconstruction/pla/bottomfill-check.py, a Monte Carlo
--- estimate). Here shape and fill were fitted
--- together so all 36 other faces fail. It is an engineering exercise, not a
--- mathematical one: the weight may go anywhere inside. Compare the Gomboc
--- (../Gomboc/: uniform density, shape alone) and the 21-corner body (equal
--- masses only at the corners), where the constraint is the point.
--- THE FILL LEVEL: solid up to just the height of the centre of mass, the
--- level that puts it lowest. A thin layer added below the centre of mass
--- pulls it down, one above it pulls it up; so filling stops where the fill's
--- top meets the centre of mass -- the soda-can puzzle (a can is steadiest
--- when the drink's surface is level with the centre of mass of can plus
--- drink). The design's optimiser, which maximised the tipping margin, landed
--- there by itself: fill 23.65 mm, centre of mass 23.69 mm (at the minimum the
--- centre of mass barely moves with the fill; levels 10-45 mm all work). Statics (exact
--- polyhedral mass properties, scripts in reconstruction/pla/; mass, centre
--- of mass and resting faces re-checked independently from the STL by
--- verify_stl.py): exactly 1 stable face (the base, its centre-of-mass foot
--- 41.14 mm inside it) and 1 unstable vertex (the apex); the nearest false
--- face has its foot 12.35 mm outside it, and no other corner comes within
--- 12.35 mm of being an equilibrium. Its bands tip S6 -> S5 -> ... -> S1 ->
--- base. Print errors (reconstruction/pla/robust.py, 300 trials a row): one
--- stable face in 100% of builds with every face plane off by 0.1-0.5 mm, walls
--- -0.2 to +0.4 mm, perimeter/infill density 3-10% apart, 2-5% gradients,
--- elephant foot 0.6 mm, and all combined at 0.5 mm; 89% at 1.0 mm plane
--- errors, 6% at 2.0 mm. CAVEAT: plane errors can split the apex. In ~19-21%
--- of builds there are two unstable vertices instead of one, next to each other
--- at the tip (apart by at most 0.8 mm at 0.1 mm errors, ~2 mm at 0.3 mm, 3.8 mm
--- at 0.5 mm; their distances from the centre of mass differ by at most 1.6,
--- 14 and 39 um: runs/apexsplit.log) -- still exactly one stable face, but
--- strictly not a "discrete Gomboc" (1 stable + 1 unstable).
--- Here it is drawn 40 cm tall (40/15 of the print; the mass scales with
--- size^3: 6.28 kg); bille-meshes/ppla37-data.lua, print files in print/.
 --
 -- Physics as in Gomboc Drop C: contact through the convex hull, exact mass
 -- and inertia, rolling resistance and spin friction as constant moments at
@@ -216,17 +169,8 @@ do
                         points = p.vertices, faces = p.faces, home = "base", top = p.top, mass = p.mass,
                         K2 = p.inertia, margin = p.margin, sizeName = "tall", sizeRef = 9 * POLY_SCALE }
   end
-  -- the PLA-only polyhedron: no frame (no corner weights), always drawn solid;
-  -- 15 cm print drawn 40 cm tall; corner balls at the same share of its height
-  -- as the other polyhedra's (0.31 cm on 9 cm)
-  local p = load("ppla37-data")
-  KIND.ppla = { title = "PLA-only polyhedron (no weights)", short = "PLA-only",
-                note = "a faceted Weeble: one PLA print, 15 cm, 331 g,\nsolid to 23.65 mm, a closed air void above it.\nThe fill's top is level with the centre of mass,\nthe level that puts it lowest. Being bottom-heavy\nis not enough for flat faces: shape and fill were\nfitted so it can't rest on any of its 36 other faces.\n(Unlike the Gomboc, its weight may go anywhere.)",
-                obj = "ppla37.obj", scale = 40 / p.size, corners = true, ballR = 0.31 * p.size / 9,
-                points = p.vertices, faces = p.faces, home = "base", top = p.top, mass = p.mass,
-                K2 = p.inertia, margin = p.margin, sizeName = "tall", sizeRef = 40 }
 end
-local CYCLE = { [1] = { "bille" }, [2] = { "p21", "p26", "p37", "ppla" } }
+local CYCLE = { [1] = { "bille" }, [2] = { "p21", "p26", "p37" } }
 
 -- size of each colour (1 = the real Bille / a 40 cm polyhedron)
 local SIZES = { 1.0, 0.6, 1.3, 0.8, 1.15, 0.7 }
@@ -276,7 +220,7 @@ local function spec(kind, size)
   KEEP[key] = Mesh(file, 0, false)
   if file ~= MESH_DIR .. objName then os.remove(file) end
   local vtx = {}
-  if K.vnames or K.frameObj or K.corners then
+  if K.vnames or K.frameObj then
     for i = 1, #p, 3 do vtx[#vtx + 1] = { p[i] * s, p[i + 1] * s, p[i + 2] * s } end
   end
   local m = K.mass * s ^ 3
@@ -285,8 +229,8 @@ local function spec(kind, size)
                inertia = btVector3(k2[1] * m, k2[2] * m, k2[3] * m), margin = K.margin * s, reach = reach,
                faces = faces, home = K.home, top = { K.top[1] * s, K.top[2] * s, K.top[3] * s },
                title = K.title, short = K.short, note = K.note, vnames = K.vnames, vtx = vtx,
-               corners = (K.frameObj or K.corners) and true or nil,
-               ballR = (K.ballR or 0.31) * s,   -- (the frame's balls are 0.30: just over them)
+               corners = K.frameObj and true or nil,
+               ballR = 0.31 * s,   -- (the frame's balls are 0.30: just over them)
                sizeText = string.format("%.0f cm %s", K.sizeRef * size, K.sizeName) }
   local nxt = {}
   for _, f in ipairs(faces) do if f.next then nxt[f.name] = f.next end end
@@ -306,9 +250,9 @@ local function envnum(name, default) return tonumber(os.getenv(name) or "") or d
 local function param(name, value, lo, hi, step, info) v:addParam(name, value, lo, hi, step, info) end
 param("count", envnum("BD_COUNT", 3), 1, MAX_COUNT, 1, "how many bodies to drop")
 param("bodies", envnum("BD_BODIES", 0), 0, 2, 1,
-      "0 = half and half (Red, Yellow, Orange Billes; Green, Blue, Purple polyhedra: 21, 26, 37 corners, PLA-only); 1 = Bille only; 2 = the polyhedra only")
+      "0 = half and half (Red, Yellow, Orange Billes; Green, Blue, Purple polyhedra: 21, 26, 37 corners); 1 = Bille only; 2 = the polyhedra only")
 param("polyhedra look", envnum("BD_LOOK", 1), 0, 1, 1,
-      "0 = the polyhedra drawn as solids, 1 = as frames (balls at the corners, rods on the edges); the physics is the same; the PLA-only one is always solid")
+      "0 = the polyhedra drawn as solids, 1 = as frames (balls at the corners, rods on the edges); the physics is the same")
 param("speed", envnum("BD_SPEED", 0.02), 0.001, .1, 0.001,
       "simulated seconds per real second (0.02 = 50x slow motion; Z toggles 0.02 / 0.1)")
 param("steps", envnum("BD_STEPS", 1200), 300, 4800, 300,
@@ -1094,15 +1038,12 @@ pcall(function()
     "Red, Yellow, Orange: Billes. Green, Blue, Purple:\n" ..
     "spiral polyhedra, 21, 26, 37 corners (idealised\n" ..
     "corner weights; a buildable one: print/w37/)\n" ..
-    "and the PLA-only one in turn: a faceted Weeble,\n" ..
-    "solid base, air above, fill top = centre of mass\n" ..
     "('bodies' slider: 1 = Billes only, 2 = polyhedra).\n" ..
     "A Bille's edge lights up white while it lies flat\n" ..
     "on the table (as it rolls from face to face).\n" ..
     "A polyhedron's corners (its weights) light up white\n" ..
     "while they touch the table.\n" ..
-    "'polyhedra look': frame (1) or solid (0)\n" ..
-    "(the PLA-only one is always solid).\n" ..
+    "'polyhedra look': frame (1) or solid (0).\n" ..
     "All work because of where their weight is.\n" ..
     "Dark = not yet on the\n" ..
     "stable face, bright = resting on it.\n" ..
@@ -1244,5 +1185,5 @@ end)
 
 math.randomseed(envnum("BD_SEED", os.time()))
 -- build every body once up front at each colour's size, so a re-drop never waits for a mesh
-for i = 1, MAX_COUNT do for _, k in ipairs({ "bille", "p21", "p26", "p37", "ppla" }) do spec(k, sizeOf(i)) end end
+for i = 1, MAX_COUNT do for _, k in ipairs({ "bille", "p21", "p26", "p37" }) do spec(k, sizeOf(i)) end end
 if os.getenv("BD_START") == "setdown" then setdown() else drop() end

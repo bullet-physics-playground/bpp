@@ -2448,6 +2448,12 @@ for k, key_ in ipairs({ "8", "9", "0" }) do
   v:addShortcut(key_, byHand(function() setFlip("MQ" .. k, 1 - lean("MQ" .. k)) end, key_))
 end
 v:addShortcut("D", byHand(setD, "D"))
+-- F1: this exhibit's manual (MANUAL.pdf) in the PDF viewer (H is the
+-- memory's 1s here); in the hall, the hall's own F1 does it
+if not hallPath then
+  local MANUAL = dofile(DIR .. "../../open-manual.lua")
+  v:addShortcut("F1", function() MANUAL.open(DIR, "the Digi-Comp II's manual") end)
+end
 v:addShortcut("U", byHand(function() local on = not isAuto(); hand.auto(on); PR.setStatus(on and "AUTO: the thread hooked into the START lever; Space starts it, and it runs until a ball drops through STOP" or "MANUAL: the thread off; Space, one ball") end, "U"))
 v:addShortcut("X", byHand(function() hand.complement(not isComplement()) end, "X"))
 v:addShortcut("O", byHand(function() local h = not comp.ovf.isHalt(); hand.overflow(h); PR.setStatus(h and "OVERFLOW: HALT (a carry out of the 64s drops into its pocket: in AUTO the machine stops)" or "OVERFLOW: RUN") end, "O"))
@@ -2535,6 +2541,7 @@ pcall(function()
     "  D      set the distributor to start a cycle",
     "  T      the tour: the library, in turn   R  set it back   Z  slow motion",
     "  Q      the hand shown <-> off (off: what it does is done at once)",
+    "  F1     the manual (MANUAL.pdf, in your PDF viewer)",
   }, "\n")
   PR.help = table.concat({
     "A computer of rolling balls, after E.S.R.'s Digi-Comp II (1965). The rockers",

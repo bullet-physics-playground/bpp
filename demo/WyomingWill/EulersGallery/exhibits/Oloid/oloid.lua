@@ -145,7 +145,7 @@ do
   local th = 1.5
   local cx = BX0 + BL / 2 * math.cos(SLOPE)
   local cy = BY0 - BL / 2 * math.sin(SLOPE)
-  block(BL, th, BW, cx - NX * th / 2, cy - NY * th / 2, 0, "#c9a877", q)
+  block(BL, th, BW, cx - NX * th / 2, cy - NY * th / 2, 0, "#8a6a42", q)
   -- its legs at the top end, and the stop at the bottom
   block(3, BY0 - TABLE_Y, BW - 6, BX0 + 2, (BY0 + TABLE_Y) / 2 - 0.8, 0, "#6a4424")
 end
@@ -250,9 +250,13 @@ for _, r in ipairs(ROLLERS) do r.hlo, r.hhi = heights(r) end
 -- following it from side to side as it goes (all three weave). Under
 -- each trail, a thin rod at its height in theory (R / sqrt 2: the lowest
 -- the oloid's centre goes, the height the others' stays at), and for the
--- oloid a second rod at the highest its centre goes in theory.
+-- oloid a second rod at the highest its centre goes in theory. A dot each
+-- PEN_GAP cm its centre moves over the board, not each so many frames: so
+-- all three trails run the length of the board, the slow rollers' too,
+-- evenly spaced, and slow motion doesn't shorten them.
 -- ---------------------------------------------------------------------
 local PEN_K, PEN_UP, PEN_N, STEM_N = 20, 13, 160, 7
+local PEN_GAP = 0.75                       -- cm (the board's 130 cm, weaving and all, in under PEN_N dots)
 local PEN_COL = { oloid = { "#d23a2a", "#8c2a20" }, ["two-circle"] = { "#2f74d0", "#234f8a" },
                   sphericon = { "#2fa34f", "#226f38" } }
 local H_REF = AR / math.sqrt(2)
@@ -605,8 +609,10 @@ v:postSim(function(N_)
       local f = i / STEM_N
       r.stem[i].trans = btTransform(Q0, btVector3(r.gx, r.gy + (py - r.gy) * f, r.gz + (r.z - r.gz) * f))
     end
-    if not r.stopped and N_ % 2 == 0 and r.ndots < PEN_N then
+    local moved = r.ndots == 0 or math.sqrt((r.gx - r.dotX) ^ 2 + (r.gz - r.dotZ) ^ 2) >= PEN_GAP
+    if not r.stopped and moved and r.ndots < PEN_N then
       r.ndots = r.ndots + 1
+      r.dotX, r.dotZ = r.gx, r.gz
       r.dots[r.ndots].trans = btTransform(Q0, btVector3(r.gx, py, r.z))
       r.track[r.ndots].trans = btTransform(Q0, btVector3(r.gx, boardY(r.gx) + 0.1, r.gz))
     end

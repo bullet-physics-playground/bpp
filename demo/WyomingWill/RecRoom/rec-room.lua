@@ -39,11 +39,13 @@
 -- wherever you stand -- unless the room can't keep up, when the busiest
 -- game is suspended until there's room for it (see "suspending games").
 --
--- FILES: the pinball and pool folders must sit next to this one (as
--- pinball-machine-a/ and pool-table/, or Pinball/ and Pool/). The snooker
--- and bumper pool tables (snooker-table/ or Snooker/, bumper-pool/ or
--- BumperPool/) and the clock (../Clocks/ or ../../WyomingWill/Clocks/) are
--- used if they're there; without one, the room simply goes without it.
+-- FILES: the games are in exhibits/ in this folder (exhibits/Pinball/,
+-- exhibits/Pool/, exhibits/Snooker/, exhibits/BumperPool/), or next to
+-- this folder as pinball-machine-a/, pool-table/, snooker-table/ and
+-- bumper-pool/. The pinball machine and the pool table must be there; the
+-- snooker and bumper pool tables and the clock (../Clocks/ or
+-- ../../WyomingWill/Clocks/) are used if they're there; without one, the
+-- room simply goes without it.
 --
 -- MORE GAMES: any other bpp script can join the room with one line in
 -- MORE_GAMES, below: on the floor, on a table or on a shelf, where you say,
@@ -140,9 +142,9 @@ local function findGame(dirs, file)
   error("can't find " .. file .. " in any of: " .. table.concat(dirs, ", "))
 end
 PINBALL_FILE = "pinball-machine-a.lua"
-PINBALL_DIR = findGame({ "../pinball-machine-a/", "../Pinball/", "../pinball/" }, PINBALL_FILE)
+PINBALL_DIR = findGame({ "../pinball-machine-a/", "exhibits/Pinball/", "../pinball/" }, PINBALL_FILE)
 POOL_FILE = "pool-table.lua"
-POOL_DIR = findGame({ "../pool-table/", "../Pool/", "../pool/" }, POOL_FILE)
+POOL_DIR = findGame({ "../pool-table/", "exhibits/Pool/", "../pool/" }, POOL_FILE)
 -- the snooker and bumper pool tables are welcome but not required
 local function findOptional(dirs, file)
   for _, d in ipairs(dirs) do
@@ -152,9 +154,9 @@ local function findOptional(dirs, file)
   print("REC ROOM: no " .. file .. " (looked in " .. table.concat(dirs, ", ") .. ")")
 end
 SNOOKER_FILE = "snooker-table.lua"
-SNOOKER_DIR = findOptional({ "../snooker-table/", "../Snooker/", "../snooker/", "../SnookerTable/" }, SNOOKER_FILE)
+SNOOKER_DIR = findOptional({ "../snooker-table/", "exhibits/Snooker/", "../snooker/", "../SnookerTable/" }, SNOOKER_FILE)
 BUMPER_FILE = "bumper-pool.lua"
-BUMPER_DIR = findOptional({ "../bumper-pool/", "../BumperPool/", "../Bumper Pool/", "../Bumper/", "../bumper/" }, BUMPER_FILE)
+BUMPER_DIR = findOptional({ "../bumper-pool/", "exhibits/BumperPool/", "../Bumper Pool/", "../Bumper/", "../bumper/" }, BUMPER_FILE)
 
 -- Load a Lua file so that its globals live in env. Lua 5.1 does this with
 -- setfenv; Lua 5.2 and later dropped setfenv and take the environment as

@@ -24,6 +24,7 @@
 --   D     the tour: 7, + 8 = 15, + 84 = 99, + 1 = 100 (it starts with it)
 --   R     set it back to 000
 --   Z     slow motion (1/4) <-> real time
+--   F1    the manual (MANUAL.pdf) in the PDF viewer
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md.
 --
@@ -606,6 +607,12 @@ v:addShortcut("Space", function()
 end)
 v:addShortcut("R", function() tour = nil; chosen = nil; reset() end)
 v:addShortcut("D", function() reset(); chosen = nil; tour = 1; fails = 0; started = false; print("\nthe tour") end)
+-- F1: this exhibit's manual (MANUAL.pdf) in the PDF viewer (H is the
+-- hundreds here); in the hall, the hall's own F1 does it
+if not hallPath then
+  local MANUAL = dofile(DIR .. "../../open-manual.lua")
+  v:addShortcut("F1", function() MANUAL.open(DIR, "the Pascaline's manual") end)
+end
 v:addShortcut("Z", function()
   local sp = v:getParam("speed") < 0.5 and 1 or 0.25
   v:addParam("speed", sp, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
@@ -621,7 +628,7 @@ pcall(function()
     "",
     "KEYS",
     "  U T H  choose a wheel     1-9  add to it     Space  turn the chosen hole",
-    "  D  the tour      R  back to 000      Z  slow motion",
+    "  D  the tour      R  back to 000      Z  slow motion      F1  the manual (MANUAL.pdf)",
     "",
     "Pascal's adding machine, 1642. Each digit is a wheel of pins with a snail",
     "cam behind it. Counting up from 0 to 9, the cam lifts a weighted lever,",

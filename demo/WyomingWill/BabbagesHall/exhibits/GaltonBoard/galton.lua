@@ -22,6 +22,7 @@
 --   Space  turn the crank: run the balls through (again: stop)
 --   E      empty the bins into the drawer and pour it back into the hopper
 --   T      the tour: a run, empty and pour back, a second run
+--   H      the manual (MANUAL.pdf; the splitter board's, MANUAL-splitter.pdf)
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md. The balls, the pins
 -- and the walls are the printed board's; the wheels turn by the crank.
@@ -124,7 +125,7 @@ do
   if G.teeth then L[#L + 1] = "TEETH = " .. polys(G.teeth) .. ";" end
   if G.solids then L[#L + 1] = "SOLIDS = " .. polys(G.solids) .. ";" end
   local tm = {}
-  for i, t in ipairs(G.tubes or {}) do tm[#tm + 1] = { t.x, G.Y_FLOOR + G.tubeFill(G.tubeExpected(G.NBALLS, i)) } end
+  for i, t in ipairs(G.tubes or {}) do tm[#tm + 1] = { t.x, G.Y_FLOOR + G.tubeFill(G.tubeExpected(G.NBALLS, i), i) } end
   if G.tubes then L[#L + 1] = "TUBE_MARKS = " .. pts(tm) .. ";" end
   local text = table.concat(L, "\n") .. "\n"
   local path = DIR .. "parts/" .. (BOARD.geoScad or "geometry.scad")
@@ -499,7 +500,7 @@ applyContacts()
 -- bins, in the drawer, or on their way
 local chuteLog = { n = 0, x = 0, vx = 0, left = 0, prevY = {} }
 local function census()
-  local c = { hopper = 0, bins = 0, drawer = 0, between = 0, counts = {}, maxv = 0, tubes = 0, tubeCounts = {} }
+  local c = { hopper = 0, bins = 0, drawer = 0, between = 0, counts = {}, maxv = 0, maxvFree = 0, tubes = 0, tubeCounts = {} }
   for k = 1, G.NBINS do c.counts[k] = 0 end
   for i = 1, #(G.tubes or {}) do c.tubeCounts[i] = 0 end
   for _, b in ipairs(balls) do
@@ -519,6 +520,11 @@ local function census()
     elseif G.tubeOf and G.tubeOf(x, y) then local i = G.tubeOf(x, y); c.tubes = c.tubes + 1; c.tubeCounts[i] = c.tubeCounts[i] + 1
     elseif y < G.Y_DIV and y > G.Y_FLOOR - 1 then c.bins = c.bins + 1; local k = G.binOf(x); c.counts[k] = c.counts[k] + 1
     else c.between = c.between + 1 end
+    -- (the balls in a tube can't leave it: a run's end doesn't wait for a
+    -- tall stack in one to stop jittering, which in a wide tube it may not)
+    if not (G.tubeOf and y >= G.Y_FLOOR - G.SLIDE_T and G.tubeOf(x, y)) then
+      c.maxvFree = math.max(c.maxvFree, b.body:getLinearVelocity():length())
+    end
   end
   local n, s1, s2 = 0, 0, 0
   for k = 1, G.NBINS do n = n + c.counts[k]; s1 = s1 + c.counts[k] * (k - 1); s2 = s2 + c.counts[k] * (k - 1) ^ 2 end
@@ -863,7 +869,7 @@ local function operate(dt)
   modeT = modeT + dt
   -- (still: under 8 cm/s; balls low in a tall stack in a bin jitter at 5 or 6,
   -- the solver's, not a movement: FINDINGS)
-  if c.maxv < QUIET_V then quietT = quietT + dt else quietT = 0 end
+  if (mode == "run" and c.maxvFree or c.maxv) < QUIET_V then quietT = quietT + dt else quietT = 0 end
   if mode == "run" then
     if not cranking then
       hand.go(crankTip())
@@ -1110,6 +1116,15 @@ v:addShortcut("T", function()
   TOUR = tourPlan(lastCensus.hopper == NBALLS)
   tourStep()
 end)
+-- H (or F1): this board's manual in the PDF viewer (the Galton board's
+-- MANUAL.pdf, the splitter board's BOARD.manual: they share this folder);
+-- in the hall, the hall's own H and F1 do it
+if not hallPath then
+  local MANUAL = dofile(DIR .. "../../open-manual.lua")
+  for _, k in ipairs({ "H", "F1" }) do
+    v:addShortcut(k, function() MANUAL.open(DIR, NAME:gsub("^The", "the") .. "'s manual", BOARD.manual) end)
+  end
+end
 v:onParamChanged(function(N, name, value)
   if name == "speed" then applyTiming()
   elseif name == "bounce" or name == "friction" then applyContacts() end
@@ -1122,6 +1137,7 @@ pcall(function()
     "  Space  turn the crank: run the balls through (again: stop)",
     "  E      empty the bins into the drawer, pour it back into the hopper",
     "  T      the tour: a run, empty and pour back, a second run",
+    "  H      the manual (MANUAL.pdf, in your PDF viewer)",
     "",
     "Each ball meets twelve pins on its way down, and at each goes left or",
     "right. Its bin counts how many times it went right. If every pin were a",

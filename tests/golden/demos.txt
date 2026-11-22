@@ -12,8 +12,8 @@
 #   koppi/pulley.lua koppi/spirals.lua claude/worlds-simplest-clock.lua  (OpenSCAD meshes)
 #   koppi/gears.lua koppi/poly.lua koppi/gps.lua koppi/iridium.lua
 #   koppi/orbital-objects.lua koppi/rocks.lua koppi/tuxracer.lua koppi/duplo.lua
-#   claude/physicomimetics.lua WyomingWill/BumperPool/bumper-pool.lua
-#   WyomingWill/Pool/pool-table.lua WyomingWill/Snooker/snooker-table.lua
+#   claude/physicomimetics.lua WyomingWill/RecRoom/exhibits/BumperPool/bumper-pool.lua
+#   WyomingWill/RecRoom/exhibits/Pool/pool-table.lua WyomingWill/RecRoom/exhibits/Snooker/snooker-table.lua
 #   WyomingWill/RecRoom/rec-room.lua WyomingWill/Clocks/*_Clock_handcheck.lua
 
 demo/basic/00-hello.lua

@@ -108,6 +108,77 @@ LABELS = {
         "The products are added by the rules for adding; the slate shows each. "
         "Rods are named A to G from the left.",
     ), ABACUS_READING],
+    "lock": [(                       # (the wheel pack and the 4-3-2 rules: Wikipedia, Rotary combination lock; Blaze 2004)
+        "THE COMBINATION LOCK",
+        "A lock that tests a number",
+        "Three wheels turn loose behind the dial, each with a notch in its "
+        "rim, its gate. A pin through each wheel carries the next round after "
+        "nearly a turn, so the dialling rules set one wheel at a time. Only when "
+        "every gate is under the fence can it fall in, and the bolt be drawn.\n"
+        "Type 31 72 46 and press Return. G looks down at the gates.",
+    ), (
+        "LEFT, RIGHT, LEFT",
+        "Four turns, three, then two",
+        "Left four times to the first number: by then the cam has picked up all "
+        "three wheels, and wheel 1, at the back, is left there. Right three times "
+        "to the second: wheel 1 stays, wheel 2 is set. Left twice to the third: "
+        "wheel 3. Then right, until the cam's notch catches the fallen fence and "
+        "pulls the bolt.",
+    ), (
+        "NOT A MILLION",
+        "What the fence lets through",
+        "A gate need only be within a number or so of the fence: 27 of the "
+        "million combinations open this lock, so a thief has about 37,000 to "
+        "try. Matt Blaze put a real safe lock's at 22,000 to 111,000.\n"
+        "Nor can every number be used: a last number from 90 to 99 is in the "
+        "forbidden zone, where the cam carries wheel 3 off before it draws the bolt.",
+    ), (
+        "FURTHER READING",
+        "Dial locks and their weaknesses",
+        "Linus Yale Jr.'s Monitor Bank Lock (1862) began the banks' change from "
+        "keys to dials; James Sargent showed the early dial locks could be "
+        "picked, and in 1873 added the time lock.\n"
+        "Matt Blaze, Safecracking for the Computer Scientist (2004). Free online.\n"
+        "Richard Feynman, Surely You're Joking, Mr. Feynman! (1985): Safecracker "
+        "Meets Safecracker.",
+    )],
+    "lock-safecracker": [(          # (manipulation: Blaze 2004; UL 768 Group 1 and S&G's 20 man-hours; US patent 4,901,546 on false gates)
+        "THE SAFECRACKER'S WAY",
+        "Reading a lock without its combination",
+        "No two wheels are quite alike, and the fence rests on the largest. "
+        "Rocked gently, the dial stops where the fence meets the cam's notch: "
+        "the contact points. When a gate of the wheel holding the fence up comes "
+        "under it, the fence drops a hair onto the next wheel, and the contact "
+        "points close in.\n"
+        "Press T and watch the graph on the slate.",
+    ), (
+        "LISTEN, AND READ THE DIAL",
+        "A click says when; the dial says where",
+        "Contact can be heard as well as felt: a microphone on the case picks "
+        "up a click as the fence meets each wall of the notch, one each way. "
+        "At each click the safecracker reads the number under the index; the "
+        "gap is the difference.\n"
+        "Ours chalks both on the dial, with the arc between. When the gap "
+        "reads narrower, the arc turns blue, and so does the slate's reading.",
+    ), (
+        "ONE WHEEL AT A TIME",
+        "Two graphs and a few tries",
+        "Park all three wheels together on each number, feeling the contact "
+        "points: the gap narrows at wheel 1's number. Leave wheel 1 there and "
+        "park the other two: it narrows at wheel 2's. Then try every second "
+        "number for wheel 3.\n"
+        "Ours stops each graph past the narrowing. A real safecracker graphs "
+        "the whole dial: false gates narrow it too.",
+    ), (
+        "LOCKS THAT LEAK LESS",
+        "What safecrackers taught the lockmakers",
+        "Makers answered with wheels cut to finer tolerances, false gates that "
+        "give false narrowings, and levers kept off the wheels until the dial "
+        "is at one point only. Sargent & Greenleaf's best locks are tested "
+        "against expert manipulation for 20 man-hours (Underwriters "
+        "Laboratories' Group 1).\n"
+        "These wheels differ by 0.1 mm, on purpose, so the leak can be seen.",
+    )],
     "napier": [(                     # (1617, Rabdologiae, Napier's death that year; the set of ten rods and four-digit
         "NAPIER'S BONES",            #  numbers: Wikipedia, MacTutor (Glaisher); 4138 x 567's rows: MacTutor)
         "The multiplication table, cut into rods",

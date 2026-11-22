@@ -48,8 +48,29 @@ Click the 3D view first so it has the keyboard.
 
 | Key | Action |
 |---|---|
-| `Tab` | walk on: the view from the entrance, the exhibits in wing A, the view from the corner down wing B, the exhibits in wing B, then back to the entrance |
-| `Shift+Tab` | walk back |
+| `Tab` | walk on: the view from the entrance, the exhibits in wing A, the view from the corner down wing B, the exhibits in wing B, then back to the entrance. At each exhibit, first up to it (the walk-up), then a step in |
+| `Shift+Tab` | walk back (stepping back out first) |
+| `]`, `[` | on to the next exhibit, back to the one before, past the stepping in |
+| `F3` | find an exhibit: type part of its name, or its number (the "Gallery: stop" slider's); `Tab`, `Shift+Tab` pick among the matches, `Return` goes there, `Esc` (or `F3`) leaves it |
+| `I` | at an exhibit: its lectern's label, close up (again: back) |
+| `PgDn`, `PgUp` | at an exhibit: the label's next and previous pages |
+
+These are Babbage's Hall's keys too. The hall's keys come before an
+exhibit's: at the Gömböc and Bille tables `]` and `[` walk on rather than
+adding a body, and their count sliders do that here.
+
+Each exhibit has a lectern just past the front right corner of its table,
+as in Babbage's Hall (the gallery measures the table from what the exhibit
+adds as it loads): a museum label of
+two or three pages, saying what to watch, why it happens, and a little of
+its history. The walk-up stands where a visitor coming up to the exhibit
+would, a little right of its middle, the exhibit and its lectern in view and
+the card turned to you; the next Tab steps in to the exhibit's own view,
+from 1.3 times as far back (its view fills the window when it runs on its
+own, and in the hall that came too close).
+An exhibit moves the camera itself only once you've stepped in. The cards are made by `make-lecterns.py`
+(`gallery-meshes/lectern-<label>.png`, `-2`, `-3`); an exhibit whose card
+isn't there gets no lectern.
 
 On Tab and Shift+Tab the camera flies to the next stop, out of the bay, along
 the aisle (round by the corner between the wings) and into the next bay, in
@@ -166,6 +187,8 @@ Each exhibit is one line in `EXHIBITS` near the top of `gallery.lua`:
 | `floorY` | the height of its own ground plane, in its own units: the hall's floor goes there |
 | `stand` | `{ w, d }`: a walnut stand under it, for exhibits (the trays) that float above their ground plane on their own |
 | `about` | what its placard says when the mouse rests on it |
+| `lectern` | `{ x, z }`, optional: where its lectern stands, in cm from the bay's middle (x to the right as you face the bay, z toward the aisle), if the measured corner of its table doesn't suit |
+| `approach` | `{ pos = { x, y, z }, look = { x, y, z } }`, optional: its walk-up, in the same terms, if the usual one doesn't frame it |
 
 Add lines and the hall grows to fit: both wings get longer. `SPARE_BAYS`
 adds empty bays at the far end (0 now: twenty-one exhibits, twelve bays
@@ -178,6 +201,12 @@ in `v:preSim` (the gallery passes its physics settings on while you're at
 it).
 
 ## How it works
+
+The hall itself is shown at once, with a dust sheet over each exhibit's
+bay; then the exhibits are loaded one a frame, the one you're at (or
+walking to) first, and each sheet comes off as its exhibit arrives. The
+status bar says which one is loading. Walk to a bay still being set up and
+you see it from the aisle; it comes to life when its exhibit has loaded.
 
 Each exhibit is the unchanged script, loaded into a sandbox of its own (its
 own set of globals) that:

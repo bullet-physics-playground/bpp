@@ -21,6 +21,7 @@
 
 #include "appenv.h"
 
+#include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QDir>
@@ -624,9 +625,10 @@ void Object::renderInLocalFramePost(btVector3 &oaabbmin, btVector3 &oaabbmax) {
  * @brief Finds a texture image, in the places POV-Ray would look for it.
  *
  * An absolute path is taken as it stands. A relative one is tried against the
- * working directory first and then against bpp's @c includes directory, which
- * are the two the exported scene's library path names, so the interactive view
- * and a render resolve a bare file name to the same image.
+ * working directory first and then against bpp's @c includes directory: the
+ * one in the directory bpp was started in, then the ones next to and above
+ * the executable (as the POV-Ray export looks for them), so a script finds
+ * the shipped textures from its own folder too.
  *
  * @param file The image to find.
  * @return An absolute path to the file, or an empty string when there is no
@@ -645,9 +647,15 @@ static QString locateTextureFile(const QString &file) {
     return fi.absoluteFilePath();
   }
 
-  QFileInfo inc(QDir(startupWorkingDir()).filePath("includes"), file);
-  if (inc.exists()) {
-    return inc.absoluteFilePath();
+  const QString appDir = QCoreApplication::applicationDirPath();
+  const QStringList dirs = {QDir(startupWorkingDir()).filePath("includes"),
+                            appDir + "/includes", appDir + "/../includes",
+                            appDir + "/../../includes"};
+  for (const QString &dir : dirs) {
+    QFileInfo inc(dir, file);
+    if (inc.exists()) {
+      return inc.absoluteFilePath();
+    }
   }
 
   return QString();
@@ -660,7 +668,7 @@ void Object::setTexture(const QString &file) {
   if (!file.isEmpty() && mTextureFile.isEmpty()) {
     qWarning() << "texture" << file
                << "not found -- looked in" << startupWorkingDir()
-               << "and its includes directory";
+               << "and bpp's includes directories";
   }
 }
 

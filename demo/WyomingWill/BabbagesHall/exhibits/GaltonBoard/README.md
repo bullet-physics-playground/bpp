@@ -2,6 +2,11 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
+**`MANUAL.pdf`** is the manual: running the board, why the balls make a
+bell, reading the counts, what real balls do, with pictures, and the
+exhibit's keys (`H` opens it, here or in the hall). The splitter board's
+is `MANUAL-splitter.pdf`. This README is the builder's reference.
+
 Babbage's Hall, west bay 5. Francis Galton's quincunx: balls falling
 through rows of pins, each pin sending a ball left or right, pile up in
 the bins below in the bell of the normal curve. Galton had his made by
@@ -81,6 +86,7 @@ the tries.
 | `Space` | turn the crank: run the balls through (again: stop) |
 | `E` | empty the bins into the drawer, and pour it back into the hopper |
 | `T` | the tour: a run, empty and pour back, and a second run (it starts with it) |
+| `H` | the manual, `MANUAL.pdf` (the splitter board: `MANUAL-splitter.pdf`), opened in your PDF viewer |
 
 **Where to look.** The bins fill in a bell; compare them with the gold
 lines. **The sign** beside the board (the exhibit's, not the machine's: it
@@ -117,6 +123,12 @@ spacing: they are not written to the printed parts), `GB_PATHS=<file>`
 Once the operator is done and nothing moves, it rests: it stops stepping
 until the next key, which saves the processor and changes nothing it
 computes.
+
+The manuals' figures: `python3 manual/make-figures.py` (a labelled
+screenshot, the routes on the board's lattice, and the tour's two runs as
+the console printed them, in `manual/runs.txt`) and
+`python3 manual/make-figures-splitter.py` (a splitter drawn to its sizes,
+the five walls worked exactly, a labelled screenshot).
 
 ## How it is built
 
@@ -221,7 +233,11 @@ The walls (`SB_WALLS`):
   has it. The gold lines are the exact counts.
 - `ruin`: walls on both sides, 4 places apart, the start `SB_START`
   places from the left one (1, 2 or 3): gambler's ruin. A quarter, a half
-  or three quarters of the balls go out on the right.
+  or three quarters of the balls go out on the right. With the start 1 (or
+  3) place from a wall, half the balls are caught at the first row: that
+  tube is two staggered columns wide (10.4 mm), since single file it
+  couldn't hold them (SPLITTERS.md, "A tube too short for gambler's
+  ruin").
 - `none`: no walls, the binomial exactly.
 - `reflect`: a wall that sends balls back, the outermost place a ball can
   reach `SB_REFL` places left of the start (3 by default). Where a ball

@@ -2,6 +2,10 @@
 
 *Babbage's Hall, west bay 1: the Chinese abacus.*
 
+**`MANUAL.pdf`** is the manual: how to work an abacus, every rule with
+pictures, multiplying, and the exhibit's keys (`H` opens it, here or in
+the hall). This README is the builder's reference.
+
 The first machine on the walk, and the oldest. Seven rods; on each, two
 **heaven beads** above the beam (the reckoning bar) and five **earth
 beads** below it. A bead counts when it is pushed to the beam: a heaven
@@ -74,6 +78,7 @@ the finger is at. Seven rods hold up to 99 × 99, or 9999 × 9.
 | `Backspace` | its last digit off |
 | `C` | clear the abacus: heaven beads up, earth beads down |
 | `T` | the tour. Adding: 3, 4, 8, 6, 79 and 1234 added, a rule of its own each, to 1334. Taking away: 2000 set, then 1, 4, 3, 7, 8 and 5 taken away, to 1972. Multiplying: 36 × 4, 23 × 45, 99 × 99 |
+| `H` | the manual, `MANUAL.pdf`, opened in your PDF viewer |
 
 The sliders: the beads' friction on their rods, the finger's speed, and the
 simulation's speed. Resting the mouse on a bead, the frame, the slate or
@@ -127,3 +132,4 @@ held upright: if they are loose, a 3.2 mm hole holds them better.
 | `make-slate.py`, `slate/` | the slate's pictures (Pillow), and the rules' words |
 | `make-stls.sh` | the STL files (not kept in the repository) |
 | `FINDINGS.md` | what was measured |
+| `MANUAL.md`, `manual/` | the manual and its figures (`python3 manual/make-figures.py` redraws them from `plan.lua`'s own moves, but for `fig-exhibit.png`, a screenshot) |
