@@ -858,12 +858,15 @@ local msafe                                   -- (the model, kept turned as the 
 local DIP = 0.08                              -- numbers: narrower than the median by this much is a dip (the leak is 0.16)
 local DOTS = {}                               -- (the graph's chalk dots)
 local GX0, GW, GY0, GH, GAP0, GAP1 = -4.5, 20.5, 1.9, 4.6, 2.7, 3.7
-local dotCols = { "#ece8d6", "#9ad69a", "#e8b070", "#9ad69a" }
+-- (every dot chalk; blue, as the dial's arc, if its reading is narrower:
+-- colour means one thing. The closer looks' dots are smaller, and the
+-- second graph lies lower on the slate, the fence resting on wheel 2)
+local CHALKDOT = "#ece8d6"
 local function dot(graph, x, gap)
   if not SAFE or not gap then return end
   local c = Cube(graph % 2 == 1 and 0.32 or 0.26, graph % 2 == 1 and 0.32 or 0.26, 0.01, 0)
   c.collides = false
-  c.col = dotCols[graph]
+  c.col = CHALKDOT
   v:add(c)
   local f = math.max(0, math.min(1, (gap - GAP0) / (GAP1 - GAP0)))
   c.trans = btTransform(ident, btVector3(SX + GX0 + L.wrap(x) / L.N * GW, SY + GY0 + f * GH, SZ + 0.006 + 0.001 * graph))

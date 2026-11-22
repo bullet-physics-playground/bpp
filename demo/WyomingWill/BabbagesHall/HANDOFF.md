@@ -1139,7 +1139,9 @@ there, in `release/`, or on the path; or set `BPP`.
   safecracker's way). Blue: a reading narrower than the graph's level
   (its LOW, HIGH and GAP numbers, its dot, and the dial's arc); gold: a
   number found (the FOUND row); green: the lock opened (the whole
-  combination). Coloured glyph sets `gb-`, `gy-`, `gg-` from
+  combination). The graph's dots are all chalk but for blue (they had
+  been white, green, orange by graph, which William found confusing next
+  to the arc's white and blue). Coloured glyph sets `gb-`, `gy-`, `gg-` from
   `make-slate.py`; `showGlyphs(row, text, col)` takes a colour code for the
   row or one a character; `markNarrow` judges and colours. William's
   report: the clicks don't change at a narrowing, and nothing said why it

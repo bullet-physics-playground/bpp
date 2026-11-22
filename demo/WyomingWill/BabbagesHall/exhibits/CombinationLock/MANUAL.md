@@ -226,8 +226,10 @@ show it level.
 
 The slate keeps the combination hidden (`??-??-??`), shows what has been
 found, the contact points and their gap as each is felt, and draws the
-graphs in chalk, a dot a number: white for the first, green for a closer
-look, orange for the second. Colour marks what matters. **Blue**: a
+graphs in chalk, a dot a number, smaller for a closer look. The second
+graph lies below the first: with wheel 1's gate under the fence, it rests
+on wheel 2, 0.1 mm lower, so every gap is smaller. Colour marks what
+matters, and means the same on the slate and the dial. **Blue**: a
 reading narrower than the graph's level; its contact points, its gap and
 its dot turn blue, and so does the arc chalked on the dial. **Gold**: a
 number found. **Green**: the lock opened, the whole combination. `F` feels the contact points once, wherever
