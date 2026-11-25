@@ -23,7 +23,7 @@ v:addParam("tune", 2, 0, 3, 1,
   "lighting tune: 0=user (all), 1=daylight, 2=incandescent, 3=fluorescent")
 
 -- Build the POV-Ray preamble: CIE + LightSys includes, spectra, lumens,
--- pigment declarations and the light sources themselves.
+-- pigment declarations, texture definitions and the light sources themselves.
 --
 -- This is raw POV-Ray SDL, written verbatim into the exported .pov, so
 -- coordinates here are POV-space (z as in the original .pov). bpp objects
@@ -33,7 +33,6 @@ local function buildPreSDL(tune)
   return [==[
 #include "colors.inc"
 #include "math.inc"
-#include "bpp_CIE.inc"
 #include "bpp_CIE_tools.inc"
 #include "bpp_lightsys.inc"
 #include "bpp_lightsys_constants.inc"
@@ -86,9 +85,6 @@ local function buildPreSDL(tune)
     #declare LD  = off;// window
 #end
 
-// use the Judd/Vos modified observer
-//CIE_Observer(CIE_1978)
-
 // ColorSystem and Whitepoint for light sources
 CIE_ColorSystemWhitepoint(Beta_ColSys, Blackbody2Whitepoint(Film_Temperature))
 
@@ -121,15 +117,15 @@ CIE_ColorSystem(Beta_ColSys)
 #declare T_Floor = texture {
   pigment { crackle
     color_map {
-      [0.0 rgb Mortar_Color*0.5 ]
-      [0.1 rgb Floor_Color]
+      [0.0 rgb <0.3,0.3,0.25> ]
+      [0.1 rgb <0.12,0.18,0.10>]
     }
     scale 12
   }
 }
 
 #declare T_Brick_Wall = texture {
-  pigment {brick color Mortar_Color color Brick_Color scale 2.5 turbulence 0.05}
+  pigment {brick color <0.5,0.5,0.5> color <0.75,0.25,0.25> scale 2.5 turbulence 0.05}
   normal {brick scale 2.5 turbulence 0.05}
   rotate y*90
   translate <0.5, 0.1,0>
@@ -138,19 +134,50 @@ CIE_ColorSystem(Beta_ColSys)
 #declare T_White_Wall = texture {
   pigment { wrinkles
     color_map {
-      [0 rgb Wall_Color]
-      [1 rgb Wall_Color*0.92]
+      [0.0 rgb <0.95,0.95,0.95>]
+      [1.0 rgb <0.87,0.87,0.87>]
     }
     scale 7
   }
 }
 
 #declare T_Black_Plastic = texture {
-  pigment{rgb ReflectiveSpectrum(RS_Black_5_C)}
+  pigment {rgb <0.05,0.05,0.05>}
   finish {diffuse 0.8 specular 0.3 roughness 0.009}
 }
 
+#declare T_Chrome = texture {
+  pigment {rgb <0.7,0.7,0.8>}
+  finish {diffuse 0.3 brilliance 4 metallic reflection{0.7 metallic} }
+}
+
+#declare T_DeskWood = texture {
+  pigment{
+    wood
+    color_map {
+      [0.0 rgb <0.2,0.1,0.05>]
+      [0.3 rgb <0.3,0.15,0.08>]
+      [0.5 rgb <0.4,0.2,0.1>]
+      [1.0 rgb <0.5,0.25,0.12>]
+    }
+    turbulence 0.12
+  }
+  finish {diffuse 0.8 brilliance 2 specular 0.25 roughness 0.007 reflection{0.09 falloff 2}}
+  scale 2.5
+  rotate y*90
+}
+
+#declare T_WindowGlass = texture {
+  pigment {rgbt <1,1,1,0.4>}
+  finish {diffuse 0.1 specular 0.4 roughness 0.05 reflection {0.1}}
+}
+
 #declare F_Mondrian = finish {specular 0.3 brilliance 2 roughness 0.011}
+
+#declare F_Chair = finish {
+  diffuse 0.9 brilliance 2 specular 0.275 roughness 0.012
+  reflection {0.02 0.1 falloff 2  metallic 0.4}
+}
 
 global_settings {
   assumed_gamma 1.0
@@ -225,9 +252,9 @@ local roomObjs = {}
 
 local function addRoom()
   -- floor: plane at y=0, crackle texture
-  local floor = Cube(500, 0.2, 500, 0)
+  local floor = Cube(400, 0.2, 500, 0)
   floor.pos = btVector3(0, 0, 0)
-  floor.col = color.lightgray
+  floor.col = color.white
   floor.mass = 0
   floor.sdl = [[
     texture { T_Floor }
@@ -235,8 +262,8 @@ local function addRoom()
   v:add(floor)
   table.insert(roomObjs, floor)
 
-  -- ceiling: box at y=290..300, light wood
-  local ceiling = Cube(420, 10, 520, 0)
+  -- ceiling: box <-200,290,-250> <200,300,250> => center (0,295,0), size (400,10,500)
+  local ceiling = Cube(400, 10, 500, 0)
   ceiling.pos = btVector3(0, 295, 0)
   ceiling.col = color.white
   ceiling.mass = 0
@@ -246,9 +273,10 @@ local function addRoom()
   v:add(ceiling)
   table.insert(roomObjs, ceiling)
 
-  -- front wall (with where Mondrian would go)
-  local frontWall = Cube(430, 300, 10, 0)
-  frontWall.pos = btVector3(0, 150, -250)
+  -- front wall: box <-205,0,250> <205,300,255> => center (0,150,252.5), size (410,300,5)
+  -- bpp z = -252.5
+  local frontWall = Cube(410, 300, 5, 0)
+  frontWall.pos = btVector3(0, 150, -252.5)
   frontWall.col = color.white
   frontWall.mass = 0
   frontWall.sdl = [[
@@ -257,9 +285,10 @@ local function addRoom()
   v:add(frontWall)
   table.insert(roomObjs, frontWall)
 
-  -- baseboard at front
-  local frontBase = Cube(420, 4, 8, 0)
-  frontBase.pos = btVector3(0, 2, -246)
+  -- front baseboard: box <-200,0,249> <200,4,250> => center (0,2,249.5), size (400,4,1)
+  -- bpp z = -249.5
+  local frontBase = Cube(400, 4, 1, 0)
+  frontBase.pos = btVector3(0, 2, -249.5)
   frontBase.col = color.black
   frontBase.mass = 0
   frontBase.sdl = [[
@@ -268,9 +297,9 @@ local function addRoom()
   v:add(frontBase)
   table.insert(roomObjs, frontBase)
 
-  -- right wall (brick)
-  local rightWall = Cube(10, 300, 500, 0)
-  rightWall.pos = btVector3(200, 150, 0)
+  -- right wall: box <200,0,-250> <205,300,250> => center (202.5,150,0), size (5,300,500)
+  local rightWall = Cube(5, 300, 500, 0)
+  rightWall.pos = btVector3(202.5, 150, 0)
   rightWall.col = color.darkred
   rightWall.mass = 0
   rightWall.sdl = [[
@@ -279,8 +308,9 @@ local function addRoom()
   v:add(rightWall)
   table.insert(roomObjs, rightWall)
 
-  local rightBase = Cube(8, 4, 500, 0)
-  rightBase.pos = btVector3(196, 2, 0)
+  -- right baseboard: box <199,0,-250> <200,4,250> => center (199.5,2,0), size (1,4,500)
+  local rightBase = Cube(1, 4, 500, 0)
+  rightBase.pos = btVector3(199.5, 2, 0)
   rightBase.col = color.black
   rightBase.mass = 0
   rightBase.sdl = [[
@@ -289,9 +319,9 @@ local function addRoom()
   v:add(rightBase)
   table.insert(roomObjs, rightBase)
 
-  -- left wall (with window opening)
+  -- left wall: box <-200,0,-250> <-210,300,250> => center (-205,150,0), size (10,300,500)
   local leftWall = Cube(10, 300, 500, 0)
-  leftWall.pos = btVector3(-200, 150, 0)
+  leftWall.pos = btVector3(-205, 150, 0)
   leftWall.col = color.white
   leftWall.mass = 0
   leftWall.sdl = [[
@@ -300,8 +330,9 @@ local function addRoom()
   v:add(leftWall)
   table.insert(roomObjs, leftWall)
 
-  local leftBase = Cube(8, 4, 500, 0)
-  leftBase.pos = btVector3(-196, 2, 0)
+  -- left baseboard: box <-199,0,-250> <-200,4,250> => center (-199.5,2,0), size (1,4,500)
+  local leftBase = Cube(1, 4, 500, 0)
+  leftBase.pos = btVector3(-199.5, 2, 0)
   leftBase.col = color.black
   leftBase.mass = 0
   leftBase.sdl = [[
@@ -310,9 +341,10 @@ local function addRoom()
   v:add(leftBase)
   table.insert(roomObjs, leftBase)
 
-  -- rear wall
-  local rearWall = Cube(430, 300, 10, 0)
-  rearWall.pos = btVector3(0, 150, 250)
+  -- rear wall: box <-205,0,-250> <205,300,-255> => center (0,150,-252.5), size (410,300,5)
+  -- bpp z = 252.5
+  local rearWall = Cube(410, 300, 5, 0)
+  rearWall.pos = btVector3(0, 150, 252.5)
   rearWall.col = color.white
   rearWall.mass = 0
   rearWall.sdl = [[
@@ -321,8 +353,10 @@ local function addRoom()
   v:add(rearWall)
   table.insert(roomObjs, rearWall)
 
-  local rearBase = Cube(420, 4, 8, 0)
-  rearBase.pos = btVector3(0, 2, 246)
+  -- rear baseboard: box <-200,0,-249> <200,4,-250> => center (0,2,-249.5), size (400,4,1)
+  -- bpp z = 249.5
+  local rearBase = Cube(400, 4, 1, 0)
+  rearBase.pos = btVector3(0, 2, 249.5)
   rearBase.col = color.black
   rearBase.mass = 0
   rearBase.sdl = [[
@@ -331,7 +365,8 @@ local function addRoom()
   v:add(rearBase)
   table.insert(roomObjs, rearBase)
 
-  -- pipes at right wall
+  -- pipes at right wall: cylinders <197,0,130>..<197,290,130> and ..139, radius 3
+  -- center (197,145,z), length 290. bpp z negated.
   for _, pz in ipairs({-130, -139}) do
     local pipe = Cylinder(3, 290, 0)
     pipe.pos = btVector3(197, 145, pz)
@@ -353,9 +388,11 @@ end
 -- Simplified Mondrian picture on the front wall (the original uses an image
 -- map of Piet Mondrian's "Composition with Red, Yellow and Blue", which is
 -- not available here; a colored panel stands in).
+-- POV: box {0,1 texture {T_Mondrian} scale <35,39,2>*2.5 translate <-6,112,247>}
+-- => center (-6,112,247), size (87.5,97.5,5). bpp z = -247.
 local mondrianObj = nil
 local function addMondrian()
-  mondrianObj = Cube(35 * 2.5, 39 * 2.5, 2, 0)
+  mondrianObj = Cube(87.5, 97.5, 5, 0)
   mondrianObj.pos = btVector3(-6, 112, -247)
   mondrianObj.col = color.white
   mondrianObj.mass = 0
@@ -369,69 +406,107 @@ local function addMondrian()
   table.insert(roomObjs, mondrianObj)
 end
 
+-- Window in the left wall. Original POV Window object: frame box + glass
+-- pane + daylight light source, rotate y*90 translate <-209,90,-60>.
+-- bpp: translate (-209, 90, 60), rotate -y*90 (= +y*90 negated... rotate y*90
+-- in POV becomes rotate -y*90 in bpp since rotation about Y is its own mirror
+-- with opposite sign under Z-flip).
+local windowObj = nil
+local function addWindow()
+  -- window frame
+  windowObj = Cube(100, 140, 1, 0)
+  windowObj.pos = btVector3(-209, 160, 60)
+  windowObj.col = color.white
+  windowObj.mass = 0
+  windowObj.trans = btTransform(common.quat(0, math.rad(-90), 0),
+                                btVector3(-209, 160, 60))
+  windowObj.sdl = [[
+    texture {
+      pigment{ rgb ReflectiveSpectrum(RS_Warm_Gray_3_C) }
+      finish{diffuse 0.1 specular 0.4 roughness 0.05}
+    }
+  ]]
+  v:add(windowObj)
+  table.insert(roomObjs, windowObj)
+
+  -- glass pane
+  local glass = Cube(80, 120, 0.1, 0)
+  glass.pos = btVector3(-209, 160, 60.5)
+  glass.col = color.white
+  glass.mass = 0
+  glass.trans = btTransform(common.quat(0, math.rad(-90), 0),
+                            btVector3(-209, 160, 60.5))
+  glass.sdl = [[
+    texture {
+      pigment {rgbt <1,1,1,0.4>}
+      finish {diffuse 0.1 specular 0.4 roughness 0.05 reflection {0.1}}
+    }
+  ]]
+  v:add(glass)
+  table.insert(roomObjs, glass)
+end
+
 -- Simplified chairs (the original uses a complex superellipsoid + torus
 -- union; a textured box stands in, at the same positions with z negated).
+-- Original positions (POV): <-45,0,195> rot -y*15, <68,0,185> rot y*12,
+-- <150,0,170> rot y*30. bpp z negated, rotation sign negated about Y.
 local chairObjs = {}
 local function addChairs()
   local chairs = {
-    { pos = btVector3(-45, 0, -195), col = color.yellow, rot = -15 },
-    { pos = btVector3( 68, 0, -185), col = color.blue,   rot =  12 },
-    { pos = btVector3(150, 0, -170), col = color.red,    rot =  30 },
+    { pos = btVector3(-45, 0, -195), col = color.yellow, rot =  15 }, -- -(-15)
+    { pos = btVector3( 68, 0, -185), col = color.blue,   rot = -12 }, -- -(12)
+    { pos = btVector3(150, 0, -170), col = color.red,    rot = -30 }, -- -(30)
   }
   for _, c in ipairs(chairs) do
+    local r, g, b = color.col2rgb(c.col)
     local ch = Cube(30, 6, 30, 0)
     ch.pos = c.pos
     ch.col = c.col
     ch.mass = 0
     ch.trans = btTransform(common.quat(0, math.rad(c.rot), 0), c.pos)
-    ch.sdl = [[
+    ch.sdl = string.format([=[
       texture {
-        pigment { color <0.8,0.8,0.9> }
-        finish { diffuse 0.9 brilliance 2 specular 0.275 roughness 0.012
-                 reflection {0.02 0.1 falloff 2 metallic 0.4} }
+        pigment { color <%g,%g,%g> }
+        finish {F_Chair}
       }
-    ]]
+    ]=], r / 255, g / 255, b / 255)
     v:add(ch)
     table.insert(chairObjs, ch)
   end
 end
 
 -- Simplified desk (original: wood top + 4 chrome legs).
+-- POV: Desk rotate y*3 translate <-8,0,-40>. bpp: translate (-8,73.5,40),
+-- rotate -3 deg about Y.
 local deskObjs = {}
 local function addDesk()
+  -- desk top: box <-65,72,-41> <65,75,41> => center (0,73.5,0), size (130,3,82)
   local top = Cube(130, 3, 82, 0)
-  top.pos = btVector3(-8, 73, 40)
+  top.pos = btVector3(-8, 73.5, 40)
   top.col = color.saddlebrown
   top.mass = 0
-  top.trans = btTransform(common.quat(0, math.rad(3), 0), top.pos)
+  top.trans = btTransform(common.quat(0, math.rad(-3), 0), top.pos)
   top.sdl = [[
-    texture {
-      pigment{ wood
-        color_map {
-          [0.0 rgb <0.2,0.1,0.05>]
-          [0.3 rgb <0.3,0.15,0.08>]
-          [0.5 rgb <0.4,0.2,0.1>]
-          [1.0 rgb <0.5,0.25,0.12>]
-        }
-        turbulence 0.12
-      }
-      finish {diffuse 0.8 brilliance 2 specular 0.25 roughness 0.007 reflection{0.09 falloff 2}}
-      scale 2.5
-      rotate y*90
-    }
+    texture { T_DeskWood }
   ]]
   v:add(top)
   table.insert(deskObjs, top)
 
+  -- 4 chrome legs at corners (±57, ±33), y from 0 to 72, radius 0.45
+  local deskYaw = math.rad(-3)
+  local ca, sa = math.cos(deskYaw), math.sin(deskYaw)
   for _, lz in ipairs({-33, 33}) do
     for _, lx in ipairs({-57, 57}) do
-      local leg = Cylinder(2, 72, 0)
-      leg.pos = btVector3(lx, 36, lz)
+      -- leg center in world space: desk rotate -3deg about Y, then translate (-8,36,40)
+      local wx = -8 + lx * ca - lz * sa
+      local wz = 40 + lx * sa + lz * ca
+      local leg = Cylinder(0.45, 72, 0)
+      -- stand cylinder up (-pi/2 about X) and apply desk yaw
+      leg.trans = common.transform(deskYaw, -math.pi / 2, 0, wx, 36, wz)
       leg.col = color.gray
       leg.mass = 0
-      leg.trans = btTransform(common.quat(0, math.rad(3), 0), btVector3(lx, 36, lz))
       leg.sdl = [[
-        texture { pigment{ color <0.7,0.7,0.8> } finish{reflection{0.3 0.6}} }
+        texture { T_Chrome }
       ]]
       v:add(leg)
       table.insert(deskObjs, leg)
@@ -445,6 +520,7 @@ end
 
 addRoom()
 addMondrian()
+addWindow()
 addChairs()
 addDesk()
 
