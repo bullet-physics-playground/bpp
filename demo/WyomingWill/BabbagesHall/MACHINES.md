@@ -50,6 +50,10 @@ Half Adder sixth, with the Pascaline and the Galton board (all scored 4),
 and Lehmer's sieve second, for its modest mechanism, though factoring by
 modular wheels asks far more of a visitor than adding does.
 
+**Changes (2026-11-24):** the bead sort's second way, the spaghetti sort
+(Dewdney's, 1984), with printed rods; the bead sort itself was built
+2026-11-22, and number 5 is now built whole.
+
 **Changes (2026-11-20):** the combination lock's second way, the
 safecracker's (manipulation: reading the combination by feel).
 
@@ -83,7 +87,7 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 | 2 | 1 | Slide rule | 1620s | multiplies by adding logarithms | built: a 25 cm Mannheim rule (A, B, CI, C, D, K, L), the slide and cursor bodies on sliders held by friction, set by a finger against each other; printed in halves, the scales printed on paper; a slate shows each step and the estimate that places the point (Tab: multiplying and dividing; squares, roots, cubes, reciprocals, logarithms) | 2 | 1 | built |
 | 3 | 1 | Napier's bones, Genaille–Lucas rulers | 1617 / 1891 | rods laid side by side give a product to read off | built: Napier's set of ten four-sided rods (Glaisher), bodies laid by a hand on a tilted board, pressed together and read from where they lie (face up, cell level with the index); a slate shows the row, the diagonals and the rows added (Tab: Genaille's rods, the path along the triangles marked) | 2 | 1 | built |
 | 4 | 1 | Mechanical combination lock | 1862 | the wheels' notches must line up: a lock that tests a number | built: Sargent & Greenleaf's arrangement, open: a dial and drive cam, three printed wheels on a post picked up by steel pins (lost motion), a lever on the bolt laying a steel fence across the rims; every push a contact, the hand dialling by the rules (left four, right three, left two), a slate showing each gate's place; the model tries every combination (the forbidden zone, numbers too close, 27 opening each lock); a second way, the safecracker's: the wheels 0.1 mm apart in size, a gentle hand feels the contact points and graphs their gap, and reads the combination | 2 | 2 | built |
-| 5 | 1 | Bead sort and spaghetti sort | modern | physical sorting: beads fall on rods, or rods are stood on end | the bead sort built: nine steel rods on a printed frame, 72 printed beads on sliders held by friction; a hand threads each number's row, turns the frame upright on its hinge, and the rows are read from where the beads land; a slate shows the numbers laid and the rows. The spaghetti sort to come, as its second way | 3 | 1 | bead sort built |
+| 5 | 1 | Bead sort and spaghetti sort | modern | physical sorting: beads fall on rods, or rods are stood on end | the bead sort built: nine steel rods on a printed frame, 72 printed beads on sliders held by friction; a hand threads each number's row, turns the frame upright on its hinge, and the rows are read from where the beads land; a slate shows the numbers laid and the rows. Its second way (`Tab`), the spaghetti sort: printed rods cut to 30 + 12 n mm stand upright in a rack (a base, a notch for each foot, a comb), a palm on a slide is lowered onto them and the rod it touches first, read from the contacts, is drawn out and laid down | 3 | 1 | built |
 | 6 | 1 | Domino Half Adder | modern | dominoes falling add two bits | built: 268 dominoes on printed tiles | 3 | 2 | built |
 | 7 | 1 | Slide adder (troncet, Addiator) | 1889 / 1920 | slides moved with a stylus add and carry by a hook | flat slides; the carry hook is the trick | 3 | 2 |  |
 | 8 | 1 | Linkage function generators (the Peaucellier–Lipkin inverter and others) | 1864 / 1900s | bar linkages that compute a product, a square, a log; Peaucellier's computes 1/x | a few hinged bars each; a set of them would make one bay | 3 | 2 |  |

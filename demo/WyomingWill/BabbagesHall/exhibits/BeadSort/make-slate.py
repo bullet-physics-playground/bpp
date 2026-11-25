@@ -63,4 +63,29 @@ def fit(make, n, text, w):
 for k, (a, b) in SAYS.items():
     tile(f"say-{k}", 2600, 220, [a, b], [fit(bold, 78, a, 2480), fit(italic, 62, b, 2480)],
          fill=[CHALK, DIM])
+
+# the spaghetti sort's (the second way): its labels, and what the hands are doing
+tile("label-cut", 1500, 80, ["CUT, IN THE ORDER TYPED, SLOT 1 FIRST"], [bold(42)], align="left")
+tile("label-taken", 1500, 80, ["TAKEN BY THE PALM, FIRST TO LAST"], [bold(42)], align="left")
+SAYS_SP = {
+    "ready": ("Type up to eight numbers, 0 to 9; Return sorts them",
+              "each is cut as a rod: the larger the number, the longer the rod"),
+    "gathering": ("Cutting the rods and standing them in the rack",
+                  "a number n is a rod 3 + 1.2 n cm long"),
+    "standing": ("The rods stand on the base: their feet are level",
+                 "so the tallest rod is the longest, the largest number"),
+    "lowering": ("Lowering the palm onto the rods",
+                 "the first rod it touches is the tallest left"),
+    "taking": ("The palm touches a rod: the hand takes it out",
+               "and lays it in the row, after the ones taken before"),
+    "sorted": ("Sorted: the rods, in the order taken, are the numbers, largest first",
+               "and the colours came with them: the rods moved, not only the values"),
+    "wrong": ("The rods taken are not the numbers sorted",
+              "see the console"),
+    "clearing": ("Putting the rods away and raising the palm",
+                 ""),
+}
+for k, (a, b) in SAYS_SP.items():
+    tile(f"say-sp-{k}", 2600, 220, [a, b], [fit(bold, 78, a, 2480), fit(italic, 62, b, 2480)],
+         fill=[CHALK, DIM])
 print(f"{len(os.listdir(OUT))} files in {OUT}")

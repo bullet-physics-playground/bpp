@@ -345,6 +345,36 @@ LABELS = {
         "numbers. Done in a computer's memory it is slow: here gravity does "
         "the work.",
     )],
+    "beadsort-spaghetti": [(          # (A. K. Dewdney, Scientific American 250(6), June 1984, p. 19)
+        "THE SPAGHETTI SORT",
+        "Sorting by height",
+        "Each number, 0 to 9, is a rod cut to its length: the larger the "
+        "number, the longer the rod. The hand stands them in the rack, "
+        "their feet level on its base.\n"
+        "Then it lowers the palm, a flat board, onto them. The first rod it "
+        "touches is the tallest: it is taken out and laid down, and the palm "
+        "goes on down to the next. Type digits and press Return; R cuts "
+        "eight at random.",
+    ), (
+        "WHY IT SORTS",
+        "The palm does the comparing",
+        "With their feet level, a longer rod stands taller, and the palm "
+        "meets the rods in order of height. It takes the tallest of all in "
+        "one movement, however many there are.\n"
+        "Here each rod keeps its colour, and they come out in order, "
+        "colours and all. The bead sort moves beads, so only the values "
+        "come out sorted; the spaghetti sort moves the things themselves.",
+    ), (
+        "AN ANALOGUE GADGET",
+        "Dewdney, 1984",
+        "A. K. Dewdney described the spaghetti sort in Scientific "
+        "American's Computer Recreations, June 1984, among other analogue "
+        "gadgets for solving problems. He called such ideas folklore, "
+        "passed on by word of mouth.\n"
+        "Cutting the rods takes a step for each number, and so does taking "
+        "them out: the time grows only as the count. But a bigger bundle "
+        "needs a bigger hand.",
+    )],
     "domino-adder": (                 # (Matt Parker: think-maths.co.uk, the Domino Computer, Oct. 2012)
         "THE DOMINO HALF ADDER",
         "Falling dominoes that add",

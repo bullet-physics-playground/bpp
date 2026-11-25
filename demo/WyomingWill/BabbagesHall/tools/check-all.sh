@@ -36,6 +36,7 @@ check "Genaille's rods, alone"      9000 $H/exhibits/NapiersBones/napiers-bones.
 check "Combination lock, on its own" 6000 $H/exhibits/CombinationLock/combination-lock.lua
 check "Combination lock, the safecracker's" 32000 $H/exhibits/CombinationLock/combination-lock.lua LK_WAY=safe
 check "Bead sort, on its own"    4000 $H/exhibits/BeadSort/bead-sort.lua
+check "Spaghetti sort, on its own" 5000 $H/exhibits/BeadSort/bead-sort.lua BS_WAY=spaghetti
 check "Differential, on its own"  2400 $H/exhibits/Differential/differential.lua
 check "Pascaline, on its own"     4200 $H/exhibits/Pascaline/pascaline.lua
 check "Domino Half Adder, on its own" 1750 $H/exhibits/DominoAdder/domino-adder.lua
@@ -54,6 +55,7 @@ check "Genaille's rods, in the hall" 9600 $H/hall.lua HALL_START=genaille
 check "Combination lock, in the hall" 6600 $H/hall.lua HALL_START=lock
 check "Combination lock, safecracker, hall" 32600 $H/hall.lua HALL_START=safecracker
 check "Bead sort, in the hall"   4600 $H/hall.lua HALL_START=bead
+check "Spaghetti sort, in the hall" 5600 $H/hall.lua HALL_START=spaghetti
 check "Differential, in the hall" 3000 $H/hall.lua HALL_START=differential
 check "Pascaline, in the hall"    4000 $H/hall.lua HALL_START=pascaline
 check "Domino Half Adder, in the hall" 2400 $H/hall.lua HALL_START=domino

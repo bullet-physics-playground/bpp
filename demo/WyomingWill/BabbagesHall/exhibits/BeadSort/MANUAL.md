@@ -4,11 +4,14 @@
 press `H` at the bead sort to open it.
 
 How the bead sort works and why it sorts, what it can and can't sort, and
-how long it takes. Then the exhibit in the hall, and making one.
+how long it takes. Then the exhibit in the hall, and making one. Section 8
+is the exhibit's second way, **the spaghetti sort**: the same numbers,
+sorted by rods stood on end.
 
-The pictures are drawn by `manual/make-figures.py` with the exhibit's
-sizes and colours, and sorted by the machine's own rule: on each rod the
-beads fall to the bottom, none passing another.
+The pictures are drawn by `manual/make-figures.py` (and, for section 8,
+`manual/make-figures-spaghetti.py`) with the exhibit's sizes and colours,
+and sorted by the machine's own rule: on each rod the beads fall to the
+bottom, none passing another; the palm meets the tallest rod first.
 
 **The whole idea in one paragraph.** Write each number as a row of beads
 from the left, one row under another, on vertical rods. Let go. Each bead
@@ -159,3 +162,122 @@ Buy nine 3 mm steel rods, 116 mm long, and a 3 mm steel pin, 264 mm long.
 
 `README.md` has the details, and `FINDINGS.md` what was measured in the
 simulation.
+
+## 8. The second way: the spaghetti sort
+
+In the hall, `Tab` at the bead sort steps on to its second way (on its
+own: `BS_WAY=spaghetti bpp -f bead-sort.lua`). The same numbers, 0 to 9,
+up to eight of them, sorted another way.
+
+**The whole idea in one paragraph.** Cut a strand of spaghetti to the
+length of each number. Gather them in your fist and stand the bundle on
+the table, so that their lower ends are level. Lower your other hand, flat,
+onto the top: the first strand it touches is the longest. Take it out and
+lay it down. Lower your hand on: the next it touches is the next longest.
+Laid side by side in the order you took them, the strands are the numbers,
+largest first. A. K. Dewdney described it in his *Computer Recreations*
+column in *Scientific American* in June 1984, with other "analogue
+gadgets"; he called such ideas folklore.
+
+### Cutting and standing the rods
+
+Here the strands are printed rods, 8 mm across. A number n is a rod
+30 + 12 n mm long: 0 is 30 mm, 9 is 138 mm. (The 30 mm is so that 0 has a
+rod to hold; adding the same length to every rod changes no comparison.)
+The hand cuts a rod for each number, in the order typed, and drops it into
+the next slot of the rack. The rack is the fist and the table: a base the
+rods stand on, so that their feet are level; a notch on the base for each
+foot; and a comb whose slots hold the rods upright and let them out toward
+you.
+
+![The tour's first list, 3 7 1 9 4 2 6 5, stood in the rack. The dotted lines are the rods' tops: the palm, coming down, meets them in that order.](manual/fig-sp-stood.png)
+
+### Lowering the palm
+
+The palm is a flat board on a post. The hand lowers it slowly. With every
+foot on the base, a longer rod stands taller, so the palm meets the rods in
+order of height: the first it touches is the largest number. The hand
+takes that rod out of its slot (toward you, its top sliding out under the
+palm) and lays it in the row in front; the palm goes on down to the next.
+When the last rod is out, the row is the numbers sorted.
+
+![The rods laid down in the order the palm met them: 9 7 6 5 4 3 2 1.](manual/fig-sp-taken.png)
+
+Two equal numbers stand equally tall, and the palm meets both at once
+(5 0 5 2 8 2 in the tour has two of these): the hand takes one, then the
+other at once, the palm no lower. Either order is right.
+
+### Why it sorts, and what it is good for
+
+The palm compares every rod with every other at once: whichever stands
+tallest stops it, however many rods there are. That is the trick: the
+hand, the rods and the table are a parallel machine for finding the
+largest. Cutting the rods takes a step for each number, and so does taking
+them out, so the work grows only as the count; a computer comparing
+numbers two at a time needs more, about n log n comparisons. (The catch:
+a bigger bundle needs a bigger hand, and a finer difference a steadier
+one.)
+
+**Look at the colours.** Each rod keeps the colour of its slot, and the
+row comes out in order, colours and all. The bead sort's beads move one by
+one and mix; the spaghetti sort moves each number whole. If each number had
+a name with it (sort these people by age), the spaghetti sort would keep
+the names.
+
+### Mistakes to avoid
+
+- **Level feet.** The palm reads heights, not lengths: a rod standing on a
+  crumb, or held up in its slot, reads longer than it is. The rack's base
+  is what makes height mean length.
+- **A level palm.** A palm lower at one end meets the rods at that end
+  early. Here a difference of one is 12 mm across at most 182 mm of rack,
+  so a palm out of level by 3.8 degrees could take a 4 before a 5; sooner
+  than that, at 2.8 degrees, its low end grounds on the comb before it
+  reaches a short rod at the other end (`FINDINGS.md`).
+- **Lower it gently.** The palm stops on the rod it meets; pressed hard, a
+  thin rod bends or tips, and spaghetti breaks.
+
+### The spaghetti sort in the hall
+
+![The exhibit (a screenshot of the simulation) after sorting 3 7 1 9 4 2 6 5: the rods laid in front in the order taken, the palm raised; the slate shows the numbers as cut and as taken, 9 7 6 5 4 3 2 1.](manual/fig-sp-exhibit.png)
+
+Type up to eight digits and press Return. The slate shows the numbers as
+cut (slot 1 first), the numbers as the palm took them, and what the hands
+are doing; green when they are sorted. The digit on the base under each
+slot is its rod's number, and the digit at the end of each rod laid in the
+row is its number.
+
+| Key | |
+|---|---|
+| `0`–`9` | a number, a rod cut for it (up to eight) |
+| `Return` | sort them: the rods stood in the rack, the palm lowered |
+| `Backspace` | the last number off |
+| `R` | eight numbers at random, sorted |
+| `C` | the rods away, the palm up |
+| `T` | the tour: 3 7 1 9 4 2 6 5; 5 0 5 2 8 2; 1 2 3 4 5 6 7 8 |
+| `H` or `F1` | this manual |
+
+The rods are bodies that stand in the rack by physics, and the palm is a
+body that the hand lowers on a slide; which rod it touched is read from the
+contact between them. Cutting the rods and dropping them in, taking them
+out and laying them down, the slate and the digits are the script's. The
+sliders set how fast the palm comes down, the rods' friction, and the
+simulation's speed. Resting the mouse on a rod says its number, its length
+and where it is.
+
+### Making one
+
+`./make-stls.sh` makes these too, from `parts/spaghetti-sort.scad`:
+
+| Part | Print | |
+|---|---|---|
+| `rod-0.stl` … `rod-9.stl` | as needed | 8 mm across, 30 + 12 n mm long, the number on the foot; two of each is a good set (or cut 8 mm dowel) |
+| `base-left.stl`, `base-right.stl` | 1 each | the base in halves, with the feet's notched strip |
+| `comb-left.stl`, `comb-right.stl` | 1 each | the comb in halves, slots open toward you |
+| `post.stl` | 1 | the palm's post |
+| `palm-left.stl`, `palm-right.stl`, `palm-knob.stl` | 1 each | the palm in halves (the right one with its sleeve) and its knob |
+
+Glue the base's halves, the comb onto its cheeks over the notches, and the
+post at the base's right end; glue the palm's halves and the knob, and
+slide the sleeve onto the post. Nothing is bought. `README.md` has the
+details.

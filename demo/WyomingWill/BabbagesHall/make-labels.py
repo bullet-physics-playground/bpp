@@ -59,7 +59,7 @@ jobs = [
  ("slide-rule", "THE SLIDE RULE", 4.2, 0.5),
  ("napier", "NAPIER’S BONES", 4.2, 0.5),
  ("lock", "THE COMBINATION LOCK", 4.2, 0.5),
- ("beadsort", "THE BEAD SORT", 4.2, 0.5),
+ ("beadsort", "THE BEAD AND SPAGHETTI SORTS", 4.2, 0.5),
  ("domino-adder", "THE DOMINO HALF ADDER", 4.2, 0.5),
  ("differential", "THE DIFFERENTIAL", 4.2, 0.5),
  ("pascaline", "THE PASCALINE", 4.2, 0.5),

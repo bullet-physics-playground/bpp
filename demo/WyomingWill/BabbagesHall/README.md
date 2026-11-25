@@ -22,7 +22,7 @@ comes to life.
 | east 1 | **The slide rule**: a Mannheim rule, worked by a finger, a slate showing each step and the estimate that places the point; Tab: multiplying and dividing, then squares, roots, cubes, reciprocals and logarithms | `exhibits/SlideRule/` |
 | west 2 | **Napier's bones**: ten four-sided rods (Napier's own set of tables), laid by a hand on a tilted board and read from where they lie; a slate shows the row and the adding; Tab: Genaille's rods, whose triangles carry | `exhibits/NapiersBones/` |
 | east 2 | **The combination lock**: three wheels behind a dial, set one at a time by the dialling rules; when every gate is under the fence it falls in, and the bolt can be drawn. A hand dials, a slate shows where each gate stands. Two ways (`Tab`): dialling, and the safecracker's, which reads the combination off the lock by feeling the contact points and graphing them, with a click for each contact and a tone for each reading | `exhibits/CombinationLock/` |
-| west 3 | **The bead sort**: numbers as rows of beads on nine rods; turned upright, gravity sorts them | `exhibits/BeadSort/` |
+| west 3 | **The bead and spaghetti sorts**: numbers as rows of beads on nine rods; turned upright, gravity sorts them. Two ways (`Tab`): the bead sort, and the spaghetti sort, rods cut to the numbers' lengths and stood on end, a flat palm lowered onto them taking the tallest first | `exhibits/BeadSort/` |
 | east 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
 | west 4 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
 | east 4 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
@@ -56,7 +56,8 @@ runs on its own from its folder.
 | `H` (or `F1`) | at an exhibit: its manual, opened in your PDF viewer (its `MANUAL.pdf`; its `README.pdf` where it has no manual yet); at the entrance or the title wall: this guide. At the Pascaline and the Digi-Comp II, where `H` is the machine's own, `F1` |
 
 An exhibit can have **ways of its own**: the suanpan has three (adding,
-taking away, multiplying), the slide rule and Napier's bones two each, and the splitter board five (a
+taking away, multiplying), the slide rule, Napier's bones, the combination
+lock and the bead sort (the spaghetti sort) two each, and the splitter board five (a
 wall that catches balls, gambler's ruin, a wall that sends balls back, the
 pile going flat, no walls). Each is a stop of its own, after the first's
 approach: Tab steps on through them, and the lectern's card changes to

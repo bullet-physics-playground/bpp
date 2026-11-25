@@ -6,7 +6,7 @@ return {
   ["slide-rule"] = { file = "label-slide-rule.obj", w = 48.76, h = 4.20 },
   ["napier"] = { file = "label-napier.obj", w = 49.68, h = 4.20 },
   ["lock"] = { file = "label-lock.obj", w = 74.88, h = 4.20 },
-  ["beadsort"] = { file = "label-beadsort.obj", w = 47.43, h = 4.20 },
+  ["beadsort"] = { file = "label-beadsort.obj", w = 99.67, h = 4.20 },
   ["domino-adder"] = { file = "label-domino-adder.obj", w = 78.37, h = 4.20 },
   ["differential"] = { file = "label-differential.obj", w = 59.98, h = 4.20 },
   ["pascaline"] = { file = "label-pascaline.obj", w = 46.61, h = 4.20 },

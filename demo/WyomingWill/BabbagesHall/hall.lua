@@ -158,7 +158,17 @@ EXHIBITS = EXHIBITS or {
             "The hand turns the frame upright; the beads slide down their rods, each until it rests\n" ..
             "on the bead below, and the rows, read from the bottom, are the numbers sorted. The\n" ..
             "beads keep their number's colour: the rows end up mixed, for the beads moved, not the\n" ..
-            "numbers. Type up to eight digits, Return; R: eight at random; C: clear; T: the tour." },
+            "numbers. Type up to eight digits, Return; R: eight at random; C: clear; T: the tour.\n" ..
+            "Tab: the spaghetti sort, rods cut to the numbers and stood on end; PgDn turns its label's pages.",
+    modes = {
+      { key = "bead", name = "the bead sort", card = "beadsort", env = { BS_WAY = "bead" } },
+      { key = "spaghetti", name = "the spaghetti sort", card = "beadsort-spaghetti", env = { BS_WAY = "spaghetti" },
+        about = "The spaghetti sort (A. K. Dewdney, 1984): each number, 0 to 9, a rod cut to its length.\n" ..
+                "Stood in the rack, their feet level on its base, the tallest rod is the largest number.\n" ..
+                "A flat palm lowered onto them touches the tallest first; it is taken out and laid down,\n" ..
+                "and the palm goes on down to the next. The rods come out in order, colours and all.\n" ..
+                "Type up to eight digits, Return; R: eight at random; C: clear; T: the tour." },
+    } },
   { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
     prefix = "Dominoes: ", floorY = -100,
     about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..

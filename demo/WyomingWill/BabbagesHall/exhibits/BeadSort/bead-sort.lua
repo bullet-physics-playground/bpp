@@ -33,8 +33,12 @@
 -- EVERY PART CAN BE PRINTED but the steel rods and the hinge's pin:
 -- parts/bead-sort.scad, README.md.
 --
+-- TWO WAYS (BS_WAY; in the hall, Tab steps through them): bead (this one) and
+-- spaghetti, the spaghetti sort (spaghetti-sort.lua: rods cut to the numbers'
+-- lengths, stood on end, a flat palm lowered onto them takes the tallest first).
+--
 -- Units: centimetres, kilograms, seconds.
--- Headless: BS_TOUR=0 (no tour), BS_NUMS="3 7 1" (sort these at the start), BS_LOG=1,
+-- Headless: BS_WAY, BS_TOUR=0 (no tour), BS_NUMS="3 7 1" (sort these at the start), BS_LOG=1,
 -- BS_FRICTION (a bead on its rod, kg cm/s^2), BS_HAND (the frame's turning, degrees a second),
 -- BS_HZ (steps a second), BS_RANDOM=n and BS_SEED (n more lists at random in the tour).
 --
@@ -50,6 +54,8 @@ for _, d in ipairs({ "", "demo/WyomingWill/BabbagesHall/exhibits/BeadSort/" }) d
   if f then f:close(); DIR = d; break end
 end
 assert(DIR, "The Bead Sort: can't find its folder")
+-- (its second way, the spaghetti sort, is a script of its own)
+if os.getenv("BS_WAY") == "spaghetti" then return dofile(DIR .. "spaghetti-sort.lua") end
 local SCAD
 do
   local path = DIR .. "parts/bead-sort.scad"

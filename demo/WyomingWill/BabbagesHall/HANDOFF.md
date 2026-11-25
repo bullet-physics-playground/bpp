@@ -27,7 +27,7 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   far end. `MACHINES.md` has the order and why (re-ordered 2026-11-14:
   it was by interest alone).
 - Built so far, in walking order: **the suanpan** (west 1, since
-  2026-11-15), **the slide rule** (east 1, since 2026-11-16), **Napier's bones** (west 2, since 2026-11-16), **the combination lock** (east 2, since 2026-11-19), **the bead sort** (west 3, since 2026-11-22),
+  2026-11-15), **the slide rule** (east 1, since 2026-11-16), **Napier's bones** (west 2, since 2026-11-16), **the combination lock** (east 2, since 2026-11-19), **the bead sort** (west 3, since 2026-11-22; its second way, the spaghetti sort, since 2026-11-24),
   **the Domino Half Adder** (east 3), **the Differential** (west 4), **the
   Pascaline** (east 4), **the Galton
   board** (west 5, since 2026-11-12), **the splitter board** (east 5,
@@ -104,6 +104,7 @@ git push
 | `exhibits/CombinationLock/lock-test.lua` | The lock's model against all 1,000,000 combinations: which the dialling rules set, the forbidden zone, the tolerance, the 27 that open a lock; the safecracker's method on 40 random locks (`lua lock-test.lua`, from its folder, 3.5 minutes) |
 | `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
 | `exhibits/DigiComp2/MANUAL.md`, `manual/` | The Digi-Comp's illustrated manual; `manual/make-figures.sh` redraws its figures from the geometry (lua, python3, matplotlib). `tools/md2pdf.py` puts a `.md` file's images into its PDF |
+| `exhibits/BeadSort/spaghetti-sort.lua` | The bead sort's second way (`BS_WAY=spaghetti`: `bead-sort.lua` hands over to it); `BS_TILT` tilts its palm, a test |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
 
 Related: `../EulersGallery/` (the gallery the hall's machinery came from;
@@ -481,6 +482,23 @@ there, in `release/`, or on the path; or set `BPP`.
 - **To edit `tools/check-all.sh` while it runs,** write the new version to
   another file and `mv` it over: bash goes on reading the old file (its
   inode), and the next run reads the new.
+- **`v:eachContact` gives wrong handles in the hall for objects added
+  while the exhibit loads** (the spaghetti sort, 2026-11-24).
+  `Viewer::addObject` keeps a reference to index 2 of the Lua stack, but
+  reads bpp's main Lua state, not the coroutine the hall loads an exhibit
+  in, so it keeps whatever sits there (a slider's name, here) for every
+  object added during the load; objects added later are right. On its
+  own an exhibit never sees it. Until Jakob fixes it in `src/viewer.cpp`,
+  don't identify a load-time object by its handle in `eachContact`: the
+  spaghetti sort knows the palm by where it meets a rod (above the comb,
+  where nothing else is). Test anything that reads contacts in the hall
+  too, not only on its own.
+- **A rod on a flat foot rights itself** unless it leans past
+  atan(radius / half its length): a "leaning rack" left short rods
+  upright and off the comb, and a tall rod, free at the foot, leant 7
+  degrees sideways. Hold a standing part at both ends, with clearances
+  too small to let it pass that angle (the spaghetti sort's notches and
+  comb), and it comes to rest upright.
 - **Rebuilding in a build folder that has a `release/bpp`** can go wrong:
   the precompiled header has the program's name (`PRECOMPILED_HEADER` in
   `bpp.pro`), and when it must be remade gcc can take the binary for the
@@ -1239,10 +1257,35 @@ there, in `release/`, or on the path; or set `BPP`.
   as before; the gallery gained `GALLERY_KEYS`, as `HALL_KEYS`. Also: `I`
   flies straight to the lectern and back (it had gone out to the aisle
   and in again), as the gallery's always did.
-- **Next: the spaghetti sort,** the bead sort's second way (Tab,
-  `BS_WAY=spaghetti`): rods cut to the numbers' lengths, gathered upright
-  and stood on a table, a hand lowered onto them takes the tallest first.
-  The placard may become THE BEAD AND SPAGHETTI SORTS.
+- **Done (2026-11-24): the spaghetti sort,** the bead sort's second way
+  (`Tab`, `BS_WAY=spaghetti`; `bead-sort.lua` hands over to
+  `spaghetti-sort.lua`, which runs on its own too). A. K. Dewdney's
+  (*Scientific American*, June 1984): a number n is a printed rod 8 mm
+  across and 30 + 12 n mm long (so 0 has one); the hand drops each into a
+  rack (a base that levels the feet, a notch for each foot, a comb with
+  slots open toward you) where it stands upright; a palm, a board on a
+  slider up a post, is lowered by the slider's motor, and the rod it
+  touches first, read from the contacts after every step, is drawn out
+  toward you and laid in a row in front (drawn: it leaves the simulation),
+  and the palm goes on down. The rods keep their colours, so the row comes
+  out sorted colours and all (the lectern's second page sets this against
+  the bead sort's mixed beads). Slate: the numbers as cut, as taken, what
+  the hands do; digits under the slots and at the laid rods' ends. The
+  tour (the bead sort's three lists) passes at frame 4322; sweeps of 23
+  lists (palm 0.5 to 10 cm/s, friction 0 to 1.2, 300 and 1200 steps a
+  second, two seeds) none wrong; the palm stops 0.08 to 0.18 mm above each
+  top. `BS_TILT` (the palm out of level) fails from 3 degrees, as the
+  geometry says (2.8: its low end grounds on the comb before a short rod
+  at the far end). Found on the way (FINDINGS section 7): rods meant to
+  lean on the comb stood up on their own or leant sideways (now held
+  upright at both ends); in the hall `eachContact` named the palm wrongly
+  (section 5: a bpp fault, for Jakob). The placard is now THE BEAD AND
+  SPAGHETTI SORTS (100 cm, the widest); a lectern card of three pages;
+  MANUAL section 8 with figures (`manual/make-figures-spaghetti.py`) and
+  a screenshot; ten printed parts and ten rods (`make-stls.sh`), all
+  watertight, under 200 mm, none overlapping but glued faces. check-all
+  has two more lines. **Not seen by William in the GUI yet.**
+- **Next:** William's choice.
   The covered bays (the planimeter, the tide predictor, the Differential
   Analyser, the Difference Engine) wait for their turn in the list.
   Still offered, not asked for: printing only a Digi-Comp program's parts
@@ -1265,6 +1308,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step: the spaghetti sort, the bead sort's second way]. Deliver
+> step]. Deliver
 > each step as a patch on test-harness, with its documents and PDFs, and
 > the git commands.
