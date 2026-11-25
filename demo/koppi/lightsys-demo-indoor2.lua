@@ -386,8 +386,8 @@ local function addRoom()
 end
 
 -- Simplified Mondrian picture on the front wall (the original uses an image
--- map of Piet Mondrian's "Composition with Red, Yellow and Blue", which is
--- not available here; a colored panel stands in).
+-- map of Piet Mondrian's "Composition with Red, Yellow and Blue", ryb.png,
+-- applied as the .tex texture).
 -- POV: box {0,1 texture {T_Mondrian} scale <35,39,2>*2.5 translate <-6,112,247>}
 -- => center (-6,112,247), size (87.5,97.5,5). bpp z = -247.
 local mondrianObj = nil
@@ -396,12 +396,7 @@ local function addMondrian()
   mondrianObj.pos = btVector3(-6, 112, -247)
   mondrianObj.col = color.white
   mondrianObj.mass = 0
-  mondrianObj.sdl = [[
-    texture {
-      pigment{ color <0.9,0.9,0.85> }
-      finish {F_Mondrian}
-    }
-  ]]
+  mondrianObj.tex = "ryb.png"
   v:add(mondrianObj)
   table.insert(roomObjs, mondrianObj)
 end
@@ -486,9 +481,7 @@ local function addDesk()
   top.col = color.saddlebrown
   top.mass = 0
   top.trans = btTransform(common.quat(0, math.rad(-3), 0), top.pos)
-  top.sdl = [[
-    texture { T_DeskWood }
-  ]]
+  top.tex = "im_test_Adobe.jpg"
   v:add(top)
   table.insert(deskObjs, top)
 
@@ -512,6 +505,20 @@ local function addDesk()
       table.insert(deskObjs, leg)
     end
   end
+
+  -- Cyndi Lauper "True Colors" LP record sleeve on the desk.
+  -- POV: object{LP rotate y*120 translate <25,75,-65> } with scale 30.8,
+  -- LP = thin cylinder with image_map{png "cyndi"}.
+  local lp = Cylinder(0.49 * 30.8, 0.008 * 30.8, 0)
+  lp.col = color.white
+  lp.mass = 0
+  -- stand cylinder up (local Z -> world Y) then apply desk yaw; center at
+  -- y = 75.015 + half height so the bottom sits on the desk surface
+  lp.trans = common.transform(math.rad(-120), -math.pi / 2, 0,
+                              25, 75.015 + 0.004 * 30.8, 65)
+  lp.tex = "cyndi.png"
+  v:add(lp)
+  table.insert(deskObjs, lp)
 end
 
 -- ---------------------------------------------------------------------------
