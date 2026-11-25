@@ -1724,15 +1724,16 @@ local function hallKey(N, key, down)
     end
     return true
   end
-  -- (I: its lectern close up, and back; unless the exhibit has I itself)
+  -- (I: its lectern close up, and back; unless the exhibit has I itself;
+  -- flown straight there and back, not out to the aisle and in again)
   if key == "I" and g and g.lecternView and not g.shortcuts[key] then
     if down then
-      if g.lecternBack then moveCam(g.lecternBack.pos, g.lecternBack.look); g.lecternBack = nil
+      if g.lecternBack then moveCam(g.lecternBack.pos, g.lecternBack.look, false, true); g.lecternBack = nil
       else
         local c = realV.cam
         local p, l = c.pos, c.look                 -- (copies: the camera's own would follow it)
         g.lecternBack = { pos = btVector3(p.x, p.y, p.z), look = btVector3(l.x, l.y, l.z) }
-        moveCam(g.lecternView.pos, g.lecternView.look)
+        moveCam(g.lecternView.pos, g.lecternView.look, false, true)
       end
     end
     return true
