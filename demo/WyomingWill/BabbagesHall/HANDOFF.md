@@ -1228,6 +1228,17 @@ there, in `release/`, or on the path; or set `BPP`.
   "settled" by each bead's movement along its rod, since the frame
   chatters at its stop; and count a rod once in a row, since two falling
   beads can share a row's band for a moment.
+- **Done (2026-11-24): an exhibit starts when you step in**, here and in
+  Euler's Gallery. Walking up, you see it standing still with its
+  lectern: its world isn't stepped and its scripts aren't called. It
+  starts the first time you step in, or press one of its keys at the
+  approach (which steps you in), and from then on carries on whenever
+  you're at it, the approach included. A way after the first has no
+  approach and starts on arrival. `HALL_START` (`GALLERY_START`) now
+  lands stepped in, so the in-hall checks and the gallery's `cmp2.sh` run
+  as before; the gallery gained `GALLERY_KEYS`, as `HALL_KEYS`. Also: `I`
+  flies straight to the lectern and back (it had gone out to the aisle
+  and in again), as the gallery's always did.
 - **Next: the spaghetti sort,** the bead sort's second way (Tab,
   `BS_WAY=spaghetti`): rods cut to the numbers' lengths, gathered upright
   and stood on a table, a hand lowered onto them takes the tallest first.

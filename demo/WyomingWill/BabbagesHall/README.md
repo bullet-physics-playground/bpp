@@ -47,7 +47,7 @@ runs on its own from its folder.
 
 | Key | |
 |---|---|
-| `Tab` | walk on: the view from the entrance, the exhibits, the view from the title wall. An exhibit with a lectern is two stops: walking up to it (the table and its lectern), then stepping in (`Shift+Tab` the same, back) |
+| `Tab` | walk on: the view from the entrance, the exhibits, the view from the title wall. An exhibit with a lectern is two stops: walking up to it (the table and its lectern), then stepping in (`Shift+Tab` the same, back). Walking up, you see it standing still; it starts the first time you step in (or press one of its keys), and from then on carries on whenever you're at it |
 | `Shift+Tab` | walk back |
 | `]`, `[` | on to the next exhibit, back to the one before: past the stepping in and an exhibit's other ways, to where Tab first arrives (the views at either end count as exhibits) |
 | `F3` | find an exhibit: type part of its name (any of its ways', a view's) or its number, the "Hall: stop" slider's. The status line shows the match and the pane the list; `Tab` and `Shift+Tab` pick among the matches, `Backspace` takes a letter off, `Return` goes there, `Esc` (or `F3`) leaves it. Every key is the finder's while it's open |
@@ -71,7 +71,8 @@ exhibit you're at, with the same keys as when it runs on its own; the
 Shortcuts pane lists them, at its top (one line of the hall's first: where
 Tab and Shift+Tab go). Resting the mouse on an exhibit's table, or its
 placard, says what it is. `HALL_START=differential` (any part of a name)
-starts at that exhibit, and `HALL_START=end` at the title wall.
+starts at that exhibit, stepped in, so that it starts at once (the
+in-hall checks rely on this), and `HALL_START=end` at the title wall.
 `HALL_KEYS="300:F3,l,o,c,k,Return;900:]"` presses keys at given frames and
 prints where each leaves you, for trying the hall's keys headless.
 `HALL_LIGHT_AS=aisle` keeps the aisle's light at an exhibit too, for

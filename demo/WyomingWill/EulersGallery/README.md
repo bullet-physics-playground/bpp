@@ -48,7 +48,7 @@ Click the 3D view first so it has the keyboard.
 
 | Key | Action |
 |---|---|
-| `Tab` | walk on: the view from the entrance, the exhibits in wing A, the view from the corner down wing B, the exhibits in wing B, then back to the entrance. At each exhibit, first up to it (the walk-up), then a step in |
+| `Tab` | walk on: the view from the entrance, the exhibits in wing A, the view from the corner down wing B, the exhibits in wing B, then back to the entrance. At each exhibit, first up to it (the walk-up), then a step in. At the walk-up you see it standing still; it starts the first time you step in (or press one of its keys), and from then on carries on whenever you're at it |
 | `Shift+Tab` | walk back (stepping back out first) |
 | `]`, `[` | on to the next exhibit, back to the one before, past the stepping in |
 | `F3` | find an exhibit: type part of its name, or its number (the "Gallery: stop" slider's); `Tab`, `Shift+Tab` pick among the matches, `Return` goes there, `Esc` (or `F3`) leaves it |
@@ -250,9 +250,12 @@ Only the world of the exhibit you're at is stepped; the others wait exactly
 as they are, and cost nothing. Each exhibit's own step sizes apply while
 you're at it; its other physics settings belong to its world.
 
-`GALLERY_START=<part of a name>` starts at that exhibit (`corner` for the
-view down wing B), for trying one out. (`CABINET_START`, its old name,
-still works.) The hall's console lines start with `GALLERY:`.
+`GALLERY_START=<part of a name>` starts at that exhibit, stepped in, so
+that it starts at once (`corner` for the view down wing B), for trying one
+out; `report/cmp2.sh` relies on this. (`CABINET_START`, its old name,
+still works.) `GALLERY_KEYS="300:Tab;900:]"` presses keys at given frames
+and prints where each leaves you, for trying the gallery's keys headless,
+as the hall's `HALL_KEYS`. The hall's console lines start with `GALLERY:`.
 
 **POV-Ray.** The gallery renders in POV-Ray (File, or `bpp -e`) as on the
 screen. This needs a bpp that exports each object moved to where its world is

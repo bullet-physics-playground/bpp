@@ -1258,6 +1258,7 @@ local function nextExhibit(s, d)
 end
 -- (at an exhibit with an approach: steppedIn is it once you've stepped in)
 local steppedIn = nil
+local startIn = nil        -- (HALL_START: that exhibit, stepped into as soon as it has loaded)
 -- (an exhibit's pane: one line of the hall's, then its own, its keys at
 -- the top, so they show in a small pane; where its sliders are, at the end)
 local function header(g)
@@ -1266,7 +1267,7 @@ local function header(g)
     local ways = g.group and string.format(" (way %d of %d)", g.modeIndex, #g.group.modes) or ""
     local pages = (g.pages and #g.pages > 1) and string.format(";   PgDn, PgUp: its label's pages (%d of %d)", g.page or 1, #g.pages) or ""
     return "BABBAGE'S HALL -- at " .. g.name .. ways ..
-           (out and ".   Tab: step in" or (".   Tab: on to " .. nextStop(g, 1).name)) ..
+           (out and (g.started and ".   Tab: step in" or ".   Tab: step in, and it starts") or (".   Tab: on to " .. nextStop(g, 1).name)) ..
            ";   Shift+Tab: " .. ((g.approach and not out) and "step back" or ("back to " .. nextStop(g, -1).name)) ..
            (g.lecternView and ";   I: its label, close up (again: back)" or "") .. pages ..
            ";   ], [: on to " .. nextExhibit(g, 1).name .. ", back to " .. nextExhibit(g, -1).name .. ";   F3: find an exhibit" ..
@@ -1431,19 +1432,24 @@ end
 
 local function goTo(s, instant, stepIn)
   -- let go of any keys still held at the exhibit we're leaving (its world
-  -- then waits, untouched, until you come back)
+  -- then waits, untouched, until you come back; stepping in or back at the
+  -- same stop isn't leaving it: a key that stepped you in stays held)
   if active then
     active.lecternBack = nil
     local f = active.callbacks.onKey
-    for key in pairs(active.down) do if f then pcall(f, active.N, key, false) end end
-    active.down = {}
-    -- (and tell it you're leaving, if it asked: v:onLeave)
-    f = active.callbacks.onLeave
+    if active ~= s then
+      for key in pairs(active.down) do if f then pcall(f, active.N, key, false) end end
+      active.down = {}
+    end
+    -- (and tell it you're leaving, if it asked: v:onLeave; only if it has
+    -- started, as it was only told you'd come once it had)
+    f = active.started and active.callbacks.onLeave
     if f then local ok, err = pcall(f, active.N); if not ok then print("HALL: " .. active.name .. " onLeave: " .. tostring(err)) end end
   end
   local same = here == s or (here.group ~= nil and here.group == s.group)   -- (stepping in or back, or on to another way, at the same exhibit)
   here = s
   steppedIn = (stepIn and not s.isView and s.approach) and s or nil
+  if s ~= startIn then startIn = nil end
   pcall(function() realV.statusText = (not s.isView and s.ready and s.statusText ~= nil and s.statusText ~= "" and s.statusText) or hallStatus end)
   resetMeter(realMs())
   lastShown = nil          -- (walking on isn't a freeze)
@@ -1483,6 +1489,10 @@ local function goTo(s, instant, stepIn)
     realV:setHelpText(hallHelp(s))
   else
     active = s
+    -- (it starts the first time you step in, or arrive, if it has no
+    -- approach: walking up, you see it standing still, and its lectern;
+    -- once started it carries on whenever you're at it)
+    if not s.approach or steppedIn == s then s.started = true end
     realV:useWorld(s.world)
     setRandom(s)
     applyTiming(s.timing)
@@ -1501,8 +1511,10 @@ local function goTo(s, instant, stepIn)
       moveCam(s.toScene(pos), s.toScene(look), instant, same)
     end
     realV:setHelpText(s.wrapHelp(s.help))
-    -- (and tell it you've come, if it asked: v:onEnter)
-    local f = s.callbacks.onEnter
+    -- (and tell it you've come, if it asked: v:onEnter; once it has
+    -- started, so that walking up starts nothing, the solar system's music
+    -- included)
+    local f = s.started and s.callbacks.onEnter
     if f then local ok, err = pcall(f, s.N); if not ok then print("HALL: " .. s.name .. " onEnter: " .. tostring(err)) end end
   end
 end
@@ -1516,7 +1528,7 @@ local function report(g, k, err)
 end
 local function callActive(k)
   local g = active
-  if not g then return end
+  if not g or not g.started then return end      -- (not started: it stands still)
   local f = g.callbacks[k]
   if f then
     local ok, err = pcall(f, g.N)
@@ -1549,7 +1561,10 @@ local function meterLine(t)
 end
 realV:preSim(function(N)
   local t = now()
-  if active then
+  if active and not active.started then
+    realV.timeStep = 0                       -- (not started: its world isn't stepped)
+    meter.resting = meter.resting + 1
+  elseif active then
     active.N = active.N + 1
     local p0 = meter.phys
     callActive("preSim")
@@ -1756,9 +1771,13 @@ local function hallKey(N, key, down)
     end
     return false
   end
+  -- (a key of the exhibit's, pressed at its approach, steps you in: the
+  -- key is plainly for it)
+  local function stepIn() if down and g == here and g.approach and steppedIn ~= g then goTo(g, false, true) end end
   local sc = g.shortcuts[key]
   if sc then
     if down then
+      stepIn()
       local ok, err = pcall(sc, g.N)
       if not ok then print("HALL: " .. g.name .. " key " .. key .. ": " .. tostring(err)) end
     end
@@ -1770,6 +1789,7 @@ local function hallKey(N, key, down)
     if down then g.down[key] = true else g.down[key] = nil end
     local ok, r = pcall(f, g.N, key, down)
     used = ok and r
+    if used then stepIn() end
   end
   -- bpp's own one-letter keys (S stop, D sleeping, R reload, P POV-Ray)
   -- would change the whole hall: at an exhibit they do only what it uses
@@ -1860,8 +1880,9 @@ local START = os.getenv("HALL_START")
 if START then
   for _, g in ipairs(all) do if g.name:lower():find(START:lower(), 1, true) then here = g; break end end
   if START == "end" then here = VIEW_B end
+  startIn = not here.isView and here or nil      -- (and stepped into: it starts at once)
 end
-goTo(here, true)
+goTo(here, true, startIn ~= nil)
 print(string.format("HALL: %d exhibits to set up, %d in preparation, %d empty bays; the nave %.0f m long",
                     #all, nCovered, #BAYS - #EXHIBITS, (ZS - ZN) / 100))
 
@@ -1886,7 +1907,7 @@ end
 local MAX_LOADS, underWay, allShown = 3, {}, false
 local function loaded(g)
   lastShown = nil                                  -- (loading isn't a freeze)
-  if here == g then goTo(g, not FLY_ON, steppedIn == g)   -- (you're there: it comes to life)
+  if here == g then goTo(g, not FLY_ON, steppedIn == g or startIn == g)   -- (you're there: it comes to life)
   elseif active then setRandom(active) end
 end
 -- (HALL_TRACE=file: a line a second, the frames drawn and the status, to

@@ -146,7 +146,10 @@ monostable polyhedron and a printable tungsten-weighted 37-corner one;
 the gömböc's hull refined and its CAD credit confirmed (Kiss Attila, 2013,
 published on GrabCAD by Istenes József, 2024); rolling resistance that holds
 and no sliding at rest; the gyroscope's friction fix; the chain fountain's
-links solved with their gyroscopic term in bpp.
+links solved with their gyroscopic term in bpp. Since 24 Nov 2026 an
+exhibit stands still at its walk-up and starts when you step in (or press
+one of its keys), as in Babbage's Hall; `GALLERY_START` lands stepped in,
+and `GALLERY_KEYS` presses keys at given frames.
 
 ## 7. Next: open physics items, in order
 
