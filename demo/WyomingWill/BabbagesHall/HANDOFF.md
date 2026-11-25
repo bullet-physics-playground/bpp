@@ -488,11 +488,11 @@ there, in `release/`, or on the path; or set `BPP`.
   reads bpp's main Lua state, not the coroutine the hall loads an exhibit
   in, so it keeps whatever sits there (a slider's name, here) for every
   object added during the load; objects added later are right. On its
-  own an exhibit never sees it. Until Jakob fixes it in `src/viewer.cpp`,
-  don't identify a load-time object by its handle in `eachContact`: the
-  spaghetti sort knows the palm by where it meets a rod (above the comb,
-  where nothing else is). Test anything that reads contacts in the hall
-  too, not only on its own.
+  own an exhibit never sees it. **Fixed the same day** in `src/viewer.cpp`
+  (`addObjectLua` keeps the handle it was given; bpp must be rebuilt).
+  The spaghetti sort still knows the palm by where it meets a rod (above
+  the comb, where nothing else is), so it works on an older bpp too. Test
+  anything that reads contacts in the hall too, not only on its own.
 - **A rod on a flat foot rights itself** unless it leans past
   atan(radius / half its length): a "leaning rack" left short rods
   upright and off the comb, and a tall rod, free at the foot, leant 7
@@ -1279,7 +1279,7 @@ there, in `release/`, or on the path; or set `BPP`.
   at the far end). Found on the way (FINDINGS section 7): rods meant to
   lean on the comb stood up on their own or leant sideways (now held
   upright at both ends); in the hall `eachContact` named the palm wrongly
-  (section 5: a bpp fault, for Jakob). The placard is now THE BEAD AND
+  (section 5: a bpp fault, fixed in a second patch, C++: rebuild bpp). The placard is now THE BEAD AND
   SPAGHETTI SORTS (100 cm, the widest); a lectern card of three pages;
   MANUAL section 8 with figures (`manual/make-figures-spaghetti.py`) and
   a screenshot; ten printed parts and ten rods (`make-stls.sh`), all

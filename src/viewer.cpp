@@ -201,20 +201,12 @@ void Viewer::addObject(Object *o) {
   if (o == nullptr)
     return;
 
-  if (L != nullptr && _luabindRegistry.find(o) == _luabindRegistry.end()) {
-    // Only attempt to create a luabind::object if there are at least two
-    // stack elements (self + arg) and the second isn't nil. When this
-    // function is called from C++ (not Lua) the Lua stack may be empty and
-    // calling from_stack would read invalid memory and corrupt luabind's
-    // object_rep.
-    if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
-      // Create a Lua reference to the object on the stack.
-      // This avoids holding a luabind::object that calls luaL_unref in its destructor.
-      lua_pushvalue(L, 2);  // Copy the object at stack index 2
-      int ref = luaL_ref(L, LUA_REGISTRYINDEX);
-      _luabindRegistry[o] = ref;
-    }
-  }
+  // (the script's handle to it is kept by addObjectLua(), from the handle
+  // it was given: this used to take whatever was at index 2 of the main Lua
+  // state's stack, which is the object only when v:add is called from the
+  // main thread. From a coroutine, as Babbage's Hall loads its exhibits,
+  // the stack is the coroutine's, and it kept something else: eachContact
+  // then named such objects wrongly. Unregistered, handleOf() makes one.)
 
   addObject(o, o->getCol1(), o->getCol2());
   addConstraints(o->getConstraints());
@@ -237,6 +229,13 @@ void Viewer::addObjectLua(const luabind::object &handle) {
       rep->release();
     lua_pop(L, 1);
     _takenFromLua.insert(o);
+  }
+  // (the handle the script added it with, for handleOf(): from the handle
+  // itself, which is right on any Lua thread; a reference in the registry,
+  // which all threads share)
+  if (_luabindRegistry.find(o) == _luabindRegistry.end()) {
+    handle.push(L);
+    _luabindRegistry[o] = luaL_ref(L, LUA_REGISTRYINDEX);
   }
   addObject(o);
 }

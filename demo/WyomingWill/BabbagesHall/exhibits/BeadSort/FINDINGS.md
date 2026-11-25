@@ -195,8 +195,10 @@ sat there, here the name of a slider ("Bead sort, spaghetti: palm").
 Objects added later (the rods, during the tour) were right. The exhibit no
 longer needs the palm's handle: a contact with a rod above the comb's top
 can only be the palm's, since nothing else is there and rods never touch.
-The fix in bpp is for Jakob (take the handle from the call's own Lua
-state, as `luabind::object` does).
+Fixed in bpp the same day (`src/viewer.cpp`): `v:add` now keeps the
+handle it was given, which is right on any Lua thread; measured in the
+hall, every touch then named the palm. The exhibit still finds the palm by
+where it meets a rod, so it runs the same on a bpp without the fix.
 
 ### 7.6 The carry, drawn
 
