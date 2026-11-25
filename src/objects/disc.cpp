@@ -84,6 +84,7 @@ void Disc::povPigment(QTextStream *s) const {
   *s << "        \"" << getTexture().toStdString().c_str() << "\"\n";
   *s << "        map_type 0\n";  // planar
   *s << "      }\n";
+  *s << "      scale <-1,1,1>\n";
   *s << "    }\n";
   *s << "  }\n";
 }

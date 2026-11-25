@@ -39,6 +39,7 @@ local function buildPreSDL(tune)
 #include "rspd_aster.inc"
 #include "rspd_jvp.inc"
 #include "rspd_pantone_coated.inc"
+#include "rspd_pantone_matte.inc"
 
 #declare Lightsys_Brightness = 0.67;
 
@@ -481,7 +482,8 @@ local function addDesk()
   top.col = color.saddlebrown
   top.mass = 0
   top.trans = btTransform(common.quat(0, math.rad(-3), 0), top.pos)
-  top.tex = "im_test_Adobe.jpg"
+  -- The original desk uses the procedural T_DeskWood texture.
+  top.sdl = [[ texture { T_DeskWood } ]]
   v:add(top)
   table.insert(deskObjs, top)
 
@@ -521,6 +523,67 @@ local function addDesk()
   table.insert(deskObjs, lp)
 end
 
+-- GretagMacbeth Colour Checker Chart, from demo_indoor2.pov. The swatches are
+-- bpp cubes so the chart is visible in the OpenGL view too; their sdl keeps
+-- the original spectral pigments in the POV export. Hex colours approximate
+-- those pigments in the view. The text label is left out: it needs a font.
+local ChartSwatches = {
+  {0.4398, 0.3802,  9.941, "#7a4e35"}, {0.4150, 0.3764, 35.933, "#d0946f"},
+  {0.2764, 0.3022, 18.545, "#677a88"}, {0.3654, 0.4513, 13.265, "#606b35"},
+  {0.3007, 0.2865, 23.347, "#8d809a"}, {0.2865, 0.3893, 41.598, "#76bb94"},
+  {0.5317, 0.4116, 30.209, "#e4790d"}, {0.2356, 0.2177, 11.179, "#505b90"},
+  {0.5001, 0.3293, 19.806, "#ce5252"}, {0.3282, 0.2522,  6.534, "#613c5c"},
+  {0.4001, 0.5001, 43.776, "#adb929"}, {0.4938, 0.4435, 44.867, "#f3a20b"},
+  {0.2022, 0.1585,  5.748, "#343d86"}, {0.3266, 0.5105, 23.111, "#539338"},
+  {0.5783, 0.3253, 12.502, "#bd282d"}, {0.4681, 0.4718, 61.095, "#fdc600"},
+  {0.4201, 0.2708, 19.576, "#c7517f"}, {0.2130, 0.3003, 18.429, "#008492"},
+  {0.3491, 0.3628, 88.558, "#ffefcd"}, {0.3460, 0.3589, 58.449, "#d8c7ad"},
+  {0.3454, 0.3587, 35.642, "#ad9f8b"}, {0.3473, 0.3602, 19.488, "#847968"},
+  {0.3445, 0.3582,  8.687, "#5a5247"}, {0.3462, 0.3566,  3.122, "#36312a"},
+}
+
+local function addColorChart()
+  -- Original: translate z*11 rotate -x*35 rotate -y*6 translate <-27,75,-60>.
+  -- Exporting mirrors Z, so bpp uses +35 around X, +6 around Y and +60 in Z.
+  local yaw, pitch = math.rad(6), math.rad(35)
+  local cp, sp = math.cos(pitch), math.sin(pitch)
+  local cy, sy = math.cos(yaw), math.sin(yaw)
+
+  local function place(o, x, y, z)
+    local y1 = y * cp - z * sp
+    local z1 = y * sp + z * cp
+    o.trans = common.transform(yaw, pitch, 0,
+                               x * cy + z1 * sy - 27,
+                               y1 + 75,
+                               -x * sy + z1 * cy + 60)
+    o.mass = 0
+    o.decoration = true
+    v:add(o)
+  end
+
+  local base = Cube(32, 0.1, 22, 0)
+  base.col = color.black
+  base.sdl = [[ texture { pigment {rgb ReflectiveSpectrum(RS_Black_4_M)} } ]]
+  -- The original chart is shifted +11 in POV z before it tilts; exported
+  -- that is -11 in bpp z. Without it the base cuts through the desk top.
+  place(base, 0, 0.05, -11)
+
+  for row = 0, 3 do
+    for col = 0, 5 do
+      local s = ChartSwatches[row * 6 + col + 1]
+      local patch = Cube(4.4, 0.055, 4.4, 0)
+      patch.col = s[4]
+      patch.sdl = string.format([=[
+        texture {
+          pigment {rgb MapGamut(xyz2RGB(ChromaMatchSource(xyY2xyz(<%g,%g,%g>))))}
+          finish {diffuse 0.95 specular 0.05 roughness 0.009}
+        }
+      ]=], s[1], s[2], s[3] / 100)
+      place(patch, -12.5 + col * 5, 0.0775, -18.5 + row * 5)
+    end
+  end
+end
+
 -- ---------------------------------------------------------------------------
 -- Build the scene
 -- ---------------------------------------------------------------------------
@@ -530,6 +593,7 @@ addMondrian()
 addWindow()
 addChairs()
 addDesk()
+addColorChart()
 
 -- Camera: same location/look_at as the original .pov, z negated for bpp's
 -- POV export mirroring. angle 75 deg horizontal field of view.

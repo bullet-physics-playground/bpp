@@ -950,7 +950,8 @@ protected:
    *
    * The shapes differ only in how the image is laid on them, so each passes
    * its own mapping in and this writes the rest: the file name, the
-   * interpolation, and the object's transparency as a transmit value.
+   * interpolation, the object's transparency as a transmit value, and the
+   * right-to-left mirror applied to every image.
    *
    * @param s          The stream to write to.
    * @param pigmentPre Text inside the pigment, before the @c image_map:

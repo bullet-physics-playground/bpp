@@ -91,7 +91,7 @@ camera {
 
 plane { <0, 1, 0>, 0
   texture { pigment { image_map { "grassy_bank_7160794.jpg" interpolate 2 }
-    matrix <-24,0,0, 0,0,-24, 0,1,0, 12,0,12> } }
+    matrix <-24,0,0, 0,0,-24, 0,1,0, 12,0,12> scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -99,7 +99,8 @@ plane { <0, 1, 0>, 0
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball1.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball1.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -107,7 +108,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball2.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball2.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -115,7 +117,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball3.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball3.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -123,7 +126,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball4.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball4.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -131,7 +135,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball5.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball5.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -139,7 +144,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball6.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball6.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -217,7 +223,8 @@ mesh2 {
 <4,4,4>,
 <5,5,5>,
 <5,5,5>  }
-  texture { pigment { uv_mapping image_map { "flat_wood_4022164.JPG" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "flat_wood_4022164.JPG" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -226,7 +233,7 @@ mesh2 {
 
 cylinder { -1.2*z, 1.2*z, 1
   texture { pigment { image_map { "copper.jpg" map_type 2 interpolate 2 }
-    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 } }
+    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -235,7 +242,7 @@ cylinder { -1.2*z, 1.2*z, 1
 
 cone { <0, 0, 1.2>, 1.1, <0, 0, -1.2>, 0
   texture { pigment { image_map { "diva-wood-cherry.jpg" map_type 2 interpolate 2 }
-    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 } }
+    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -272,7 +279,7 @@ camera {
 
 plane { <0, 1, 0>, 0
   texture { pigment { image_map { "grassy_bank_7160794.jpg" interpolate 2 }
-    matrix <-24,0,0, 0,0,-24, 0,1,0, 12,0,12> } }
+    matrix <-24,0,0, 0,0,-24, 0,1,0, 12,0,12> scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -280,7 +287,8 @@ plane { <0, 1, 0>, 0
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball1.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball1.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -288,7 +296,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball2.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball2.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -296,7 +305,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball3.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball3.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -304,7 +314,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball4.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball4.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -312,7 +323,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball5.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball5.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -320,7 +332,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball6.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball6.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -398,7 +411,8 @@ mesh2 {
 <4,4,4>,
 <5,5,5>,
 <5,5,5>  }
-  texture { pigment { uv_mapping image_map { "flat_wood_4022164.JPG" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "flat_wood_4022164.JPG" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <0.999999,-1.67892e-07,-0.00119479,
           1.67875e-07,1,-1.40026e-08,
           0.00119479,1.3802e-08,0.999999,
@@ -407,7 +421,7 @@ mesh2 {
 
 cylinder { -1.2*z, 1.2*z, 1
   texture { pigment { image_map { "copper.jpg" map_type 2 interpolate 2 }
-    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 } }
+    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,6.75458e-07,
           0,-6.75458e-07,1,
@@ -416,7 +430,7 @@ cylinder { -1.2*z, 1.2*z, 1
 
 cone { <0, 0, 1.2>, 1.1, <0, 0, -1.2>, 0
   texture { pigment { image_map { "diva-wood-cherry.jpg" map_type 2 interpolate 2 }
-    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 } }
+    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 scale <-1,1,1> } }
   matrix <1,0,0,
           0,0.90896,-0.416884,
           0,0.416884,0.90896,
@@ -453,7 +467,7 @@ camera {
 
 plane { <0, 1, 0>, 0
   texture { pigment { image_map { "grassy_bank_7160794.jpg" interpolate 2 }
-    matrix <-24,0,0, 0,0,-24, 0,1,0, 12,0,12> } }
+    matrix <-24,0,0, 0,0,-24, 0,1,0, 12,0,12> scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -461,7 +475,8 @@ plane { <0, 1, 0>, 0
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball1.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball1.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -469,7 +484,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball2.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball2.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -477,7 +493,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball3.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball3.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -485,7 +502,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball4.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball4.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -493,7 +511,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball5.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball5.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -501,7 +520,8 @@ sphere { <.0,.0,.0>, 0.6
 }
 
 sphere { <.0,.0,.0>, 0.6
-  texture { pigment { uv_mapping image_map { "ball6.jpeg" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "ball6.jpeg" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,0,
           0,0,1,
@@ -579,7 +599,8 @@ mesh2 {
 <4,4,4>,
 <5,5,5>,
 <5,5,5>  }
-  texture { pigment { uv_mapping image_map { "flat_wood_4022164.JPG" interpolate 2 } } }
+  texture { pigment { uv_mapping image_map { "flat_wood_4022164.JPG" interpolate 2 }
+    scale <-1,1,1> } }
   matrix <0.999999,-1.59153e-07,-0.00119507,
           1.59132e-07,1,-1.78952e-08,
           0.00119507,1.7705e-08,0.999999,
@@ -588,7 +609,7 @@ mesh2 {
 
 cylinder { -1.2*z, 1.2*z, 1
   texture { pigment { image_map { "copper.jpg" map_type 2 interpolate 2 }
-    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 } }
+    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 scale <-1,1,1> } }
   matrix <1,0,0,
           0,1,2.32576e-08,
           0,-2.32576e-08,1,
@@ -597,7 +618,7 @@ cylinder { -1.2*z, 1.2*z, 1
 
 cone { <0, 0, 1.2>, 1.1, <0, 0, -1.2>, 0
   texture { pigment { image_map { "diva-wood-cherry.jpg" map_type 2 interpolate 2 }
-    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 } }
+    scale <1,2.4,1> translate <0,-1.2,0> rotate x*-90 rotate z*180 scale <-1,1,1> } }
   matrix <1,0,0,
           0,0.909065,-0.416655,
           0,0.416655,0.909065,

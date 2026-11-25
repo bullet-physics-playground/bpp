@@ -963,9 +963,14 @@ void Object::povImageMap(QTextStream *s, const QString &pigmentPre,
     *s << " transmit all " << transparency;
   }
   *s << " }";
+  // Mirror the image right-to-left in texture space. POV-Ray transforms run
+  // after the shape's own coordinates, so this flips every mapping the same
+  // way without changing the geometry or the view.
+  *s << "\n    ";
   if (!xform.isEmpty()) {
-    *s << "\n    " << xform;
+    *s << xform << " ";
   }
+  *s << "scale <-1,1,1>";
   *s << " }";
   if (hasEmission()) {
     *s << " finish { emission rgb <" << mEmission[0] << ", " << mEmission[1]
@@ -978,9 +983,8 @@ void Object::povAxialImageMap(QTextStream *s, btScalar length) const {
   // map_type 2 goes once round the Y axis and spans Y from 0 to 1, so the
   // image is stretched to the shape's length and centred the way the exported
   // geometry is. Turning it onto -Z rather than +Z puts the image the same way
-  // up and the same way round as the view draws it, and the half turn then
-  // lines up where it starts. Both are rotations: a mirrored transform would
-  // line the image up just as well but write any lettering backwards.
+  // up as the view draws it, and the half turn then lines up where it starts.
+  // povImageMap adds the export's right-to-left mirror.
   QString xform;
   QTextStream t(&xform);
   t << "scale <1," << length << ",1> translate <0," << -length / 2.0
