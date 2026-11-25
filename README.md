@@ -83,6 +83,48 @@ F6 without crashing); see [`povray-linux/README.md`](povray-linux/README.md)
 for the gotchas that took to get there. The Windows/MSYS2 path is untested
 beyond compiling — see [`povray-mingw/README.md`](povray-mingw/README.md).
 
+### Optional: libremidi MIDI input
+
+bpp can receive MIDI input, for the `v:onMIDIReceived(frameNum, data)` Lua
+script hook, via the optional
+[libremidi](https://github.com/celtera/libremidi) library. It is off by
+default, so bpp builds and runs without it: without libremidi,
+`v:onMIDIReceived` can be set from a script but never fires.
+
+Enable it at configure time:
+
+```bash
+qmake "USE_LIBREMIDI=1" [LIBREMIDI_PREFIX=/path/to/a-libremidi-checkout] bpp.pro
+```
+
+`LIBREMIDI_PREFIX` defaults to a sibling libremidi checkout
+(`../libremidi`), which must contain
+`include/libremidi/libremidi.hpp`.
+
+libremidi is header-only and C++20, so enabling it switches bpp's build to
+`-std=gnu++20`. Pick the native MIDI backend per platform — without one,
+libremidi falls back to its dummy backend, which finds no devices:
+
+| Platform | Backend | System dependency |
+| --- | --- | --- |
+| Linux | ALSA | `libasound2-dev` (or equivalent) |
+| macOS | CoreMIDI | CoreMIDI + CoreFoundation frameworks |
+| Windows | WinMM | `-lwinmm` |
+
+bpp's [`bpp.pro`](bpp.pro) sets the right backend macro and links the right
+library for each platform automatically; you only need the system MIDI
+development headers installed.
+
+At runtime, open a MIDI input port from the **MIDI** menu (`&MIDI`), then run
+a script that sets `v:onMIDIReceived`, e.g.:
+
+```bash
+bpp -f demo/basic/27-libremidi-debug.lua
+```
+
+The debug script logs every incoming MIDI message to the console. Another
+example is `demo/basic/26-libremidi.lua`.
+
 ## Docker
 
 The [`Dockerfile`](Dockerfile) packages bpp as a headless worker for running on
