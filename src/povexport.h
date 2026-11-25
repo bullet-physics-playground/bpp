@@ -19,8 +19,8 @@ class Camera;
  * A scene directory holds the animation's @c .ini, the main @c .pov (global
  * settings, the view's lights, the settings include), one @c .inc per frame
  * (camera and objects), a @c GNUmakefile that renders and encodes the frames,
- * and copies of the settings includes. Each function writes one of them from
- * what it is given; Viewer decides where and when.
+ * and copies of the settings includes and texture images. Each function
+ * writes one of them from what it is given; Viewer decides where and when.
  */
 namespace PovExport {
 
@@ -40,6 +40,13 @@ QString byline();
  */
 void copySettingsIncludes(const QString &settingsInc, const QString &startupDir,
                           const QString &sceneDir);
+
+/**
+ * @brief Copies the objects' texture images into the scene directory.
+ * @param objects  The objects whose textures the export uses.
+ * @param sceneDir The exported scene's directory.
+ */
+void copyTextures(const ObjectSet &objects, const QString &sceneDir);
 
 /// Writes the animation's @c .ini: frames @p firstFrame to @p lastFrame of
 /// @p sceneName, with named sections for common render sizes.

@@ -56,7 +56,8 @@ public:
   QString toString() const override;
 
   /**
-   * @brief Writes the box to a POV-Ray scene as a @c box.
+   * @brief Writes the box to a POV-Ray scene as a @c box, or as a textured
+   *        @c mesh2 whose UVs match the faces drawn in the view.
    * @param s The stream to write to.
    */
   void toPOV(QTextStream *s) const override;
@@ -69,6 +70,12 @@ public:
   void renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) override;
 
 protected:
+  /**
+   * @brief Writes a textured box as a @c mesh2 with the view's face UVs.
+   * @param s The stream to write to.
+   */
+  void povTexturedBox(QTextStream *s) const;
+
   /**
    * @brief Builds the collision shape, motion state and rigid body.
    *

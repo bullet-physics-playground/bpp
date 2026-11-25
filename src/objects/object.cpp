@@ -674,6 +674,8 @@ void Object::setTexture(const QString &file) {
 
 QString Object::getTexture() const { return mTexture; }
 
+QString Object::getTextureFile() const { return mTextureFile; }
+
 void Object::setPostSDL(const QString &post_sdl) { mPostSDL = post_sdl; }
 
 QString Object::getPostSDL() const { return mPostSDL; }
@@ -993,9 +995,9 @@ void Object::povPigment(QTextStream *s) const {
     return;
 
   if (!mTexture.isEmpty()) {
-    // uv_mapping wraps the image round the shape the way the interactive
-    // view's texture coordinates do. POV-Ray unwraps a box and a sphere this
-    // way; Cylinder, Cone and Plane, which it does not, map their own.
+    // uv_mapping uses the shape's own texture coordinates. Textured boxes
+    // export as meshes with explicit UVs (see Cube::povTexturedBox); Sphere
+    // and Torus supply their own coordinates, as do Cylinder, Cone and Plane.
     povImageMap(s, "uv_mapping", QString(), QString());
     return;
   }

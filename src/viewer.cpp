@@ -1655,6 +1655,7 @@ void Viewer::savePOV(bool force) {
   }
 
   PovExport::copySettingsIncludes(_pov_settings_inc, startupWorkingDir(), sceneDir);
+  PovExport::copyTextures(*_objects, sceneDir);
 
   QString fn = QString("%1").arg(_frameNum, 5, 10, QChar('0'));
   QString file = QString("%1%2%3.inc").arg(qPrintable(sceneDir)).arg(QDir::separator()).arg(fn);

@@ -80,6 +80,20 @@ void Cylinder::povPigment(QTextStream *s) const {
     return;
   }
 
+  // A short, wide cylinder is a disc: what you see is its flat end, and the
+  // interactive view lays the image square-on there. A cylindrical map would
+  // squeeze the whole picture into the thin rim and leave the end showing just
+  // one stretched row of it, so map the image over the end instead.
+  if (lengths[2] < lengths[0]) {
+    QString xform;
+    QTextStream t(&xform);
+    t << "scale <" << 2.0 * lengths[0] << "," << 2.0 * lengths[0] << ",1> "
+      << "translate <" << -lengths[0] << "," << -lengths[0] << ",0>";
+    t.flush();
+    povImageMap(s, QString(), QString(), xform);
+    return;
+  }
+
   povAxialImageMap(s, lengths[2]);
 }
 

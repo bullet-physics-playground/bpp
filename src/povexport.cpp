@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QSet>
 #include <QTextStream>
 
 #include <QGLViewer/camera.h>
@@ -235,6 +236,38 @@ void copySettingsIncludes(const QString &settingsInc, const QString &startupDir,
       QFile::remove(dst);
       QFile::copy(src, dst);
     }
+  }
+}
+
+void copyTextures(const ObjectSet &objects, const QString &sceneDir) {
+  // image_map names a file, and POV-Ray looks for it next to the scene or
+  // along +L. Copy the images the exporter names so the scene also renders
+  // when it is moved away from bpp's includes directory.
+  QSet<QString> copied;
+  foreach (Object *o, objects) {
+    if (o == nullptr || !o->getPOVExport())
+      continue;
+    const QString name = o->getTexture();
+    const QString src = o->getTextureFile();
+    if (name.isEmpty() || src.isEmpty() || !QFile::exists(src))
+      continue;
+
+    QString rel = QDir::cleanPath(name);
+    if (QFileInfo(rel).isAbsolute())
+      rel = QFileInfo(rel).fileName();
+    const QString dst = sceneDir + QDir::separator() + rel;
+    if (copied.contains(dst))
+      continue;
+    copied.insert(dst);
+
+    QFileInfo si(src), di(dst);
+    if (di.exists() && di.size() == si.size() &&
+        di.lastModified() >= si.lastModified())
+      continue;
+    if (!QDir().mkpath(QFileInfo(dst).absolutePath()))
+      continue;
+    QFile::remove(dst);
+    QFile::copy(src, dst);
   }
 }
 

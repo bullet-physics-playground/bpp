@@ -77,6 +77,77 @@ void Cube::luaBind(lua_State *s) {
 
 QString Cube::toString() const { return QString("Cube"); }
 
+void Cube::povTexturedBox(QTextStream *s) const {
+  // POV-Ray's box uv_mapping lays the faces out as a cube net, which neither
+  // fills a face nor turns the image the way the view does. A mesh2 can carry
+  // the same per-face UVs as solidCubeDraw(), so write the six quads directly.
+  static const int corners[6][4][3] = {
+      {{-1, -1, 1}, {1, -1, 1}, {1, 1, 1}, {-1, 1, 1}},    // +Z
+      {{1, -1, -1}, {-1, -1, -1}, {-1, 1, -1}, {1, 1, -1}}, // -Z
+      {{1, -1, -1}, {1, -1, 1}, {1, 1, 1}, {1, 1, -1}},     // +X
+      {{-1, -1, 1}, {-1, -1, -1}, {-1, 1, -1}, {-1, 1, 1}}, // -X
+      {{-1, 1, 1}, {1, 1, 1}, {1, 1, -1}, {-1, 1, -1}},     // +Y
+      {{1, -1, 1}, {-1, -1, 1}, {-1, -1, -1}, {1, -1, -1}}  // -Y
+  };
+  static const int normals[6][3] = {{0, 0, 1},  {0, 0, -1}, {1, 0, 0},
+                                    {-1, 0, 0}, {0, 1, 0},  {0, -1, 0}};
+  const btScalar half[3] = {lengths[0] / 2.0f, lengths[1] / 2.0f,
+                            lengths[2] / 2.0f};
+
+  *s << "mesh2 {\n"
+     << "  vertex_vectors {\n"
+     << "    24,\n";
+  for (int face = 0; face < 6; ++face) {
+    for (int j = 0; j < 4; ++j) {
+      const int *c = corners[face][j];
+      *s << "<" << c[0] * half[0] << "," << c[1] * half[1] << ","
+         << c[2] * half[2] << ">";
+      if (face != 5 || j != 3)
+        *s << ",\n";
+    }
+  }
+  *s << "  }\n"
+     << "  uv_vectors {\n"
+     << "    24,\n";
+  for (int face = 0; face < 6; ++face) {
+    *s << "<0,0>,<1,0>,<1,1>,<0,1>";
+    if (face != 5)
+      *s << ",\n";
+  }
+  *s << "  }\n"
+     << "  normal_vectors {\n"
+     << "    6,\n";
+  for (int face = 0; face < 6; ++face) {
+    // The exported matrix mirrors Z, so the outward normal in POV space does
+    // too. Reverse the triangles below to keep that normal facing outwards.
+    const int *n = normals[face];
+    *s << "<" << n[0] << "," << n[1] << "," << -n[2] << ">";
+    if (face != 5)
+      *s << ",\n";
+  }
+  *s << "  }\n"
+     << "  face_indices {\n"
+     << "    12,\n";
+  for (int face = 0; face < 6; ++face) {
+    const int b = face * 4;
+    *s << "<" << b << "," << b + 2 << "," << b + 1 << ">,\n"
+       << "<" << b << "," << b + 3 << "," << b + 2 << ">";
+    if (face != 5)
+      *s << ",\n";
+  }
+  *s << "  }\n"
+     << "  normal_indices {\n"
+     << "    12,\n";
+  for (int face = 0; face < 6; ++face) {
+    *s << "<" << face << "," << face << "," << face << ">,\n"
+       << "<" << face << "," << face << "," << face << ">";
+    if (face != 5)
+      *s << ",\n";
+  }
+  *s << "  }\n";
+  povPigment(s);
+}
+
 void Cube::toPOV(QTextStream *s) const {
   if (body != nullptr && body->getMotionState() != nullptr) {
     btTransform trans;
@@ -89,17 +160,23 @@ void Cube::toPOV(QTextStream *s) const {
   }
 
   if (s != nullptr) {
-    if (mPreSDL.isNull()) {
+    // A textured cube keeps the box's collision shape but exports as a mesh,
+    // carrying the view's UVs so no face is cropped or mirrored by box nets.
+    const bool textured =
+        !getTexture().isEmpty() && mPreSDL.isNull() && mSDL.isNull();
+    if (!mPreSDL.isNull()) {
+      *s << mPreSDL << "\n";
+    } else if (textured) {
+      povTexturedBox(s);
+    } else {
       *s << "box { <" << -lengths[0] / 2.0 << ", " << -lengths[1] / 2.0 << ", "
          << -lengths[2] / 2.0 << ">, <" << lengths[0] / 2.0 << ", "
          << lengths[1] / 2.0 << ", " << lengths[2] / 2.0 << ">" << "\n";
-    } else {
-      *s << mPreSDL << "\n";
     }
 
     if (!mSDL.isNull()) {
       *s << mSDL << "\n";
-    } else {
+    } else if (!textured) {
       povPigment(s);
     }
 

@@ -607,6 +607,13 @@ public:
   QString getTexture() const;
 
   /**
+   * @brief Returns the resolved path of the object's texture image.
+   * @return The on-disk path found when the texture was set, or an empty
+   *         string when there is no texture or it could not be found.
+   */
+  QString getTextureFile() const;
+
+  /**
    * @brief Replaces the object's exported surface description.
    *
    * Used instead of the pigment line povPigment() would otherwise write, so a
@@ -947,8 +954,8 @@ protected:
    *
    * @param s          The stream to write to.
    * @param pigmentPre Text inside the pigment, before the @c image_map:
-   *                   @c "uv_mapping" for a shape POV-Ray can unwrap by
-   *                   itself, empty otherwise.
+   *                   @c "uv_mapping" for a shape with its own coordinates,
+   *                   empty otherwise.
    * @param mapOpts    Options inside the @c image_map, such as
    *                   @c "map_type 2" for a cylindrical wrap.
    * @param xform      A transformation applied to the pigment, or empty.
