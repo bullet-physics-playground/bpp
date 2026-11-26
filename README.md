@@ -21,6 +21,9 @@ batch processing and scripting.
     *   Import models from [OpenSCAD](http://www.openscad.org/).
     *   Export scenes to [POV-Ray](http://www.povray.org/) for high-quality
         rendering.
+    *   POV-Ray's light sources -- point, spot, cylinder, parallel and area,
+        and LightSys lamps in lumens -- lighting both the 3D view and the
+        render (see [demo/lights](demo/lights/)).
 *   **Command-Line Interface:** A powerful CLI for running simulations, rendering
     animations, and piping data to other tools like
     [gnuplot](http://www.gnuplot.info/).

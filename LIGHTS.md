@@ -231,7 +231,9 @@ way the galleries' work went.
      cylinder or parallel light, and `v.glLight0`, along one direction as
      before. With one map, a lamp inside the scene sees 150 degrees toward
      its middle, and what is behind it casts no shadow; and nothing within
-     2% of the scene's size of a lamp casts one.
+     2% of the scene's size of a lamp casts one. (Step 6: the shadow is
+     looked up a texel and a half off each surface, along its normal: a
+     wide map otherwise drew a floor's own triangle edge as a dark line.)
    - **Area lights** show as a point at their middle: the light is the
      same; the soft shadows are POV-Ray's.
    - **`shadowless`**: as in POV-Ray, no highlights; and since POV-Ray
@@ -254,6 +256,10 @@ way the galleries' work went.
    *Check:* bpp's view next to its POV-Ray render and next to the original
    LightSys render.
 6. **Docs**: the API in the manual, a basic demo per kind.
+   *Done:* `demo/lights/` (one demo per kind, and a LightSys lamp in
+   lumens, each with sliders), a line in README.md, and the wiki's Lua
+   bindings reference (a patch for the wiki repository: its links point at
+   `test-harness` until this reaches `master`).
 
 ## Opening message for the new chat
 

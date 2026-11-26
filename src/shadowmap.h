@@ -229,6 +229,7 @@ private:
   int _lightCount = 2;       ///< GL lights the shader lights with, @see setLights().
   int _shadowLightIndex = 0;  ///< The one shadowed (-1: none), @see setLights().
   QVector4D _shapes[8];       ///< Each light's spot or cylinder, @see setLights().
+  float _normalOffset = 0.0f; ///< Shadow look-up off the surface (renderDepthBeginFrom()).
   double _softness;  ///< PCF radius in texels, @see setSoftness().
   double _darkness;  ///< Shadow strength, @see setDarkness().
 

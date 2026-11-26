@@ -87,6 +87,9 @@ void glSceneShaderTextured(bool on) {
 static const char *kVertexShader =
     "#version 120\n"
     "uniform mat4 uShadowMatrix;\n"
+    "// (how far off the surface, along its normal, the shadow is looked up:\n"
+    "// 0 for the one-direction map, about a texel for a lamp's perspective one)\n"
+    "uniform float uNormalOffset;\n"
     "varying vec3 vNormal;\n"
     "varying vec3 vEye;\n"
     "varying vec4 vShadowCoord;\n"
@@ -94,7 +97,8 @@ static const char *kVertexShader =
     "  vec4 eye = gl_ModelViewMatrix * gl_Vertex;\n"
     "  vEye = eye.xyz;\n"
     "  vNormal = gl_NormalMatrix * gl_Normal;\n"
-    "  vShadowCoord = uShadowMatrix * eye;\n"
+    "  vShadowCoord = uShadowMatrix * (uNormalOffset > 0.0\n"
+    "      ? vec4(eye.xyz + normalize(vNormal) * uNormalOffset, eye.w) : eye);\n"
     "  gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
     "  gl_FrontColor = gl_Color;\n"
     "  gl_Position = gl_ProjectionMatrix * eye;\n"
@@ -461,6 +465,7 @@ bool ShadowMap::renderDepthBegin(const btVector4 &lightPos,
   QMatrix4x4 proj;
   proj.ortho(-r, r, -r, r, 0.5f * r, 5.5f * r);
 
+  _normalOffset = 0.0f;
   return beginWith(view, proj);
 }
 
@@ -485,6 +490,10 @@ bool ShadowMap::renderDepthBeginFrom(const btVector3 &eye, const btVector3 &look
   QMatrix4x4 proj;
   proj.perspective(float(fovDegrees), 1.0f, float(nearZ), float(farZ));
 
+  // A texel and a half at the far end: with a wide map a floor's own
+  // triangles shadow each other along their shared edge, and moving the
+  // look-up off the surface by that much stops it.
+  _normalOffset = float(1.5 * 2.0 * farZ * std::tan(fovDegrees * M_PI / 360.0) / _size);
   return beginWith(view, proj);
 }
 
@@ -679,6 +688,7 @@ bool ShadowMap::bind(const double cameraModelView[16]) {
   _prog->setUniformValue("uDarkness", float(_darkness));
   _prog->setUniformValue("uTexelStep", float(_softness / _size));
   _prog->setUniformValue("uShadowMatrix", _lightMatrix * camera.inverted());
+  _prog->setUniformValue("uNormalOffset", _normalOffset);
 
   s_boundProgram = _prog;
   return true;
