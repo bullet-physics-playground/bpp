@@ -517,27 +517,33 @@ bool writeFrame(const QString &path, const QString &byline,
     }
   }
 
-  for (const Light *l : lights)
-    s << l->toPOV() << "\n";
+  // An object as the export writes it (a mesh's and a terrain's data files
+  // go in the scene directory).
+  auto sdlOf = [&sceneDir](Object *o) -> QString {
+    if (o == nullptr || !o->getPOVExport())
+      return QString();
+    Terrain *t = dynamic_cast<Terrain *>(o);
+    if (t)
+      return t->toPOV(sceneDir);
+#ifdef HAS_LIB_ASSIMP
+    Mesh *m = dynamic_cast<Mesh *>(o);
+    if (m)
+      return m->toPOV(sceneDir);
+#endif
+    return o->toPOV();
+  };
+
+  // (a light's looks_like object is written inside it, not on its own)
+  QSet<Object *> inLights;
+  for (const Light *l : lights) {
+    s << l->toPOV(sdlOf(l->looks_like), sdlOf(l->projected_through)) << "\n";
+    if (l->looks_like)
+      inLights.insert(l->looks_like);
+  }
 
   foreach (Object *o, objects) {
-    if (o->getPOVExport()) {
-      Terrain *t = dynamic_cast<Terrain *>(o);
-      if (t) {
-        s << t->toPOV(sceneDir);
-        continue;
-      }
-#ifdef HAS_LIB_ASSIMP
-      Mesh *m = dynamic_cast<Mesh *>(o);
-      if (m) {
-        s << m->toPOV(sceneDir);
-      } else {
-      s << o->toPOV();
-      }
-#else
-      s << o->toPOV();
-#endif
-    }
+    if (!inLights.contains(o))
+      s << sdlOf(o);
   }
 
   if (!postSDL.isEmpty()) {

@@ -25,7 +25,8 @@ namespace Culling {
 // whole scene, as the shadow map takes it) until it is past everything in
 // view, meets the view.
 void cull(const ObjectSet &objects, const qglviewer::Camera *camera,
-          bool shadows, const btVector4 &light0, const ShadowMap *shadowMap) {
+          bool shadows, const btVector4 &light0, const ShadowMap *shadowMap,
+          bool radial) {
   GLdouble proj[16], mv[16], m[16];
   glGetDoublev(GL_PROJECTION_MATRIX, proj);
   glGetDoublev(GL_MODELVIEW_MATRIX, mv);
@@ -102,8 +103,9 @@ void cull(const ObjectSet &objects, const qglviewer::Camera *camera,
     }
   }
 
-  // 2: the shadow map
-  if (!shadows)
+  // 2: the shadow map (a light casting from where it is shadows in every
+  // direction: nothing is left out of it)
+  if (!shadows || radial)
     return;
   const qglviewer::Vec sc = camera->sceneCenter();
   btVector3 toLight(light0.x(), light0.y(), light0.z());

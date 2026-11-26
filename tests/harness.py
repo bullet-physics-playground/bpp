@@ -771,8 +771,8 @@ def render_lights(ctx, env):
     exported: the .pov declares BPP_Lights before settings.inc, which then
     makes none of its own, and pulls in LightSys after it (the halogen has
     lumens); each frame's .inc holds the lights, before the objects, where
-    they are on that frame (the lamp moves 10 a frame), and not the light
-    the script took out."""
+    they are on that frame (the lamp moves 10 a frame), not the light the
+    script took out, and the halogen's looks_like bulb inside it only."""
     wd = ctx.workdir("render-lights")
     r = run_bpp(ctx.bpp, ["-f", "lights.lua", "-n", "3", "-e"], wd, 120, RENDER, env)
     why = lua_errors(r.lines())[:5]
@@ -799,6 +799,8 @@ def render_lights(ctx, env):
             why.append("%05d.inc: the halogen not a LightSys light" % n)
         if "777" in frame:
             why.append("%05d.inc: holds the light taken out" % n)
+        if frame.count("sphere {") != 2 or "  looks_like {" not in frame:
+            why.append("%05d.inc: the bulb not once, inside the halogen" % n)
         if frame.find("light_source") > frame.find("sphere"):
             why.append("%05d.inc: the lights not before the objects" % n)
     print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "lights.lua -e", r.seconds))

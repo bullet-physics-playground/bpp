@@ -172,8 +172,6 @@ What this means for the classes:
   where light falls and how it fades, not overall brightness.
 - **Lights in the galleries' exhibits:** not in this work.
 - **A light following a body** (`v:attach`): later, if a scene needs it.
-- **`looks_like` and `projected_through`** take an object, which the view
-  draws too (step 4), so they come with step 4.
 
 ## Plan
 
@@ -205,9 +203,7 @@ way the galleries' work went.
      Now shadows on and off differ only by the shadow. A script with no
      lights is drawn as before, pixel for pixel.
    - The shadow is cast by one light (the strongest at the camera that
-     isn't `shadowless`), and as the shadow map has always done it: from
-     the light's direction across the whole scene, so a lamp in a room
-     casts parallel shadows, not ones that spread from it.
+     isn't `shadowless`). (Step 4: from where it is; see there.)
    - The ambient light the view had with its two lights stays, standing
      in for what radiosity bounces round; `v.glAmbient` and
      `v.glModelAmbient` turn it down. (Both take a number: the second
@@ -221,6 +217,39 @@ way the galleries' work went.
 
 4. **Cylindrical and area previews, shadowless, `looks_like`, light
    markers.** *Check:* the same comparison for each.
+   *Done:* `tests/screens/lights-shapes.lua`, compared with POV-Ray 3.8's
+   render of its export: the cylinder's beam, the area spot's pool, the
+   lamp's glow and the shadows' directions agree. What it came to:
+   - **Spot and cylinder are POV-Ray's own formulas** in the shader (its
+     `Attenuate_Light()`: `cos^tightness`, then a cubic from falloff to
+     radius; for a cylinder by distance from its axis, its light parallel
+     along it), so a spot's pool now has POV-Ray's flat core and soft
+     edge. GL's fixed-function cone stays as the approximation for a GL
+     with no shaders.
+   - **A lamp casts its shadow from where it is**: a perspective shadow
+     map from a point, area or spot light (along a spot's cone); a
+     cylinder or parallel light, and `v.glLight0`, along one direction as
+     before. With one map, a lamp inside the scene sees 150 degrees toward
+     its middle, and what is behind it casts no shadow; and nothing within
+     2% of the scene's size of a lamp casts one.
+   - **Area lights** show as a point at their middle: the light is the
+     same; the soft shadows are POV-Ray's.
+   - **`shadowless`**: as in POV-Ray, no highlights; and since POV-Ray
+     keeps one light type, `shadowless` written after `spotlight` or
+     `cylinder` (bpp writes it last) replaces it -- a shadowless spot
+     renders as a point light, a shadowless cylinder as a parallel one,
+     and the view and the markers show that. POV-Ray has no shadowless
+     spot.
+   - **`looks_like`** takes an object the script also adds (placed where
+     the lamp is): it is drawn as any object, casts no shadow (setting it
+     sets `castShadow` false, as POV-Ray's `no_shadow`), and is written
+     inside the light (moved back by its place, as POV-Ray moves it to the
+     light), not on its own. **`projected_through`** is written as its
+     object is, where it is; the view ignores it.
+   - **Markers** (`v.showLights`, View > Show Lights, on to begin with):
+     a star in the light's colour, and a spot's cone, a cylinder's beam at
+     its width, a parallel light's arrow, an area light's outline.
+
 5. **The indoor scene**, rebuilt from its source as a demo, lights and all.
    *Check:* bpp's view next to its POV-Ray render and next to the original
    LightSys render.

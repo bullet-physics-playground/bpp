@@ -221,6 +221,12 @@ public slots:
   void toggleShowConstraints(bool checked);
 
   /**
+   * @brief Shows or hides the markers of the script's lights.
+   * @param checked True to draw them.
+   */
+  void toggleShowLights(bool checked);
+
+  /**
    * @brief Turns shadow casting in the 3D view on or off.
    * @param checked True to cast shadows.
    */

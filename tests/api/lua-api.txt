@@ -8,6 +8,7 @@ class AreaLight
   .fade_power
   .jitter
   .lightsys
+  .looks_like
   .lumens
   .media_attenuation
   .media_interaction
@@ -16,6 +17,7 @@ class AreaLight
   .orient
   .pos
   .power
+  .projected_through
   .shadowless
   __init: void __init(luabind::argument const&)
   __init: void __init(luabind::argument const&,btVector3 const&)
@@ -493,6 +495,7 @@ class CylinderLight
   .falloff
   .jitter
   .lightsys
+  .looks_like
   .lumens
   .media_attenuation
   .media_interaction
@@ -502,6 +505,7 @@ class CylinderLight
   .point_at
   .pos
   .power
+  .projected_through
   .radius
   .shadowless
   .tightness
@@ -722,6 +726,7 @@ class Light
   .fade_power
   .jitter
   .lightsys
+  .looks_like
   .lumens
   .media_attenuation
   .media_interaction
@@ -730,6 +735,7 @@ class Light
   .orient
   .pos
   .power
+  .projected_through
   .shadowless
   __tostring: void __tostring(lua_State*,Light const&)
   toPOV: custom [QString] toPOV(Light const&)
@@ -929,6 +935,7 @@ class ParallelLight
   .fade_power
   .jitter
   .lightsys
+  .looks_like
   .lumens
   .media_attenuation
   .media_interaction
@@ -938,6 +945,7 @@ class ParallelLight
   .point_at
   .pos
   .power
+  .projected_through
   .shadowless
   __init: void __init(luabind::argument const&)
   __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&)
@@ -1079,6 +1087,7 @@ class PointLight
   .fade_power
   .jitter
   .lightsys
+  .looks_like
   .lumens
   .media_attenuation
   .media_interaction
@@ -1087,6 +1096,7 @@ class PointLight
   .orient
   .pos
   .power
+  .projected_through
   .shadowless
   __init: void __init(luabind::argument const&)
   __init: void __init(luabind::argument const&,btVector3 const&)
@@ -1421,6 +1431,7 @@ class SpotLight
   .falloff
   .jitter
   .lightsys
+  .looks_like
   .lumens
   .media_attenuation
   .media_interaction
@@ -1430,6 +1441,7 @@ class SpotLight
   .point_at
   .pos
   .power
+  .projected_through
   .radius
   .shadowless
   .tightness
@@ -1854,6 +1866,7 @@ class Viewer
   .shadowSoftness
   .shadows
   .showConstraints
+  .showLights
   .snAutoFlySpeed
   .snLockHorizon
   .snMode

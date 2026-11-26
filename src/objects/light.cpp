@@ -4,6 +4,7 @@
  */
 
 #include "light.h"
+#include "object.h"
 
 #include <QTextStream>
 
@@ -25,7 +26,18 @@ QString pov(const btVector3 &v) {
 
 } // namespace
 
+void Light::setLooksLike(Object *o) {
+  looks_like = o;
+  if (o != nullptr)
+    o->setCastShadow(false);
+}
+
 QString Light::toPOV() const {
+  return toPOV(looks_like ? looks_like->toPOV() : QString(),
+               projected_through ? projected_through->toPOV() : QString());
+}
+
+QString Light::toPOV(const QString &looksLike, const QString &through) const {
   QString out;
   QTextStream s(&out);
 
@@ -69,6 +81,12 @@ QString Light::toPOV() const {
   } else if (fade_distance > 0) {
     s << "  fade_distance " << fade_distance << " fade_power " << fade_power << "\n";
   }
+
+  // (POV-Ray moves a looks_like object to the light: it comes back here)
+  if (!looksLike.isEmpty())
+    s << "  looks_like {\n" << looksLike << "    translate -" << pov(pos) << "\n  }\n";
+  if (!through.isEmpty())
+    s << "  projected_through {\n" << through << "  }\n";
 
   if (shadowless) s << "  shadowless\n";
   if (!media_interaction) s << "  media_interaction off\n";
@@ -117,7 +135,9 @@ void Light::luaBind(lua_State *s) {
       .def_readwrite("jitter", &Light::jitter)
       .def_readwrite("circular", &Light::circular)
       .def_readwrite("orient", &Light::orient)
-      .def("toPOV", &Light::toPOV)
+      .property("looks_like", &Light::getLooksLike, &Light::setLooksLike)
+      .property("projected_through", &Light::getProjectedThrough, &Light::setProjectedThrough)
+      .def("toPOV", (QString(Light::*)() const) & Light::toPOV)
       .def(tostring(const_self)),
 
     class_<PointLight, Light>("PointLight")

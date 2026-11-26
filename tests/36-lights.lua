@@ -151,6 +151,37 @@ assert_eq("LightSys parallel", sun:toPOV(), sdl{
   "  point_at <0, 0, 0>",
   "}"})
 
+-- looks_like: written inside the light, moved back by its place (POV-Ray
+-- moves it to the light), and it casts no shadow, as in POV-Ray;
+-- projected_through: as it is, where it is
+local bulb = Sphere(5, 0)
+bulb.pos = btVector3(10, 200, -30)
+local lamp = PointLight(btVector3(10, 200, -30))
+assert_eq("a bulb casts a shadow, to begin with", bulb.castShadow, true)
+lamp.looks_like = bulb
+assert_eq("looks_like reads back", lamp.looks_like == bulb, true)
+assert_eq("looks_like takes the bulb's shadow away", bulb.castShadow, false)
+local sdlL = lamp:toPOV()
+local at = sdlL:find("  looks_like {\n", 1, true)
+assert_eq("looks_like written", at ~= nil, true)
+assert_eq("looks_like holds the bulb, moved back to the origin",
+  sdlL:find(bulb:toPOV() .. "    translate -<10, 200, 30>\n  }\n", at, true) ~= nil, true)
+lamp.looks_like = nil
+assert_eq("looks_like cleared", lamp:toPOV(), PointLight(btVector3(10, 200, -30)):toPOV())
+
+local win = Cube(80, 120, 2, 0)
+local sun = ParallelLight(btVector3(0, 1000, 0), btVector3(0, 0, 0))
+sun.projected_through = win
+assert_eq("projected_through written as it is", sun:toPOV(), sdl{
+  "light_source {",
+  "  <0, 1000, 0>",
+  "  color rgb <1, 1, 1> * 1",
+  "  parallel",
+  "  point_at <0, 0, 0>",
+  "  projected_through {",
+  win:toPOV() .. "  }",
+  "}"})
+
 -- v:add and v:remove take lights, a table of them too; twice is harmless,
 -- and a removed light is still the script's
 local a, b = PointLight(btVector3(0, 10, 0)), AreaLight(btVector3(0, 20, 0))

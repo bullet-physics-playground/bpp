@@ -230,6 +230,10 @@ void Gui::toggleShowConstraints(bool checked) {
   ui.viewer->setShowConstraints(checked);
 }
 
+void Gui::toggleShowLights(bool checked) {
+  ui.viewer->setShowLights(checked);
+}
+
 void Gui::toggleShadows(bool checked) {
   ui.viewer->setShadowsPreference(checked);
 }
@@ -1100,6 +1104,8 @@ void Gui::loadSettings() {
 
   ui.actionShadows->setChecked(settings->value("shadows", true).toBool());
 
+  ui.actionShowLights->setChecked(settings->value("showLights", true).toBool());
+
   settings->endGroup();
 }
 
@@ -1129,6 +1135,8 @@ void Gui::saveSettings() {
   settings->setValue("showConstraints", ui.actionShowConstraints->isChecked());
 
   settings->setValue("shadows", ui.viewer->shadowsPreference());
+
+  settings->setValue("showLights", ui.actionShowLights->isChecked());
 
   settings->endGroup();
 

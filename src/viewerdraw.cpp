@@ -166,6 +166,7 @@ void Viewer::lightPlain(GLenum light) {
 // (lightpreview.h). Called with the camera's matrices loaded, so the
 // positions and directions are the world's.
 void Viewer::useScriptLights() {
+  _shadowFrom = nullptr;
   std::vector<const Light *> all;
   for (const auto &kept : _lights)
     all.push_back(kept.first);
@@ -175,6 +176,7 @@ void Viewer::useScriptLights() {
       LightPreview::pick(all, btVector3(e.x, e.y, e.z), 8, shadow);
 
   const GLfloat none[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+  QVector4D shapes[8];
   for (int i = 0; i < 8; ++i) {
     const GLenum light = GL_LIGHT0 + i;
     LightPreview::GL g;
@@ -184,7 +186,8 @@ void Viewer::useScriptLights() {
     }
     glLightfv(light, GL_AMBIENT, none);
     glLightfv(light, GL_DIFFUSE, g.diffuse);
-    glLightfv(light, GL_SPECULAR, g.diffuse);
+    glLightfv(light, GL_SPECULAR, g.specular);
+    shapes[i] = QVector4D(g.shape[0], g.shape[1], g.shape[2], g.shape[3]);
     glLightfv(light, GL_POSITION, g.position);
     glLightfv(light, GL_SPOT_DIRECTION, g.spotDirection);
     glLightf(light, GL_SPOT_CUTOFF, g.spotCutoff);
@@ -193,10 +196,15 @@ void Viewer::useScriptLights() {
     glLightf(light, GL_LINEAR_ATTENUATION, g.linear);
     glLightf(light, GL_QUADRATIC_ATTENUATION, g.quadratic);
     glEnable(light);
-    if (i == shadow)
+    if (i == shadow) {
       _shadowLight = btVector4(g.position[0], g.position[1], g.position[2], g.position[3]);
+      // (a cylinder's shadow falls along its beam)
+      if (LightPreview::shownKind(*shown[i]) == Light::Cylinder)
+        _shadowLight = btVector4(-g.spotDirection[0], -g.spotDirection[1], -g.spotDirection[2], 0);
+      _shadowFrom = shown[i];
+    }
   }
-  _shadowMap->setLights((int)shown.size(), _shadows ? shadow : -1);   // (drawn by the shader either way)
+  _shadowMap->setLights((int)shown.size(), _shadows ? shadow : -1, shapes);   // (drawn by the shader either way)
 }
 
 void Viewer::draw() {
@@ -272,7 +280,8 @@ void Viewer::draw() {
   for (int i = 2; i < 8; ++i)
     glDisable(GL_LIGHT0 + i);
   _shadowLight = _light0;
-  _shadowMap->setLights(2, 0);
+  _shadowFrom = nullptr;
+  _shadowMap->setLights(2, 0, nullptr);
 
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
@@ -435,6 +444,7 @@ void Viewer::drawSceneInternal(int pass) {
   }
 
   drawConstraints();
+  drawLights();
 }
 
 void Viewer::drawObjects(bool shadowPass, bool skipFixed) {
@@ -502,7 +512,11 @@ void Viewer::cullObjects() {
   if (!_culled)
     return;
 
-  Culling::cull(*_objects, camera(), _shadows, _shadowLight, _shadowMap);
+  const qglviewer::Vec c = camera()->sceneCenter();
+  LightPreview::ShadowView sv;
+  const bool radial = _shadowFrom != nullptr &&
+      LightPreview::shadowView(*_shadowFrom, btVector3(c.x, c.y, c.z), camera()->sceneRadius(), sv);
+  Culling::cull(*_objects, camera(), _shadows, _shadowLight, _shadowMap, radial);
 }
 
 void Viewer::renderShadowDepth() {
@@ -511,10 +525,16 @@ void Viewer::renderShadowDepth() {
 
   const qglviewer::Vec c = camera()->sceneCenter();
 
-  if (!_shadowMap->renderDepthBegin(_shadowLight, btVector3(c.x, c.y, c.z),
-                                    camera()->sceneRadius())) {
+  // (a script's lamp casts from where it is; v.glLight0, a cylinder or a
+  // parallel light along one direction)
+  LightPreview::ShadowView sv;
+  const bool radial = _shadowFrom != nullptr &&
+      LightPreview::shadowView(*_shadowFrom, btVector3(c.x, c.y, c.z), camera()->sceneRadius(), sv);
+  const bool begun = radial
+      ? _shadowMap->renderDepthBeginFrom(sv.eye, sv.look, sv.fov, sv.nearZ, sv.farZ)
+      : _shadowMap->renderDepthBegin(_shadowLight, btVector3(c.x, c.y, c.z), camera()->sceneRadius());
+  if (!begun)
     return;
-  }
 
   // Only the objects: a constraint marker is a hint about the scene, not part
   // of it, and should not throw a shadow across it. Anything a script draws
@@ -530,6 +550,113 @@ void Viewer::renderShadowDepth() {
   drawObjects(true, skipFixed);
 
   _shadowMap->renderDepthEnd();
+}
+
+// The markers of the script's lights (v.showLights): a star where each is,
+// in its colour, and its shape -- a spot's cone to its falloff, a
+// cylinder's beam at its true width, a parallel light's arrow, an area
+// light's rectangle (or circle) -- sized to the scene, as unlit lines.
+void Viewer::drawLights() {
+  if (!_showLights || _lights.empty())
+    return;
+
+  const btScalar s = btScalar(0.03 * camera()->sceneRadius());
+  const int N = 24;
+  // a circle of radius r around c, square to n
+  auto circle = [N](const btVector3 &c, const btVector3 &n, btScalar r) {
+    btVector3 u, w;
+    btPlaneSpace1(n.normalized(), u, w);
+    glBegin(GL_LINE_LOOP);
+    for (int k = 0; k < N; ++k) {
+      const btScalar a = btScalar(2 * M_PI * k / N);
+      const btVector3 p = c + (u * btCos(a) + w * btSin(a)) * r;
+      glVertex3f(p.x(), p.y(), p.z());
+    }
+    glEnd();
+  };
+  auto line = [](const btVector3 &a, const btVector3 &b) {
+    glVertex3f(a.x(), a.y(), a.z());
+    glVertex3f(b.x(), b.y(), b.z());
+  };
+
+  glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
+  glDisable(GL_LIGHTING);
+  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_DEPTH_TEST);
+  glLineWidth(1.5f);
+  for (const auto &kept : _lights) {
+    const Light &l = *kept.first;
+    glColor3f(l.col.redF(), l.col.greenF(), l.col.blueF());
+    const btVector3 &p = l.pos;
+    btVector3 dir = l.point_at - l.pos;
+    if (dir.length2() > 0)
+      dir.normalize();
+    else
+      dir = btVector3(0, -1, 0);
+
+    glBegin(GL_LINES);
+    line(p - btVector3(s, 0, 0), p + btVector3(s, 0, 0));
+    line(p - btVector3(0, s, 0), p + btVector3(0, s, 0));
+    line(p - btVector3(0, 0, s), p + btVector3(0, 0, s));
+    glEnd();
+
+    // (what POV-Ray renders: a shadowless spot is a point light, a
+    // shadowless cylinder a parallel one; lightpreview.h)
+    switch (LightPreview::shownKind(l)) {
+    case Light::Spot: {
+      const btScalar len = 3 * s;
+      const btScalar r = len * btTan(btRadians(btScalar(std::min(80.0, l.falloff))));
+      btVector3 u, w;
+      btPlaneSpace1(dir, u, w);
+      glBegin(GL_LINES);
+      for (const btVector3 &e : {u, -u, w, -w})
+        line(p, p + dir * len + e * r);
+      glEnd();
+      circle(p + dir * len, dir, r);
+      break;
+    }
+    case Light::Cylinder: {
+      const btScalar len = 3 * s;
+      const btScalar r = btScalar(l.falloff);
+      btVector3 u, w;
+      btPlaneSpace1(dir, u, w);
+      glBegin(GL_LINES);
+      for (const btVector3 &e : {u, -u, w, -w})
+        line(p + e * r, p + dir * len + e * r);
+      glEnd();
+      circle(p, dir, r);
+      circle(p + dir * len, dir, r);
+      break;
+    }
+    case Light::Parallel: {
+      const btVector3 tip = p + dir * (3 * s);
+      btVector3 u, w;
+      btPlaneSpace1(dir, u, w);
+      glBegin(GL_LINES);
+      line(p, tip);
+      line(tip, tip - dir * s + u * (s / 2));
+      line(tip, tip - dir * s - u * (s / 2));
+      glEnd();
+      break;
+    }
+    case Light::Point:
+    case Light::Area:
+      break;
+    }
+
+    if (l.n1 > 0 && l.n2 > 0) {                 // (any kind can be an area light)
+      const btVector3 a = l.axis1 / 2, b = l.axis2 / 2;
+      if (l.circular && a.cross(b).length2() > 0) {
+        circle(p, a.cross(b), (a.length() + b.length()) / 2);
+      } else {
+        glBegin(GL_LINE_LOOP);
+        for (const btVector3 &q : {p - a - b, p + a - b, p + a + b, p - a + b})
+          glVertex3f(q.x(), q.y(), q.z());
+        glEnd();
+      }
+    }
+  }
+  glPopAttrib();
 }
 
 // Renders every constraint via btDynamicsWorld::debugDrawConstraint(),

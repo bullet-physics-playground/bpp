@@ -19,9 +19,12 @@
 #include <lua.hpp>
 
 #include <QColor>
+#include <QPointer>
 #include <QString>
 
 #include <LinearMath/btVector3.h>
+
+#include "object.h"
 
 /**
  * @brief A light source: what all five kinds share.
@@ -42,8 +45,16 @@ public:
   /// Which kind it is.
   Kind kind() const { return _kind; }
 
-  /// The light as POV-Ray SDL: a @c light_source block.
+  /// The light as POV-Ray SDL: a @c light_source block, with the
+  /// looks_like and projected_through objects as their toPOV() gives them.
   QString toPOV() const;
+  /**
+   * @brief As toPOV(), with the two objects' SDL given (the export writes
+   * meshes and terrains its own way: PovExport::writeFrame()).
+   * @param looksLike The looks_like object's SDL, in the world (empty: none).
+   * @param through   The projected_through object's SDL (empty: none).
+   */
+  QString toPOV(const QString &looksLike, const QString &through) const;
 
   /// The class name a script knows it by ("SpotLight" ...).
   QString toString() const;
@@ -52,6 +63,16 @@ public:
   QString getCol() const { return col.name(); }
   /// Sets the colour from anything QColor reads ("#ffeedd", "white").
   void setCol(const QString &c) { col = QColor(c); }
+
+  /// The object that shows where the light is (POV-Ray's looks_like):
+  /// written inside the light, not on its own, and like POV-Ray's it casts
+  /// no shadow (setting it sets the object's castShadow false).
+  Object *getLooksLike() const { return looks_like; }
+  void setLooksLike(Object *o);
+  /// The object the light shines through (POV-Ray's projected_through):
+  /// its light reaches only what it is seen through. Export only.
+  Object *getProjectedThrough() const { return projected_through; }
+  void setProjectedThrough(Object *o) { projected_through = o; }
 
   /// Registers Light and the five kinds with a Lua state.
   static void luaBind(lua_State *s);
@@ -66,6 +87,8 @@ public:
   bool shadowless = false;                  ///< Casts no shadows.
   bool media_interaction = true;            ///< Lights media.
   bool media_attenuation = false;           ///< Dimmed by media it crosses.
+  QPointer<Object> looks_like;              ///< @see getLooksLike()
+  QPointer<Object> projected_through;       ///< @see getProjectedThrough()
 
   // spot, cylinder, parallel
   btVector3 point_at = btVector3(0, 0, -1); ///< Where it points (POV-Ray's <0,0,1>).

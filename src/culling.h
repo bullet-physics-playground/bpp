@@ -33,11 +33,15 @@ namespace Culling {
  * @param shadows   Shadows are on: decide drawInShadow too (otherwise every
  *                  object's is left true).
  * @param light0    The main light (GL_POSITION).
+ * @param radial    The shadow is cast from where the light is (a script's
+ *                  lamp: ShadowMap::renderDepthBeginFrom()), not along one
+ *                  direction: every object stays in the map.
  * @param shadowMap The shadow map (its size and softness); used only with
  *                  @p shadows.
  */
 void cull(const ObjectSet &objects, const qglviewer::Camera *camera,
-          bool shadows, const btVector4 &light0, const ShadowMap *shadowMap);
+          bool shadows, const btVector4 &light0, const ShadowMap *shadowMap,
+          bool radial = false);
 
 } // namespace Culling
 

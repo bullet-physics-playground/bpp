@@ -127,6 +127,17 @@ public:
                         double sceneRadius);
 
   /**
+   * @brief As renderDepthBegin(), for a light where it is: the depth map is
+   * seen from @p eye toward @p look, in perspective, so a lamp's shadows
+   * spread from it (a script's point, area and spot lights).
+   * @param fovDegrees The map's field of view, both ways.
+   * @param nearZ      Nearest distance recorded (above 0).
+   * @param farZ       Farthest.
+   */
+  bool renderDepthBeginFrom(const btVector3 &eye, const btVector3 &look,
+                            double fovDegrees, double nearZ, double farZ);
+
+  /**
    * @brief Ends the depth pass and restores the previous GL state.
    *
    * Puts back the framebuffer binding, viewport and both matrices that
@@ -188,8 +199,15 @@ public:
    * @brief How many GL lights (0 up) the shader lights with, and which of
    * them is shadowed: v.glLight0 and glLight1 (2, 0), or the script's own
    * lights (up to 8; @p shadow -1 when every one is shadowless). For bind().
+   * @param shapes Each light's spot or cylinder, as LightPreview::GL::shape
+   *               (nullptr: GL's own lights, no shapes).
    */
-  void setLights(int count, int shadow) { _lightCount = count; _shadowLightIndex = shadow; }
+  void setLights(int count, int shadow, const QVector4D *shapes) {
+    _lightCount = count;
+    _shadowLightIndex = shadow;
+    for (int i = 0; i < 8; ++i)
+      _shapes[i] = shapes ? shapes[i] : QVector4D();
+  }
   /// Whether a light casts the shadow (setLights()).
   bool hasShadowLight() const { return _shadowLightIndex >= 0; }
 
@@ -199,6 +217,9 @@ public:
   void release();
 
 private:
+  /// The rest of a depth pass's start, once its matrices are chosen.
+  bool beginWith(const QMatrix4x4 &view, const QMatrix4x4 &proj);
+
   /// Builds the GL objects in the current context. @return True on success.
   bool create();
   /// Deletes them again, if the context they live in is still current.
@@ -207,6 +228,7 @@ private:
   int _size;         ///< Depth texture resolution, @see setMapSize().
   int _lightCount = 2;       ///< GL lights the shader lights with, @see setLights().
   int _shadowLightIndex = 0;  ///< The one shadowed (-1: none), @see setLights().
+  QVector4D _shapes[8];       ///< Each light's spot or cylinder, @see setLights().
   double _softness;  ///< PCF radius in texels, @see setSoftness().
   double _darkness;  ///< Shadow strength, @see setDarkness().
 

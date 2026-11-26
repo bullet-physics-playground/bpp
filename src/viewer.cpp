@@ -353,6 +353,8 @@ luabind::object Viewer::removeObjectLua(const luabind::object &handle) {
         _lights.erase(it);
         break;
       }
+    if (_shadowFrom == *l)       // (taken out mid-frame, by a render callback)
+      _shadowFrom = nullptr;
     return handle;
   }
   Object *o = luabind::object_cast<Object *>(handle);

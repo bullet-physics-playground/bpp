@@ -128,6 +128,7 @@ static const char *kFragmentShader =
     "uniform float uTexelStep;\n"
     "uniform int uLights;\n"
     "uniform int uShadowLight;\n"
+    "uniform vec4 uShape[8];\n"
     "varying vec3 vNormal;\n"
     "varying vec3 vEye;\n"
     "varying vec4 vShadowCoord;\n"
@@ -148,6 +149,14 @@ static const char *kFragmentShader =
     "    }\n"
     "  }\n"
     "  return sum / 9.0;\n"
+    "}\n"
+    "\n"
+    "// POV-Ray's cubic_spline(): 0 below low, 1 from high, a cubic between.\n"
+    "float povSpline(float low, float high, float pos) {\n"
+    "  if (pos < low) return 0.0;\n"
+    "  if (pos >= high) return 1.0;\n"
+    "  pos = (pos - low) / (high - low);\n"
+    "  return (3.0 - 2.0 * pos) * pos * pos;\n"
     "}\n"
     "\n"
     "void main() {\n"
@@ -174,8 +183,30 @@ static const char *kFragmentShader =
     "      f = 1.0 / (gl_LightSource[i].constantAttenuation +\n"
     "                 gl_LightSource[i].linearAttenuation * dist +\n"
     "                 gl_LightSource[i].quadraticAttenuation * dist * dist);\n"
-    "      if (gl_LightSource[i].spotCutoff <= 90.0) {\n"
-    "        float sd = dot(-L, normalize(gl_LightSource[i].spotDirection));\n"
+    "      vec4 sh = uShape[i];\n"
+    "      vec3 sdir = normalize(gl_LightSource[i].spotDirection);\n"
+    "      if (sh.x == 1.0) {\n"
+    "        // POV-Ray's spotlight (sh: cos radius, cos falloff, tightness)\n"
+    "        float ct = dot(-L, sdir);\n"
+    "        if (ct <= 0.0) f = 0.0;\n"
+    "        else {\n"
+    "          if (sh.w > 0.0) f *= pow(ct, sh.w);\n"
+    "          if (sh.y > 0.0 && ct < sh.y) f *= povSpline(sh.z, sh.y, ct);\n"
+    "        }\n"
+    "      } else if (sh.x == 2.0) {\n"
+    "        // its cylinder: parallel light along the axis, by distance from it\n"
+    "        vec3 v1 = vEye - lp.xyz / lp.w;\n"
+    "        float k = dot(v1, sdir);\n"
+    "        float len = length(v1 - k * sdir);\n"
+    "        L = -sdir;\n"
+    "        if (k <= 0.0 || len >= sh.z) f = 0.0;\n"
+    "        else {\n"
+    "          float dist = 1.0 - len / sh.z;\n"
+    "          if (sh.w > 0.0) f *= pow(dist, sh.w);\n"
+    "          if (sh.y > 0.0 && len > sh.y) f *= povSpline(0.0, 1.0 - sh.y / sh.z, dist);\n"
+    "        }\n"
+    "      } else if (gl_LightSource[i].spotCutoff <= 90.0) {\n"
+    "        float sd = dot(-L, sdir);\n"
     "        float e = gl_LightSource[i].spotExponent;\n"
     "        if (sd < gl_LightSource[i].spotCosCutoff) f = 0.0;\n"
     "        else if (e > 0.0) f *= pow(sd, e);\n"
@@ -430,6 +461,34 @@ bool ShadowMap::renderDepthBegin(const btVector4 &lightPos,
   QMatrix4x4 proj;
   proj.ortho(-r, r, -r, r, 0.5f * r, 5.5f * r);
 
+  return beginWith(view, proj);
+}
+
+bool ShadowMap::renderDepthBeginFrom(const btVector3 &eye, const btVector3 &look,
+                                     double fovDegrees, double nearZ, double farZ) {
+  _haveDepth = false;
+
+  if (!isAvailable() || nearZ <= 0.0 || farZ <= nearZ)
+    return false;
+
+  const QVector3D e(eye.x(), eye.y(), eye.z()), c(look.x(), look.y(), look.z());
+  QVector3D dir = c - e;
+  if (dir.lengthSquared() <= 0.0f)
+    return false;
+  dir.normalize();
+  QVector3D up(0.0f, 1.0f, 0.0f);
+  if (qAbs(dir.y()) > 0.99f)
+    up = QVector3D(0.0f, 0.0f, 1.0f);
+
+  QMatrix4x4 view;
+  view.lookAt(e, c, up);
+  QMatrix4x4 proj;
+  proj.perspective(float(fovDegrees), 1.0f, float(nearZ), float(farZ));
+
+  return beginWith(view, proj);
+}
+
+bool ShadowMap::beginWith(const QMatrix4x4 &view, const QMatrix4x4 &proj) {
   // Clip space runs -1..1 in each axis and a texture lookup wants 0..1.
   QMatrix4x4 bias;
   bias.translate(0.5f, 0.5f, 0.5f);
@@ -616,6 +675,7 @@ bool ShadowMap::bind(const double cameraModelView[16]) {
   _prog->setUniformValue("uUseShadow", GLint(_haveDepth && _shadowLightIndex >= 0 ? 1 : 0));
   _prog->setUniformValue("uLights", GLint(_lightCount));
   _prog->setUniformValue("uShadowLight", GLint(_shadowLightIndex));
+  _prog->setUniformValueArray("uShape", _shapes, 8);
   _prog->setUniformValue("uDarkness", float(_darkness));
   _prog->setUniformValue("uTexelStep", float(_softness / _size));
   _prog->setUniformValue("uShadowMatrix", _lightMatrix * camera.inverted());

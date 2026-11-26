@@ -680,6 +680,8 @@ public:
   void useScriptLights();
   /// A GL light with no cone and no fall-off, as GL starts it.
   void lightPlain(GLenum light);
+  /// The lights' markers (v.showLights), unlit lines (viewerdraw.cpp).
+  void drawLights();
 
   /**
    * @brief Frees removed objects the script has let go of.
@@ -2094,6 +2096,17 @@ public slots:
   bool showConstraints() const;
 
   /**
+   * @brief Draws, or stops drawing, a marker for each light the script adds
+   * (v.showLights; View > Show Lights): a small star in its colour, with
+   * its cone, beam, direction or area (lightpreview.h). On to begin with.
+   * @param on True to draw the markers.
+   */
+  void setShowLights(bool on) { _showLights = on; }
+
+  /// Whether the lights' markers are drawn.
+  bool showLights() const { return _showLights; }
+
+  /**
    * @brief Requests a repaint, using whichever call this QGLViewer provides.
    */
   void updateGLViewer() {
@@ -2405,6 +2418,9 @@ private:
   /// The light that casts the shadow, as glLightfv(GL_POSITION) takes it:
   /// v.glLight0, or the script's light useScriptLights() chose.
   btVector4 _shadowLight;
+  /// The script's light casting the shadow this frame (nullptr: v.glLight0,
+  /// or none); valid only while drawing, as _lights holds it.
+  const Light *_shadowFrom = nullptr;
   OrderedSet<btTypedConstraint *> _detached; ///< Constraints taken out of the
                                              ///< world with an object they
                                              ///< join (see removeObject()).
@@ -2500,6 +2516,7 @@ private:
    */
   btIDebugDraw *_debugDrawer;
   bool _showConstraints; ///< Whether those markers are drawn.
+  bool _showLights = true; ///< Whether the lights' markers are drawn.
 
   bool _shadows;         ///< Whether the main light casts shadows.
   bool _culling = true;  ///< Whether unseen objects are skipped (setCulling()).
