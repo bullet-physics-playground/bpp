@@ -115,21 +115,31 @@ smaller one:
   a halogen spot in a corner and a skylight in the window (off by
   default). Radiosity on; `Lightsys_Brightness = 1/6`,
   `Lightsys_ExposureFake = 1`; sRGB with a D55 white point.
-- **`demo_indoor2.pov`** (Ive, 2003): a larger room with chairs, a
-  Mondrian-style material map and an LP whose sleeve is the album cover
-  `cyndi.png`, which bpp shouldn't ship.
+- **`demo_indoor2.pov`** (Ive, 2003): a larger furnished room with
+  chairs, a Mondrian-style material map and an LP, lit by three
+  fluorescent tubes, two lamps, a spotlight and a window, chosen by a
+  `Tune` switch.
 - **`templates/LightsysIV indoor scene.txt`**: a box room, one `Light()`,
   a sphere.
 
-Taken to be `demo_indoor1.pov` unless Jakob says otherwise. Its lights,
-in POV-Ray's coordinates (bpp's z is the negative):
+**The scene is `demo_indoor2.pov`:** Jakob is porting it as
+`demo/koppi/lightsys-demo-indoor2.lua` (November 2026, before the light
+classes existed). Its lights are raw SDL in `v.pre_sdl`; step 5 moves
+them to the classes, so the view shows them. Its lights, in the
+original's own frames (each is translated with its fixture):
 
-| Light | Kind | Lumens, colour | Area | Other |
-|-------|------|----------------|------|-------|
-| table lamp, <120,80,155> | point | 420, `ES_Incandescent_60w` | 9×9, 4×4, circular, orient | |
-| ceiling panel, <0,245.9,0> | spot via `Light(..., Cfall = 1)`: radius −89.9, falloff 89.9, tightness 1, down | 900·4·π/2, `ES_Cool_White_Fluor` | 15×15, 5×5 | |
-| halogen, <−130,249.9,175> | spot, radius 15, falloff 45, tightness 0, down | 1000, `ES_Solux_Halog4700K` | 9×9, 4×4, circular | |
-| skylight (off) | spot, radius 90, falloff 90, sideways | 1200, `Daylight(7500)` | 48×56, 6×7 | |
+| Light | Kind | Lumens, colour | Area (with `AreaLight` on) |
+|-------|------|----------------|------|
+| 3 fluorescent tubes | point | `LM1`/3 each, `LC1` | 20×7, 3×2, adaptive 2, jitter |
+| 2 lamps | point | `LM2`, `LC2` | 7×7, 4×4, adaptive 2, jitter, circular, orient |
+| spotlight | spot, radius 24, falloff 35, tightness 15 | `LM3`, `LC3` | 5×5, 4×4, adaptive 2, jitter, circular, orient |
+| window | point | `LMD`, `Daylight(6600)` | 80×120, 6×8, adaptive 2, jitter |
+
+(`demo_indoor1.pov`, Jaime's, has area spots as well: a halogen and the
+ceiling panel's `Light(..., Cfall = 1)`; `tests/36-lights.lua` uses its
+halogen.) The demo ships `includes/cyndi.png` for the LP: the sleeve of
+Cyndi Lauper's *True Colors*, an album cover, which may not be bpp's to
+redistribute. Worth Jakob's look before a release.
 
 What this means for the classes:
 
@@ -149,8 +159,8 @@ What this means for the classes:
 - **Every lamp's glow is a separate object**: a shade or bulb filled with
   emitting media, `no_shadow`, beside its light. That is the scene's
   modelling, for step 5, not part of the light.
-- The room is in centimetres with `Lightsys_Scene_Scale` unset (1); the
-  demo keeps those units, so lumens and fall-off stay as they were.
+- Both rooms are in centimetres with `Lightsys_Scene_Scale` unset (1);
+  the demo keeps those units, so lumens and fall-off stay as they were.
 
 ### Still open (proposals taken until Jakob says otherwise)
 
@@ -178,7 +188,7 @@ way the galleries' work went.
    `Light_Fading()`), the old two untouched when no light is added.
    *Check:* unit tests on the written POV text for each kind and modifier;
    the Lua API snapshot (`tests/api`) updated; the golden and smoke suites
-   unchanged. *Done:* `src/objects/light.*`, `tests/35-lights.lua`,
+   unchanged. *Done:* `src/objects/light.*`, `tests/36-lights.lua`,
    `tests/render/lights.lua`; `looks_like`/`projected_through` moved to step 4.
 3. **Point, spot and parallel in the view**, fixed-function and the shadow
    shader alike, with attenuation.
