@@ -80,112 +80,90 @@ lights there are, with spot cones and attenuation, or the preview will look
 right only with shadows off. Which light casts the shadow (the brightest?
 one the script names?) is a decision to make.
 
-## Things to settle with Jakob first (step 1)
+## Step 1: settled with Jakob
 
-Each question has a proposal; Jakob's answer goes under it, and step 2
-starts from the answers. *Status: asked, answers pending.*
+The questions were asked in November 2026 (git history has them in
+full). Jakob's answers, then what the LightSys archive showed, then what
+is still open.
 
-### What the code showed while writing these
+### Jakob's answers
 
-- `PovLight` is used by nothing: no demo, no test (`tests/31` makes a
-  `PovScriptWriter`, but no light). Its `type` is a bare C++ enum, so a script can only set it
-  as a number; its spotlight writes a `direction` line, and its area light
-  ignores `radius` and always writes `<1,0,0>, <0,0,1>, 10, 10`.
-- Only five scripts touch `v.glLight0`/`glLight1`, not many: the two
-  galleries, the Rec Room, the solar system exhibit and
-  `tests/media-check.lua`. The galleries reach them through a proxy for `v`
-  that knows the light properties by name (`LIGHTS` in `gallery.lua` and
-  `hall.lua`) and moves an exhibit's light with its bay (`bayLight`).
-- `settings.inc` always makes its lights from `GL_Light0`/`GL_Light1`, so
-  a scene that adds lights needs a way to switch those off in the render
-  too, not only in the view.
-- The export writes the two lights into the main scene file, once; every
-  frame of an animation is rendered with them where they were last.
-- LightSys's `Light()` is always at the origin (the caller translates it),
-  always fades as the square of the distance (`fade_power 2`, with
-  `fade_distance` from `Lightsys_Scene_Scale`), and its only spotlight is a
-  cosine fall-off over a hemisphere.
-- `v` already has the pattern `addConstraint`/`removeConstraint`,
-  `addShortcut`/`removeShortcut`.
+1. **The Lua side: classes**, `PointLight(...)`, `SpotLight(...)` and the
+   rest, added with `v:add` and taken out with `v:remove`, as objects are.
+2. **LightSys: yes.** A light takes `lumens` and a LightSys colour and is
+   written through LightSys's own macros, so a render matches the original.
+3. **The old two lights: as proposed.** A script that adds no lights gets
+   `v.glLight0`/`glLight1` exactly as now (golden and screens unchanged).
+   One that adds lights gets only its own, in the view and in the render
+   (`settings.inc` makes none of its lights when the export declares
+   `BPP_Lights`); `v.glAmbient` stays.
+4. **More than 8: as proposed.** Every light in POV-Ray; in the view, the
+   8 that light the camera's position most (power after fall-off), chosen
+   again each frame.
+5. **The source:** the LightSys IV archive,
+   http://www.ignorancia.org/uploads/zips/lightsys4d.zip (Bill attached it
+   to the chat; ignorancia.org can't be reached from the build machine).
 
-### The API sketch to agree on
+### What the archive showed
 
-```lua
-local lamp = v:addLight{
-  type = "spot",               -- "point", "spot", "cylinder", "parallel", "area"
-  pos = btVector3(0, 250, 0),
-  point_at = btVector3(0, 0, 0), -- spot, cylinder, parallel (and area: its orientation)
-  col = "#fff4e0",             -- as an object's col; or lumens + LightSys colour (2)
-  power = 1,                   -- multiplies col
-  radius = 20, falloff = 30, tightness = 10,              -- spot, cylinder
-  axis1 = btVector3(40, 0, 0), axis2 = btVector3(0, 0, 40), -- area
-  n1 = 4, n2 = 4, adaptive = 1, jitter = true, circular = false, orient = false,
-  fade_distance = 100, fade_power = 2,
-  shadowless = false,
-  looks_like = bulb,           -- an Object, drawn in the view as well
-}
-lamp.pos = btVector3(0, 240, 0) -- every key is also a property, live
-v:removeLight(lamp)
-```
+`LightsysIV/demos/` has two indoor scenes, and `templates/` a third,
+smaller one:
 
-Names are POV-Ray's where it has one, so the manual reads across. A light
-added this way is written into each frame's include, so it moves in an
-animation (unlike the old two).
+- **`demo_indoor1.pov`** (Jaime Vives Piqueres, 2003; "usage demo for
+  indoor scenes" in its readme): a room about 300 × 250 × 400 units
+  (centimetres), lit by a table lamp, a fluorescent panel on the ceiling,
+  a halogen spot in a corner and a skylight in the window (off by
+  default). Radiosity on; `Lightsys_Brightness = 1/6`,
+  `Lightsys_ExposureFake = 1`; sRGB with a D55 white point.
+- **`demo_indoor2.pov`** (Ive, 2003): a larger room with chairs, a
+  Mondrian-style material map and an LP whose sleeve is the album cover
+  `cyndi.png`, which bpp shouldn't ship.
+- **`templates/LightsysIV indoor scene.txt`**: a box room, one `Light()`,
+  a sphere.
 
-### The questions
+Taken to be `demo_indoor1.pov` unless Jakob says otherwise. Its lights,
+in POV-Ray's coordinates (bpp's z is the negative):
 
-1. **The Lua side.** Is the sketch above right: `v:addLight{...}` returning
-   a `Light` that can be moved and changed, and `v:removeLight`? Or
-   classes (`PointLight(...)`, `SpotLight(...)` ...) added with `v:add`?
-   (`v:add` is for objects with a body; a light has none, so `addLight`
-   fits beside `addConstraint`.) Should a light follow a body, as a
-   decoration does with `v:attach` (a lamp on a moving cart)?
-   *Proposed:* the sketch; following a body later, if a scene needs it.
-   And `PovLight`: replace it with `Light` (`PovScriptWriter:addLight`
-   taking one), so there is one light type, not two? Nothing uses it, but
-   it is in the API listing, so removing it is a visible change.
-   *Proposed:* replace it.
-2. **LightSys in it.** The indoor scene is lit with LightSys: colour from a
-   lamp type or temperature, strength in lumens. Should a light take
-   `lumens` and a LightSys colour (`lightsys = "Cl_..."` or `kelvin =
-   2700`) and be exported through `Light()`, so a render matches the
-   original? `Light()` fixes the fall-off at inverse square; a light with
-   `lumens` would then take no `fade_distance`/`fade_power` of its own, and
-   the view would preview that inverse square. *Proposed:* yes, both ways
-   on one class: `col`/`power` writes a plain `light_source`, `lumens`
-   writes `Light()` (and pulls in the LightSys includes, as `use_lightsys`
-   does now).
-3. **The old two lights.** They must keep working for the five scripts
-   above. *Proposed:* a script that adds no lights gets the two exactly as
-   now (golden and screens unchanged). One that adds lights gets only its
-   own, in the view and in the render (`settings.inc` skips its two when
-   the export declares that the scene has lights); `v.glAmbient` stays.
-   Or are the two kept as fill when lights are added? Jakob's choice.
-4. **More than 8.** An indoor scene may have more lights than OpenGL
-   shows. *Proposed:* every light in POV-Ray; in the view, the 8 that
-   light the camera's position most (power after fall-off), chosen again
-   each frame. Or nearest the camera, or the first 8 added?
-5. **Which light casts the shadow** in the view (the shadow map has one)?
-   *Proposed:* the brightest light at the camera that isn't `shadowless`,
-   unless the script names one (`v.shadowLight = lamp`).
-6. **How close the view should look.** LightSys interiors are usually lit
-   largely by radiosity (light bouncing off the walls), which the view
-   can't show; there it would be direct light and `glAmbient`. So the
-   checks in steps 3–5 compare where the light falls and how it fades, not
-   overall brightness. Is that the bar Jakob means by "previewed"?
-7. **Lights in the galleries.** Should an exhibit be able to add its own
-   lights, switched on as you step in and off as you leave, turned with
-   its bay? The proxy for `v` would have to pass `addLight` through and
-   keep track of them. *Proposed:* not in this work; the galleries keep
-   their two lights.
-8. **The indoor scene's source.** ignorancia.org redirected in a loop when
-   this was written, so nobody here has seen the scene files. Ask Jakob or
-   Bill to attach the LightSys archive (it has the demo scenes) to the chat;
-   don't model the room from memory or from pictures. And its units: LightSys
-   scenes set `Lightsys_Scene_Scale` for theirs, and the inverse-square
-   fall-off depends on it; keep the original's units in the demo, or scale
-   it to bpp's usual size? *Proposed:* keep the original's, so its
-   lumens and fall-off stay as they were.
+| Light | Kind | Lumens, colour | Area | Other |
+|-------|------|----------------|------|-------|
+| table lamp, <120,80,155> | point | 420, `ES_Incandescent_60w` | 9×9, 4×4, circular, orient | |
+| ceiling panel, <0,245.9,0> | spot via `Light(..., Cfall = 1)`: radius −89.9, falloff 89.9, tightness 1, down | 900·4·π/2, `ES_Cool_White_Fluor` | 15×15, 5×5 | |
+| halogen, <−130,249.9,175> | spot, radius 15, falloff 45, tightness 0, down | 1000, `ES_Solux_Halog4700K` | 9×9, 4×4, circular | |
+| skylight (off) | spot, radius 90, falloff 90, sideways | 1200, `Daylight(7500)` | 48×56, 6×7 | |
+
+What this means for the classes:
+
+- **Area is a modifier, not only a kind.** Two of the spots are area
+  lights too. So every light takes the area settings (`axis1`, `axis2`,
+  `n1`, `n2`, `adaptive`, `jitter`, `circular`, `orient`; area when
+  `n1`·`n2` > 1), and `AreaLight` is the point light that has them set
+  from the start: still five classes, as Jakob asked.
+- **A LightSys light is `light_source { Light_Color(colour, lumens) ...
+  Light_Fading() }`**, which is all `Light()` is; two of the four lamps
+  are written that way by hand, because `Light()` has no spot of its own.
+  bpp writes that form for every kind, so a spot can take lumens too
+  (parallel lights get no fading, as LightSys's sun has none).
+- **The scene-wide LightSys settings** (`Lightsys_Brightness`, the
+  colour system, the `Cl_` colours it declares) are SDL, and go in
+  `v.pre_sdl`, which the frame writes before its lights.
+- **Every lamp's glow is a separate object**: a shade or bulb filled with
+  emitting media, `no_shadow`, beside its light. That is the scene's
+  modelling, for step 5, not part of the light.
+- The room is in centimetres with `Lightsys_Scene_Scale` unset (1); the
+  demo keeps those units, so lumens and fall-off stay as they were.
+
+### Still open (proposals taken until Jakob says otherwise)
+
+- **`PovLight`** (unused, but in the API listing): left as it is for
+  now; replacing it with the new classes is a separate change.
+- **The shadow in the view:** the brightest light at the camera that
+  isn't `shadowless`. (Step 3.)
+- **How close the view looks:** no radiosity there, so steps 3–5 compare
+  where light falls and how it fades, not overall brightness.
+- **Lights in the galleries' exhibits:** not in this work.
+- **A light following a body** (`v:attach`): later, if a scene needs it.
+- **`looks_like` and `projected_through`** take an object, which the view
+  draws too (step 4), so they come with step 4.
 
 ## Plan
 
@@ -193,10 +171,11 @@ Deliver each step as a patch on test-harness, with the git commands, the
 way the galleries' work went.
 
 1. **Questions** above, answered; write the answers into this file.
-   *Check:* Jakob agrees with the API sketch.
-2. **The light class, and POV-Ray export.** The class and `v:addLight` (or
-   whatever step 1 chose), each light written as its `light_source` (or
-   LightSys `Light()`), the old two untouched when no light is added.
+   *Check:* Jakob agrees with the API sketch. *Done* (above).
+2. **The light classes, and POV-Ray export.** `PointLight`, `SpotLight`,
+   `CylinderLight`, `ParallelLight`, `AreaLight`, added with `v:add`, each
+   light written as its `light_source` (or LightSys's `Light_Color()` and
+   `Light_Fading()`), the old two untouched when no light is added.
    *Check:* unit tests on the written POV text for each kind and modifier;
    the Lua API snapshot (`tests/api`) updated; the golden and smoke suites
    unchanged.
