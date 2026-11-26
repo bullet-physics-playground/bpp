@@ -196,6 +196,29 @@ way the galleries' work went.
    side by side, by eye (`tests/render` only checks how bpp calls POV-Ray,
    with a stand-in, so a real POV-Ray is needed here): the same lit areas
    and fall-off; screenshots with shadows on and off agree.
+   *Done:* `src/lightpreview.*` (the mapping, in its header) and the
+   shadow map's shader; `tests/screens/lights.lua` and
+   `lights-noshadow.lua`. What it came to:
+   - A script with lights of its own is drawn by the shader with shadows
+     off too. The fixed-function pipeline lights each corner and blends
+     between them, and a spot's pool on a floor of four corners vanished.
+     Now shadows on and off differ only by the shadow. A script with no
+     lights is drawn as before, pixel for pixel.
+   - The shadow is cast by one light (the strongest at the camera that
+     isn't `shadowless`), and as the shadow map has always done it: from
+     the light's direction across the whole scene, so a lamp in a room
+     casts parallel shadows, not ones that spread from it.
+   - The ambient light the view had with its two lights stays, standing
+     in for what radiosity bounces round; `v.glAmbient` and
+     `v.glModelAmbient` turn it down. (Both take a number: the second
+     binding of each, the grey level, hides the colour one.)
+   - A LightSys light's hue in the view comes from `col` (the view can't
+     evaluate `lightsys`), and `Lightsys_Brightness` is taken as 1.
+   - Compared with POV-Ray 3.8 (built from source) rendering the export:
+     the same pool, the same glow on the wall, fading alike. POV-Ray's dim
+     areas are lighter, as in every bpp scene: it renders gamma-corrected
+     (`assumed_gamma 1.0`), the view doesn't.
+
 4. **Cylindrical and area previews, shadowless, `looks_like`, light
    markers.** *Check:* the same comparison for each.
 5. **The indoor scene**, rebuilt from its source as a demo, lights and all.

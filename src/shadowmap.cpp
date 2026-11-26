@@ -101,11 +101,13 @@ static const char *kVertexShader =
     "}\n";
 
 // The material's emission (an object's glow, see Object::setEmission()),
-// two lights, ambient plus diffuse from gl_Color (which is what
+// the lights (v.glLight0 and glLight1, or up to 8 of the script's own, with
+// their fall-off and spot cones: setLights()), ambient plus diffuse from gl_Color (which is what
 // glColorMaterial(GL_AMBIENT_AND_DIFFUSE) makes the fixed-function pipeline
 // use) and specular from the material, then unit 0's texture modulated over
-// the top the way GL_MODULATE did. Only light 0 is shadowed; light 1 is the
-// fill light and has no depth map of its own.
+// the top the way GL_MODULATE did. One light is shadowed (uShadowLight:
+// light 0, the main light, unless the script has lights of its own); the
+// others have no depth map.
 //
 // Unlike the fixed-function path this turns the normal to face the eye where
 // the eye sees the back of a surface, as GL_LIGHT_MODEL_TWO_SIDE would:
@@ -124,6 +126,8 @@ static const char *kFragmentShader =
     "uniform bool uUseShadow;\n"
     "uniform float uDarkness;\n"
     "uniform float uTexelStep;\n"
+    "uniform int uLights;\n"
+    "uniform int uShadowLight;\n"
     "varying vec3 vNormal;\n"
     "varying vec3 vEye;\n"
     "varying vec4 vShadowCoord;\n"
@@ -154,10 +158,29 @@ static const char *kFragmentShader =
     "  float lit = mix(1.0 - uDarkness, 1.0, lightReaching());\n"
     "  vec3 col = gl_FrontMaterial.emission.rgb +\n"
     "             gl_LightModel.ambient.rgb * base.rgb;\n"
-    "  for (int i = 0; i < 2; i++) {\n"
+    "  for (int i = 0; i < 8; i++) {\n"
+    "    if (i >= uLights) break;\n"
     "    vec4 lp = gl_LightSource[i].position;\n"
-    "    vec3 L = (lp.w == 0.0) ? normalize(lp.xyz)\n"
-    "                           : normalize(lp.xyz / lp.w - vEye);\n"
+    "    vec3 L;\n"
+    "    // the fixed-function pipeline's fall-off and spot cone (1.0 for\n"
+    "    // v.glLight0 and glLight1, which have neither)\n"
+    "    float f = 1.0;\n"
+    "    if (lp.w == 0.0) {\n"
+    "      L = normalize(lp.xyz);\n"
+    "    } else {\n"
+    "      vec3 toL = lp.xyz / lp.w - vEye;\n"
+    "      L = normalize(toL);\n"
+    "      float dist = length(toL);\n"
+    "      f = 1.0 / (gl_LightSource[i].constantAttenuation +\n"
+    "                 gl_LightSource[i].linearAttenuation * dist +\n"
+    "                 gl_LightSource[i].quadraticAttenuation * dist * dist);\n"
+    "      if (gl_LightSource[i].spotCutoff <= 90.0) {\n"
+    "        float sd = dot(-L, normalize(gl_LightSource[i].spotDirection));\n"
+    "        float e = gl_LightSource[i].spotExponent;\n"
+    "        if (sd < gl_LightSource[i].spotCosCutoff) f = 0.0;\n"
+    "        else if (e > 0.0) f *= pow(sd, e);\n"
+    "      }\n"
+    "    }\n"
     "    float ndl = max(dot(N, L), 0.0);\n"
     "    vec3 d = gl_LightSource[i].diffuse.rgb * base.rgb * ndl;\n"
     "    vec3 s = vec3(0.0);\n"
@@ -169,8 +192,8 @@ static const char *kFragmentShader =
     "      float hl = sh > 0.0 ? pow(max(dot(N, H), 0.0), sh) : 1.0;\n"
     "      s = gl_LightSource[i].specular.rgb * gl_FrontMaterial.specular.rgb * hl;\n"
     "    }\n"
-    "    col += gl_LightSource[i].ambient.rgb * base.rgb;\n"
-    "    col += (i == 0 ? lit : 1.0) * (d + s);\n"
+    "    col += f * gl_LightSource[i].ambient.rgb * base.rgb;\n"
+    "    col += f * (i == uShadowLight ? lit : 1.0) * (d + s);\n"
     "  }\n"
     "  float alpha = base.a;\n"
     "  if (uUseTexture) {\n"
@@ -590,7 +613,9 @@ bool ShadowMap::bind(const double cameraModelView[16]) {
   _prog->setUniformValue("uTexture", GLint(0));
   _prog->setUniformValue("uShadowMap", GLint(1));
   _prog->setUniformValue("uUseTexture", GLint(0));
-  _prog->setUniformValue("uUseShadow", GLint(_haveDepth ? 1 : 0));
+  _prog->setUniformValue("uUseShadow", GLint(_haveDepth && _shadowLightIndex >= 0 ? 1 : 0));
+  _prog->setUniformValue("uLights", GLint(_lightCount));
+  _prog->setUniformValue("uShadowLight", GLint(_shadowLightIndex));
   _prog->setUniformValue("uDarkness", float(_darkness));
   _prog->setUniformValue("uTexelStep", float(_softness / _size));
   _prog->setUniformValue("uShadowMatrix", _lightMatrix * camera.inverted());

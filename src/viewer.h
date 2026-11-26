@@ -676,6 +676,11 @@ public:
    */
   void addObjectLua(const luabind::object &o);
 
+  /// The script's lights as GL's lights 0 to 7 (viewerdraw.cpp).
+  void useScriptLights();
+  /// A GL light with no cone and no fall-off, as GL starts it.
+  void lightPlain(GLenum light);
+
   /**
    * @brief Frees removed objects the script has let go of.
    *
@@ -2397,6 +2402,9 @@ private:
   /// Lights v:add added, in that order, each with the script's handle to it
   /// (which keeps it alive; dropped in closeScript() and by v:remove).
   std::vector<std::pair<Light *, luabind::object>> _lights;
+  /// The light that casts the shadow, as glLightfv(GL_POSITION) takes it:
+  /// v.glLight0, or the script's light useScriptLights() chose.
+  btVector4 _shadowLight;
   OrderedSet<btTypedConstraint *> _detached; ///< Constraints taken out of the
                                              ///< world with an object they
                                              ///< join (see removeObject()).

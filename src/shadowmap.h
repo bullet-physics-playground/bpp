@@ -185,6 +185,15 @@ public:
   bool bind(const double cameraModelView[16]);
 
   /**
+   * @brief How many GL lights (0 up) the shader lights with, and which of
+   * them is shadowed: v.glLight0 and glLight1 (2, 0), or the script's own
+   * lights (up to 8; @p shadow -1 when every one is shadowless). For bind().
+   */
+  void setLights(int count, int shadow) { _lightCount = count; _shadowLightIndex = shadow; }
+  /// Whether a light casts the shadow (setLights()).
+  bool hasShadowLight() const { return _shadowLightIndex >= 0; }
+
+  /**
    * @brief Unbinds the shader and the depth map bound by bind().
    */
   void release();
@@ -196,6 +205,8 @@ private:
   void destroy();
 
   int _size;         ///< Depth texture resolution, @see setMapSize().
+  int _lightCount = 2;       ///< GL lights the shader lights with, @see setLights().
+  int _shadowLightIndex = 0;  ///< The one shadowed (-1: none), @see setLights().
   double _softness;  ///< PCF radius in texels, @see setSoftness().
   double _darkness;  ///< Shadow strength, @see setDarkness().
 

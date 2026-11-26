@@ -45,6 +45,7 @@ it holds as a member:
 | `decorations.cpp` | `_decorations` | look-only objects that follow a body (`v:attach`) |
 | `culling.cpp`, `shadowmap.cpp`, `shadowrecord.cpp`, `screenmerge.cpp` | `_shadowRecord`, `_merge` | drawing fast: culling, shadows, recorded shadow lists, merged vertex buffers |
 | `constraintdraw.cpp` | | the joint markers of `v.showConstraints` |
+| `lightpreview.cpp` | | how the view shows a script's lights (`PointLight` ...): each as a GL light, the 8 that light the camera most |
 | `povexport.cpp` | | the files a POV-Ray export writes (`Viewer::savePOV` calls it) |
 | `bppworld.cpp` | | bpp's Bullet world, with threads (`v:setThreads`) |
 

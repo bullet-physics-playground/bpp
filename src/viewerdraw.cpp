@@ -8,6 +8,7 @@
  */
 
 #include "viewer.h"
+#include "lightpreview.h"
 #include "viewer_p.h"
 
 #include "constraintdraw.h"
@@ -148,6 +149,56 @@ void Viewer::init() {
   camera()->frame()->setSceneUpVector(_initialCameraUpVector);
 }
 
+// A fixed-function light back as GL starts it: no cone, no fall-off.
+void Viewer::lightPlain(GLenum light) {
+  const GLfloat down[3] = {0.0f, 0.0f, -1.0f};
+  glLightf(light, GL_SPOT_CUTOFF, 180.0f);
+  glLightf(light, GL_SPOT_EXPONENT, 0.0f);
+  glLightfv(light, GL_SPOT_DIRECTION, down);
+  glLightf(light, GL_CONSTANT_ATTENUATION, 1.0f);
+  glLightf(light, GL_LINEAR_ATTENUATION, 0.0f);
+  glLightf(light, GL_QUADRATIC_ATTENUATION, 0.0f);
+}
+
+// The script's lights (v:add): the 8 lighting the camera most, as GL's
+// lights 0 to 7, in that order (the shadow map's shader reads them the
+// same way), and the strongest not shadowless casts the shadow
+// (lightpreview.h). Called with the camera's matrices loaded, so the
+// positions and directions are the world's.
+void Viewer::useScriptLights() {
+  std::vector<const Light *> all;
+  for (const auto &kept : _lights)
+    all.push_back(kept.first);
+  const qglviewer::Vec e = camera()->position();
+  int shadow = -1;
+  const std::vector<const Light *> shown =
+      LightPreview::pick(all, btVector3(e.x, e.y, e.z), 8, shadow);
+
+  const GLfloat none[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+  for (int i = 0; i < 8; ++i) {
+    const GLenum light = GL_LIGHT0 + i;
+    LightPreview::GL g;
+    if (i >= (int)shown.size() || !LightPreview::toGL(*shown[i], g)) {
+      glDisable(light);
+      continue;
+    }
+    glLightfv(light, GL_AMBIENT, none);
+    glLightfv(light, GL_DIFFUSE, g.diffuse);
+    glLightfv(light, GL_SPECULAR, g.diffuse);
+    glLightfv(light, GL_POSITION, g.position);
+    glLightfv(light, GL_SPOT_DIRECTION, g.spotDirection);
+    glLightf(light, GL_SPOT_CUTOFF, g.spotCutoff);
+    glLightf(light, GL_SPOT_EXPONENT, g.spotExponent);
+    glLightf(light, GL_CONSTANT_ATTENUATION, g.constant);
+    glLightf(light, GL_LINEAR_ATTENUATION, g.linear);
+    glLightf(light, GL_QUADRATIC_ATTENUATION, g.quadratic);
+    glEnable(light);
+    if (i == shadow)
+      _shadowLight = btVector4(g.position[0], g.position[1], g.position[2], g.position[3]);
+  }
+  _shadowMap->setLights((int)shown.size(), _shadows ? shadow : -1);   // (drawn by the shader either way)
+}
+
 void Viewer::draw() {
   if (_frameTimingMs > 0)
     frameMark(FM_PAINT);
@@ -199,6 +250,13 @@ void Viewer::draw() {
   light_diffuse0[3] = light_specular0[3] = 1.0f;
   light_diffuse1[3] = light_specular1[3] = 1.0f;
 
+  // The ambient light: with the two lights, each one's (v.glAmbient) and the
+  // model's (v.glModelAmbient); with the script's own lights, the same total
+  // on the model alone, standing in for the light radiosity bounces round.
+  GLfloat model_ambient[4] = {_gl_model_ambient.x(), _gl_model_ambient.y(),
+                              _gl_model_ambient.z(), _gl_model_ambient.w()};
+
+  if (_lights.empty()) {
   glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse0);
   glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular0);
@@ -209,9 +267,22 @@ void Viewer::draw() {
   glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular1);
   glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
 
+  for (int i = 0; i < 2; ++i)             // (as GL starts: a script with lights may have changed them)
+    lightPlain(GL_LIGHT0 + i);
+  for (int i = 2; i < 8; ++i)
+    glDisable(GL_LIGHT0 + i);
+  _shadowLight = _light0;
+  _shadowMap->setLights(2, 0);
+
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
+  } else {
+    for (int i = 0; i < 3; ++i)
+      model_ambient[i] += 2 * light_ambient[i];
+    useScriptLights();
+    glEnable(GL_LIGHTING);
+  }
 
   glEnable(GL_COLOR_MATERIAL);
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -222,7 +293,7 @@ void Viewer::draw() {
 
   glClearColor(btScalar(0), btScalar(0), btScalar(0), btScalar(1.0));
 
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, _gl_model_ambient);
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, model_ambient);
 
   glMaterialfv(GL_FRONT, GL_AMBIENT, _gl_ambient);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, _gl_diffuse);
@@ -341,8 +412,14 @@ void Viewer::drawSceneInternal(int pass) {
   // light's, which takes the inverse of the camera's view matrix - and that is
   // exactly what is loaded right now, before any object pushes its own
   // transform on top.
+  //
+  // The script's own lights are drawn by the shader with shadows off too:
+  // the fixed-function pipeline lights each corner and blends between them,
+  // and a spot's pool or a lamp's fall-off across a floor of four corners
+  // vanishes (the shader lights each pixel). Then shadows on and off differ
+  // only by the shadow.
   bool shaded = false;
-  if (_shadows) {
+  if (_shadows || !_lights.empty()) {
     GLdouble camModelView[16];
     glGetDoublev(GL_MODELVIEW_MATRIX, camModelView);
     shaded = _shadowMap->bind(camModelView);
@@ -425,16 +502,16 @@ void Viewer::cullObjects() {
   if (!_culled)
     return;
 
-  Culling::cull(*_objects, camera(), _shadows, _light0, _shadowMap);
+  Culling::cull(*_objects, camera(), _shadows, _shadowLight, _shadowMap);
 }
 
 void Viewer::renderShadowDepth() {
-  if (!_shadows)
+  if (!_shadows || !_shadowMap->hasShadowLight())   // (every light shadowless)
     return;
 
   const qglviewer::Vec c = camera()->sceneCenter();
 
-  if (!_shadowMap->renderDepthBegin(_light0, btVector3(c.x, c.y, c.z),
+  if (!_shadowMap->renderDepthBegin(_shadowLight, btVector3(c.x, c.y, c.z),
                                     camera()->sceneRadius())) {
     return;
   }
