@@ -734,7 +734,8 @@ def suite_render(ctx):
     print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "quick.lua", r.seconds))
     for w in why:
         print("         " + w)
-    return int(bool(why)) + render_disk_full(ctx, env) + render_menu_settings(ctx, env)
+    return (int(bool(why)) + render_disk_full(ctx, env) + render_menu_settings(ctx, env)
+            + render_lights(ctx, env))
 
 
 def render_menu_settings(ctx, env):
@@ -757,7 +758,50 @@ def render_menu_settings(ctx, env):
             why.append("no '%s' before the include" % want)
     if "#declare export" in text:
         why.append("declared povray/export")
+    if "BPP_Lights" in text:
+        why.append("declared BPP_Lights with no lights added")
     print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "quick.lua -e, menu settings", r.seconds))
+    for w in why:
+        print("         " + w)
+    return int(bool(why))
+
+
+def render_lights(ctx, env):
+    """A scene with lights of its own (PointLight ... v:add; LIGHTS.md),
+    exported: the .pov declares BPP_Lights before settings.inc, which then
+    makes none of its own, and pulls in LightSys after it (the halogen has
+    lumens); each frame's .inc holds the lights, before the objects, where
+    they are on that frame (the lamp moves 10 a frame), and not the light
+    the script took out."""
+    wd = ctx.workdir("render-lights")
+    r = run_bpp(ctx.bpp, ["-f", "lights.lua", "-n", "3", "-e"], wd, 120, RENDER, env)
+    why = lua_errors(r.lines())[:5]
+    scene = os.path.join(wd, "export", "lights")
+    pov = os.path.join(scene, "lights.pov")
+    text = open(pov).read() if os.path.exists(pov) else ""
+    inc = text.find('#include "settings.inc"')
+    at = text.find("#declare BPP_Lights = 1;")
+    if inc < 0:
+        why.append("no settings.inc included")
+    if at < 0 or at > inc:
+        why.append("no BPP_Lights declared before settings.inc")
+    ls = text.find('#include "bpp_lightsys.inc"')
+    if ls < inc:
+        why.append("LightSys not pulled in after settings.inc")
+    for n in (1, 3):
+        fn = os.path.join(scene, "%05d.inc" % n)
+        frame = open(fn).read() if os.path.exists(fn) else ""
+        if frame.count("light_source {") != 2:
+            why.append("%05d.inc: %d lights, not 2" % (n, frame.count("light_source {")))
+        if "<%d, 100, 0>" % (10 * n) not in frame:
+            why.append("%05d.inc: the lamp not at <%d, 100, 0>" % (n, 10 * n))
+        if "Light_Color(<1, 1, 1>, 1000)" not in frame:
+            why.append("%05d.inc: the halogen not a LightSys light" % n)
+        if "777" in frame:
+            why.append("%05d.inc: holds the light taken out" % n)
+        if frame.find("light_source") > frame.find("sphere"):
+            why.append("%05d.inc: the lights not before the objects" % n)
+    print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "lights.lua -e", r.seconds))
     for w in why:
         print("         " + w)
     return int(bool(why))

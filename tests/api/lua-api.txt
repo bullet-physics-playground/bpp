@@ -1,3 +1,26 @@
+class AreaLight
+  .adaptive
+  .axis1
+  .axis2
+  .circular
+  .col
+  .fade_distance
+  .fade_power
+  .jitter
+  .lightsys
+  .lumens
+  .media_attenuation
+  .media_interaction
+  .n1
+  .n2
+  .orient
+  .pos
+  .power
+  .shadowless
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,Light const&)
+  toPOV: custom [QString] toPOV(Light const&)
 class BezierPatch
   .body
   .bound_shape
@@ -459,6 +482,33 @@ class Cylinder
   setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
   setRigidBody: void setRigidBody(Object&,luabind::object const&)
   toPOV: custom [QString] toPOV(Object const&)
+class CylinderLight
+  .adaptive
+  .axis1
+  .axis2
+  .circular
+  .col
+  .fade_distance
+  .fade_power
+  .falloff
+  .jitter
+  .lightsys
+  .lumens
+  .media_attenuation
+  .media_interaction
+  .n1
+  .n2
+  .orient
+  .point_at
+  .pos
+  .power
+  .radius
+  .shadowless
+  .tightness
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,Light const&)
+  toPOV: custom [QString] toPOV(Light const&)
 class DemBed
   __init: void __init(luabind::argument const&)
   angle: custom [double] angle(DemBed&,int)
@@ -662,6 +712,27 @@ class LayerManager
   removeLayer: void removeLayer(LayerManager&,Layer*,Layer*)
   removeObject: void removeObject(LayerManager&,Object*)
   setActiveLayer: void setActiveLayer(LayerManager&,Layer*)
+class Light
+  .adaptive
+  .axis1
+  .axis2
+  .circular
+  .col
+  .fade_distance
+  .fade_power
+  .jitter
+  .lightsys
+  .lumens
+  .media_attenuation
+  .media_interaction
+  .n1
+  .n2
+  .orient
+  .pos
+  .power
+  .shadowless
+  __tostring: void __tostring(lua_State*,Light const&)
+  toPOV: custom [QString] toPOV(Light const&)
 class Mesh
   .body
   .bound_shape
@@ -848,6 +919,30 @@ class Palette
   __tostring: void __tostring(lua_State*,Palette const&)
   getRandomColor: QColor getRandomColor(Palette&)
   setSeed: void setSeed(Palette&,int)
+class ParallelLight
+  .adaptive
+  .axis1
+  .axis2
+  .circular
+  .col
+  .fade_distance
+  .fade_power
+  .jitter
+  .lightsys
+  .lumens
+  .media_attenuation
+  .media_interaction
+  .n1
+  .n2
+  .orient
+  .point_at
+  .pos
+  .power
+  .shadowless
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,Light const&)
+  toPOV: custom [QString] toPOV(Light const&)
 class Patch
   .body
   .bound_shape
@@ -974,6 +1069,29 @@ class Plane
   setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
   setRigidBody: void setRigidBody(Object&,luabind::object const&)
   toPOV: custom [QString] toPOV(Object const&)
+class PointLight
+  .adaptive
+  .axis1
+  .axis2
+  .circular
+  .col
+  .fade_distance
+  .fade_power
+  .jitter
+  .lightsys
+  .lumens
+  .media_attenuation
+  .media_interaction
+  .n1
+  .n2
+  .orient
+  .pos
+  .power
+  .shadowless
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,Light const&)
+  toPOV: custom [QString] toPOV(Light const&)
 class PovLight
   .color
   .direction
@@ -1292,6 +1410,33 @@ class Sphere
   setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
   setRigidBody: void setRigidBody(Object&,luabind::object const&)
   toPOV: custom [QString] toPOV(Object const&)
+class SpotLight
+  .adaptive
+  .axis1
+  .axis2
+  .circular
+  .col
+  .fade_distance
+  .fade_power
+  .falloff
+  .jitter
+  .lightsys
+  .lumens
+  .media_attenuation
+  .media_interaction
+  .n1
+  .n2
+  .orient
+  .point_at
+  .pos
+  .power
+  .radius
+  .shadowless
+  .tightness
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,Light const&)
+  toPOV: custom [QString] toPOV(Light const&)
 class StatisticsVisitor
   .groups
   .lights

@@ -161,6 +161,7 @@ void Viewer::closeScript() {
   _cb_cycleObject = luabind::object();
   _cb_onSpaceNavigator = luabind::object();
   _hover.clear();
+  _lights.clear();                   // (their handles: before Lua closes)
 
   _params.releaseLua();
 
@@ -399,6 +400,7 @@ void Viewer::openLua() {
   RigidSoftContact::luaBind(L);
   SoftBody::luaBind(L);
   Sphere::luaBind(L);
+  Light::luaBind(L);
   Terrain::luaBind(L);
   Triangle::luaBind(L);
   DemBed::luaBind(L);

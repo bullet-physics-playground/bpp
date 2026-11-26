@@ -59,7 +59,9 @@ The rest of `src/`:
   a Bullet body and shape, colour and texture, drawing
   (`renderInLocalFrame`) and POV-Ray export (`toPOV`). `Cube`, `Sphere`,
   `Mesh`, `OpenSCAD`, `SoftBody` and the rest each add a shape. `Cam` is
-  the camera.
+  the camera. `light.{h,cpp}` holds POV-Ray's light sources (`PointLight`,
+  `SpotLight` ...): not objects, as they have no body, but added with
+  `v:add` too, and written into each exported frame (LIGHTS.md).
 - `lua_bullet*.cpp`: Bullet's own classes for scripts (`btVector3`,
   `btRigidBody`, the joints ...). The registrations are split into four
   files only to shorten the build (`lua_bullet_p.h`).

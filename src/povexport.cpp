@@ -15,6 +15,7 @@
 
 #include "appenv.h"
 #include "objects/cam.h"
+#include "objects/light.h"
 #include "objects/object.h"
 #include "objects/terrain.h"
 #ifdef HAS_LIB_ASSIMP
@@ -415,6 +416,12 @@ bool writeMain(const QString &path, const QString &byline, const Scene &scene) {
         << scene.diffuse.y() << ", " << scene.diffuse.z() << ">;" << "\n"
         << "\n";
 
+  // The script's own lights are in each frame's include; settings.inc then
+  // makes none of its own.
+  if (scene.lights)
+    smain << "#declare BPP_Lights = 1;" << "\n"
+          << "\n";
+
   // The POV-Ray menu's render settings, those changed from the include's
   // defaults (it declares each one #ifndef), as the lights above.
   for (auto it = scene.declares.constBegin(); it != scene.declares.constEnd(); ++it)
@@ -427,6 +434,21 @@ bool writeMain(const QString &path, const QString &byline, const Scene &scene) {
           << "\n";
   }
 
+  // A LightSys light (one with lumens) is written with LightSys's macros:
+  // the includes settings.inc pulls in with use_lightsys, unless it has.
+  if (scene.lightsys) {
+    smain << "#ifndef (use_lightsys) #declare use_lightsys = 0; #end" << "\n"
+          << "#if (!use_lightsys)" << "\n"
+          << "#include \"bpp_CIE.inc\"" << "\n"
+          << "#include \"bpp_CIE_tools.inc\"" << "\n"
+          << "#include \"bpp_lightsys.inc\"" << "\n"
+          << "#include \"bpp_lightsys_constants.inc\"" << "\n"
+          << "#include \"lightsys_colors.inc\"" << "\n"
+          << "#include \"bpp_espd_lightsys.inc\"" << "\n"
+          << "#end" << "\n"
+          << "\n";
+  }
+
   smain << "#include concat(concat(str(clock,-5,0)),\".inc\")" << "\n"
         << "\n";
   return written(smain, fileMain);
@@ -434,6 +456,7 @@ bool writeMain(const QString &path, const QString &byline, const Scene &scene) {
 
 bool writeFrame(const QString &path, const QString &byline,
                 const QString &preSDL, Cam *cam, qglviewer::Camera *view,
+                const QList<Light *> &lights,
                 const ObjectSet &objects, const QString &postSDL,
                 const QString &sceneDir) {
   QFile file(path);
@@ -493,6 +516,9 @@ bool writeFrame(const QString &path, const QString &byline,
       s << cam->getPreSDL() << "\n";
     }
   }
+
+  for (const Light *l : lights)
+    s << l->toPOV() << "\n";
 
   foreach (Object *o, objects) {
     if (o->getPOVExport()) {

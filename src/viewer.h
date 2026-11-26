@@ -41,6 +41,7 @@
 #include "objects/cam.h"
 
 #include "objects/sphere.h"
+#include "objects/light.h"
 
 #include <unordered_map>
 #include <vector>
@@ -670,7 +671,8 @@ public:
    * a second time would leave the handle pointing at nothing, so an object
    * the script removes and adds again stays usable.
    *
-   * @param o An object, or a table of objects.
+   * @param o An object, or a table of objects. A light (PointLight ...)
+   *          is not taken from Lua: bpp keeps its handle in _lights.
    */
   void addObjectLua(const luabind::object &o);
 
@@ -2392,6 +2394,9 @@ private:
 
   ObjectSet *_objects;                       ///< Every object in the scene, in the order added.
   QSet<Object *> _takenFromLua;              ///< Objects v:add took from Lua.
+  /// Lights v:add added, in that order, each with the script's handle to it
+  /// (which keeps it alive; dropped in closeScript() and by v:remove).
+  std::vector<std::pair<Light *, luabind::object>> _lights;
   OrderedSet<btTypedConstraint *> _detached; ///< Constraints taken out of the
                                              ///< world with an object they
                                              ///< join (see removeObject()).

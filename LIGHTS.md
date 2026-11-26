@@ -136,7 +136,7 @@ What this means for the classes:
 - **Area is a modifier, not only a kind.** Two of the spots are area
   lights too. So every light takes the area settings (`axis1`, `axis2`,
   `n1`, `n2`, `adaptive`, `jitter`, `circular`, `orient`; area when
-  `n1`·`n2` > 1), and `AreaLight` is the point light that has them set
+  `n1` and `n2` are both above 0), and `AreaLight` is the point light that has them set
   from the start: still five classes, as Jakob asked.
 - **A LightSys light is `light_source { Light_Color(colour, lumens) ...
   Light_Fading() }`**, which is all `Light()` is; two of the four lamps
@@ -178,7 +178,8 @@ way the galleries' work went.
    `Light_Fading()`), the old two untouched when no light is added.
    *Check:* unit tests on the written POV text for each kind and modifier;
    the Lua API snapshot (`tests/api`) updated; the golden and smoke suites
-   unchanged.
+   unchanged. *Done:* `src/objects/light.*`, `tests/35-lights.lua`,
+   `tests/render/lights.lua`; `looks_like`/`projected_through` moved to step 4.
 3. **Point, spot and parallel in the view**, fixed-function and the shadow
    shader alike, with attenuation.
    *Check:* a test scene with one of each, compared with its POV-Ray render

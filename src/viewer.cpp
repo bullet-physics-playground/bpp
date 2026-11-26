@@ -219,6 +219,16 @@ void Viewer::addObjectLua(const luabind::object &handle) {
     addObjectList(handle);
     return;
   }
+  // (a light stays the script's: bpp only holds on to its handle)
+  if (boost::optional<Light *> l = luabind::object_cast_nothrow<Light *>(handle)) {
+    if (*l == nullptr)
+      return;
+    for (const auto &kept : _lights)
+      if (kept.first == *l)
+        return;
+    _lights.emplace_back(*l, handle);
+    return;
+  }
   Object *o = luabind::object_cast<Object *>(handle);
   if (o == nullptr)
     return;
@@ -337,6 +347,14 @@ static void setRemovedEntry(lua_State *L, Object *o, const luabind::object *hand
 }
 
 luabind::object Viewer::removeObjectLua(const luabind::object &handle) {
+  if (boost::optional<Light *> l = luabind::object_cast_nothrow<Light *>(handle)) {
+    for (auto it = _lights.begin(); it != _lights.end(); ++it)
+      if (it->first == *l) {
+        _lights.erase(it);
+        break;
+      }
+    return handle;
+  }
   Object *o = luabind::object_cast<Object *>(handle);
   if (o == nullptr || L == nullptr)
     return handle;
@@ -1683,6 +1701,13 @@ void Viewer::savePOV(bool force) {
   scene.light1 = _light1;
   scene.diffuse = _gl_diffuse;
   scene.settingsInc = _pov_settings_inc;
+  QList<Light *> lights;
+  for (const auto &kept : _lights) {
+    lights.append(kept.first);
+    if (kept.first->lumens > 0)
+      scene.lightsys = true;
+  }
+  scene.lights = !lights.isEmpty();
   if (_settings != nullptr) {
     // (the POV-Ray menu's choices: Gui::writePovraySetting)
     static const QRegularExpression name("^use_\\w+$");
@@ -1706,7 +1731,7 @@ void Viewer::savePOV(bool force) {
   }
 
   _decorations.update();   // (headless runs export without drawing)
-  if (!PovExport::writeFrame(file, byline, mPreSDL, _cam, camera(), *_objects, mPostSDL, sceneDir))
+  if (!PovExport::writeFrame(file, byline, mPreSDL, _cam, camera(), lights, *_objects, mPostSDL, sceneDir))
     unwritable(file);
 }
 

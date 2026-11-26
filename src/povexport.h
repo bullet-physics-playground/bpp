@@ -2,11 +2,13 @@
 #define POVEXPORT_H
 
 #include "orderedset.h"
+#include <QList>
 #include <QString>
 
 #include <LinearMath/btVector3.h>
 
 class Cam;
+class Light;
 class Object;
 namespace qglviewer {
 class Camera;
@@ -63,6 +65,10 @@ struct Scene {
   btVector4 light1;        ///< The view's second light (GL_POSITION).
   btVector4 diffuse;       ///< The view's diffuse light colour.
   QString settingsInc;     ///< The include it pulls in (empty: none).
+  /// The script added lights of its own: settings.inc makes none (BPP_Lights).
+  bool lights = false;
+  /// One of them is a LightSys light: the LightSys includes are pulled in.
+  bool lightsys = false;
   /// Render settings the POV-Ray menu changed (use_rad = 2, ...), declared
   /// before the include, whose own values are the defaults.
   QMap<QString, int> declares;
@@ -79,16 +85,18 @@ QString findSettingsInc(const QString &settingsInc, const QString &startupDir);
 bool writeMain(const QString &path, const QString &byline, const Scene &scene);
 
 /**
- * @brief Writes one frame's @c .inc: the scene's pre-SDL, the camera, every
- * object exported to POV-Ray, and the post-SDL.
+ * @brief Writes one frame's @c .inc: the scene's pre-SDL, the camera, the
+ * script's lights, every object exported to POV-Ray, and the post-SDL.
  * @param cam      The viewer's camera (nullptr: no camera block).
  * @param view     The same camera, as QGLViewer's.
+ * @param lights   The lights the script added (PointLight ...).
  * @param objects  The scene's objects.
  * @param sceneDir The scene directory (meshes and terrains write their data
  *                 files there).
  */
 bool writeFrame(const QString &path, const QString &byline,
                 const QString &preSDL, Cam *cam, qglviewer::Camera *view,
+                const QList<Light *> &lights,
                 const ObjectSet &objects, const QString &postSDL,
                 const QString &sceneDir);
 

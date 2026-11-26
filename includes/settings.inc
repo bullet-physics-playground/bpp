@@ -87,6 +87,11 @@ global_settings {
 // it with full, unscaled white.
 #ifndef (GL_Diffuse) #declare GL_Diffuse = <0.7, 0.7, 0.7>; #end
 
+// A scene whose script adds its own lights (PointLight, SpotLight ... with
+// v:add) has bpp declare BPP_Lights ahead of this file: its lights are in
+// each frame's include, and the lights below (the two above, LightSys's
+// sun and fill) are left out.
+
 #if (use_lightsys)
 
 #include "bpp_CIE.inc"
@@ -103,7 +108,7 @@ global_settings {
 // light is photometric and falls off with the square of it, so putting this
 // one where GL_Light1 actually is would decide its brightness rather than
 // the lumen rating above.
-#if (use_lightsys_light1 = 1)
+#if (use_lightsys_light1 = 1 & !defined(BPP_Lights))
 object {
   Light(
     EmissiveSpectrum(ES_GE_SW_Incandescent_100w),
@@ -149,6 +154,7 @@ CIE_ColorSystemWhitepoint(Beta_ColSys, Blackbody2Whitepoint(Kt_Indoor_Film))
 #declare LM  = Lm_Incandescent_100w;
 #break
 #end
+#ifndef (BPP_Lights)
 #if (use_area_light)
   object {
     Light(LC1, LM, x*40, z*40, on*4, on*4, off)
@@ -160,7 +166,9 @@ CIE_ColorSystemWhitepoint(Beta_ColSys, Blackbody2Whitepoint(Kt_Indoor_Film))
     translate SolarPosition
   }
 #end // use_area_light
+#end // BPP_Lights
 #else // use_lightsys
+#ifndef (BPP_Lights)
 #if (use_area_light)
   // Same two lights, given an extent so they cast soft shadows. The fill
   // light is the smaller source of the two, as it is the dimmer one in the
@@ -217,6 +225,7 @@ CIE_ColorSystemWhitepoint(Beta_ColSys, Blackbody2Whitepoint(Kt_Indoor_Film))
 #end
   }
 #end // use_area_light
+#end // BPP_Lights
 #end // use_lightsys
 
 #if (use_background = 1)
