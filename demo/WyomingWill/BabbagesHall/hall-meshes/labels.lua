@@ -8,6 +8,8 @@ return {
   ["lock"] = { file = "label-lock.obj", w = 74.88, h = 4.20 },
   ["beadsort"] = { file = "label-beadsort.obj", w = 99.67, h = 4.20 },
   ["domino-adder"] = { file = "label-domino-adder.obj", w = 78.37, h = 4.20 },
+  ["slide-adder"] = { file = "label-slide-adder.obj", w = 53.47, h = 4.20 },
+  ["linkages"] = { file = "label-linkages.obj", w = 78.06, h = 4.20 },
   ["differential"] = { file = "label-differential.obj", w = 59.98, h = 4.20 },
   ["pascaline"] = { file = "label-pascaline.obj", w = 46.61, h = 4.20 },
   ["difference-engine"] = { file = "label-difference-engine.obj", w = 76.11, h = 4.20 },

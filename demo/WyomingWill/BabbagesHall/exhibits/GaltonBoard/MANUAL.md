@@ -122,7 +122,7 @@ independent fair coin; its manual is `MANUAL-splitter.pdf`.
 
 ## 8. The Galton board in the hall
 
-The Galton board stands in the west bay 5, facing the splitter board. The
+The Galton board stands in the west bay 6, facing the splitter board. The
 operator's hand (drawn half see-through so that it hides little) turns the
 crank, pulls and pushes the slide, and carries the drawer up to pour it
 back.

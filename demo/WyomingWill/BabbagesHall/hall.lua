@@ -174,6 +174,25 @@ EXHIBITS = EXHIBITS or {
     about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..
             "Waves meeting head-on stop each other; a branch is taken only by a wave\n" ..
             "running toward it; a wave can cut another line. That is enough for XOR and AND." },
+  { dir = "exhibits/SlideAdder/", file = "slide-adder.lua", name = "the slide adder", label = "slide-adder",
+    prefix = "Slide adder: ", floorY = -100,
+    about = "The slide adder (Troncet, 1889; the Addiator, 1920): a band for each column, pegs a step\n" ..
+            "apart, a window. The stylus between the pegs beside d, down to the bottom: d more. Where\n" ..
+            "the gap is red, up to the top instead, round the hook and one step down the next column:\n" ..
+            "the carry. Type a number, Return adds it; C: every band to 0; T: the tour.\n" ..
+            "Tab: subtracting, up from the red digits, borrowing round the bottom; PgDn turns pages.",
+    modes = {
+      { key = "add", name = "the slide adder", card = "slide-adder", env = { SA_WAY = "add" } },
+      { key = "subtract", name = "the slide adder: subtraction", card = "slide-adder-subtract", env = { SA_WAY = "subtract" },
+        about = "The slide adder, subtracting: the red digits on each slot's left, up to the top: d fewer.\n" ..
+                "Where the gap isn't red, down to the bottom instead, along the bottom channel and one\n" ..
+                "step up the next column: the borrow. Borrow past the last column and the windows show\n" ..
+                "1000000 less the answer. Type a number, Return subtracts it, + adds it; C: every band to 0." },
+    } },
+  { dir = "exhibits/Linkages/", file = "linkages.lua", name = "the linkages", label = "linkages",
+    prefix = "Linkages: ", floorY = -100,
+    about = "Linkages that compute (MACHINES.md 8): hinged bars that give a product, a square, a\n" ..
+            "logarithm; Peaucellier's (1864) turns x into 1/x. In preparation, facing the slide adder." },
   { dir = "exhibits/Differential/", file = "differential.lua", name = "the Differential", label = "differential",
     prefix = "Differential: ", floorY = -100,
     about = "The Differential: gears that add. The carrier turns (A + B) / 2, and its\n" ..

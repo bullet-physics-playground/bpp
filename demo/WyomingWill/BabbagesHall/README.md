@@ -24,16 +24,18 @@ comes to life.
 | east 2 | **The combination lock**: three wheels behind a dial, set one at a time by the dialling rules; when every gate is under the fence it falls in, and the bolt can be drawn. A hand dials, a slate shows where each gate stands. Two ways (`Tab`): dialling, and the safecracker's, which reads the combination off the lock by feeling the contact points and graphing them, with a click for each contact and a tone for each reading | `exhibits/CombinationLock/` |
 | west 3 | **The bead and spaghetti sorts**: numbers as rows of beads on nine rods; turned upright, gravity sorts them. Two ways (`Tab`): the bead sort, and the spaghetti sort, rods cut to the numbers' lengths and stood on end, a flat palm lowered onto them taking the tallest first | `exhibits/BeadSort/` |
 | east 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
-| west 4 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
-| east 4 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
-| west 5 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
-| east 5 | **The splitter board**: a Galton board whose pins are independent coins, with a wall that swallows balls (first passage, exactly), or walls that send them back | `exhibits/GaltonBoard/` |
-| west 6 | Amsler's planimeter | in preparation |
-| east 6 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
-| west 7 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
-| east 7 | Kelvin's tide predictor | in preparation |
-| west 8 | The Differential Analyser | in preparation |
-| east 8 | The Difference Engine | in preparation |
+| west 4 | **The slide adder**: Troncet's arithmographe and the Addiator: a stylus moves banded columns, and carries round a hook at the top; Tab: adding, subtracting (borrowing round the bottom) | `exhibits/SlideAdder/` |
+| east 4 | Linkages that compute (Peaucellier's inverter and others) | in preparation |
+| west 5 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
+| east 5 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
+| west 6 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
+| east 6 | **The splitter board**: a Galton board whose pins are independent coins, with a wall that swallows balls (first passage, exactly), or walls that send them back | `exhibits/GaltonBoard/` |
+| west 7 | Amsler's planimeter | in preparation |
+| east 7 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
+| west 8 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
+| east 8 | Kelvin's tide predictor | in preparation |
+| west 9 | The Differential Analyser | in preparation |
+| east 9 | The Difference Engine | in preparation |
 
 `HANDOFF.md` is where a new chat starts: how to work, build and test, and
 what's next. `MACHINES.md` lists every machine considered for the hall (48 of them),
@@ -57,7 +59,7 @@ runs on its own from its folder.
 
 An exhibit can have **ways of its own**: the suanpan has three (adding,
 taking away, multiplying), the slide rule, Napier's bones, the combination
-lock and the bead sort (the spaghetti sort) two each, and the splitter board five (a
+lock, the bead sort (the spaghetti sort) and the slide adder two each, and the splitter board five (a
 wall that catches balls, gambler's ruin, a wall that sends balls back, the
 pile going flat, no walls). Each is a stop of its own, after the first's
 approach: Tab steps on through them, and the lectern's card changes to

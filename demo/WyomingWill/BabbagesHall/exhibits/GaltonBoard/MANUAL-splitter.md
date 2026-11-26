@@ -130,7 +130,7 @@ Every one "as expected".
 
 ## 6. The splitter board in the hall
 
-The splitter board stands in the east bay 5, facing the Galton board. Its
+The splitter board stands in the east bay 6, facing the Galton board. Its
 five walls are five ways: `Tab` steps on through them, and the lectern's
 label changes with them.
 

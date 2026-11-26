@@ -61,6 +61,8 @@ jobs = [
  ("lock", "THE COMBINATION LOCK", 4.2, 0.5),
  ("beadsort", "THE BEAD AND SPAGHETTI SORTS", 4.2, 0.5),
  ("domino-adder", "THE DOMINO HALF ADDER", 4.2, 0.5),
+ ("slide-adder", "THE SLIDE ADDER", 4.2, 0.5),
+ ("linkages", "LINKAGES THAT COMPUTE", 4.2, 0.5),
  ("differential", "THE DIFFERENTIAL", 4.2, 0.5),
  ("pascaline", "THE PASCALINE", 4.2, 0.5),
  ("difference-engine", "THE DIFFERENCE ENGINE", 4.2, 0.5),

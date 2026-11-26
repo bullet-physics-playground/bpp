@@ -28,19 +28,21 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   it was by interest alone).
 - Built so far, in walking order: **the suanpan** (west 1, since
   2026-11-15), **the slide rule** (east 1, since 2026-11-16), **Napier's bones** (west 2, since 2026-11-16), **the combination lock** (east 2, since 2026-11-19), **the bead sort** (west 3, since 2026-11-22; its second way, the spaghetti sort, since 2026-11-24),
-  **the Domino Half Adder** (east 3), **the Differential** (west 4), **the
-  Pascaline** (east 4), **the Galton
-  board** (west 5, since 2026-11-12), **the splitter board** (east 5,
-  facing it, since 2026-11-14), **Lehmer's number sieve** (east 6), and
-  the **Digi-Comp II** (west 7: it counts, adds, multiplies,
+  **the Domino Half Adder** (east 3), **the slide adder** (west 4, since
+  2026-11-25), **the Differential** (west 5), **the
+  Pascaline** (east 5), **the Galton
+  board** (west 6, since 2026-11-12), **the splitter board** (east 6,
+  facing it, since 2026-11-14), **Lehmer's number sieve** (east 7), and
+  the **Digi-Comp II** (west 8: it counts, adds, multiplies,
   subtracts and divides, runs programs, and in AUTO runs a multiply by
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
   a cup of balls and a bought rotary damper; each program has only its
   parts on the board, and the operator's hand is shown).
-  Covered bays wait for Amsler's planimeter (west 6: after the splitter
-  board, so that it and the Galton board still face each other), Kelvin's
-  tide predictor (east 7), the Differential Analyser (west 8) and the
-  Difference Engine (east 8): sixteen bays, eight pairs.
+  Covered bays wait for the linkages (east 4: facing the slide adder, so
+  that it moved what follows one row on), Amsler's planimeter (west 7:
+  after the splitter board, so that it and the Galton board still face
+  each other), Kelvin's tide predictor (east 8), the Differential Analyser
+  (west 9) and the Difference Engine (east 9): eighteen bays, nine pairs.
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
   Jakob (koppi) wrote bpp. Clocks are William's own separate collection.
 
@@ -104,6 +106,7 @@ git push
 | `exhibits/CombinationLock/lock-test.lua` | The lock's model against all 1,000,000 combinations: which the dialling rules set, the forbidden zone, the tolerance, the 27 that open a lock; the safecracker's method on 40 random locks (`lua lock-test.lua`, from its folder, 3.5 minutes) |
 | `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
 | `exhibits/DigiComp2/MANUAL.md`, `manual/` | The Digi-Comp's illustrated manual; `manual/make-figures.sh` redraws its figures from the geometry (lua, python3, matplotlib). `tools/md2pdf.py` puts a `.md` file's images into its PDF |
+| `exhibits/SlideAdder/manual/make-figures.py` | The slide adder's manual figures, from its sizes |
 | `exhibits/BeadSort/spaghetti-sort.lua` | The bead sort's second way (`BS_WAY=spaghetti`: `bead-sort.lua` hands over to it); `BS_TILT` tilts its palm, a test |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
 
@@ -499,6 +502,26 @@ there, in `release/`, or on the path; or set `BPP`.
   degrees sideways. Hold a standing part at both ends, with clearances
   too small to let it pass that angle (the spaghetti sort's notches and
   comb), and it comes to rest upright.
+- **A force that drives a part into a stop must be stopped by it** (the
+  slide adder, 2026-11-25). The operator feels a 9 that won't take a carry
+  because the stylus, pushed down on a band at its bottom, stops. At 300
+  steps a second it squeezed past the peg instead (Bullet's contacts are
+  soft, and a coarse step lets a ball sink further in), the operator felt
+  nothing, and carries through nines went wrong. At 600 it held at five
+  times the hand's force. Where a reading depends on something *not*
+  moving, push harder than the machine ever will and check it holds.
+- **Upright, a slider must hold its own weight**: the adder's bands are held
+  by friction (a slider motor at no speed), and below a band's weight
+  (11.8 kg cm/s^2) every band slid to the bottom. And a part that moves
+  several at once needs their sum: the zeroing bar's 4 N couldn't lift six
+  bands at friction 60, and the next sum began from leftovers.
+- **Count the solids in every STL, and sweep every moving part's travel
+  against the fixed ones.** The slide adder's channels along the top and
+  the bottom cut the cover between two slots off on every side: one cover
+  half came out as six solids (now five islands, each on studs from the
+  rib behind it). And its ribs, run the full height, crossed the zeroing
+  bar's path; an overlap check of the parts at rest missed it, one at each
+  end of the bar's travel found it.
 - **Rebuilding in a build folder that has a `release/bpp`** can go wrong:
   the precompiled header has the program's name (`PRECOMPILED_HEADER` in
   `bpp.pro`), and when it must be remade gcc can take the binary for the
@@ -1285,8 +1308,31 @@ there, in `release/`, or on the path; or set `BPP`.
   a screenshot; ten printed parts and ten rods (`make-stls.sh`), all
   watertight, under 200 mm, none overlapping but glued faces. check-all
   has two more lines. **Not seen by William in the GUI yet.**
-- **Next:** William's choice.
-  The covered bays (the planimeter, the tide predictor, the Differential
+- **Done (2026-11-25): the slide adder** (MACHINES.md 7, west 4), with its
+  second way, subtracting (`Tab`, `SA_WAY=subtract`). Troncet's
+  arithmographe and the Addiator, upright and at 8 mm a step: six printed
+  bands of 21 pegs on sliders behind a cover whose slots are joined by a
+  channel along the top (the carry hook) and one along the bottom (the
+  borrow); a zeroing bar under the bands' feet. The stylus is a body (a
+  ball among the pegs, a ball in the slot) moved by a hand's limited force
+  toward its target; the operator, a coroutine, reads the windows (red or
+  not), makes a person's moves, and feels a band that won't move (a 9 that
+  won't take a carry, a 0 that won't lend, the channel's end). Tours: 47295
+  + 85358, 99999 + 1, 1889 + 2026 (frame 5527); 132653 − 85358, 100000 −
+  1, 853 − 4729, which shows the complement, 996124 (frame 5033). Sweeps of
+  23 sums each way (hand 2 to 15 cm/s, friction 13 to 60, the hand's force
+  1.2 N, 600 and 1200 steps a second) none wrong; 300 steps a second, a
+  band's friction under its weight, and a hand too weak to lift a band
+  fail, each for a reason found (FINDINGS). Placard THE SLIDE ADDER; two
+  lectern cards of three pages; MANUAL with figures
+  (`manual/make-figures.py`) and a screenshot; nine kinds of printed part,
+  all one watertight solid, under 200 mm, none overlapping at either end of
+  their travel. A covered bay for the linkages (MACHINES.md 8, east 4)
+  faces it, so that everything after moved one row on, each on its own
+  side (bay numbers changed in the READMEs, manuals and PDF subtitles).
+  **Not seen by William in the GUI yet.**
+- **Next:** William's choice; the linkages' covered bay faces the slide
+  adder. The covered bays (the planimeter, the tide predictor, the Differential
   Analyser, the Difference Engine) wait for their turn in the list.
   Still offered, not asked for: printing only a Digi-Comp program's parts
   (the tiles carry every wall; `make-stls.sh` could take a `PARTS` list,

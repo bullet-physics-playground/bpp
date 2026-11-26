@@ -145,7 +145,7 @@ The exhibit's other numbers, to try:
 
 ![The exhibit (a screenshot of the simulation) at x = 39: the board shows N, x and each wheel's hole at the reading place, all four open; the probe is about to fall right through.](manual/fig-exhibit.png)
 
-Lehmer's sieve stands in the east bay 6. A hand turns the handle, a whole
+Lehmer's sieve stands in the east bay 7. A hand turns the handle, a whole
 turn at a time. The board on the table shows what an operator would write
 up: N and x, each wheel's hole at the reading place (green open, red
 pegged), how many wheels the probe went through, and at a stop x² − N,

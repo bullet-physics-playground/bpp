@@ -345,6 +345,58 @@ LABELS = {
         "numbers. Done in a computer's memory it is slow: here gravity does "
         "the work.",
     )],
+    "slide-adder": [(                 # (Troncet's arithmographe, 1889; the Addiator, 1920)
+        "THE SLIDE ADDER",
+        "Adding with a stylus",
+        "Each column is a band behind the cover, with pegs a step apart "
+        "and the digits 0 to 9; its window shows one.\n"
+        "To add a digit, the hand puts the stylus between the pegs beside "
+        "that digit on the cover and draws it down to the bottom of the "
+        "slot. The band goes down that many steps, and the window shows "
+        "that many more. Type a number and press Return.",
+    ), (
+        "THE CARRY",
+        "Up, and round the hook",
+        "A red gap means the band is too far down for that digit. Then the "
+        "hand pushes it up to the top instead: up 10 less the digit, which "
+        "shows the digit more, less ten.\n"
+        "Round the hook at the top into the next column, one step down: "
+        "that is the ten carried. If that column shows 9, it won't go down: "
+        "add one there the same way, and carry again.",
+    ), (
+        "A POCKET CALCULATOR",
+        "Kummer, Troncet, the Addiator",
+        "Heinrich Kummer put the carry in the hook in the 1840s. Louis "
+        "Troncet's arithmographe of 1889 made it popular, and the Addiator, "
+        "from 1920 to 1982, put it in millions of pockets.\n"
+        "It does nothing by itself: every carry is a move of the hand. The "
+        "hook only makes the move easy to remember.",
+    )],
+    "slide-adder-subtract": [(
+        "SUBTRACTING",
+        "Up from the red digits",
+        "Beside each slot, on the left, are the digits again in red, going "
+        "down. To subtract a digit, the hand puts the stylus beside it and "
+        "pushes up to the top of the slot: the band goes up that many steps, "
+        "and the window shows that many fewer.\n"
+        "To subtract from a number, put it on first by adding it.",
+    ), (
+        "THE BORROW",
+        "Down, and round the bottom",
+        "Where the gap is not red, there aren't enough to take. The hand "
+        "draws the band down to the bottom instead, which shows the digit "
+        "fewer, plus ten.\n"
+        "Along the bottom into the next column, one step up: the ten "
+        "borrowed. A column at 0 won't go up: take one there, and borrow "
+        "again.",
+    ), (
+        "LESS THAN NOTHING",
+        "The windows show the complement",
+        "Take 4729 from 853 and the last borrow has no column to come from. "
+        "The windows then read 996124: a million less 3876, the answer.\n"
+        "An Addiator shows such numbers the same way; the person using it "
+        "has to know.",
+    )],
     "beadsort-spaghetti": [(          # (A. K. Dewdney, Scientific American 250(6), June 1984, p. 19)
         "THE SPAGHETTI SORT",
         "Sorting by height",
