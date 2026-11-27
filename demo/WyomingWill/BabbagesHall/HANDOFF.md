@@ -93,7 +93,7 @@ git push
 |---|---|
 | `hall.lua` | The hall: architecture, the EXHIBITS list (walking order, placards, `floorY`), sandboxes, walking and camera flights, resting, the cost meter |
 | `exhibit-table.lua` | The standard exhibit table (README "Exhibit standard") |
-| `MACHINES.md` | All 50 machines considered, in walking order (five tiers), scored for interest and complexity, with how each would go in bpp and be printed; the rope test |
+| `MACHINES.md` | All 51 machines considered, in walking order (five tiers), scored for interest and complexity, with how each would go in bpp and be printed; the rope test |
 | `README.md` | The hall: bays, keys, how it works, the cost meter, the exhibit standard, notes for exhibit authors |
 | `HANDOFF.md` | This file |
 | `make-pdfs.sh`, `tools/md2pdf.py` | The PDFs |
@@ -1370,9 +1370,24 @@ there, in `release/`, or on the path; or set `BPP`.
   and a screenshot; twelve kinds of printed part (the lever and bridge in
   halves), each one watertight solid under 200 mm. check-all has six more
   lines. **Not seen by William in the GUI yet.**
-- **Added (2026-11-27):** two machines to MACHINES.md, at William's word:
-  the linkages that write (9) and Jaquet-Droz's Draughtsman and Writer
-  (29); rows after each moved on one (the list has 50).
+- **Added (2026-11-27):** three machines to MACHINES.md, at William's
+  word: the linkages that write (9), Jaquet-Droz's Draughtsman and Writer
+  (29), and William's writing cam (30); rows after each moved on one (the
+  list has 51).
+- **William's writing cam (2022; MACHINES.md 30), as read from his code**
+  (`cam.zip`: the `New` folder's `myeval.c` and genetic algorithm, and
+  `New2D/V3`, which made the printed cam, 87 x 96 x 21 mm). One turn, 628
+  steps of 0.01 radian. The cam's rim is `camh` (radius camh/2 mm), its top
+  a ramp out to height camv/2 - 10 mm at the rim. A yoke through the cam's
+  axis, riding the rim on both sides, sets x = camh - 60; the top sets
+  y = camv + 60; together a point P1 = (camh - 60, -(camv + 60)) in his
+  units (y down), the cam's axis at (-60, -60) from a fixed pin O. An arm
+  through O and P1 carries the pen 50 beyond P1: pen = P1 + 50 P1/|P1|.
+  So P1 = pen (1 - 50/|pen|): any word gives its cam in closed form (his
+  GA cams follow the word's path, not its timing, and are smooth enough to
+  follow). Still to hear from William: how the height reaches P1, and how
+  the arm meets P1 (it slides through both). The `zzz.stl` he sent first
+  is `2D_CAM`'s, an earlier design these formulas don't fit.
 - **Next (2026-11-27): the linkages that write** (MACHINES.md 9), William's
   idea: type a letter, and a one-crank linkage computed for it draws it.
   His synthesizer (`linkage_synthesis.py`, and `linkage_native.c` /

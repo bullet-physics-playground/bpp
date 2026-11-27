@@ -30,8 +30,8 @@ tiers:
    the calculators from Schickard's to Odhner's, the planimeter and its
    kin, the simple logic toys.
 3. **Chance, number theory, programs:** the Galton and splitter boards,
-   Jacquard's reader, Jaquet-Droz's Draughtsman and Writer, the
-   Totalisator, Lehmer's sieve, the Digi-Comp II.
+   Jacquard's reader, Jaquet-Droz's Draughtsman and Writer, Spears's
+   writing cam, the Totalisator, Lehmer's sieve, the Digi-Comp II.
 4. **Analysis, dense calculators, ciphers:** Kelvin's machines, the
    analysers and solvers, the Millionaire, the Curta, the Hagelin, the
    Enigma.
@@ -52,10 +52,11 @@ Half Adder sixth, with the Pascaline and the Galton board (all scored 4),
 and Lehmer's sieve second, for its modest mechanism, though factoring by
 modular wheels asks far more of a visitor than adding does.
 
-**Changes (2026-11-27):** two machines added, so the list has 50: the
+**Changes (2026-11-27):** three machines added, so the list has 51: the
 linkages that write (9: a linkage computed for each letter, by William's
 synthesizer), after the linkages; and Jaquet-Droz's Draughtsman and Writer
-(29), beside Jacquard's reader. The rows after each move on one.
+(29), beside Jacquard's reader; and William's own writing cam (30), after
+them: one cam that writes a word. The rows after each move on one.
 
 **Changes (2026-11-26):** the linkages (number 8) built, in east 4,
 facing the slide adder: Peaucellier's inverter, his straight line, and a
@@ -126,27 +127,28 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 | 27 | 3 | Splitter board | 2026 | a Galton board whose pins are made independent coins (a neck over every pin), with walls that swallow balls (first passage, the reflection principle, gambler's ruin) or send them back (the pile folds, or goes flat), exactly | built: the Galton board's machine, twelve rows of splitters (a steel pin carrying a printed tooth), exit blocks, ramps and a tube for each row a ball can be caught at, or half teeth for walls that send balls back; the teeth come in sets matched to the balls' bounce (SPLITTERS.md) | 4 | 3 | built |
 | 28 | 3 | Jacquard's card reader | 1804 | punched cards choose which hooks lift: the first stored program | needles, cards and hooks; a reader for a programmable exhibit | 3 | 3 |  |
 | 29 | 3 | Jaquet-Droz's Draughtsman and Writer | 1774 | automata whose arms draw and write: cams code the hand's movement across and down, a third lifts the pen; the Draughtsman draws four pictures, the Writer any text of 40 letters, set on a programme wheel | a cam stack, three followers, the arm and a pen lift; the Draughtsman first (one picture, one set of cams), the Writer's stack and wheel after; a few letters' cams, not its 6,000 parts | 5 | 4 |  |
-| 30 | 3 | Automatic Totalisator | 1913 | racetrack betting: a great shaft adder of differentials counts tickets and sets the odds | differentials (built) chained; the first real-time computer, the Science Museum says | 4 | 3 |  |
-| 31 | 3 | Lehmer's number sieve | 1926 / 1932 | factors numbers: loops of different lengths (bicycle chains, later toothed wheels) turn until gaps line up, and a ball or pin drops through to stop it | built: four Geneva-driven wheels of 9, 8, 7 and 5 places with pegged holes, and a cam-lifted probe; factors by Fermat's way | 4 | 3 | built |
-| 32 | 3 | Digi-Comp II | 1965 | marbles rolling down a board of flip-flops count, add and multiply in binary | built: a two-level board, thirteen printed rockers tipped over by the balls alone (a steel ball in each for weight, a foot below for CLEAR) make the accumulator, MQ and distributor; hand-set switches (MULTIPLY, CLEAR, COUNT, the memory), COMPLEMENT's shutters, OVERFLOW's; a feeder held by an escapement; AUTO, a thread from a trip lever at the bottom to the START lever; programs run line by line | 5 | 3 | built (count, add, multiply, subtract, divide; AUTO) |
-| 33 | 4 | Kelvin's tide predictor | 1872 | adds ten or more sine waves (the Sun's and Moon's tides) and draws a year of tides | cranks and slotted yokes are easy; the cord over the pulleys that adds them: bpp has no rope, but a rope of linked beads works if it isn't much lighter than its weights (tested: see below) | 5 | 3 | bay |
-| 34 | 4 | Kelvin's harmonic analyser | 1878 | integrators find the Fourier coefficients of a measured curve (the tide predictor in reverse) | ball-and-disk integrators in a row | 4 | 3 |  |
-| 35 | 4 | Michelson and Stratton's harmonic analyser | 1898 | 80 springs sum and analyse waves; it showed the Gibbs overshoot | springs and levers: Bullet springs, many of them | 4 | 3 |  |
-| 36 | 4 | Kelvin's equation solver (and Wilbur's) | 1878 / 1936 | tilting plates on pulleys and cords solve simultaneous linear equations | plates, pulleys, cords: the cords are the hard part | 4 | 3 |  |
-| 37 | 4 | Torres Quevedo's algebraic machines | 1890s | find the roots of polynomials with his "endless spindle" logarithmic gearing | special gearing; little known and striking | 4 | 4 |  |
-| 38 | 4 | Millionaire | 1893 | the first direct multiplier: a "multiplication body" of tongues gives each product at once | complex, dense | 3 | 5 |  |
-| 39 | 4 | Curta | 1948 | a pocket four-function calculator: one stepped drum, nines' complements for subtraction | small and dense: the stepped drum and carry are doable, the whole machine very hard; best as an oversized cutaway (first left out as too dense) | 5 | 4 |  |
-| 40 | 4 | Hagelin M-209 | 1940 | a fully mechanical cipher machine: six pin wheels and a drum of 27 lugged bars | all mechanical, but many small parts: pins, lugs, a print wheel | 4 | 5 |  |
-| 41 | 4 | Enigma (its rotors' stepping) | 1923 | a keypress steps the rotors by pawls and notches; the current's path through them lights the cipher letter | the stepping is mechanical (the middle rotor's double step comes of itself); the wiring is a lookup in Lua; prints, with wire, contacts and LEDs (first left out as electromechanical) | 5 | 3 |  |
-| 42 | 5 | Differential Analyser | 1931 | wheel-and-disc integrators, wired in a loop, solve differential equations and draw the answer | rolling contact that must not slip; Bush's torque amplifiers can be motors; Hartree built one in Meccano | 5 | 4 | bay |
-| 43 | 5 | Argo clock and Dreyer table | 1912 / 1911 | WWI battleship fire control: plotting the target's course and range by integrators and a plotting table | integrators (as the ball-and-disk) and a plotting pen | 4 | 4 |  |
-| 44 | 5 | Torpedo Data Computer | 1940s | a submarine's analogue fire control | like the rangekeeper, smaller; partly electrical | 4 | 5 |  |
-| 45 | 5 | Ford Rangekeeper Mk I | 1917 | a battleship's fire-control computer: integrators, differentials and cams solve where the target will be | its parts each are doable (the Differential, integrators, cams); together, a big job | 5 | 5 |  |
-| 46 | 5 | Norden bombsight | 1930s | a gyro-steadied sight whose analogue computer (rate discs, cams) solves the bombing problem | the computing (disc integrators and cams) is doable; the gyro too, as in Euler's Gallery; whole, very complex | 5 | 5 |  |
-| 47 | 5 | Antikythera mechanism | c. 100 BCE | a gear train for the Sun, Moon and planets, the lunar phase, eclipse dials; a pin-and-slot gear for the Moon's varying speed | gears, as in the Differential (convex-hull teeth), and many of them; printed replicas exist | 5 | 4 |  |
-| 48 | 5 | Zuse Z1 | 1938 | the first freely programmable computer, binary floating point, all mechanical: sliding steel plates and pins | its plate logic is lovely to simulate gate by gate; the whole machine is far beyond us | 5 | 5 |  |
-| 49 | 5 | Scheutz difference engine | 1853 | the first working difference engine, with a printer | as Babbage's; one of them is enough | 3 | 5 |  |
-| 50 | 5 | Babbage's Difference Engine | 1822 / 1849 | tabulates a polynomial by adding its differences, with no multiplying | two orders of difference, three digits, is a good model: figure wheels and Babbage's carry, after the Pascaline | 5 | 5 | bay |
+| 30 | 3 | Spears's writing cam | 2022 | one cam writes a whole word: its rim pushes a yoke sideways and its top surface lifts a follower, together placing a point on an arm that swivels and slides through a fixed pin, and the pen at the arm's end writes; one turn writes "Daisy" | a cam on a hinge, a yoke and a follower on sliders against it, the arm on a sliding swivel; its two profiles come from the word in closed form (the pen, the point and the pin are in line) or by William's genetic algorithm, which keeps them smooth enough to follow; printed in one piece (2022) | 5 | 3 |  |
+| 31 | 3 | Automatic Totalisator | 1913 | racetrack betting: a great shaft adder of differentials counts tickets and sets the odds | differentials (built) chained; the first real-time computer, the Science Museum says | 4 | 3 |  |
+| 32 | 3 | Lehmer's number sieve | 1926 / 1932 | factors numbers: loops of different lengths (bicycle chains, later toothed wheels) turn until gaps line up, and a ball or pin drops through to stop it | built: four Geneva-driven wheels of 9, 8, 7 and 5 places with pegged holes, and a cam-lifted probe; factors by Fermat's way | 4 | 3 | built |
+| 33 | 3 | Digi-Comp II | 1965 | marbles rolling down a board of flip-flops count, add and multiply in binary | built: a two-level board, thirteen printed rockers tipped over by the balls alone (a steel ball in each for weight, a foot below for CLEAR) make the accumulator, MQ and distributor; hand-set switches (MULTIPLY, CLEAR, COUNT, the memory), COMPLEMENT's shutters, OVERFLOW's; a feeder held by an escapement; AUTO, a thread from a trip lever at the bottom to the START lever; programs run line by line | 5 | 3 | built (count, add, multiply, subtract, divide; AUTO) |
+| 34 | 4 | Kelvin's tide predictor | 1872 | adds ten or more sine waves (the Sun's and Moon's tides) and draws a year of tides | cranks and slotted yokes are easy; the cord over the pulleys that adds them: bpp has no rope, but a rope of linked beads works if it isn't much lighter than its weights (tested: see below) | 5 | 3 | bay |
+| 35 | 4 | Kelvin's harmonic analyser | 1878 | integrators find the Fourier coefficients of a measured curve (the tide predictor in reverse) | ball-and-disk integrators in a row | 4 | 3 |  |
+| 36 | 4 | Michelson and Stratton's harmonic analyser | 1898 | 80 springs sum and analyse waves; it showed the Gibbs overshoot | springs and levers: Bullet springs, many of them | 4 | 3 |  |
+| 37 | 4 | Kelvin's equation solver (and Wilbur's) | 1878 / 1936 | tilting plates on pulleys and cords solve simultaneous linear equations | plates, pulleys, cords: the cords are the hard part | 4 | 3 |  |
+| 38 | 4 | Torres Quevedo's algebraic machines | 1890s | find the roots of polynomials with his "endless spindle" logarithmic gearing | special gearing; little known and striking | 4 | 4 |  |
+| 39 | 4 | Millionaire | 1893 | the first direct multiplier: a "multiplication body" of tongues gives each product at once | complex, dense | 3 | 5 |  |
+| 40 | 4 | Curta | 1948 | a pocket four-function calculator: one stepped drum, nines' complements for subtraction | small and dense: the stepped drum and carry are doable, the whole machine very hard; best as an oversized cutaway (first left out as too dense) | 5 | 4 |  |
+| 41 | 4 | Hagelin M-209 | 1940 | a fully mechanical cipher machine: six pin wheels and a drum of 27 lugged bars | all mechanical, but many small parts: pins, lugs, a print wheel | 4 | 5 |  |
+| 42 | 4 | Enigma (its rotors' stepping) | 1923 | a keypress steps the rotors by pawls and notches; the current's path through them lights the cipher letter | the stepping is mechanical (the middle rotor's double step comes of itself); the wiring is a lookup in Lua; prints, with wire, contacts and LEDs (first left out as electromechanical) | 5 | 3 |  |
+| 43 | 5 | Differential Analyser | 1931 | wheel-and-disc integrators, wired in a loop, solve differential equations and draw the answer | rolling contact that must not slip; Bush's torque amplifiers can be motors; Hartree built one in Meccano | 5 | 4 | bay |
+| 44 | 5 | Argo clock and Dreyer table | 1912 / 1911 | WWI battleship fire control: plotting the target's course and range by integrators and a plotting table | integrators (as the ball-and-disk) and a plotting pen | 4 | 4 |  |
+| 45 | 5 | Torpedo Data Computer | 1940s | a submarine's analogue fire control | like the rangekeeper, smaller; partly electrical | 4 | 5 |  |
+| 46 | 5 | Ford Rangekeeper Mk I | 1917 | a battleship's fire-control computer: integrators, differentials and cams solve where the target will be | its parts each are doable (the Differential, integrators, cams); together, a big job | 5 | 5 |  |
+| 47 | 5 | Norden bombsight | 1930s | a gyro-steadied sight whose analogue computer (rate discs, cams) solves the bombing problem | the computing (disc integrators and cams) is doable; the gyro too, as in Euler's Gallery; whole, very complex | 5 | 5 |  |
+| 48 | 5 | Antikythera mechanism | c. 100 BCE | a gear train for the Sun, Moon and planets, the lunar phase, eclipse dials; a pin-and-slot gear for the Moon's varying speed | gears, as in the Differential (convex-hull teeth), and many of them; printed replicas exist | 5 | 4 |  |
+| 49 | 5 | Zuse Z1 | 1938 | the first freely programmable computer, binary floating point, all mechanical: sliding steel plates and pins | its plate logic is lovely to simulate gate by gate; the whole machine is far beyond us | 5 | 5 |  |
+| 50 | 5 | Scheutz difference engine | 1853 | the first working difference engine, with a printer | as Babbage's; one of them is enough | 3 | 5 |  |
+| 51 | 5 | Babbage's Difference Engine | 1822 / 1849 | tabulates a polynomial by adding its differences, with no multiplying | two orders of difference, three digits, is a good model: figure wheels and Babbage's carry, after the Pascaline | 5 | 5 | bay |
 
 ## By kind
 
@@ -156,7 +158,7 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 - **Tabulating and programmed:** the Difference Engines (Babbage's, Scheutz's),
   Jacquard's reader, Jaquet-Droz's Writer, the Zuse Z1.
 - **Drawing and writing:** the linkages that write, Jaquet-Droz's Draughtsman
-  and Writer.
+  and Writer, Spears's writing cam.
 - **Logic and play:** the Digi-Comps, Dr. Nim, marble adders, the domino adder,
   the Galton board, the bead and spaghetti sorts.
 - **Number theory, ciphers and locks:** Lehmer's sieve, the Enigma, the
