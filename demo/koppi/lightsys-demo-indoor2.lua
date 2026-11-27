@@ -525,9 +525,10 @@ local function addDesk()
     end
   end
 
-  -- Cyndi Lauper "True Colors" LP record sleeve on the desk.
-  -- POV: object{LP rotate y*120 translate <25,75,-65> } with scale 30.8,
-  -- LP = thin cylinder with image_map{png "cyndi"}.
+  -- An LP sleeve on the desk. POV: object{LP rotate y*120 translate
+  -- <25,75,-65> } with scale 30.8, LP = thin cylinder with an image map.
+  -- The original's sleeve was a real album cover; kelvin.png is an original
+  -- one instead: rings of blackbody colour, 1900 K to 10000 K.
   local lp = Cylinder(0.49 * 30.8, 0.008 * 30.8, 0)
   lp.col = color.white
   lp.mass = 0
@@ -535,7 +536,7 @@ local function addDesk()
   -- y = 75.015 + half height so the bottom sits on the desk surface
   lp.trans = common.transform(math.rad(-120), -math.pi / 2, 0,
                               25, 75.015 + 0.004 * 30.8, 65)
-  lp.tex = "cyndi.png"
+  lp.tex = "kelvin.png"
   v:add(lp)
   table.insert(deskObjs, lp)
 end

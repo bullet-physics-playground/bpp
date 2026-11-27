@@ -137,7 +137,7 @@ original's own frames (each is translated with its fixture):
 
 (`demo_indoor1.pov`, Jaime's, has area spots as well: a halogen and the
 ceiling panel's `Light(..., Cfall = 1)`; `tests/36-lights.lua` uses its
-halogen.) The demo ships `includes/cyndi.png` for the LP: the sleeve of
+halogen.) The demo shipped `includes/cyndi.png` for the LP: the sleeve of
 Cyndi Lauper's *True Colors*, an album cover, which may not be bpp's to
 redistribute. Worth Jakob's look before a release.
 
@@ -178,7 +178,11 @@ What this means for the classes:
   enough.
 - **The indoor scene:** go ahead with `lightsys-demo-indoor2.lua` (step
   5); Jakob isn't changing it now.
-- **`cyndi.png`:** to be replaced, if there is a better texture.
+- **`cyndi.png`:** to be replaced, if there is a better texture. It is:
+  `includes/kelvin.png`, an original sleeve for an invented record,
+  "Kelvin" -- rings of blackbody colour from 1900 K in the middle to
+  10000 K at the corners, the colour temperatures LightSys lamps are made
+  of. 240 by 240, as the image it replaces.
 
 ### Still open
 
@@ -292,9 +296,16 @@ way the galleries' work went.
      `Lightsys_Brightness` (0.67) is POV-Ray's only, and the view has no
      gamma. The demo turns the view's ambient light down so the pools
      show.
-   - Not lights, so left alone: the port's two pipes by the right wall
-     lie along z (bpp's `Cylinder` runs along z unless rotated); the
-     original's stand upright.
+   - Not lights, so left alone, for Jakob:
+     - the two pipes by the right wall lie along z (bpp's `Cylinder` runs
+       along z unless rotated); the original's stand upright;
+     - the desk top is turned 3 degrees about x (`common.quat(0,
+       math.rad(-3), 0)`), not about the vertical as the original's
+       `rotate y*3`: tilted, it buries the LP lying on it, in the view and
+       in the render;
+     - the camera's angle is 75 degrees where the original's is 55, so
+       the port sees more of the room (its framing differs from the
+       original render's).
 
 6. **Docs**: the API in the manual, a basic demo per kind.
    *Done:* `demo/lights/` (one demo per kind, and a LightSys lamp in
