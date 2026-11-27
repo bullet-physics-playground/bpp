@@ -47,6 +47,11 @@ On an older macOS, build from source instead.
 
 ## Build
 
+To build or run the demos you only need the latest files, not the full
+history, so a shallow clone is much smaller to download:
+
+    git clone --depth 1 https://github.com/bullet-physics-playground/bpp
+
 Select your operating system:
 
  * [Build on Linux](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Linux)

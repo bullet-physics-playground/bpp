@@ -1,4 +1,4 @@
--- mono-s4: a self-righting loaf from the shape chat (monostable-search/genomes/mono-s4.npy),
+-- mono-s4: a self-righting loaf from the shape chat (monostable-search/genomes/mono-s4.npy in github.com/WyomingWill/Gombocs),
 -- rebuilt on a 163,842-plane icosphere. ONE resting point but several balancing points, so not a
 -- true Gomboc. top = the highest of its balancing points.
 -- Uniform density, longest extent 9.0 cm, in cm, centre of mass at the origin. Hull = the mesh

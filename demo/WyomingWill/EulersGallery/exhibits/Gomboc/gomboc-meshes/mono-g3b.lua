@@ -1,4 +1,4 @@
--- mono-g3b: the shape chat's smooth g-type Gomboc (monostable-search/genomes/mono-g3b.npy),
+-- mono-g3b: the shape chat's smooth g-type Gomboc (monostable-search/genomes/mono-g3b.npy in github.com/WyomingWill/Gombocs),
 -- rebuilt on a 163,842-plane icosphere. One resting and one balancing point.
 -- BPP printed hulls: 96% level, 78% on a 1.5 deg table.
 -- Uniform density, longest extent 9.0 cm, in cm, centre of mass at the origin. Hull = the mesh

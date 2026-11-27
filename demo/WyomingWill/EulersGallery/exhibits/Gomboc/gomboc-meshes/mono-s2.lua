@@ -1,4 +1,4 @@
--- mono-s2: a self-righting loaf from the shape chat (monostable-search/genomes/mono-s2.npy),
+-- mono-s2: a self-righting loaf from the shape chat (monostable-search/genomes/mono-s2.npy in github.com/WyomingWill/Gombocs),
 -- rebuilt on a 163,842-plane icosphere. ONE resting point but 3 balancing points, so not a true
 -- Gomboc; its centre of mass is low, so table slope barely affects it (BPP: 100% at 1-2 deg).
 -- top = the highest of its balancing points.
