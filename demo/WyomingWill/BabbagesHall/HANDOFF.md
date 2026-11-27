@@ -93,7 +93,7 @@ git push
 |---|---|
 | `hall.lua` | The hall: architecture, the EXHIBITS list (walking order, placards, `floorY`), sandboxes, walking and camera flights, resting, the cost meter |
 | `exhibit-table.lua` | The standard exhibit table (README "Exhibit standard") |
-| `MACHINES.md` | All 48 machines considered, in walking order (five tiers), scored for interest and complexity, with how each would go in bpp and be printed; the rope test |
+| `MACHINES.md` | All 50 machines considered, in walking order (five tiers), scored for interest and complexity, with how each would go in bpp and be printed; the rope test |
 | `README.md` | The hall: bays, keys, how it works, the cost meter, the exhibit standard, notes for exhibit authors |
 | `HANDOFF.md` | This file |
 | `make-pdfs.sh`, `tools/md2pdf.py` | The PDFs |
@@ -1370,9 +1370,26 @@ there, in `release/`, or on the path; or set `BPP`.
   and a screenshot; twelve kinds of printed part (the lever and bridge in
   halves), each one watertight solid under 200 mm. check-all has six more
   lines. **Not seen by William in the GUI yet.**
-- **Next:** William's choice. Next on the list are the three-dimensional
-  cams (MACHINES.md 9) and the petrol-pump price computer (10); a new pair
-  of bays, or covered bays, would be needed. The covered bays (the planimeter, the tide predictor, the Differential
+- **Added (2026-11-27):** two machines to MACHINES.md, at William's word:
+  the linkages that write (9) and Jaquet-Droz's Draughtsman and Writer
+  (29); rows after each moved on one (the list has 50).
+- **Next (2026-11-27): the linkages that write** (MACHINES.md 9), William's
+  idea: type a letter, and a one-crank linkage computed for it draws it.
+  His synthesizer (`linkage_synthesis.py`, and `linkage_native.c` /
+  `linkage_core.h`, the same in C with OpenMP: a four-bar core and up to
+  six RR dyads, differential evolution, a Grashof gate and assembly
+  margins, shape mode) searched in advance for every letter at three
+  accuracies, a slider choosing (sloppy, ok, very good: about 5%, 2%, 1%
+  RMS of the letter's diagonal), so the visitor sees how many bars more a
+  better letter takes; the slate can replay the search. A first try (3
+  seeds, up to 3 dyads, 5 s a seed on 2 cores): O 4 bars 0.03%, C 8 bars
+  0.9%, D 10 bars 1.5%, L 10 bars 1.7%, A 10 bars 4.0% (A and L want more
+  dyads, seeds and the corners weighted). In bpp: every link a body (the
+  offset pen points rigid plates), every pin a hinge at its own planes, one
+  ramped motor on the crank; first the 8-bar C, the simulated pen against
+  the computed curve. William's synthesizer files are not in the
+  repository yet. After it, the three-dimensional cams (10) and the
+  petrol-pump price computer (11); new bays would be needed. The covered bays (the planimeter, the tide predictor, the Differential
   Analyser, the Difference Engine) wait for their turn in the list.
   Still offered, not asked for: printing only a Digi-Comp program's parts
   (the tiles carry every wall; `make-stls.sh` could take a `PARTS` list,

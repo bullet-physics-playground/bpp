@@ -38,7 +38,7 @@ comes to life.
 | east 9 | The Difference Engine | in preparation |
 
 `HANDOFF.md` is where a new chat starts: how to work, build and test, and
-what's next. `MACHINES.md` lists every machine considered for the hall (48 of them),
+what's next. `MACHINES.md` lists every machine considered for the hall (50 of them),
 in the order the hall walks them, with how each would be simulated and printed.
 
 ## Running it
