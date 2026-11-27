@@ -1457,8 +1457,8 @@ def suite_theory(ctx):
 
     def one(e):
         r = run_bpp(ctx.bpp, ["-f", e["script"], "-n", e["frames"]],
-                    ctx.workdir("theory-" + e["name"]), 3600,
-                    os.path.join(GALLERY, e["name"]), env=e["env"])
+                    ctx.workdir("theory-" + re.sub(r"\W+", "-", e["name"])), 3600,
+                    os.path.join(GALLERY, e["name"].split(":")[0]), env=e["env"])   # [Exhibit: label]
         lines = r.lines()
         why = []
         if r.timed_out:

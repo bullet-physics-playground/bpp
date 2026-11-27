@@ -8,6 +8,7 @@
 # checked here". A tolerance is a few times the agreement the report
 # found, so that a change to the physics fails while another machine's
 # rounding does not. The syntax: class TheoryCheck in tests/harness.py.
+# [Exhibit: label] runs the same exhibit again, with other settings.
 #
 # Exhibits that seed from the clock are given a seed, so that each run is
 # the same.
@@ -245,8 +246,10 @@ expect: Hoop   5th across the line
 # any way rolls back upright; Sloan's gently sloped analytic Gombocs usually stall on
 # their sides under 150 um rolling resistance. Masses V rho = 268.763 cm^3 x 1.2 g/cm^3 x s^3.
 # The drop orientations come from a clock seed, so only seed-independent things are checked.
+# GV_SHAPES=1: Gomboc-C only (3 sizes). Since the printable Gombocs and loaves joined the
+# all-shapes cycle (19 Nov), 70 s of it no longer reaches every Gomboc-C size.
 run: gomboc-variety.lua -n 4200
-env: HOLD_S=0 GV_SEED=1
+env: HOLD_S=0 GV_SEED=1 GV_SHAPES=1
 slow
 # masses (exact from the CAD volume; printed to the gram)
 expect: Gomboc-C, {sim} g = 322.5 ~ 1
@@ -257,8 +260,6 @@ expect: Gomboc-C at 125%, {sim} g = 629.9 ~ 1
 # rolling-resistance bound of 6.0-10.0 deg is too tight for a random-seed run). The pattern
 # also matches "** NOT UPRIGHT **" lines, which then fail. A 70 s run gave 10-16 such reports.
 expect: at rest after {} s, {sim} deg off upright {*}(Gomboc-C = 0 ~ 15 x5
-# the Sloan shapes stall on their sides (report: 0 of 16, 0 of 13, 1 of 12 upright)
-expect: ** NOT UPRIGHT ** {*}(Sloan beta x3
 # not checked here: Gomboc-C from a headstand (GV_START=headstand run)
 # not checked here: residual tilt bound asin(delta/(d s)) (propped bodies exceed it; random seed)
 # not checked here: Sloan upright fraction vs 9% (statistical, small random sample)
@@ -266,6 +267,14 @@ expect: ** NOT UPRIGHT ** {*}(Sloan beta x3
 # not checked here: hull's false resting faces (statics.py, by hand)
 # not checked here: height of balancing point (documented, not printed)
 # not checked here: energy drift with losses off (probe copy of the script, other run)
+
+[Gomboc: Sloan]
+# report/dossiers/Gomboc.md: the Sloan shapes stall on their sides (report: 0 of 16, 0 of 13,
+# 1 of 12 upright). GV_SHAPES=2: Sloan beta only; the first six have all stopped by ~13 s.
+run: gomboc-variety.lua -n 1500
+env: HOLD_S=0 GV_SEED=1 GV_SHAPES=2
+slow
+expect: ** NOT UPRIGHT ** {*}(Sloan beta x3
 
 [Gyroscope]
 # report/dossiers/Gyroscope.md: a gyrostat (rotor 0.585 kg cm^2 at 100 turns/s, slowing
