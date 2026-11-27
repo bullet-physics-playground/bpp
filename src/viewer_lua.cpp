@@ -277,6 +277,7 @@ void Viewer::luaBind(lua_State *s) {
            .property("showConstraints", &Viewer::showConstraints,
                      &Viewer::setShowConstraints)
            .property("showLights", &Viewer::showLights, &Viewer::setShowLights)
+           .property("shadowLight", &Viewer::getShadowLightLua, &Viewer::setShadowLightLua)
 
            // (the user's: a script's assignment is noted and ignored)
            .property("shadows", &Viewer::shadows,

@@ -13,6 +13,10 @@
  * - Texture library integration
  */
 
+#include "light.h"
+
+#include <vector>
+
 #include <QString>
 #include <QTextStream>
 #include <QFile>
@@ -132,22 +136,6 @@ struct PovSceneSettings {
 };
 
 /**
- * @brief Light source description for export.
- */
-struct PovLight {
-  enum Type { Point, Spot, Directional, Area } type = Point;
-  btVector3 position = btVector3(0, 10, 0);
-  btVector3 direction = btVector3(0, -1, 0);
-  QString color = "rgb <1, 1, 1>";
-  float intensity = 1.0f;
-  float radius = 0.0f;  // for area lights
-  float falloff = 0.0f;
-  float tightness = 0.0f;
-  bool shadows = true;
-  QStringList media;  // media interactions
-};
-
-/**
  * @brief Moray-style POV-Ray script writer.
  *
  * Handles exporting a complete POV-Ray scene with proper
@@ -172,9 +160,10 @@ public:
   const PovSceneSettings &sceneSettings() const { return m_settings; }
 
   /**
-   * @brief Adds a light to the scene.
+   * @brief Adds a light to the scene: a copy of it, as it is now (one of
+   * the classes in light.h: PointLight, SpotLight ...).
    */
-  void addLight(const PovLight &light) { m_lights.append(light); }
+  void addLight(const Light &light) { m_lights.push_back(light); }
 
   /**
    * @brief Clears all lights.
@@ -228,7 +217,7 @@ public:
 
 private:
   PovSceneSettings m_settings;
-  QVector<PovLight> m_lights;
+  std::vector<Light> m_lights;   ///< Copies, @see addLight()
   QVector<Object *> m_objects;
   QHash<QString, QString> m_sharedMeshes;  // hash -> filename
   QHash<Object *, QString> m_objectHashes; // object -> hash

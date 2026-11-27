@@ -172,8 +172,12 @@ void Viewer::useScriptLights() {
     all.push_back(kept.first);
   const qglviewer::Vec e = camera()->position();
   int shadow = -1;
+  const Light *preferred = nullptr;
+  if (_shadowChoice.is_valid())
+    if (boost::optional<Light *> c = luabind::object_cast_nothrow<Light *>(_shadowChoice))
+      preferred = *c;
   const std::vector<const Light *> shown =
-      LightPreview::pick(all, btVector3(e.x, e.y, e.z), 8, shadow);
+      LightPreview::pick(all, btVector3(e.x, e.y, e.z), 8, shadow, preferred);
 
   const GLfloat none[4] = {0.0f, 0.0f, 0.0f, 1.0f};
   QVector4D shapes[8];

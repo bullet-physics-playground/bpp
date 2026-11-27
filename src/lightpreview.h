@@ -81,8 +81,12 @@ double strengthAt(const Light &l, const btVector3 &p);
 /// The lights the view shows: at most @p max, those lighting @p eye most,
 /// strongest first. @p shadow is the index (into the result) of the
 /// strongest that isn't shadowless, or -1 when every one is.
+/// @param preferred The script's choice of shadow light (v.shadowLight;
+///                  nullptr: none): shown whatever its strength, and the
+///                  shadow light -- none, if it is shadowless.
 std::vector<const Light *> pick(const std::vector<const Light *> &lights,
-                                const btVector3 &eye, int max, int &shadow);
+                                const btVector3 &eye, int max, int &shadow,
+                                const Light *preferred = nullptr);
 
 } // namespace LightPreview
 

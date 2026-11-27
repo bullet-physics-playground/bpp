@@ -2107,6 +2107,17 @@ public slots:
   bool showLights() const { return _showLights; }
 
   /**
+   * @brief Chooses the light that casts the shadow in the view
+   * (v.shadowLight): one the script added, shown whatever its strength. A
+   * shadowless one casts none, as in POV-Ray. nil: the strongest at the
+   * camera that isn't shadowless (lightpreview.h).
+   * @param light A light (PointLight ...), or nil.
+   */
+  void setShadowLightLua(const luabind::object &light);
+  /// The light chosen with setShadowLightLua(), or nil.
+  luabind::object getShadowLightLua() const;
+
+  /**
    * @brief Requests a repaint, using whichever call this QGLViewer provides.
    */
   void updateGLViewer() {
@@ -2421,6 +2432,9 @@ private:
   /// The script's light casting the shadow this frame (nullptr: v.glLight0,
   /// or none); valid only while drawing, as _lights holds it.
   const Light *_shadowFrom = nullptr;
+  /// The script's choice of shadow light, its handle (v.shadowLight; not
+  /// valid: none). Dropped in closeScript().
+  luabind::object _shadowChoice;
   OrderedSet<btTypedConstraint *> _detached; ///< Constraints taken out of the
                                              ///< world with an object they
                                              ///< join (see removeObject()).

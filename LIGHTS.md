@@ -162,14 +162,26 @@ What this means for the classes:
 - Both rooms are in centimetres with `Lightsys_Scene_Scale` unset (1);
   the demo keeps those units, so lumens and fall-off stay as they were.
 
-### Still open (proposals taken until Jakob says otherwise)
+### Jakob's second answers (November 2026)
 
-- **`PovLight`** (unused, but in the API listing): left as it is for
-  now; replacing it with the new classes is a separate change.
-- **The shadow in the view:** the brightest light at the camera that
-  isn't `shadowless`. (Step 3.)
-- **How close the view looks:** no radiosity there, so steps 3–5 compare
-  where light falls and how it fades, not overall brightness.
+- **`PovLight`: replaced.** `PovScriptWriter:addLight` takes the new
+  classes (a copy of the light as it is); `PovLight` is gone. Its writer
+  had written its lights with z as given (mirrored, against the rest of
+  the export) and its default sun at its direction (shining up from
+  below); its defaults are now a `ParallelLight` sun from above and a dim
+  `PointLight` fill, written by `toPOV()` like any light.
+- **The shadow in the view: the script can choose it.** `v.shadowLight =
+  lamp` (one it added): shown whatever its strength, casting the shadow;
+  a shadowless one casts none, as in POV-Ray. `nil` (to begin with): the
+  strongest at the camera that isn't `shadowless`.
+- **How close the view looks:** "same lit areas, same fall-off" is
+  enough.
+- **The indoor scene:** go ahead with `lightsys-demo-indoor2.lua` (step
+  5); Jakob isn't changing it now.
+- **`cyndi.png`:** to be replaced, if there is a better texture.
+
+### Still open
+
 - **Lights in the galleries' exhibits:** not in this work.
 - **A light following a body** (`v:attach`): later, if a scene needs it.
 

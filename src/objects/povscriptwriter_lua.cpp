@@ -82,19 +82,7 @@ void PovScriptWriter_luaBind(lua_State *s) {
       .def_readwrite("initialFrame", &PovSceneSettings::initialFrame)
       .def_readwrite("finalFrame", &PovSceneSettings::finalFrame),
 
-    class_<PovLight>("PovLight")
-      .def(constructor<>())
-      .def_readwrite("type", &PovLight::type)
-      .def_readwrite("position", &PovLight::position)
-      .def_readwrite("direction", &PovLight::direction)
-      .def_readwrite("color", &PovLight::color)
-      .def_readwrite("intensity", &PovLight::intensity)
-      .def_readwrite("radius", &PovLight::radius)
-      .def_readwrite("falloff", &PovLight::falloff)
-      .def_readwrite("tightness", &PovLight::tightness)
-      .def_readwrite("shadows", &PovLight::shadows),
-
-class_<PovScriptWriter>("PovScriptWriter")
+    class_<PovScriptWriter>("PovScriptWriter")
       .def(constructor<>())
       .def("setSceneSettings", &PovScriptWriter::setSceneSettings)
       .def("sceneSettings", static_cast<PovSceneSettings & (PovScriptWriter::*)()>(&PovScriptWriter::sceneSettings))

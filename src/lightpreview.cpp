@@ -138,10 +138,16 @@ double strengthAt(const Light &l, const btVector3 &p) {
 }
 
 std::vector<const Light *> pick(const std::vector<const Light *> &lights,
-                                const btVector3 &eye, int max, int &shadow) {
+                                const btVector3 &eye, int max, int &shadow,
+                                const Light *preferred) {
   std::vector<std::pair<double, const Light *>> s;
-  for (const Light *l : lights)
+  bool found = false;
+  for (const Light *l : lights) {
     s.emplace_back(strengthAt(*l, eye), l);
+    found = found || l == preferred;
+  }
+  if (!found)
+    preferred = nullptr;              // (not added: the strongest, as without)
   // (stable: equal lights keep the order they were added in, so the choice
   // doesn't flicker between them)
   std::stable_sort(s.begin(), s.end(),
@@ -150,9 +156,14 @@ std::vector<const Light *> pick(const std::vector<const Light *> &lights,
   std::vector<const Light *> out;
   shadow = -1;
   for (const auto &e : s) {
+    // (room kept for the preferred light, wherever it is in the order)
+    if ((int)out.size() >= max - (preferred && std::find(out.begin(), out.end(), preferred) == out.end() ? 1 : 0)
+        && e.second != preferred)
+      continue;
     if ((int)out.size() >= max)
       break;
-    if (shadow < 0 && !e.second->shadowless)
+    if (preferred ? e.second == preferred && !e.second->shadowless
+                  : shadow < 0 && !e.second->shadowless)
       shadow = (int)out.size();
     out.push_back(e.second);
   }

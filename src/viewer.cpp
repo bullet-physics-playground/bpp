@@ -346,6 +346,26 @@ static void setRemovedEntry(lua_State *L, Object *o, const luabind::object *hand
   lua_pop(L, 1);
 }
 
+void Viewer::setShadowLightLua(const luabind::object &light) {
+  if (!light.is_valid() || luabind::type(light) == LUA_TNIL) {
+    _shadowChoice = luabind::object();
+    return;
+  }
+  boost::optional<Light *> l = luabind::object_cast_nothrow<Light *>(light);
+  if (!l || *l == nullptr)
+    throw std::runtime_error("v.shadowLight: a light (PointLight, SpotLight ...) or nil");
+  _shadowChoice = light;
+}
+
+luabind::object Viewer::getShadowLightLua() const {
+  if (_shadowChoice.is_valid())
+    return _shadowChoice;
+  lua_pushnil(L);
+  luabind::object nil(luabind::from_stack(L, -1));
+  lua_pop(L, 1);
+  return nil;
+}
+
 luabind::object Viewer::removeObjectLua(const luabind::object &handle) {
   if (boost::optional<Light *> l = luabind::object_cast_nothrow<Light *>(handle)) {
     for (auto it = _lights.begin(); it != _lights.end(); ++it)

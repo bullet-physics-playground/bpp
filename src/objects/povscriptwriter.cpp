@@ -21,20 +21,15 @@
 using namespace std;
 
 PovScriptWriter::PovScriptWriter() {
-  // Default lights
-  PovLight sun;
-  sun.type = PovLight::Directional;
-  sun.direction = btVector3(0.5, -1, 0.3);
-  sun.color = "rgb <1, 0.95, 0.9>";
-  sun.intensity = 1.0;
-  m_lights.append(sun);
+  // Default lights: a sun from above, warm, and a dim blue fill
+  ParallelLight sun(btVector3(-500, 1000, -300), btVector3(0, 0, 0));
+  sun.col = QColor::fromRgbF(1.0, 0.95, 0.9);
+  m_lights.push_back(sun);
 
-  PovLight fill;
-  fill.type = PovLight::Point;
-  fill.position = btVector3(-5, 5, -5);
-  fill.color = "rgb <0.3, 0.4, 0.6>";
-  fill.intensity = 0.3;
-  m_lights.append(fill);
+  PointLight fill(btVector3(-5, 5, 5));
+  fill.col = QColor::fromRgbF(0.3, 0.4, 0.6);
+  fill.power = 0.3;
+  m_lights.push_back(fill);
 }
 
 void PovScriptWriter::addObject(Object *obj, const QString & /*sceneDir*/) {
@@ -308,47 +303,8 @@ void PovScriptWriter::writeCamera(QTextStream &s) {
 
 void PovScriptWriter::writeLights(QTextStream &s) {
   s << "// Lights\n";
-  for (const PovLight &light : m_lights) {
-    if (light.type == PovLight::Point || light.type == PovLight::Spot) {
-      s << "light_source {\n";
-      s << "  <" << light.position.x() << ", " << light.position.y() << ", " << light.position.z() << ">\n";
-      s << "  color " << light.color << " * " << light.intensity << "\n";
-
-      if (light.type == PovLight::Spot) {
-        s << "  spotlight\n";
-        s << "  direction <" << light.direction.x() << ", " << light.direction.y() << ", " << light.direction.z() << ">\n";
-        s << "  point_at <" << (light.position.x() + light.direction.x()) << ", "
-          << (light.position.y() + light.direction.y()) << ", " << (light.position.z() + light.direction.z()) << ">\n";
-        if (light.falloff > 0) s << "  falloff " << light.falloff << "\n";
-        if (light.tightness > 0) s << "  tightness " << light.tightness << "\n";
-        if (light.radius > 0) s << "  radius " << light.radius << "\n";
-      }
-
-      if (!light.shadows) s << "  shadowless\n";
-
-      for (const QString &m : light.media) {
-        s << "  " << m << "\n";
-      }
-
-      s << "}\n\n";
-    } else if (light.type == PovLight::Directional) {
-      s << "light_source {\n";
-      s << "  <" << light.direction.x() << ", " << light.direction.y() << ", " << light.direction.z() << ">\n";
-      s << "  color " << light.color << " * " << light.intensity << "\n";
-      s << "  parallel\n";
-      if (!light.shadows) s << "  shadowless\n";
-      s << "}\n\n";
-    } else if (light.type == PovLight::Area) {
-      s << "light_source {\n";
-      s << "  <" << light.position.x() << ", " << light.position.y() << ", " << light.position.z() << ">\n";
-      s << "  color " << light.color << " * " << light.intensity << "\n";
-      s << "  area_light <1, 0, 0>, <0, 0, 1>, 10, 10\n";
-      s << "  adaptive 1\n";
-      s << "  jitter\n";
-      if (!light.shadows) s << "  shadowless\n";
-      s << "}\n\n";
-    }
-  }
+  for (const Light &light : m_lights)
+    s << light.toPOV() << "\n";
 }
 
 void PovScriptWriter::writeBackground(QTextStream &s) {

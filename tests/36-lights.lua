@@ -196,4 +196,35 @@ v:add(b)
 a.pos.x = 5                                     -- (a light added is changed in place)
 assert_eq("a light added can be moved", a.pos.x, 5)
 
+-- v.shadowLight: the script's choice of the light casting the shadow in
+-- the view; nil, the strongest (and set to nil again)
+assert_eq("v.shadowLight nil to begin with", v.shadowLight, nil)
+v.shadowLight = b
+assert_eq("v.shadowLight reads back", v.shadowLight, b)
+v.shadowLight = nil
+assert_eq("v.shadowLight back to nil", v.shadowLight, nil)
+local ok = pcall(function() v.shadowLight = 3 end)
+assert_eq("v.shadowLight refuses what isn't a light", ok, false)
+assert_eq("v.shadowLight unchanged by that", v.shadowLight, nil)
+
+-- PovScriptWriter takes the same lights (PovLight is gone): copies, as
+-- they were when added, written as each light's toPOV()
+assert_eq("PovLight gone", PovLight, nil)
+local w = PovScriptWriter()
+w:clearLights()
+local s1 = SpotLight(btVector3(0, 100, 0), btVector3(0, 0, 0))
+w:addLight(s1)
+local written = s1:toPOV()
+s1.pos = btVector3(1, 2, 3)                     -- (after: not in the copy)
+local dir = os.tmpname()
+os.remove(dir)
+assert_eq("PovScriptWriter writes", w:writeScene(dir, 1), true)
+local f = io.open(dir .. "/scene.pov")
+local text = f and f:read("*a") or ""
+if f then f:close() end
+os.remove(dir .. "/scene.pov")
+os.remove(dir)
+assert_eq("PovScriptWriter writes the light as it was added", text:find(written, 1, true) ~= nil, true)
+assert_eq("PovScriptWriter: one light, after clearLights", select(2, text:gsub("light_source {", "")), 1)
+
 print(pass .. " passed, " .. fail .. " failed")

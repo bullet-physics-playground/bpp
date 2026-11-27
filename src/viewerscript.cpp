@@ -162,6 +162,7 @@ void Viewer::closeScript() {
   _cb_onSpaceNavigator = luabind::object();
   _hover.clear();
   _lights.clear();                   // (their handles: before Lua closes)
+  _shadowChoice = luabind::object();
 
   _params.releaseLua();
 

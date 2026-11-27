@@ -1102,17 +1102,6 @@ class PointLight
   __init: void __init(luabind::argument const&,btVector3 const&)
   __tostring: void __tostring(lua_State*,Light const&)
   toPOV: custom [QString] toPOV(Light const&)
-class PovLight
-  .color
-  .direction
-  .falloff
-  .intensity
-  .position
-  .radius
-  .shadows
-  .tightness
-  .type
-  __init: void __init(luabind::argument const&)
 class PovSceneSettings
   .antialias
   .assumedGamma
@@ -1184,7 +1173,7 @@ class PovSceneSettings
   __init: void __init(luabind::argument const&)
 class PovScriptWriter
   __init: void __init(luabind::argument const&)
-  addLight: void addLight(PovScriptWriter&,PovLight const&)
+  addLight: void addLight(PovScriptWriter&,Light const&)
   addObject: void addObject(PovScriptWriter&,Object*,custom [QString] const&)
   clearLights: void clearLights(PovScriptWriter&)
   sceneSettings: PovSceneSettings& sceneSettings(PovScriptWriter&)
@@ -1861,6 +1850,7 @@ class Viewer
   .shadowCasters
   .shadowDarkness
   .shadowFromSaved
+  .shadowLight
   .shadowMapSize
   .shadowSaved
   .shadowSoftness
