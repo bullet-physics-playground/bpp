@@ -42,6 +42,9 @@ check "Pascaline, on its own"     4200 $H/exhibits/Pascaline/pascaline.lua
 check "Domino Half Adder, on its own" 1750 $H/exhibits/DominoAdder/domino-adder.lua
 check "Slide adder, on its own"   6500 $H/exhibits/SlideAdder/slide-adder.lua
 check "Slide adder, subtracting"  6500 $H/exhibits/SlideAdder/slide-adder.lua SA_WAY=subtract
+check "Linkages, the inverter, alone" 1400 $H/exhibits/Linkages/linkages.lua
+check "Linkages, the straight line"  1200 $H/exhibits/Linkages/linkages.lua LN_WAY=line
+check "Linkages, multiplying, alone" 1800 $H/exhibits/Linkages/linkages.lua LN_WAY=multiply
 check "Lehmer's sieve, on its own"  2600 $H/exhibits/LehmerSieve/lehmer-sieve.lua
 check "Galton board, on its own"   6000 $H/exhibits/GaltonBoard/galton.lua
 check "Splitter board, on its own" 7000 $H/exhibits/GaltonBoard/splitter-board.lua
@@ -63,6 +66,9 @@ check "Pascaline, in the hall"    4000 $H/hall.lua HALL_START=pascaline
 check "Domino Half Adder, in the hall" 2400 $H/hall.lua HALL_START=domino
 check "Slide adder, in the hall"  7200 $H/hall.lua "HALL_START=slide adder"
 check "Slide adder subtracting, hall" 7200 $H/hall.lua "HALL_START=adder: sub"
+check "Linkages, in the hall"       2000 $H/hall.lua HALL_START=linkages
+check "Linkages straight line, hall" 1800 $H/hall.lua "HALL_START=straight line"
+check "Linkages multiplying, hall"  2400 $H/hall.lua "HALL_START=linkages: mult"
 check "Lehmer's sieve, in the hall" 3000 $H/hall.lua HALL_START=lehmer
 check "Galton board, in the hall"  6600 $H/hall.lua HALL_START=galton
 check "Splitter board, in the hall" 7600 $H/hall.lua HALL_START=splitter

@@ -397,6 +397,84 @@ LABELS = {
         "An Addiator shows such numbers the same way; the person using it "
         "has to know.",
     )],
+    "linkages": [(                    # (Peaucellier, Nouvelles Annales 1864, 1873; Lipkin 1871)
+        "THE INVERTER",
+        "Peaucellier's cell, 1864",
+        "Two long arms from the fixed pin O hold a rhombus of four short "
+        "bars at its far corners A and B. Its other corners, P and Q, then "
+        "stay on one line through O, and OP times OQ is always the long "
+        "arm squared less the short side squared: here 100.\n"
+        "The hand slides P to x; Q stops at 100 / x. Type x, 5 to 9, and "
+        "press Return.",
+    ), (
+        "WHY IT HOLDS",
+        "Two right triangles",
+        "A and B are each as far from P as from Q, and O is as far from A "
+        "as from B: so O, P and Q lie on one line, square across AB at its "
+        "middle, M.\n"
+        "Then OA squared is OM squared plus AM squared, and PA squared is "
+        "PM squared plus AM squared. Take one from the other: OA squared "
+        "less PA squared is OM squared less PM squared, which is OP times "
+        "OQ.",
+    ), (
+        "BARS FLAT ON A BOARD",
+        "From the Walker Room",
+        "Bars that hinge together lie at different heights, so they pass "
+        "over each other. Each hinge pins its two ends at both heights, "
+        "or the bars lean and the reading drifts.\n"
+        "The board lies flat, so gravity pulls across the movement and "
+        "the bars carry none of it.",
+    )],
+    "linkages-line": [(
+        "A STRAIGHT LINE",
+        "The circle through O",
+        "Put P on a crank whose circle passes through O. Turned inside out "
+        "by the cell, that circle becomes a straight line, and Q goes "
+        "along it: its pen draws the line.\n"
+        "Press Return: the crank turns across and back, and the slate "
+        "reports how far the pen strays from the line.",
+    ), (
+        "THE FIRST EXACT ONE",
+        "Watt's was only close",
+        "Watt's linkage of 1784 guided his steam engine's piston near a "
+        "straight line, but not on one. Peaucellier's, from 1864, is "
+        "exact, and Lipkin found it again in 1871.\n"
+        "Sylvester lectured on it in London in 1874, and Kelvin is said to "
+        "have called it the most beautiful thing he had ever seen.",
+    ), (
+        "WHERE THE LINE LIES",
+        "Half the constant over the crank",
+        "The crank's circle has radius 3.5 and passes through O. Its far "
+        "point, 7 from O, inverts to 100 / 7: the line stands 14.29 from "
+        "O, square across the line through O and the crank's pivot.\n"
+        "A longer crank brings the line nearer.",
+    )],
+    "linkages-multiply": [(
+        "A MULTIPLIER",
+        "Similar triangles",
+        "A slotted lever turns about the fixed pin O. Across the board, at "
+        "distance 6 along it, the b carriage tilts the lever: it rises "
+        "0.75 b there.\n"
+        "At a along the board, 4 a here, the lever has risen 4a times "
+        "0.75b over 6: half of a times b. The cross carriage's pin rides "
+        "the slot there, and its scale reads a times b.",
+    ), (
+        "THE PINS IN THE SLOT",
+        "Blocks on the lever",
+        "Each pin is a block that slides along the lever, hinged to its "
+        "carriage. The blocks lie beside the lever, above and below it, "
+        "so the two can pass.\n"
+        "Type a, 2 to 5, Space, and b, -5 to 5, then Return. Set a and b "
+        "the same, and it squares.",
+    ), (
+        "MECHANISMS THAT COMPUTE",
+        "Kempe, 1876",
+        "Alfred Kempe proved in 1876 that linkages can draw any curve "
+        "given by a polynomial: they add, multiply and invert.\n"
+        "Gun directors of the Second World War worked out their fire "
+        "with such linkages, made of bars and pins, before electronics "
+        "took over.",
+    )],
     "beadsort-spaghetti": [(          # (A. K. Dewdney, Scientific American 250(6), June 1984, p. 19)
         "THE SPAGHETTI SORT",
         "Sorting by height",

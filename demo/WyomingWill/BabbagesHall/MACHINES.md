@@ -50,6 +50,10 @@ Half Adder sixth, with the Pascaline and the Galton board (all scored 4),
 and Lehmer's sieve second, for its modest mechanism, though factoring by
 modular wheels asks far more of a visitor than adding does.
 
+**Changes (2026-11-26):** the linkages (number 8) built, in east 4,
+facing the slide adder: Peaucellier's inverter, his straight line, and a
+multiplier.
+
 **Changes (2026-11-25):** the slide adder (number 7) built, in west 4,
 and a covered bay for the linkages (8) facing it.
 
@@ -93,7 +97,7 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 | 5 | 1 | Bead sort and spaghetti sort | modern | physical sorting: beads fall on rods, or rods are stood on end | the bead sort built: nine steel rods on a printed frame, 72 printed beads on sliders held by friction; a hand threads each number's row, turns the frame upright on its hinge, and the rows are read from where the beads land; a slate shows the numbers laid and the rows. Its second way (`Tab`), the spaghetti sort: printed rods cut to 30 + 12 n mm stand upright in a rack (a base, a notch for each foot, a comb), a palm on a slide is lowered onto them and the rod it touches first, read from the contacts, is drawn out and laid down | 3 | 1 | built |
 | 6 | 1 | Domino Half Adder | modern | dominoes falling add two bits | built: 268 dominoes on printed tiles | 3 | 2 | built |
 | 7 | 1 | Slide adder (troncet, Addiator) | 1889 / 1920 | slides moved with a stylus add and carry by a hook | flat slides; the carry hook is the trick. Built upright, six printed bands of pegs on sliders behind a cover whose slots are joined by channels along the top (carry) and the bottom (borrow); the stylus a body moved by a hand's limited force; Tab: subtracting | 3 | 2 | built |
-| 8 | 1 | Linkage function generators (the Peaucellier–Lipkin inverter and others) | 1864 / 1900s | bar linkages that compute a product, a square, a log; Peaucellier's computes 1/x | a few hinged bars each; a set of them would make one bay | 3 | 2 | bay |
+| 8 | 1 | Linkage function generators (the Peaucellier–Lipkin inverter and others) | 1864 / 1900s | bar linkages that compute a product, a square, a log; Peaucellier's computes 1/x | a few hinged bars each; a set of them would make one bay. Built flat on a board, every bar a body and every pin a hinge (the Walker Room's rules): Peaucellier's inverter (100 / x); Tab: his straight line, a slotted-lever multiplier | 3 | 2 | built |
 | 9 | 1 | Three-dimensional cams | 1930s | a cam shaped by two inputs gives a function of both (fire control's tables) | one shaped cam and a follower; prints well | 3 | 2 |  |
 | 10 | 1 | Petrol-pump price computer | 1930s | multiplies the litres pumped by the price per litre, continuously, with variable-ratio gearing | a variator and counters; small | 3 | 2 |  |
 | 11 | 2 | The Differential | 1827 | gears that add and subtract (Pecqueur's patent; older in clocks) | built: printed bevel gears | 3 | 2 | built |
@@ -175,7 +179,7 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 The hall's bays are walked in the list's order, so a new exhibit goes in
 its place in it and the bays after it move along one (the hall grows by a
 pair of facing bays when it needs one). With eighteen bays (since
-2026-11-25) the hall holds the thirteen built and the five covered "in
+2026-11-25) the hall holds the fourteen built and the four covered "in
 preparation", in this order: the suanpan and the slide rule (west 1, east
 1), Napier's bones and the combination lock (west 2, east 2), the bead sort
 and the Domino Half Adder (west 3, east 3), the slide adder and the

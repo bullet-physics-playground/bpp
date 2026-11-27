@@ -25,7 +25,7 @@ comes to life.
 | west 3 | **The bead and spaghetti sorts**: numbers as rows of beads on nine rods; turned upright, gravity sorts them. Two ways (`Tab`): the bead sort, and the spaghetti sort, rods cut to the numbers' lengths and stood on end, a flat palm lowered onto them taking the tallest first | `exhibits/BeadSort/` |
 | east 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
 | west 4 | **The slide adder**: Troncet's arithmographe and the Addiator: a stylus moves banded columns, and carries round a hook at the top; Tab: adding, subtracting (borrowing round the bottom) | `exhibits/SlideAdder/` |
-| east 4 | Linkages that compute (Peaucellier's inverter and others) | in preparation |
+| east 4 | **Linkages that compute**: hinged bars flat on a board. Peaucellier's inverter puts Q at 100 / x; Tab: his straight line, drawn by a pen; a slotted-lever multiplier (a × b, and squares) | `exhibits/Linkages/` |
 | west 5 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
 | east 5 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
 | west 6 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |

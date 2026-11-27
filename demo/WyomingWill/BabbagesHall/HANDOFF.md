@@ -29,7 +29,9 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
 - Built so far, in walking order: **the suanpan** (west 1, since
   2026-11-15), **the slide rule** (east 1, since 2026-11-16), **Napier's bones** (west 2, since 2026-11-16), **the combination lock** (east 2, since 2026-11-19), **the bead sort** (west 3, since 2026-11-22; its second way, the spaghetti sort, since 2026-11-24),
   **the Domino Half Adder** (east 3), **the slide adder** (west 4, since
-  2026-11-25), **the Differential** (west 5), **the
+  2026-11-25), **the linkages** (east 4, facing it, since 2026-11-26:
+  Peaucellier's inverter; Tab: his straight line, a multiplier),
+  **the Differential** (west 5), **the
   Pascaline** (east 5), **the Galton
   board** (west 6, since 2026-11-12), **the splitter board** (east 6,
   facing it, since 2026-11-14), **Lehmer's number sieve** (east 7), and
@@ -38,8 +40,7 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
   a cup of balls and a bought rotary damper; each program has only its
   parts on the board, and the operator's hand is shown).
-  Covered bays wait for the linkages (east 4: facing the slide adder, so
-  that it moved what follows one row on), Amsler's planimeter (west 7:
+  Covered bays wait for Amsler's planimeter (west 7:
   after the splitter board, so that it and the Galton board still face
   each other), Kelvin's tide predictor (east 8), the Differential Analyser
   (west 9) and the Difference Engine (east 9): eighteen bays, nine pairs.
@@ -107,6 +108,7 @@ git push
 | `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
 | `exhibits/DigiComp2/MANUAL.md`, `manual/` | The Digi-Comp's illustrated manual; `manual/make-figures.sh` redraws its figures from the geometry (lua, python3, matplotlib). `tools/md2pdf.py` puts a `.md` file's images into its PDF |
 | `exhibits/SlideAdder/manual/make-figures.py` | The slide adder's manual figures, from its sizes |
+| `exhibits/Linkages/manual/make-figures.py` | The linkages' manual figures (the cell, the line, the multiplier's triangles), from their sizes |
 | `exhibits/BeadSort/spaghetti-sort.lua` | The bead sort's second way (`BS_WAY=spaghetti`: `bead-sort.lua` hands over to it); `BS_TILT` tilts its palm, a test |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
 
@@ -522,6 +524,21 @@ there, in `release/`, or on the path; or set `BPP`.
   rib behind it). And its ribs, run the full height, crossed the zeroing
   bar's path; an overlap check of the parts at rest missed it, one at each
   end of the bar's travel found it.
+- **A hinge pins its two points together in all three directions**
+  (`btHingeConstraint`), not just across its axis. Between bars in
+  different planes, give the pin's point on one bar at the other bar's
+  height (`pa.y + planeY(B) - planeY(A)`), or the pin pulls the bars
+  toward one plane and they lean: Peaucellier's inverter read 16% off,
+  then 0.04% (the linkages' `FINDINGS.md`).
+- **A linkage wants stiff hinges and solver iterations** (the Walker
+  Room's rule): one closed loop of six bars held at 10; the multiplier's
+  long chain of sliders and hinges went wrong at 10 and was right at 20.
+  The linkages run at 80. And a hand that reverses at once jerks a
+  linkage: ramp a driving motor's speed (a third of a second took the
+  straight line's pen from 0.07 mm off to 0.004).
+- **A linkage's constant is a difference of squares** (OA² − PA² = 100):
+  0.02 mm on a 150 mm bar moved Peaucellier's answer 0.06%. Work out the
+  lengths to the answer's precision, not the bar's.
 - **Rebuilding in a build folder that has a `release/bpp`** can go wrong:
   the precompiled header has the program's name (`PRECOMPILED_HEADER` in
   `bpp.pro`), and when it must be remade gcc can take the binary for the
@@ -1331,8 +1348,31 @@ there, in `release/`, or on the path; or set `BPP`.
   faces it, so that everything after moved one row on, each on its own
   side (bay numbers changed in the READMEs, manuals and PDF subtitles).
   **Not seen by William in the GUI yet.**
-- **Next:** William's choice; the linkages' covered bay faces the slide
-  adder. The covered bays (the planimeter, the tide predictor, the Differential
+- **Done (2026-11-26): the linkages** (MACHINES.md 8, east 4, facing the
+  slide adder), three ways (`Tab`, `LN_WAY`): Peaucellier's inverter
+  (arms 15.052, rhombus 11.25: OP × OQ = 100; P set at x from 5 to 9, Q
+  read at 100 / x), his straight line (P on a crank whose circle passes
+  through O; Q's pen dots x = 100 / 7), and a slotted-lever multiplier (the
+  b carriage at 6 tilts the lever, the bridge at 4a carries the cross
+  carriage: a b / 2, its scale marked double). Every bar, carriage, block,
+  the lever and the bridge a body, every pin a hinge, every slot a slider;
+  the board lies flat. Built on the Walker Room's rules (William's
+  suggestion: planes 7 mm apart, hubs, stiff hinges and solver iterations)
+  and one found here: a hinge's two points must be at their own planes
+  (16% off became 0.04%). Tours: x = 5, 6.25, 8, 9 (frame 826); the crank
+  ±80° and back, the pen 0.003 mm off at most (frame 658); 3 × 4, 2.5 ×
+  2.5, 4.5 × −2, 5 × 5 (frame 1147). Sweeps of 24 settings (21 for the
+  line) at 20, 40 and 80 iterations, 300 and 1200 steps a second, and a
+  fast hand: none wrong; 10 iterations fail the multiplier and the line.
+  The line first failed at its turns, the hand reversing at once: the
+  crank's motor now ramps. Placard LINKAGES THAT COMPUTE; three lectern
+  cards of three pages; MANUAL with figures (`manual/make-figures.py`)
+  and a screenshot; twelve kinds of printed part (the lever and bridge in
+  halves), each one watertight solid under 200 mm. check-all has six more
+  lines. **Not seen by William in the GUI yet.**
+- **Next:** William's choice. Next on the list are the three-dimensional
+  cams (MACHINES.md 9) and the petrol-pump price computer (10); a new pair
+  of bays, or covered bays, would be needed. The covered bays (the planimeter, the tide predictor, the Differential
   Analyser, the Difference Engine) wait for their turn in the list.
   Still offered, not asked for: printing only a Digi-Comp program's parts
   (the tiles carry every wall; `make-stls.sh` could take a `PARTS` list,

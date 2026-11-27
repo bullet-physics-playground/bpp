@@ -191,8 +191,20 @@ EXHIBITS = EXHIBITS or {
     } },
   { dir = "exhibits/Linkages/", file = "linkages.lua", name = "the linkages", label = "linkages",
     prefix = "Linkages: ", floorY = -100,
-    about = "Linkages that compute (MACHINES.md 8): hinged bars that give a product, a square, a\n" ..
-            "logarithm; Peaucellier's (1864) turns x into 1/x. In preparation, facing the slide adder." },
+    about = "Linkages that compute: hinged bars, flat on a board. Peaucellier's inverter (1864): two arms\n" ..
+            "and a rhombus keep OP x OQ at 100, so with P set at x, Q stops at 100 / x. Type x (5 to 9),\n" ..
+            "Return. Tab: Peaucellier's straight line; a multiplier. T: the tour; PgDn turns pages.",
+    modes = {
+      { key = "inverter", name = "the linkages", card = "linkages", env = { LN_WAY = "inverter" } },
+      { key = "line", name = "the linkages: a straight line", card = "linkages-line", env = { LN_WAY = "line" },
+        about = "Peaucellier's straight line: the same linkage, P on a crank whose circle passes through O.\n" ..
+                "Q, the inverse of a circle through O, goes along a straight line, and its pen draws it:\n" ..
+                "the first exact straight line by linkage (1864). Return turns the crank across and back." },
+      { key = "multiply", name = "the linkages: multiplication", card = "linkages-multiply", env = { LN_WAY = "multiply" },
+        about = "A multiplier: a slotted lever through a fixed pin. The b carriage, across at a fixed distance,\n" ..
+                "tilts it; the bridge, at a along the board, carries a cross carriage whose pin rides the\n" ..
+                "slot: it stands at a x b. Type a (2 to 5), Space, b (-5 to 5), Return; a = b squares." },
+    } },
   { dir = "exhibits/Differential/", file = "differential.lua", name = "the Differential", label = "differential",
     prefix = "Differential: ", floorY = -100,
     about = "The Differential: gears that add. The carrier turns (A + B) / 2, and its\n" ..
