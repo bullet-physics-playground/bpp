@@ -609,7 +609,9 @@ void Viewer::drawLights() {
     switch (LightPreview::shownKind(l)) {
     case Light::Spot: {
       const btScalar len = 3 * s;
-      const btScalar r = len * btTan(btRadians(btScalar(std::min(80.0, l.falloff))));
+      // (drawn to 60 degrees at most: a LightSys "cosine" lamp's falloff
+      // of 89.9 would otherwise throw lines across the whole view)
+      const btScalar r = len * btTan(btRadians(btScalar(std::min(60.0, l.falloff))));
       btVector3 u, w;
       btPlaneSpace1(dir, u, w);
       glBegin(GL_LINES);

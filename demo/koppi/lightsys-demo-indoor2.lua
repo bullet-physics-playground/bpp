@@ -4,6 +4,8 @@
 -- A furnished room lit with LightSys: fluorescent tubes, incandescent lamps,
 -- a spotlight and a window/daylight source, all through CIE XYZ color
 -- management. The lighting "tune" matches the #switch (Tune) in the original.
+-- The lights are bpp's light classes (LIGHTS.md), so they light the 3D view
+-- as well as the render.
 --
 -- Original POV-Ray scene: demo_indoor2.pov
 -- Author: Ive, Mai-2003
@@ -23,7 +25,8 @@ v:addParam("tune", 2, 0, 3, 1,
   "lighting tune: 0=user (all), 1=daylight, 2=incandescent, 3=fluorescent")
 
 -- Build the POV-Ray preamble: CIE + LightSys includes, spectra, lumens,
--- pigment declarations, texture definitions and the light sources themselves.
+-- pigment declarations and texture definitions. (The light sources are the
+-- light classes below; their LightSys colours are the LC* declared here.)
 --
 -- This is raw POV-Ray SDL, written verbatim into the exported .pov, so
 -- coordinates here are POV-space (z as in the original .pov). bpp objects
@@ -43,7 +46,7 @@ local function buildPreSDL(tune)
 
 #declare Lightsys_Brightness = 0.67;
 
-#declare AreaLight = off;
+// (the original's AreaLight switch is AREA in the Lua below)
 
 #declare PutMondrian = off;
 #declare PutChairs   = on;
@@ -59,31 +62,15 @@ local function buildPreSDL(tune)
 #switch (Tune)
   #case (Daylight_Tune)
     #declare Film_Temperature = Kt_Daylight_Film;
-    #declare L1  = off;// neon tubes
-    #declare L2  = off;// incandescent lamps
-    #declare L3  = off;// spotlight
-    #declare LD  = on; // window
   #break
   #case (Incandescent_Tune)
     #declare Film_Temperature = Kt_Indoor_Film;
-    #declare L1  = off;// neon tubes
-    #declare L2  = on; // incandescent lamps
-    #declare L3  = on; // spotlight
-    #declare LD  = off;// window
   #break
   #case (Fluorescent_Tune)
     #declare Film_Temperature = Kt_Fluorescent_Film;
-    #declare L1  = on; // neon tubes
-    #declare L2  = off;// incandescent lamps
-    #declare L3  = on; // spotlight
-    #declare LD  = off;// window
   #break
   #else // User_Tune
     #declare Film_Temperature = Kt_TungstenA_Film;
-    #declare L1  = on; // neon tubes
-    #declare L2  = on; // incandescent lamps
-    #declare L3  = on; // spotlight
-    #declare LD  = off;// window
 #end
 
 // ColorSystem and Whitepoint for light sources
@@ -184,65 +171,95 @@ global_settings {
   assumed_gamma 1.0
   max_trace_level 15
 }
-
-// ------------------------------------------------------------
-// Light sources
-// ------------------------------------------------------------
-
-// Neon tubes (fluorescent), three tubes along the ceiling
-#if (L1)
-#declare C1 = Light_Color(LC1, LM1 * 1/3);
-light_source { 0, rgb C1
-   Light_Fading()
-   translate <-20,-6,0>
-}
-light_source { 0, rgb C1
-   Light_Fading()
-   translate < 0,-6,0>
-}
-light_source { 0, rgb C1
-   Light_Fading()
-   translate < 20,-6,0>
-}
-#end
-
-// Incandescent lamps
-#if (L2)
-#declare C2 = Light_Color(LC2, LM2);
-light_source { 0, rgb C2
-   Light_Fading()
-   translate < 65,185,40>
-}
-light_source { 0, rgb C2
-   Light_Fading()
-   translate <-65,185,40>
-}
-#end
-
-// Spotlight pointing at the back wall
-#if (L3)
-#declare C3 = Light_Color(LC3, LM3);
-light_source { 0, rgb C3
-   spotlight radius 24 falloff 35 tightness 15 point_at <0,128,0>
-   Light_Fading()
-   translate < 38,275,180>
-}
-#end
-
-// Window / daylight
-#if (LD)
-#declare CD = Light_Color(LCD, LMD);
-light_source { 0, rgb CD
-   area_light <80,0,0>, <0,120,0>, 6, 8 adaptive 2 jitter
-   Light_Fading()
-   Light_Spot_Cos_Falloff(z)
-   translate <0,70,9>
-}
-#end
 ]==]
 end
 
-v.pre_sdl = buildPreSDL(v:getParam("tune"))
+-- ---------------------------------------------------------------------------
+-- Light sources: bpp's light classes. Each is where the original's fixture
+-- puts its light, carried to the world through the fixture's own rotate
+-- and translate (POV-Ray worked them out), with z negated for Bullet
+-- space. lightsys is the spectrum declared in the preamble, lumens the
+-- original's; col is only the hue the 3D view shows (it can't read a
+-- LightSys colour). A LightSys "cosine falloff" lamp (Light_Spot_Cos_Falloff)
+-- is a spot of radius -89.9, falloff 89.9, tightness 1.
+-- ---------------------------------------------------------------------------
+
+-- The original's AreaLight switch: soft shadows in the render, slower.
+local AREA = false
+
+-- (the 3D view: little ambient light, so where the lamps' light falls
+-- shows; POV-Ray has radiosity for that)
+v.glAmbient = 0.08
+v.glModelAmbient = 0.08
+
+local function cosineSpot(pos, at)
+  local l = SpotLight(pos, at)
+  l.radius, l.falloff, l.tightness = -89.9, 89.9, 1
+  return l
+end
+
+local function area(l, axis1, axis2, n1, n2, roundLamp)
+  if not AREA then return end
+  l.axis1, l.axis2, l.n1, l.n2 = axis1, axis2, n1, n2
+  l.adaptive, l.jitter = 2, true
+  l.circular, l.orient = roundLamp, roundLamp
+end
+
+local lights = { L1 = {}, L2 = {}, L3 = {}, LD = {} }
+
+-- L1: two fluorescent tubes on the right wall, three lights in each
+-- (LM1 lumens shared between them)
+for _, z in ipairs({ 46, 66, 86, -46, -66, -86 }) do
+  local l = PointLight(btVector3(194, 228, z))
+  l.lightsys, l.lumens, l.col = "LC1", 300 / 3, "#eaf2ff"
+  area(l, btVector3(0, 0, 20), btVector3(0, -7, 0), 3, 2, false)
+  table.insert(lights.L1, l)
+end
+
+-- L2: two incandescent lamps hanging over the room, shining down
+for _, x in ipairs({ 65, -65 }) do
+  local l = cosineSpot(btVector3(x, 186, -40), btVector3(x, 185, -40))
+  l.lightsys, l.lumens, l.col = "LC2", 890, "#ffcf9a"   -- (Lm_Incandescent_60w)
+  area(l, btVector3(7, 0, 0), btVector3(0, 0, -7), 4, 4, true)
+  table.insert(lights.L2, l)
+end
+
+-- L3: the spotlight on the Mondrian, tilted 32 degrees toward it
+do
+  local l = SpotLight(btVector3(38, 275.848, -179.4701), btVector3(38, 275, -180))
+  l.radius, l.falloff, l.tightness = 24, 35, 15
+  l.lightsys, l.lumens, l.col = "LC3", 965, "#f2f5ff"
+  area(l, btVector3(5, 0, 0), btVector3(0, 2.6496, -4.2402), 4, 4, true)
+  table.insert(lights.L3, l)
+end
+
+-- LD: daylight through the window in the left wall, into the room
+do
+  local l = cosineSpot(btVector3(-200, 160, 60), btVector3(-199, 160, 60))
+  l.lightsys, l.lumens, l.col = "LCD", 2100, "#f0f4ff"
+  area(l, btVector3(0, 0, 80), btVector3(0, 120, 0), 6, 8, false)
+  table.insert(lights.LD, l)
+end
+
+-- Which lights each tune has (the original's #switch (Tune))
+local TUNES = {
+  [0] = { "L1", "L2", "L3" },   -- user
+  [1] = { "LD" },               -- daylight
+  [2] = { "L2", "L3" },         -- incandescent
+  [3] = { "L1", "L3" },         -- fluorescent
+}
+
+local function applyTune(tune)
+  v.pre_sdl = buildPreSDL(tune)
+  for _, group in pairs(lights) do
+    for _, l in ipairs(group) do v:remove(l) end
+  end
+  for _, name in ipairs(TUNES[tune] or TUNES[2]) do
+    for _, l in ipairs(lights[name]) do v:add(l) end
+  end
+end
+
+applyTune(v:getParam("tune"))
 
 -- ---------------------------------------------------------------------------
 -- Room geometry (Bullet space: z is negated on POV export, so negate z
@@ -603,12 +620,12 @@ common.setCamera(btVector3(-8, 135, 236), btVector3(34, 128, 0), math.rad(75),
 common.setTiming(1 / 25)
 
 -- ---------------------------------------------------------------------------
--- Parameter handling: rebuild the POV preamble (lights) when the tune changes.
+-- Parameter handling: the tune's lights and film when the tune changes.
 -- ---------------------------------------------------------------------------
 
 v:onParamChanged(function(N, name, value)
   if name == "tune" then
-    v.pre_sdl = buildPreSDL(tonumber(value))
+    applyTune(tonumber(value))
   end
 end)
 

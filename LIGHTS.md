@@ -267,6 +267,35 @@ way the galleries' work went.
 5. **The indoor scene**, rebuilt from its source as a demo, lights and all.
    *Check:* bpp's view next to its POV-Ray render and next to the original
    LightSys render.
+   *Done:* `demo/koppi/lightsys-demo-indoor2.lua` (Jakob's port of
+   `demo_indoor2.pov`). What it came to:
+   - Its lights are the classes now: six tube lights, two lamps, the spot
+     and the window, each where the original's fixture puts it -- POV-Ray
+     worked the world positions out from the .pov's nested `rotate` and
+     `translate` -- with its LightSys spectrum (`LC1` ... `LCD`, declared
+     in `v.pre_sdl` as before) and lumens. The tune adds and takes out
+     the lights the original's `#switch (Tune)` switched; `v.pre_sdl` keeps
+     the film temperature, spectra and textures. The original's
+     `AreaLight` switch is `AREA` in the Lua (off, as in the port).
+   - That fixed three slips in the raw SDL: the tubes were below the
+     floor (`translate <..,-6,0>` without their fixture's), the spot aimed
+     above itself (POV-Ray moves `point_at` with `translate`), and the
+     lamps lacked their downward cosine fall-off.
+   - Compared with POV-Ray 3.8 rendering the export, in the incandescent,
+     daylight and fluorescent tunes: the same lit areas (the spot's pool
+     over the Mondrian, the lamps on the upper walls, the tubes' patches
+     on the brick, the window's light across the floor) and fall-off.
+     POV-Ray counts the tune's lights and no others: `settings.inc` adds
+     none now.
+   - The view is brighter: the port's view colours are white where its
+     POV-Ray textures are dark (the floor is a dark green crackle),
+     `Lightsys_Brightness` (0.67) is POV-Ray's only, and the view has no
+     gamma. The demo turns the view's ambient light down so the pools
+     show.
+   - Not lights, so left alone: the port's two pipes by the right wall
+     lie along z (bpp's `Cylinder` runs along z unless rotated); the
+     original's stand upright.
+
 6. **Docs**: the API in the manual, a basic demo per kind.
    *Done:* `demo/lights/` (one demo per kind, and a LightSys lamp in
    lumens, each with sliders), a line in README.md, and the wiki's Lua
