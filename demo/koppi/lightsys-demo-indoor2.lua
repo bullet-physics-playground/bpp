@@ -570,6 +570,150 @@ local function addChairs()
   end
 end
 
+-- Light fixtures from demo_indoor2.pov: the wall tubes, the two hanging lamps
+-- and the spotlight. They are split into housing/stem/bulb meshes so each can
+-- keep its own material, and share one mesh per part across their instances.
+-- As with the chairs, the source is written in POV-Ray coordinates and mirrored
+-- through Z at the end. The light objects above do the actual lighting.
+local TUBE_HOUSING_SCAD = [===[
+$fn = 24;
+scale([1, 1, -1]) {
+  cube([64, 4, 6], center = true);
+  translate([-31, -2, 0]) rotate([0, 90, 0])
+    cylinder(h = 2, r = 3, center = true);
+  translate([31, -2, 0]) rotate([0, 90, 0])
+    cylinder(h = 2, r = 3, center = true);
+}
+]===]
+
+local TUBE_EMITTER_SCAD = [===[
+$fn = 24;
+scale([1, 1, -1]) {
+  translate([0, -4, 0]) rotate([0, 90, 0])
+    cylinder(h = 66, r = 4, center = true);
+}
+]===]
+
+local LAMP_SHADE_SCAD = [===[
+$fn = 24;
+scale([1, 1, -1]) {
+  translate([0, -1.2, 0]) difference() {
+    sphere(10);
+    sphere(9.9);
+    translate([-500, -999, -500]) cube([1000, 1000, 1000]);
+  }
+  translate([0, 11.5, 0]) rotate([-90, 0, 0])
+    cylinder(h = 7, r1 = 4.2, r2 = 3.2, center = true);
+}
+]===]
+
+local LAMP_STEM_SCAD = [===[
+$fn = 24;
+scale([1, 1, -1]) {
+  translate([0, 66.5, 0]) rotate([-90, 0, 0])
+    cylinder(h = 107, r = 0.45, center = true);
+}
+]===]
+
+local LAMP_BULB_SCAD = [===[
+$fn = 24;
+scale([1, 1, -1]) {
+  translate([0, 0.5, 0]) sphere(2.8);
+}
+]===]
+
+local SPOT_SHADE_SCAD = [===[
+$fn = 24;
+scale([1, 1, -1]) {
+  difference() {
+    sphere(8);
+    sphere(7.9);
+    translate([-500, -500, -500]) cube([1000, 500.01, 1000]);
+  }
+  translate([0, 10.75, 0]) rotate([-90, 0, 0])
+    cylinder(h = 8.5, r1 = 4, r2 = 3, center = true);
+}
+]===]
+
+local SPOT_STEM_SCAD = [===[
+$fn = 24;
+scale([1, 1, -1]) {
+  translate([0, 10, 0]) rotate([30, 0, 0])
+    translate([0, 45.5, 0]) rotate([-90, 0, 0])
+      cylinder(h = 89, r = 1, center = true);
+}
+]===]
+
+local SPOT_BULB_SCAD = [===[
+$fn = 24;
+scale([1, 1, -1]) {
+  translate([0, 0.8, 0]) sphere(2.5);
+}
+]===]
+
+local fixtureObjs = {}
+local function addLightFixtures()
+  local chrome = [[ texture { T_Chrome } ]]
+  local plastic = [[ texture { T_Black_Plastic } ]]
+
+  local function bulbSDL(r, g, b)
+    return string.format([=[
+      texture {
+        pigment { color rgb <%g,%g,%g> }
+        finish { ambient 0.15 diffuse 0.35 emission rgb <%g,%g,%g> }
+      }
+    ]=], r, g, b, r, g, b)
+  end
+
+  local function addPart(scad, trans, col, sdl, emission)
+    local o = OpenSCAD(scad, 0, false)
+    o.col = col
+    o.trans = trans
+    o.sdl = sdl
+    -- The bulbs and housings sit on top of the light sources: if they cast
+    -- shadows they black out the very light they belong to.
+    o.castShadow = false
+    if emission then o.emission = emission end
+    v:add(o)
+    table.insert(fixtureObjs, o)
+  end
+
+  -- Tube: POV rotate <90,90,0>, translate <200,228,±66>. The emitted z here
+  -- is already in Bullet space, the mirror of the original's ±66.
+  local tubeBulb = bulbSDL(234/255, 242/255, 1)
+  local tubeHousing = [[
+    texture {
+      pigment { rgb ReflectiveSpectrum(RS_Warm_Gray_4_C) }
+      finish { ambient 0.6 diffuse 0.01 }
+    }
+  ]]
+  for _, z in ipairs({ -66, 66 }) do
+    local trans = common.transform(math.rad(-90), math.rad(-90), 0, 200, 228, z)
+    addPart(TUBE_HOUSING_SCAD, trans, "#a8a39c", tubeHousing)
+    addPart(TUBE_EMITTER_SCAD, trans, "#eaf2ff", tubeBulb, "#eaf2ff")
+  end
+
+  -- Lamp: POV translate <±65,185,40>, no rotation.
+  local lampBulb = bulbSDL(1, 207/255, 154/255)
+  for _, x in ipairs({ 65, -65 }) do
+    local trans = common.transform(0, 0, 0, x, 185, -40)
+    addPart(LAMP_SHADE_SCAD, trans, "#b2b2ba", chrome)
+    addPart(LAMP_STEM_SCAD, trans, "#111111", plastic)
+    addPart(LAMP_BULB_SCAD, trans, "#ffcf9a", lampBulb, "#ffcf9a")
+  end
+
+  -- Spot: POV rotate -x*32, translate <38,275,180>.
+  addPart(SPOT_SHADE_SCAD,
+          common.transform(0, math.rad(32), 0, 38, 275, -180),
+          "#b2b2ba", chrome)
+  addPart(SPOT_STEM_SCAD,
+          common.transform(0, math.rad(32), 0, 38, 275, -180),
+          "#111111", plastic)
+  addPart(SPOT_BULB_SCAD,
+          common.transform(0, math.rad(32), 0, 38, 275, -180),
+          "#f2f5ff", bulbSDL(242/255, 245/255, 1), "#f2f5ff")
+end
+
 -- Simplified desk (original: wood top + 4 chrome legs).
 -- POV: Desk rotate y*3 translate <-8,0,-40>. bpp: translate (-8,73.5,40),
 -- rotate -3 deg about Y.
@@ -692,6 +836,7 @@ addRoom()
 addMondrian()
 addWindow()
 addChairs()
+addLightFixtures()
 addDesk()
 addColorChart()
 
