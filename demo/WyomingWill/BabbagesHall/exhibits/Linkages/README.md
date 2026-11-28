@@ -1,7 +1,7 @@
 # Linkages That Compute
 
 *Babbage's Hall, east bay 4: hinged bars that work out 1/x, draw a
-straight line, and multiply.*
+straight line, multiply, and double an angle.*
 
 **`MANUAL.pdf`** is the manual: how each linkage works, why it gives the
 answer it does, with pictures, and the exhibit's keys (`H` opens it, here
@@ -21,7 +21,7 @@ operator's hand moves an input carriage along a slot, or turns a crank;
 the output is a pin whose place on a paper scale is the answer. A slate
 behind the board shows the input, the reading and the answer worked out.
 
-## Three ways
+## Four ways
 
 In the hall, Tab steps through them (each has its own label on the
 lectern); on its own, `LN_WAY` chooses.
@@ -50,18 +50,35 @@ scale at its right edge, clear of the lever and the bridge; the scale is
 marked double, so it reads a × b. Type a (2 to
 5), Space, b (−5 to 5), and Return. a = b squares.
 
+**Kempe's reversor and adder** (`LN_WAY=kempe`). Alfred Kempe's proof
+of 1876 that a linkage can draw any polynomial curve needs three pieces:
+a scale, a reversor that doubles an angle, and an adder. Here are the
+last two. The reversor is two crossed parallelograms of one shape that
+share the angle at O: the big one O-X-B-P has sides 8 (the bar O-X
+between two fixed pins, and B-P) and 4 (the crank O-P, and X-B); the
+small one O-P-C-Q, a quarter its size, has 4 (O-P, C-Q) and 2 (P-C, with
+C on B-P; and the arm O-Q). As the crank turns to θ from O-X, the arm
+turns to 2θ. The adder is a parallelogram O-A-S-E on the crank's end A
+(6 out) and the arm's end E (3 out): S sits at A + E, and a pen there
+draws 6 e^iθ + 3 e^2iθ, a limaçon. Return turns the crank from 20° to
+160° and back (type a smaller end first): the slate shows the crank, the
+arm, and twice the crank worked out. The crank stays clear of 0° and
+180°, where the crossed parallelograms lie flat and could fold into
+plain ones. Seven bars in seven planes; ten pins.
+
     bpp -f linkages.lua                     (or walk to it in the hall)
     LN_WAY=line bpp -f linkages.lua
     LN_WAY=multiply bpp -f linkages.lua
+    LN_WAY=kempe bpp -f linkages.lua
 
 | Key | |
 |---|---|
 | `0`–`9`, `.`, `-` | a number (the slate shows it) |
 | `Space` | between a and b (multiplying) |
-| `Return` | set it; the line: turn the crank across and back |
+| `Return` | set it; the line and Kempe's: turn the crank across and back |
 | `Backspace` | a figure off |
 | `R` | a setting at random |
-| `T` | the tour. Inverter: x = 5, 6.25, 8, 9. The line: −80° to 80° and back. Multiplying: 3 × 4, 2.5 × 2.5, 4.5 × −2, 5 × 5 |
+| `T` | the tour. Inverter: x = 5, 6.25, 8, 9. The line: −80° to 80° and back. Multiplying: 3 × 4, 2.5 × 2.5, 4.5 × −2, 5 × 5. Kempe's: 20° to 160° and back |
 | `H` | the manual, `MANUAL.pdf`, opened in your PDF viewer |
 
 The sliders: the hand's speed (cm a second; degrees a second for the
@@ -136,7 +153,7 @@ rocking: rock lets Q wander off the answer.
 | File | |
 |---|---|
 | `MANUAL.md`, `manual/` | the manual and its figures (`python3 manual/make-figures.py` redraws them, but for `fig-exhibit.png`, a screenshot) |
-| `linkages.lua` | the exhibit, all three ways |
+| `linkages.lua` | the exhibit, all four ways |
 | `parts/linkages.scad` | every part's shape, and the sizes the exhibit uses |
 | `make-slate.py`, `slate/` | the slate's pictures and the scales |
 | `make-stls.sh` | the STL files (not kept in the repository) |

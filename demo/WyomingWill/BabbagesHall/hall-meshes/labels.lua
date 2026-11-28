@@ -10,6 +10,7 @@ return {
   ["domino-adder"] = { file = "label-domino-adder.obj", w = 78.37, h = 4.20 },
   ["slide-adder"] = { file = "label-slide-adder.obj", w = 53.47, h = 4.20 },
   ["linkages"] = { file = "label-linkages.obj", w = 78.06, h = 4.20 },
+  ["linkages-write"] = { file = "label-linkages-write.obj", w = 68.33, h = 4.20 },
   ["differential"] = { file = "label-differential.obj", w = 59.98, h = 4.20 },
   ["pascaline"] = { file = "label-pascaline.obj", w = 46.61, h = 4.20 },
   ["difference-engine"] = { file = "label-difference-engine.obj", w = 76.11, h = 4.20 },

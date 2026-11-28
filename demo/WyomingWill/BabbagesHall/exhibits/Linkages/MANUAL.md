@@ -3,9 +3,10 @@
 `MANUAL.pdf` beside this file is a typeset copy of it. In Babbage's Hall,
 press `H` at the linkages to open it.
 
-How three linkages compute: Peaucellier's inverter, which works out
-100 / x; the same linkage drawing an exact straight line; and a lever
-that multiplies. Why each gives the answer it does, how to use the
+How four linkages compute: Peaucellier's inverter, which works out
+100 / x; the same linkage drawing an exact straight line; a lever
+that multiplies; and Kempe's reversor, which doubles an angle, with an
+adder on it. Why each gives the answer it does, how to use the
 exhibit, and making one.
 
 The pictures are drawn by `manual/make-figures.py` with the exhibit's
@@ -26,9 +27,10 @@ proportion: tilt it with b, read it at a, and you have a times b.
 2. Why OP × OQ stays the same
 3. The straight line
 4. The multiplier
-5. Using the exhibit
-6. What the exhibit shows you
-7. Making one
+5. Kempe's reversor and adder
+6. Using the exhibit
+7. What the exhibit shows you
+8. Making one
 
 ## 1. The inverter
 
@@ -127,9 +129,46 @@ The pins in the slot are little blocks that slide along the lever, one
 under it and one over it, so they can pass each other; the cross
 carriage stays beyond the b carriage (a from 2), so they never need to.
 
-## 5. Using the exhibit
+## 5. Kempe's reversor and adder
 
-In the hall, walk to east bay 4 and step in; Tab steps through the three
+![The crossed parallelograms OXBP and OPCQ, the adder OAES, and the limaçon S draws.](manual/fig-kempe.png)
+
+In 1876 Alfred Kempe proved that a linkage can draw any curve given by a
+polynomial. Write the curve as a sum of turning arms, each turning a
+whole number of times as fast as the first: then three pieces are
+enough. A **scale** makes an arm longer or shorter; a **reversor**
+doubles an angle (and, used over again, makes any multiple of it); an
+**adder** puts arms end to end.
+
+**The reversor.** A *crossed* parallelogram has its long sides crossing,
+like a bow tie: O-X-B-P with O-X and B-P 8 long, O-P and X-B 4. Fix O
+and X to the board, and turn the crank O-P to the angle θ from O-X. A
+second crossed parallelogram, a quarter the size (sides 4 and 2), shares
+the crank O-P and the angle at O: its corner C rides on B-P, 2 from P,
+and its fourth bar, the **arm** O-Q, is 2 long. Two crossed
+parallelograms of the same shape that share an angle turn their outer
+sides by equal amounts the other way, so the arm stands at θ beyond the
+crank: at **2θ** from O-X.
+
+**The adder.** A parallelogram O-A-S-E hangs on the crank's end A, 6
+out, and the arm's end E, 3 out. Its far corner S is always at A + E
+(as arrows from O), so S is at 6 turned by θ plus 3 turned by 2θ, and a
+pen there draws a **limaçon**.
+
+A crossed parallelogram lies flat at θ = 0 and θ = 180°, and there it
+could fold into an ordinary one, and stop doubling. Real Kempe linkages
+add braces to stop that; here, the crank simply stays between 20° and
+160°.
+
+William Spears designed a single Kempe linkage that writes his name,
+*Bill*, in cursive. Each term of the curve needs its own reversors and
+adders: built, it would be about 340 bars, and braces. The linkages that
+write, in west bay 5, take another road: a small linkage, found by
+search, for each stroke.
+
+## 6. Using the exhibit
+
+In the hall, walk to east bay 4 and step in; Tab steps through the four
 ways, each with its own lectern card.
 
 **The inverter.** Type x, from 5 to 9 (a point for the decimals), and
@@ -143,30 +182,36 @@ back. Type a smaller angle first (10 to 80) for a shorter sweep.
 hand sets the bridge to a and the b carriage to b; the slate shows a, b,
 what the cross carriage reads, and a × b worked out.
 
+**Kempe's.** Press Return: the hand turns the crank from 20° to 160° and
+back, and the pen draws part of the limaçon. Type a smaller end first
+(30 to 160) for a shorter sweep. The slate shows the crank's angle, the
+arm's, and twice the crank's worked out.
+
 | Key | |
 |---|---|
 | `0`–`9`, `.`, `-` | a number |
 | `Space` | between a and b |
-| `Return` | set it (the line: sweep) |
+| `Return` | set it (the line and Kempe's: sweep) |
 | `Backspace` | a figure off |
 | `R` | a setting at random |
 | `T` | the tour |
 | `H` | this manual |
 
-## 6. What the exhibit shows you
+## 7. What the exhibit shows you
 
 Every bar, carriage and block is a body in the simulation, every pin a
 hinge and every slot a slider: the hand pushes only the input, and the
 output goes wherever the bars put it. The slate's answer is read from
 where the output pin stands, and checked against the sum worked out.
 Each reading is right to within 0.01 cm (the inverter) or 0.02 (the
-multiplier).
+multiplier); Kempe's arm stays within 0.3° of twice the crank (0.06° at
+the hand's usual speed), and its pen within 0.2 mm of the limaçon.
 
 The board lies flat, as a real one would on a table: the bars' weight
 presses them on their pins, and none of it pulls the linkage out of
 shape.
 
-## 7. Making one
+## 8. Making one
 
 Every part prints (`README.md` lists them; `make-stls.sh` makes the
 files): a board in quarters, bars 8 mm wide and 3 mm thick with a 3 mm

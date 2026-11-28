@@ -138,7 +138,7 @@ teeth, never set.
 
 ![The exhibit (a screenshot of the simulation) at 3 + 9: A's drum at 3, B's at 9, the ring at 12, each read at its yellow pointer.](manual/fig-exhibit.png)
 
-The Differential stands in the west bay 5. A hand turns the inputs, one
+The Differential stands in the east bay 5. A hand turns the inputs, one
 at a time, holding the other; the carrier and the spiders move only as the
 teeth push them.
 

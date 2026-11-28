@@ -9,6 +9,8 @@ pivoted at O + 3.5; the multiplier's b carriage at 6 from its O, rising
   fig-cell.png      the inverter: O, A, B, P, Q and the two right triangles
   fig-line.png      the straight line: P on a circle through O, Q on a line
   fig-multiply.png  the multiplier's similar triangles
+  fig-kempe.png     Kempe's reversor (8 and 4; 4 and 2) and the adder (6, 3),
+                    with the limacon its pen draws
 (fig-exhibit.png is a screenshot of the exhibit.)
 """
 import math, os
@@ -113,5 +115,49 @@ def fig_multiply():
     fig.savefig(os.path.join(HERE, "fig-multiply.png"), dpi=110, bbox_inches="tight"); plt.close(fig)
 
 
-fig_cell(); fig_line(); fig_multiply()
+def fig_kempe():
+    """Kempe's reversor at th = 60: the crossed parallelograms O-X-B-P (8, 4)
+    and O-P-C-Q (4, 2), the adder O-A-S-E, and the whole limacon."""
+    Lk, sk, A, Bk = 8.0, 4.0, 6.0, 3.0
+    r = sk * sk / Lk
+    th = math.radians(60)
+    def circ(p0, r0, p1, r1):
+        dx, dy = p1[0] - p0[0], p1[1] - p0[1]; d = math.hypot(dx, dy)
+        a = (r0 * r0 - r1 * r1 + d * d) / (2 * d); h = math.sqrt(max(0, r0 * r0 - a * a))
+        mx, my = p0[0] + a * dx / d, p0[1] + a * dy / d
+        return (mx + h * dy / d, my - h * dx / d), (mx - h * dy / d, my + h * dx / d)
+    O, X = (0, 0), (Lk, 0)
+    P = (sk * math.cos(th), sk * math.sin(th))
+    un = (X[0] + P[0], X[1] + P[1])
+    B = max(circ(X, sk, P, Lk), key=lambda q: math.hypot(q[0] - un[0], q[1] - un[1]))
+    C = (P[0] + r * (B[0] - P[0]) / Lk, P[1] + r * (B[1] - P[1]) / Lk)
+    Q = (r * math.cos(2 * th), r * math.sin(2 * th))
+    Ap = (A * math.cos(th), A * math.sin(th)); E = (Bk * math.cos(2 * th), Bk * math.sin(2 * th))
+    Sp = (Ap[0] + E[0], Ap[1] + E[1])
+    fig, ax = plt.subplots(figsize=(8, 7.8))
+    ts = [2 * math.pi * i / 400 for i in range(401)]
+    ax.plot([A * math.cos(t) + Bk * math.cos(2 * t) for t in ts], [A * math.sin(t) + Bk * math.sin(2 * t) for t in ts],
+            color=GREY, lw=1, ls="--")
+    tw = [math.radians(20 + 140 * i / 200) for i in range(201)]
+    ax.plot([A * math.cos(t) + Bk * math.cos(2 * t) for t in tw], [A * math.sin(t) + Bk * math.sin(2 * t) for t in tw],
+            color=INK, lw=2.2)
+    ax.plot([-1, Lk + 1], [0, 0], color=GREY, lw=0.8, ls=":")
+    bars(ax, [(O, X)], GREY, 7)
+    bars(ax, [(X, B), (P, B)], SIDE, 6)
+    bars(ax, [(C, Q)], BLUE, 5)
+    bars(ax, [(O, Ap)], ARM, 7)
+    bars(ax, [(O, E)], RED, 6)
+    bars(ax, [(Ap, Sp), (E, Sp)], "#7a8a3a", 4)
+    pin(ax, *O, "O", dx=-0.7, dy=-0.6); pin(ax, *X, "X", dx=0.3, dy=-0.6)
+    pin(ax, *P, "P"); pin(ax, *B, "B"); pin(ax, *C, "C", col=BLUE); pin(ax, *Q, "Q", col=BLUE, dx=-0.9, dy=-0.8)
+    pin(ax, *Ap, "A", col=ARM); pin(ax, *E, "E", col=RED, dx=-0.7); pin(ax, *Sp, "S, the pen", dx=-2.6, dy=0.4)
+    ax.text(1.0, 0.25, "th", fontsize=12, color=ARM)
+    ax.text(-6.6, -8.9, "The crank O-A at th turns the arm O-E to 2 th: OXBP (8, 4) and OPCQ (4, 2) are crossed\n"
+            "parallelograms of one shape. S = A + E draws 6 e^(i th) + 3 e^(2 i th): solid, the crank from 20 to 160.",
+            fontsize=10.5, color=INK)
+    ax.set_xlim(-7, 10); ax.set_ylim(-9.5, 9.5); ax.set_aspect("equal"); ax.axis("off")
+    fig.savefig(os.path.join(HERE, "fig-kempe.png"), dpi=110, bbox_inches="tight"); plt.close(fig)
+
+
+fig_cell(); fig_line(); fig_multiply(); fig_kempe()
 print("wrote fig-cell.png, fig-line.png, fig-multiply.png")

@@ -475,6 +475,58 @@ LABELS = {
         "with such linkages, made of bars and pins, before electronics "
         "took over.",
     )],
+    "linkages-kempe": [(              # (Kempe 1876; W. Spears's "Bill", 2026)
+        "KEMPE'S REVERSOR",
+        "Twice the angle",
+        "Two crossed parallelograms share the angle at O. The big one has "
+        "sides 8 and 4; the small one, 4 and 2, is the same shape. Turn "
+        "the crank by any angle from the fixed bar, and the arm turns twice "
+        "as far.\n"
+        "Press Return: the crank turns from 20 to 160 degrees and back, and "
+        "the slate shows both angles.",
+    ), (
+        "AND AN ADDER",
+        "A parallelogram adds",
+        "A parallelogram hangs on the crank's end, 6 out, and the arm's end, "
+        "3 out. Its far corner sits at the sum of the two, so its pen draws "
+        "6 turned by the angle plus 3 turned by twice it: a limacon.\n"
+        "Doubling, adding and a fixed scale are all Kempe needed: with them, "
+        "a linkage can draw any curve made of such turns.",
+    ), (
+        "BILL, IN CURSIVE",
+        "One linkage, every bar",
+        "William Spears designed one Kempe linkage to write his name, Bill, "
+        "in cursive. Every term of the curve takes its own reversors and "
+        "adders: built, it would need about 340 bars, and braces to keep "
+        "each from folding.\n"
+        "Across the hall, the linkages that write take another road: a "
+        "small linkage, found by search, for each stroke.",
+    )],
+    "linkages-write": [(              # (W. Spears's synthesizer, 2026; Kempe 1876)
+        "LINKAGES THAT WRITE",
+        "One crank, many pens",
+        "Type a letter. Its linkages go on the board, the crank turns once, "
+        "and every pen draws its stroke. The other cranks are geared to the "
+        "first: one motor drives them all.\n"
+        "Each linkage is a four-bar with more pairs of bars hung on it, up "
+        "to fourteen bars, found in advance by a search.",
+    ), (
+        "WHY MORE THAN ONE PEN",
+        "Junctions are hard",
+        "A pen on a linkage never lifts, and it can't turn back on itself "
+        "sharply. Round letters, like O, C and D, a single linkage draws "
+        "well; E, M and W it can't.\n"
+        "So a letter is split where its strokes meet. Each pen draws one "
+        "unbranched stroke, out and back, which a linkage does well.",
+    ), (
+        "SLOPPY, OK, VERY GOOD",
+        "Accuracy costs bars",
+        "1, 2, 3 choose how close every pen must keep to the letter: 8%, 4% "
+        "or 2% of its height. For each, the cheapest split and linkages "
+        "found. The slate counts the pens and the bars.\n"
+        "Kempe proved in 1876 that a linkage can draw any curve; his way "
+        "would take hundreds of bars for a word.",
+    )],
     "beadsort-spaghetti": [(          # (A. K. Dewdney, Scientific American 250(6), June 1984, p. 19)
         "THE SPAGHETTI SORT",
         "Sorting by height",

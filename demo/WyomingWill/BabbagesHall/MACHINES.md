@@ -52,6 +52,13 @@ Half Adder sixth, with the Pascaline and the Galton board (all scored 4),
 and Lehmer's sieve second, for its modest mechanism, though factoring by
 modular wheels asks far more of a visitor than adding does.
 
+**Changes (2026-11-28):** the linkages that write (number 9) built, in
+west 5: an alphabet of linkages from William's synthesizer, a pen to each
+stroke where one linkage can't draw the letter. The bays after it move on
+one, and the planimeter's covered bay moves before the Galton board, so the
+Galton board and the splitter board still face each other. The linkages (8) gain a
+fourth way: Kempe's reversor and adder.
+
 **Changes (2026-11-27):** three machines added, so the list has 51: the
 linkages that write (9: a linkage computed for each letter, by William's
 synthesizer), after the linkages; and Jaquet-Droz's Draughtsman and Writer
@@ -105,8 +112,8 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 | 5 | 1 | Bead sort and spaghetti sort | modern | physical sorting: beads fall on rods, or rods are stood on end | the bead sort built: nine steel rods on a printed frame, 72 printed beads on sliders held by friction; a hand threads each number's row, turns the frame upright on its hinge, and the rows are read from where the beads land; a slate shows the numbers laid and the rows. Its second way (`Tab`), the spaghetti sort: printed rods cut to 30 + 12 n mm stand upright in a rack (a base, a notch for each foot, a comb), a palm on a slide is lowered onto them and the rod it touches first, read from the contacts, is drawn out and laid down | 3 | 1 | built |
 | 6 | 1 | Domino Half Adder | modern | dominoes falling add two bits | built: 268 dominoes on printed tiles | 3 | 2 | built |
 | 7 | 1 | Slide adder (troncet, Addiator) | 1889 / 1920 | slides moved with a stylus add and carry by a hook | flat slides; the carry hook is the trick. Built upright, six printed bands of pegs on sliders behind a cover whose slots are joined by channels along the top (carry) and the bottom (borrow); the stylus a body moved by a hand's limited force; Tab: subtracting | 3 | 2 | built |
-| 8 | 1 | Linkage function generators (the Peaucellier–Lipkin inverter and others) | 1864 / 1900s | bar linkages that compute a product, a square, a log; Peaucellier's computes 1/x | a few hinged bars each; a set of them would make one bay. Built flat on a board, every bar a body and every pin a hinge (the Walker Room's rules): Peaucellier's inverter (100 / x); Tab: his straight line, a slotted-lever multiplier | 3 | 2 | built |
-| 9 | 1 | Linkages that write | 2026 | type a letter: a one-crank linkage, computed for that letter, draws it (William Spears's synthesizer: a four-bar and up to six RR dyads, found by differential evolution with Grashof and assembly checks) | an alphabet computed in advance at three accuracies (sloppy, ok, very good), so you see how many more bars a better letter takes; every bar a body, every pin a hinge, one motor on the crank, after the linkages | 5 | 3 |  |
+| 8 | 1 | Linkage function generators (the Peaucellier–Lipkin inverter and others) | 1864 / 1900s | bar linkages that compute a product, a square, a log; Peaucellier's computes 1/x | a few hinged bars each; a set of them would make one bay. Built flat on a board, every bar a body and every pin a hinge (the Walker Room's rules): Peaucellier's inverter (100 / x); Tab: his straight line, a slotted-lever multiplier, Kempe's reversor (twice an angle) and adder | 3 | 2 | built |
+| 9 | 1 | Linkages that write | 2026 | type a letter: one-crank linkages draw it, each pen its own linkage, found by William Spears's synthesizer (a four-bar and RR dyads, by differential evolution); a letter with junctions split among pens, one to each stroke | every link a body, every pin a hinge; the cranks kept in step, as on a belt; an alphabet found in advance at three accuracies (sloppy, ok, very good: within 8%, 4%, 2% of the letter's height), so a better letter visibly takes more bars and more pens | 5 | 3 | built |
 | 10 | 1 | Three-dimensional cams | 1930s | a cam shaped by two inputs gives a function of both (fire control's tables) | one shaped cam and a follower; prints well | 3 | 2 |  |
 | 11 | 1 | Petrol-pump price computer | 1930s | multiplies the litres pumped by the price per litre, continuously, with variable-ratio gearing | a variator and counters; small | 3 | 2 |  |
 | 12 | 2 | The Differential | 1827 | gears that add and subtract (Pecqueur's patent; older in clocks) | built: printed bevel gears | 3 | 2 | built |
@@ -194,20 +201,22 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 
 The hall's bays are walked in the list's order, so a new exhibit goes in
 its place in it and the bays after it move along one (the hall grows by a
-pair of facing bays when it needs one). With eighteen bays (since
-2026-11-25) the hall holds the fourteen built and the four covered "in
-preparation", in this order: the suanpan and the slide rule (west 1, east
-1), Napier's bones and the combination lock (west 2, east 2), the bead sort
-and the Domino Half Adder (west 3, east 3), the slide adder and the
-linkages (west 4, east 4), the Differential and the Pascaline (west 5,
-east 5), the Galton board and the splitter board facing each other (west
-6, east 6), the planimeter and Lehmer's sieve (west 7, east 7), the
-Digi-Comp II and the tide predictor (west 8, east 8), the Differential
-Analyser and the Difference Engine (west 9, east 9). Two exceptions to
-the list's order: the planimeter (19 in the list) waits after the splitter
-board (27), so that the Galton board and the splitter board still face
-each other; and the linkages (8) have a covered bay facing the slide adder
-(7), the next machine on the list, so that the slide adder moved
+pair of facing bays when it needs one). With twenty bays (since
+2026-11-28) the hall holds the fifteen built and the four covered "in
+preparation", and one empty at the end, in this order: the suanpan and the
+slide rule (west 1, east 1), Napier's bones and the combination lock (west
+2, east 2), the bead sort and the Domino Half Adder (west 3, east 3), the
+slide adder and the linkages (west 4, east 4), the linkages that write
+and the Differential (west 5, east 5), the Pascaline and the planimeter
+(west 6, east 6), the Galton board and the splitter board facing each
+other (west 7, east 7), Lehmer's sieve and the Digi-Comp II (west 8, east
+8), the tide predictor and the Differential Analyser (west 9, east 9), and
+the Difference Engine (west 10). Two exceptions to the list's order: the
+planimeter (19 in the list) stands before the Galton board, so that the
+Galton board and the splitter board still face each other (it waited after
+the splitter board until the linkages that write came in, 2026-11-28); and
+the linkages (8) have a covered bay facing the slide adder (7), the next
+machine on the list, so that the slide adder moved
 everything after it one row on, each on its own side. The machines are being built from the start
 of the list on: the first four as simple hand-worked pieces at the start
 of the walk (William, 2026-11-15).

@@ -45,6 +45,8 @@ check "Slide adder, subtracting"  6500 $H/exhibits/SlideAdder/slide-adder.lua SA
 check "Linkages, the inverter, alone" 1400 $H/exhibits/Linkages/linkages.lua
 check "Linkages, the straight line"  1200 $H/exhibits/Linkages/linkages.lua LN_WAY=line
 check "Linkages, multiplying, alone" 1800 $H/exhibits/Linkages/linkages.lua LN_WAY=multiply
+check "Linkages, Kempe's, alone"     1300 $H/exhibits/Linkages/linkages.lua LN_WAY=kempe
+check "Linkages that write, alone"  2200 $H/exhibits/LinkagesWrite/linkages-write.lua
 check "Lehmer's sieve, on its own"  2600 $H/exhibits/LehmerSieve/lehmer-sieve.lua
 check "Galton board, on its own"   6000 $H/exhibits/GaltonBoard/galton.lua
 check "Splitter board, on its own" 7000 $H/exhibits/GaltonBoard/splitter-board.lua
@@ -69,6 +71,8 @@ check "Slide adder subtracting, hall" 7200 $H/hall.lua "HALL_START=adder: sub"
 check "Linkages, in the hall"       2000 $H/hall.lua HALL_START=linkages
 check "Linkages straight line, hall" 1800 $H/hall.lua "HALL_START=straight line"
 check "Linkages multiplying, hall"  2400 $H/hall.lua "HALL_START=linkages: mult"
+check "Linkages Kempe's, hall"       1900 $H/hall.lua "HALL_START=kempe's reversor"
+check "Linkages that write, hall"   2800 $H/hall.lua "HALL_START=that write"
 check "Lehmer's sieve, in the hall" 3000 $H/hall.lua HALL_START=lehmer
 check "Galton board, in the hall"  6600 $H/hall.lua HALL_START=galton
 check "Splitter board, in the hall" 7600 $H/hall.lua HALL_START=splitter

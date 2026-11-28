@@ -47,7 +47,7 @@
 local common = require "common"
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local WAY = os.getenv("LN_WAY") or "inverter"
-if WAY ~= "line" and WAY ~= "multiply" then WAY = "inverter" end
+if WAY ~= "line" and WAY ~= "multiply" and WAY ~= "kempe" then WAY = "inverter" end
 
 -- ---------------------------------------------------------------------
 -- this exhibit's folder; the parts file by its full path (OpenSCAD)
@@ -101,6 +101,9 @@ local G = {
   OX = -13.0, L = 15.052, S = 11.25, C = 3.5,
   MOX = -15.0, MD = 6.0, LEVER_L = 25, BRIDGE_Z0 = -13.5, BRIDGE_Z1 = 13.5,
   PSCALE_X = 10.6, INDEX_X0 = -8.2,   -- (the product's scale, and its index rod's left end)
+  -- (Kempe's reversor: O, the board's bar O-X of L, the crank s, the arm
+  -- s^2 / L; the adder's arms a on the crank, b on the arm)
+  KEMPE = { OX = -4.0, OZ = -3.0, L = 8.0, S = 4.0, A = 6.0, B = 3.0 },
   BX0 = -16.5, BX1 = 12.5,
 }
 G.K2 = G.L * G.L - G.S * G.S            -- 100.0
@@ -109,8 +112,9 @@ local function planeY(k) return G.BOARD_T + 0.6 + k * G.GAP end
 -- ---------------------------------------------------------------------
 -- sliders, timing, the pause at every start
 -- ---------------------------------------------------------------------
-v:addParam("hand", envnum("LN_HAND", WAY == "line" and 40 or 2), WAY == "line" and 5 or 0.5, WAY == "line" and 120 or 8,
-  WAY == "line" and 5 or 0.5, WAY == "line" and "how fast the hand turns the crank, degrees a second" or "how fast the hand moves a carriage, cm a second")
+local TURNS = WAY == "line" or WAY == "kempe"   -- (the hand turns a crank, not a carriage)
+v:addParam("hand", envnum("LN_HAND", TURNS and 40 or 2), TURNS and 5 or 0.5, TURNS and 120 or 8,
+  TURNS and 5 or 0.5, TURNS and "how fast the hand turns the crank, degrees a second" or "how fast the hand moves a carriage, cm a second")
 v:addParam("speed", 1, 0.05, 2, 0.05, "simulated seconds per real second")
 local HZ = envnum("LN_HZ", 600)
 local STEP, NSTEPS, FRAME_DT = 1 / HZ, 10, 1 / 60
@@ -315,6 +319,67 @@ if WAY == "inverter" or WAY == "line" then
   M.bars = { OA = OA, OB = OB, PA = PA, PB = PB, QA = QA, QB = QB }
   -- the output's pointer (a pin cap at Q) and, for the line, the pen
   M.qcap = part("knob()"); M.qcap.col = "#c0392b"; v:add(M.qcap)
+elseif WAY == "kempe" then
+  -- Kempe's reversor (1876) and an adder. The reversor: two crossed
+  -- parallelograms, similar, sharing the angle at O. The first: the board's
+  -- bar O-X (L, between two fixed pins), X-B (s), B-P (L), P-O (s, the crank);
+  -- the second, a quarter its size: O-P (s), P-C (r, C on B-P), C-Q (s),
+  -- Q-O (r, the arm). As the crank turns to th from O-X, the arm turns to
+  -- 2 th. The adder: a parallelogram O-A-S-E on the crank's end A (at a
+  -- along it) and the arm's end E (at b): S is at A + E, and its pen draws
+  -- a e^(i th) + b e^(2 i th), a limacon. Planes: the crank 0, B-P 1, X-B 2,
+  -- the arm 3, A-S 4, E-S 5, C-Q 6: bars that cross never share one.
+  local K = G.KEMPE
+  local Ox, Oz, Ls, s_, r = K.OX, K.OZ, K.L, K.S, K.S * K.S / K.L
+  local function at(px, pz) return { x = px, z = pz } end
+  local function circles(p0, r0, p1, r1)
+    local dx, dz = p1.x - p0.x, p1.z - p0.z
+    local d = math.sqrt(dx * dx + dz * dz)
+    local a = (r0 * r0 - r1 * r1 + d * d) / (2 * d)
+    local h = math.sqrt(math.max(0, r0 * r0 - a * a))
+    local mx, mz = p0.x + a * dx / d, p0.z + a * dz / d
+    return at(mx + h * dz / d, mz - h * dx / d), at(mx - h * dz / d, mz + h * dx / d)
+  end
+  local th = math.rad(90)
+  local O_ = at(Ox, Oz)
+  local X = at(Ox + Ls, Oz)
+  local P = at(Ox + s_ * math.cos(th), Oz + s_ * math.sin(th))
+  local b1, b2 = circles(X, s_, P, Ls)
+  local un = at(X.x + P.x - Ox, X.z + P.z - Oz)          -- (the parallelogram's B: the crossed one is the other)
+  local B = ((b1.x - un.x) ^ 2 + (b1.z - un.z) ^ 2 > (b2.x - un.x) ^ 2 + (b2.z - un.z) ^ 2) and b1 or b2
+  local C = at(P.x + r * (B.x - P.x) / Ls, P.z + r * (B.z - P.z) / Ls)
+  local q1, q2 = circles(O_, r, C, s_)
+  local function angOff(q) local a = math.atan2(q.z - Oz, q.x - Ox) - 2 * th; return math.abs(math.atan2(math.sin(a), math.cos(a))) end
+  local Q = angOff(q1) < angOff(q2) and q1 or q2
+  local A = at(Ox + K.A * math.cos(th), Oz + K.A * math.sin(th))
+  local E = at(Ox + K.B * (Q.x - Ox) / r, Oz + K.B * (Q.z - Oz) / r)
+  local Sp = at(A.x + E.x - Ox, A.z + E.z - Oz)
+  local crank = bar(O_, A, 0, "the crank: the hand turns it to th")
+  local BP = bar(P, B, 1, "the first crossed parallelogram's bar B-P, carrying C")
+  local XB = bar(X, B, 2, "the bar X-B, from the second fixed pin")
+  local arm = bar(O_, E, 3, "the arm: it turns to twice the crank's angle")
+  local CQ = bar(C, Q, 6, "the second crossed parallelogram's bar C-Q")
+  local AS = bar(A, Sp, 4, "the adder: A-S, kept parallel to the arm")
+  local ES = bar(E, Sp, 5, "the adder: E-S, kept parallel to the crank")
+  local function along(b, d) return btVector3(-b.len / 2 + d, 0, 0) end
+  local hc = hinge(BASE, crank, btVector3(Ox, planeY(0), Oz), crank.a, "O")
+  hinge(BASE, arm, btVector3(Ox, planeY(0), Oz), arm.a, "O")
+  hinge(BASE, XB, btVector3(X.x, planeY(0), X.z), XB.a, "X")
+  hinge(crank, BP, along(crank, s_), BP.a, "P")
+  hinge(XB, BP, XB.b, BP.b, "B")
+  hinge(BP, CQ, along(BP, r), CQ.a, "C")
+  hinge(arm, CQ, along(arm, r), CQ.b, "Q")
+  hinge(crank, AS, crank.b, AS.a, "A")
+  hinge(arm, ES, arm.b, ES.a, "E")
+  hinge(AS, ES, AS.b, ES.b, "S")
+  hc:enableAngularMotor(true, 0, 50)
+  M.crank, M.crankBar = hc, crank
+  local function angle(b) local p, q = world(b.body, b.a), world(b.body, b.b); return math.deg(math.atan2(q.z - p.z, q.x - p.x)) end
+  M.crankAngle = function() return angle(crank) end
+  M.armAngle = function() return angle(arm) end
+  M.knob = function() local p = world(crank.body, crank.b); return btVector3(p.x, p.y, p.z) end
+  M.Q = function() return world(ES.body, ES.b) end
+  M.qcap = part("knob()"); M.qcap.col = "#c0392b"; v:add(M.qcap)
 else
   -- the multiplier: the lever from O; the b carriage across at O + D (its
   -- block below the lever); the bridge along (its block above). Planes:
@@ -404,6 +469,8 @@ end
 local BOARD_Y = G.BOARD_T + 0.006
 if WAY == "inverter" then
   tile(21.0, 1.6, G.OX + 4.0 + 10.5, BOARD_Y, 1.4, "scale-inverter", QUP)
+elseif WAY == "kempe" then
+  -- (no scale: the slate reads the angles)
 elseif WAY == "line" then
   -- (a ruled line where the pen should go, and its label)
   tile(0.08, 26, G.OX + G.K2 / (2 * G.C), BOARD_Y, 0, "rule", QUP)
@@ -453,6 +520,7 @@ local function showNumber(r, s, green)
 end
 local LABELS = WAY == "inverter" and { "label-x", "label-q", "label-worked" }
   or WAY == "line" and { "label-crank", "label-off", "label-worst" }
+  or WAY == "kempe" and { "label-crank", "label-arm", "label-twice" }
   or { "label-a", "label-b", "label-ab" }
 for r = 1, 3 do show(slate.rows[r].label, LABELS[r]) end
 local function sayIt(s) show(slate.say, "say-" .. WAY .. "-" .. s) end
@@ -474,7 +542,7 @@ end
 local function placeKnobs()
   if WAY == "inverter" then
     local p = M.knob(); knobFor(1).trans = btTransform(ident, btVector3(p.x, planeY(0) + 0.4, p.z))
-  elseif WAY == "line" then
+  elseif WAY == "line" or WAY == "kempe" then
     local p = M.knob(); knobFor(1).trans = btTransform(ident, btVector3(p.x, planeY(0) + 0.2, p.z))
   else
     local p = M.knobs[1](); knobFor(1).trans = btTransform(ident, btVector3(p.x, planeY(1) + 0.2, G.BRIDGE_Z1 - 0.6))
@@ -487,7 +555,7 @@ local function placeKnobs()
     end
   end
   if M.Q then
-    local q = M.Q(); M.qcap.trans = btTransform(ident, btVector3(q.x, planeY(4) + 0.2, q.z))
+    local q = M.Q(); M.qcap.trans = btTransform(ident, btVector3(q.x, planeY(WAY == "kempe" and 5 or 4) + 0.2, q.z))
   end
 end
 
@@ -576,6 +644,47 @@ local function stepJob(dt)
     if WAY == "inverter" then showNumber(2, fmt(got), ok) else showNumber(3, fmt(got), ok) end
     sayIt(ok and "done" or "wrong")
     job = nil
+  elseif q.ksweep then
+    -- Kempe: the hand turns the crank to each angle in turn; the slate reads
+    -- the crank and the arm, and the pen marks S
+    if not job.i then job.i = 1; penClear(); job.worstA, job.worstS = 0, 0 end
+    local K = G.KEMPE
+    local want = q.angles[job.i]
+    local a = M.crankAngle()
+    local d = want - a
+    local speed = math.rad(v:getParam("hand"))
+    local w = math.max(-speed, math.min(speed, math.rad(d) * 5))
+    local dw = speed * dt / 0.3
+    job.w = math.max((job.w or 0) - dw, math.min((job.w or 0) + dw, w))
+    M.crank:enableAngularMotor(true, job.w, 50)
+    local arm = M.armAngle()
+    local e = arm - 2 * a
+    e = math.deg(math.atan2(math.sin(math.rad(e)), math.cos(math.rad(e))))
+    local qp = M.Q()
+    penDot(qp)
+    local ta, t2 = math.rad(a), math.rad(2 * a)
+    local sx, sz = K.OX + K.A * math.cos(ta) + K.B * math.cos(t2), K.OZ + K.A * math.sin(ta) + K.B * math.sin(t2)
+    local offS = math.sqrt((qp.x - sx) ^ 2 + (qp.z - sz) ^ 2)
+    if job.t > 0.5 then job.worstA = math.max(job.worstA, math.abs(e)); job.worstS = math.max(job.worstS, offS) end
+    local a2 = arm % 360
+    showNumber(1, fmt(a, 1)); showNumber(2, fmt(a2, 1)); showNumber(3, fmt((2 * a) % 360, 1))
+    local kp = M.knob(); placeFinger(btVector3(kp.x, kp.y, kp.z))
+    if math.abs(d) < 0.3 then
+      job.i = job.i + 1
+      if not q.angles[job.i] then
+        M.crank:enableAngularMotor(true, 0, 50)
+        local worstGap = 0
+        for _, hg in ipairs(hinges) do worstGap = math.max(worstGap, hingeGap(hg)) end
+        local ok = job.worstA < 0.3 and job.worstS < 0.02   -- (the arm lags 0.0018 degrees for each degree a second of the hand: 0.22 at 120)
+        print(string.format("  the crank from %g to %g degrees and back: the arm off twice the crank by %.4f degrees at most, the pen %.4f mm off a e^ith + b e^2ith, %d marks (%s); the pins open %.4f cm at most",
+          q.angles[1], q.angles[2], job.worstA, job.worstS * 10, #pen.dots, ok and "right" or "WRONG", worstGap))
+        S.result = ok
+        showNumber(2, fmt(a2, 1), ok)
+        sayIt(ok and "done" or "wrong")
+        job = nil
+      end
+    end
+    if job and job.t > 60 then print("  the crank didn't get there"); S.result = false; job = nil end
   elseif q.sweep then
     -- the hand turns the crank to each angle in turn; the pen marks Q
     if not job.i then job.i = 1; penClear(); job.worst = 0; job.lineX = G.OX + G.K2 / (2 * G.C) end
@@ -628,6 +737,11 @@ local function queueSet(vals)
   queue[#queue + 1] = { home = true }
 end
 local function queueSweep(a0, a1)
+  if WAY == "kempe" then
+    queue[#queue + 1] = { say = "turning", ksweep = true, angles = { a0, a1, a0 } }
+    queue[#queue + 1] = { home = true }
+    return
+  end
   queue[#queue + 1] = { say = "turning", sweep = true, angles = { a0, a1, a0 } }
   queue[#queue + 1] = { home = true }
 end
@@ -650,6 +764,7 @@ end
 -- ---------------------------------------------------------------------
 local TOUR = WAY == "inverter" and { { 5 }, { 6.25 }, { 8 }, { 9 } }
   or WAY == "multiply" and { { 3, 4 }, { 2.5, 2.5 }, { 4.5, -2 }, { 5, 5 } }
+  or WAY == "kempe" and { { 20, 160 } }
   or { { -80, 80 } }
 do
   local n = envnum("LN_RANDOM", 0)
@@ -658,6 +773,7 @@ do
     for i = 1, n do
       if WAY == "inverter" then TOUR[#TOUR + 1] = { 5 + 4 * math.random() }
       elseif WAY == "multiply" then TOUR[#TOUR + 1] = { 2 + 3 * math.random(), -5 + 10 * math.random() }
+      elseif WAY == "kempe" then TOUR[#TOUR + 1] = { 20, 40 + 120 * math.random() }
       else local a = 30 + 50 * math.random(); TOUR[#TOUR + 1] = { -a, a } end
     end
   end
@@ -666,7 +782,7 @@ local touring, fails = nil, 0
 local function tourStart()
   touring, fails = 1, 0
   print(string.format("\nLINKAGES THAT COMPUTE (%s) -- the tour: %d %s", WAY, #TOUR,
-    WAY == "line" and (#TOUR == 1 and "sweep" or "sweeps") or "settings"))
+    (WAY == "line" or WAY == "kempe") and (#TOUR == 1 and "sweep" or "sweeps") or "settings"))
 end
 local function tourNext()
   if not touring or not idle() then return end
@@ -675,14 +791,14 @@ local function tourNext()
     touring = nil
     print("RESULT linkages " .. WAY .. " tour: " .. (fails == 0 and "PASS" or "FAIL")
           .. string.format("  (%d %s, %d wrong; frame %d)", #TOUR,
-             WAY == "line" and (#TOUR == 1 and "sweep" or "sweeps") or "settings", fails, G.frame or 0))
+             (WAY == "line" or WAY == "kempe") and (#TOUR == 1 and "sweep" or "sweeps") or "settings", fails, G.frame or 0))
     return
   end
   local t = TOUR[touring]
   touring = touring + 1
   S.result = nil
   queue[#queue + 1] = { wait = touring == 2 and 0.3 or 1.0 }
-  if WAY == "line" then queueSweep(t[1], t[2]) else queueSet(t) end
+  if WAY == "line" or WAY == "kempe" then queueSweep(t[1], t[2]) else queueSet(t) end
 end
 
 -- ---------------------------------------------------------------------
@@ -721,7 +837,8 @@ v:postSim(function(N)
     local s = os.getenv("LN_SET")
     if s and s:match("%d") then
       local t = parse(s)
-      if WAY == "line" then if t[1] then queueSweep(-math.abs(t[1]), math.abs(t[1])) end
+      if WAY == "kempe" then if t[1] then queueSweep(20, math.max(30, math.min(160, t[1]))) end
+      elseif WAY == "line" then if t[1] then queueSweep(-math.abs(t[1]), math.abs(t[1])) end
       else local vals = clampVals(t); if vals then queueSet(vals) end end
     end
     if (os.getenv("LN_TOUR") or "1") ~= "0" then tourStart() end
@@ -755,6 +872,12 @@ pcall(function() v:addShortcut("Space", function() typed(" ") end) end)
 v:addShortcut("Backspace", function() S.entry = S.entry:sub(1, -2); showEntry() end)
 local function enter()
   touring = nil
+  if WAY == "kempe" then
+    local a = tonumber(S.entry) or 160
+    S.entry = ""
+    queueSweep(20, math.max(30, math.min(160, a)))
+    return
+  end
   if WAY == "line" then
     local a = tonumber(S.entry) or 80
     S.entry = ""
@@ -773,6 +896,7 @@ v:addShortcut("R", function()
   S.entry = ""
   if WAY == "inverter" then queueSet({ 5 + 4 * math.random() })
   elseif WAY == "multiply" then queueSet({ 2 + 3 * math.random(), -5 + 10 * math.random() })
+  elseif WAY == "kempe" then queueSweep(20, 40 + 120 * math.random())
   else local a = 30 + 50 * math.random(); queueSweep(-a, a) end
 end)
 v:addShortcut("T", function() tourStart() end)
@@ -797,6 +921,13 @@ pcall(function()
       "draws it. Return turns the crank from -80 to 80 degrees and back (type a",
       "smaller angle first for less); the slate shows how far the pen is off the line.",
     },
+    kempe = {
+      "KEMPE'S REVERSOR AND ADDER (1876)",
+      "Two crossed parallelograms, similar, share the angle at O: as the crank turns",
+      "to th, the arm turns to 2 th. A parallelogram on the crank's end and the arm's",
+      "end adds them: its far corner, S, draws a e^(i th) + b e^(2 i th). Return turns",
+      "the crank from 20 to 160 degrees and back (type a smaller end first).",
+    },
     multiply = {
       "A MULTIPLIER",
       "A slotted lever through the fixed pin O. The b carriage, across the board at",
@@ -810,7 +941,7 @@ pcall(function()
   for i = 2, #t do lines[#lines + 1] = t[i] end
   for _, l in ipairs({ "",
     "KEYS: 0-9 . - Space a number; Return set it; Backspace; R at random; T the tour;",
-    "H the manual. In the hall, Tab: the inverter, the straight line, the multiplier.",
+    "H the manual. In the hall, Tab: the inverter, the straight line, the multiplier, Kempe's.",
     "",
     "Every bar, carriage and block is a body, every pin a hinge, every slot a",
     "slider; the hand moves the inputs; every reading is where the output pin is.",
@@ -829,7 +960,9 @@ if v.onHover then
   v:onHover(function(N, obj) local k = objectKey and objectKey(obj); return k and KEY[k] end)
 end
 
-if WAY == "multiply" then
+if WAY == "kempe" then
+  common.setCamera(btVector3(-1, 34, 26), btVector3(-1, 3, -3))
+elseif WAY == "multiply" then
   -- (higher, to see the whole board: the a scale at its front, the
   -- product's at its right edge)
   common.setCamera(btVector3(-1, 42, 33), btVector3(-1, 3, -4))

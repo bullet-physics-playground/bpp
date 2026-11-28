@@ -45,6 +45,7 @@ tile("ch-blank", 100, 140, [""], [bold(110)])
 for name, text in [("blank", ""), ("x", "P SET AT x ="), ("q", "Q STOPS AT"), ("worked", "100 / x, WORKED OUT"),
                    ("crank", "THE CRANK, DEGREES"), ("off", "THE PEN OFF THE LINE, mm"),
                    ("worst", "AT MOST, SO FAR, mm"),
+                   ("arm", "THE ARM, DEGREES"), ("twice", "TWICE THE CRANK, WORKED OUT"),
                    ("a", "THE BRIDGE AT a ="), ("b", "THE b CARRIAGE AT b ="), ("ab", "THE CROSS CARRIAGE READS a × b")]:
     tile(f"label-{name}", 1200, 80, [text], [fit(bold, 50, text, 1160)], align="left")
 
@@ -66,6 +67,15 @@ SAYS = {
         "done": ("A straight line, by bars and pins alone",
                  "Peaucellier, 1864: what Watt's linkage could only come near"),
         "wrong": ("The pen left the line", "see the console"),
+    },
+    "kempe": {
+        "ready": ("Return turns the crank from 20 to 160 degrees and back",
+                  "the arm turns twice as far; S draws the sum of the two"),
+        "turning": ("The hand turns the crank: the arm turns twice as far",
+                    "two crossed parallelograms, one a quarter of the other"),
+        "done": ("Twice the angle, and the sum, by bars and pins alone",
+                 "Kempe, 1876: with these, a linkage can draw any curve"),
+        "wrong": ("The arm or the pen went astray", "see the console"),
     },
     "multiply": {
         "ready": ("Type a (2 to 5), Space, b (−5 to 5), Return",

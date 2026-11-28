@@ -193,7 +193,7 @@ EXHIBITS = EXHIBITS or {
     prefix = "Linkages: ", floorY = -100,
     about = "Linkages that compute: hinged bars, flat on a board. Peaucellier's inverter (1864): two arms\n" ..
             "and a rhombus keep OP x OQ at 100, so with P set at x, Q stops at 100 / x. Type x (5 to 9),\n" ..
-            "Return. Tab: Peaucellier's straight line; a multiplier. T: the tour; PgDn turns pages.",
+            "Return. Tab: Peaucellier's straight line; a multiplier; Kempe's. T: the tour; PgDn turns pages.",
     modes = {
       { key = "inverter", name = "the linkages", card = "linkages", env = { LN_WAY = "inverter" } },
       { key = "line", name = "the linkages: a straight line", card = "linkages-line", env = { LN_WAY = "line" },
@@ -204,7 +204,17 @@ EXHIBITS = EXHIBITS or {
         about = "A multiplier: a slotted lever through a fixed pin. The b carriage, across at a fixed distance,\n" ..
                 "tilts it; the bridge, at a along the board, carries a cross carriage whose pin rides the\n" ..
                 "slot: it stands at a x b. Type a (2 to 5), Space, b (-5 to 5), Return; a = b squares." },
+      { key = "kempe", name = "the linkages: Kempe's reversor", card = "linkages-kempe", env = { LN_WAY = "kempe" },
+        about = "Kempe's reversor and adder (1876): two crossed parallelograms, one a quarter of the other,\n" ..
+                "turn the arm to twice the crank's angle; a parallelogram on their ends adds them, and its\n" ..
+                "pen draws a e^(i th) + b e^(2 i th). With these, a linkage can draw any curve. Return turns it." },
     } },
+  { dir = "exhibits/LinkagesWrite/", file = "linkages-write.lua", name = "the linkages that write", label = "linkages-write",
+    prefix = "Write: ", floorY = -100,
+    about = "Linkages that write: type a letter, and one crank turns once while each pen, on its own\n" ..
+            "linkage of hinged bars, draws a stroke of it. The linkages were found by William Spears's\n" ..
+            "synthesizer; a letter with junctions is split among pens. 1, 2, 3: sloppy, ok, very good:\n" ..
+            "a better letter takes more bars, and more pens. Space: again; 0: the tour; PgDn turns pages." },
   { dir = "exhibits/Differential/", file = "differential.lua", name = "the Differential", label = "differential",
     prefix = "Differential: ", floorY = -100,
     about = "The Differential: gears that add. The carrier turns (A + B) / 2, and its\n" ..
@@ -215,6 +225,10 @@ EXHIBITS = EXHIBITS or {
             "lifts a weighted lever, the sautoir; passing 9 it drops, and its pawl kicks\n" ..
             "the next wheel on by one. Watch 99 + 1 ripple to 100. To add: rest the mouse\n" ..
             "on a dial's hole and press Space, or U/T/H to choose a wheel and 1-9." },
+  { dir = "exhibits/Planimeter/", file = "planimeter.lua", name = "Amsler's planimeter", label = "planimeter",
+    prefix = "Planimeter: ", floorY = -100,
+    about = "Amsler's polar planimeter (1856): trace round a shape and a wheel rolling\n" ..
+            "and slipping on the paper reads its area. In preparation." },
   { dir = "exhibits/GaltonBoard/", file = "galton.lua", name = "the Galton board", label = "galton",
     prefix = "Galton: ", floorY = -100,
     about = "The Galton board (1873): 150 balls fall through twelve rows of pins, going\n" ..
@@ -243,10 +257,6 @@ EXHIBITS = EXHIBITS or {
   -- (the planimeter comes before the Galton board in MACHINES.md; it waits
   -- here, after the splitter board, so that the Galton board and the
   -- splitter board still face each other across the nave)
-  { dir = "exhibits/Planimeter/", file = "planimeter.lua", name = "Amsler's planimeter", label = "planimeter",
-    prefix = "Planimeter: ", floorY = -100,
-    about = "Amsler's polar planimeter (1856): trace round a shape and a wheel rolling\n" ..
-            "and slipping on the paper reads its area. In preparation." },
   { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
     prefix = "Sieve: ", floorY = -100,
     about = "Lehmer's number sieve (1926): wheels of 9, 8, 7 and 5 places, each moved on one\n" ..

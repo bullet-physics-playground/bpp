@@ -63,6 +63,7 @@ jobs = [
  ("domino-adder", "THE DOMINO HALF ADDER", 4.2, 0.5),
  ("slide-adder", "THE SLIDE ADDER", 4.2, 0.5),
  ("linkages", "LINKAGES THAT COMPUTE", 4.2, 0.5),
+ ("linkages-write", "LINKAGES THAT WRITE", 4.2, 0.5),
  ("differential", "THE DIFFERENTIAL", 4.2, 0.5),
  ("pascaline", "THE PASCALINE", 4.2, 0.5),
  ("difference-engine", "THE DIFFERENCE ENGINE", 4.2, 0.5),

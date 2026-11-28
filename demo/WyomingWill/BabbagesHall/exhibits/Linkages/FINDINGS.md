@@ -121,3 +121,34 @@ The board lies flat: gravity is across the planes of motion, so the
 hinges take the bars' weight along their axes and no torque about them.
 A board standing up, like the slide adder's, would hang the cell's weight
 on its pins, and the answer would sag with it.
+
+## 8. Kempe's reversor (2026-11-28)
+
+The fourth way: Kempe's reversor (L 8, s 4; its small twin 4 and 2) and a
+parallelogram adder (6 on the crank, 3 on the arm), seven bars in planes
+0 to 6, so no two that cross share one.
+
+- **The starting shape decides the branch.** The circles that place B
+  meet twice: one point makes the crossed parallelogram, the other a plain
+  one, which doesn't double. The script takes the point farther from the
+  plain parallelogram's corner, X + P − O, and places Q on the circle
+  through C nearer 2θ. Built at θ = 90°, far from the flat shapes.
+- **It must not go flat.** At θ = 0 and 180° the crossed parallelograms
+  lie straight and may unfold. The sweep stays 20° to 160°; typing a
+  smaller end clamps to 30–160.
+- **Measured** (the tour, 20° to 160° and back, the hand at 40° a
+  second): the arm off 2θ by 0.058° at most, the pen 0.028 mm off
+  6 e^iθ + 3 e^2iθ, the pins open 0.0000 cm. Twenty sweeps at random
+  (`LN_RANDOM=20`): all right, the worst the tour's.
+- **The arm lags the hand.** The error grows in step with the hand's
+  speed: 0.098° at 60° a second, 0.139° at 80, 0.179° at 100, 0.219° at
+  the slider's top, 120 (the pen 0.11 mm). It is the solver's lag in a
+  chain of seven bars, not the geometry: the pins never open. The check
+  passes at 0.3° and 0.2 mm.
+- **The evaluation of a whole Kempe "Bill"** (William's
+  `kempe_pure_bill.py`): its reversors are genuine (90 bars, rigid to
+  1e-15), but the sums are done in Python, not by bars; its "pantograph"
+  lines change length by up to 1.28. Built honestly it would be about
+  330–350 bars, plus braces, and it picks the branch by predicting
+  velocity, which a linkage can't. Hence this set piece: one reversor and
+  one adder, all of them bodies and pins.

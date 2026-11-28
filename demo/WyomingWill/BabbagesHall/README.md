@@ -25,17 +25,18 @@ comes to life.
 | west 3 | **The bead and spaghetti sorts**: numbers as rows of beads on nine rods; turned upright, gravity sorts them. Two ways (`Tab`): the bead sort, and the spaghetti sort, rods cut to the numbers' lengths and stood on end, a flat palm lowered onto them taking the tallest first | `exhibits/BeadSort/` |
 | east 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
 | west 4 | **The slide adder**: Troncet's arithmographe and the Addiator: a stylus moves banded columns, and carries round a hook at the top; Tab: adding, subtracting (borrowing round the bottom) | `exhibits/SlideAdder/` |
-| east 4 | **Linkages that compute**: hinged bars flat on a board. Peaucellier's inverter puts Q at 100 / x; Tab: his straight line, drawn by a pen; a slotted-lever multiplier (a × b, and squares) | `exhibits/Linkages/` |
-| west 5 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
-| east 5 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
-| west 6 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
-| east 6 | **The splitter board**: a Galton board whose pins are independent coins, with a wall that swallows balls (first passage, exactly), or walls that send them back | `exhibits/GaltonBoard/` |
-| west 7 | Amsler's planimeter | in preparation |
-| east 7 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
-| west 8 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
-| east 8 | Kelvin's tide predictor | in preparation |
-| west 9 | The Differential Analyser | in preparation |
-| east 9 | The Difference Engine | in preparation |
+| east 4 | **Linkages that compute**: hinged bars flat on a board. Peaucellier's inverter puts Q at 100 / x; Tab: his straight line, drawn by a pen; a slotted-lever multiplier (a × b, and squares); Kempe's reversor, which doubles an angle, and an adder whose pen draws a limaçon | `exhibits/Linkages/` |
+| west 5 | **Linkages that write**: type a letter, and linkages draw it: each pen its own one-crank linkage, found in advance by William Spears's synthesizer; a letter with junctions split among pens. 1, 2, 3: sloppy, ok, very good: a better letter takes more bars, and more pens | `exhibits/LinkagesWrite/` |
+| east 5 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
+| west 6 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
+| east 6 | Amsler's planimeter | in preparation |
+| west 7 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
+| east 7 | **The splitter board**: a Galton board whose pins are independent coins, with a wall that swallows balls (first passage, exactly), or walls that send them back | `exhibits/GaltonBoard/` |
+| west 8 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
+| east 8 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
+| west 9 | Kelvin's tide predictor | in preparation |
+| east 9 | The Differential Analyser | in preparation |
+| west 10 | The Difference Engine | in preparation |
 
 `HANDOFF.md` is where a new chat starts: how to work, build and test, and
 what's next. `MACHINES.md` lists every machine considered for the hall (51 of them),

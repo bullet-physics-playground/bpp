@@ -31,19 +31,21 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   **the Domino Half Adder** (east 3), **the slide adder** (west 4, since
   2026-11-25), **the linkages** (east 4, facing it, since 2026-11-26:
   Peaucellier's inverter; Tab: his straight line, a multiplier),
-  **the Differential** (west 5), **the
-  Pascaline** (east 5), **the Galton
-  board** (west 6, since 2026-11-12), **the splitter board** (east 6,
-  facing it, since 2026-11-14), **Lehmer's number sieve** (east 7), and
-  the **Digi-Comp II** (west 8: it counts, adds, multiplies,
+  **the linkages that write** (west 5, since 2026-11-28: an alphabet of
+  one-crank linkages, a pen to each stroke), **the Differential** (east 5),
+  **the Pascaline** (west 6), **the Galton
+  board** (west 7, since 2026-11-12), **the splitter board** (east 7,
+  facing it, since 2026-11-14), **Lehmer's number sieve** (west 8), and
+  the **Digi-Comp II** (east 8: it counts, adds, multiplies,
   subtracts and divides, runs programs, and in AUTO runs a multiply by
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
   a cup of balls and a bought rotary damper; each program has only its
   parts on the board, and the operator's hand is shown).
-  Covered bays wait for Amsler's planimeter (west 7:
-  after the splitter board, so that it and the Galton board still face
-  each other), Kelvin's tide predictor (east 8), the Differential Analyser
-  (west 9) and the Difference Engine (east 9): eighteen bays, nine pairs.
+  Covered bays wait for Amsler's planimeter (east 6:
+  before the Galton board, so that it and the splitter board still face
+  each other), Kelvin's tide predictor (west 9), the Differential Analyser
+  (east 9) and the Difference Engine (west 10): nineteen bays, and one
+  empty at the end.
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
   Jakob (koppi) wrote bpp. Clocks are William's own separate collection.
 
@@ -108,6 +110,8 @@ git push
 | `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
 | `exhibits/DigiComp2/MANUAL.md`, `manual/` | The Digi-Comp's illustrated manual; `manual/make-figures.sh` redraws its figures from the geometry (lua, python3, matplotlib). `tools/md2pdf.py` puts a `.md` file's images into its PDF |
 | `exhibits/SlideAdder/manual/make-figures.py` | The slide adder's manual figures, from its sizes |
+| `exhibits/LinkagesWrite/make-alphabet.py` | The linkages that write's `alphabet.lua`, from `synthesis/alphabet.json` (`synthesis/final2.py`'s picks; `synthesis/README.md`) |
+| `exhibits/LinkagesWrite/manual/make-figures.py` | Its manual's figures: a linkage's anatomy, the alphabet at each setting |
 | `exhibits/Linkages/manual/make-figures.py` | The linkages' manual figures (the cell, the line, the multiplier's triangles), from their sizes |
 | `exhibits/BeadSort/spaghetti-sort.lua` | The bead sort's second way (`BS_WAY=spaghetti`: `bead-sort.lua` hands over to it); `BS_TILT` tilts its palm, a test |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
@@ -536,6 +540,15 @@ there, in `release/`, or on the path; or set `BPP`.
   The linkages run at 80. And a hand that reverses at once jerks a
   linkage: ramp a driving motor's speed (a third of a second took the
   straight line's pen from 0.07 mm off to 0.004).
+- **Bullet's gear constraint ties speeds, not angles.** Cranks coupled
+  1:1 by `btGearConstraint` kept within a degree while their loads were
+  light, but one that pulled hard slipped 114 degrees in a turn. To keep
+  shafts in step, as a belt or gears would, drive each by its hinge motor
+  to the master's angle (its speed plus a gain on the angle it lags).
+- **A synthesized linkage needs margin from toggle.** At the synthesizer's
+  default (a twentieth of a crank) the search used near-dead-centre
+  positions, and in bpp a dyad snapped to its other assembly; at 0.6 of a
+  crank the pens held their computed curves to a tenth of a millimetre.
 - **A linkage's constant is a difference of squares** (OA² − PA² = 100):
   0.02 mm on a 150 mm bar moved Peaucellier's answer 0.06%. Work out the
   lengths to the answer's precision, not the bar's.
@@ -1388,28 +1401,36 @@ there, in `release/`, or on the path; or set `BPP`.
   follow). Still to hear from William: how the height reaches P1, and how
   the arm meets P1 (it slides through both). The `zzz.stl` he sent first
   is `2D_CAM`'s, an earlier design these formulas don't fit.
-- **Next (2026-11-27): the linkages that write** (MACHINES.md 9), William's
-  idea: type a letter, and a one-crank linkage computed for it draws it.
-  His synthesizer (`linkage_synthesis.py`, and `linkage_native.c` /
-  `linkage_core.h`, the same in C with OpenMP: a four-bar core and up to
-  six RR dyads, differential evolution, a Grashof gate and assembly
-  margins, shape mode) searched in advance for every letter at three
-  accuracies, a slider choosing (sloppy, ok, very good: about 5%, 2%, 1%
-  RMS of the letter's diagonal), so the visitor sees how many bars more a
-  better letter takes; the slate can replay the search. A first try (3
-  seeds, up to 3 dyads, 5 s a seed on 2 cores): O 4 bars 0.03%, C 8 bars
-  0.9%, D 10 bars 1.5%, L 10 bars 1.7%, A 10 bars 4.0% (A and L want more
-  dyads, seeds and the corners weighted). In bpp: every link a body (the
-  offset pen points rigid plates), every pin a hinge at its own planes, one
-  ramped motor on the crank; first the 8-bar C, the simulated pen against
-  the computed curve. William's synthesizer files are not in the
-  repository yet. After it, the three-dimensional cams (10) and the
-  petrol-pump price computer (11); new bays would be needed. The covered bays (the planimeter, the tide predictor, the Differential
-  Analyser, the Difference Engine) wait for their turn in the list.
-  Still offered, not asked for: printing only a Digi-Comp program's parts
-  (the tiles carry every wall; `make-stls.sh` could take a `PARTS` list,
-  with tiles cut anew). Skipped, at William's word: fixing bpp's own
-  `demo/koppi/gears.lua` (its `assign()`, which newer OpenSCAD dropped).
+- **Done (2026-11-28): the linkages that write** (MACHINES.md 9, west 5),
+  William's idea and his synthesizer (`exhibits/LinkagesWrite/synthesis/`:
+  his `linkage_native.c`, with a warm start, a result for every size and
+  `LK_BOUND` added). Type a letter: each pen's linkage goes on the board,
+  one crank turns once, the others kept in step (each crank's hinge drives
+  it to the first's angle: Bullet's gear constraint slipped 114 degrees),
+  and every pen draws its stroke; each turn is checked against the search.
+  One linkage can't draw a letter with junctions (E, H, K, M, W: 5 to 13%
+  off); split at them, a pen to each stroke (an L, a line, an arc), every
+  letter reaches every setting: sloppy, ok, very good (every pen within
+  8%, 4%, 2% of the letter's height), the cheapest split for each. The
+  search's margin is 0.6 cranks (at 0.05 a dyad snapped in bpp halfway
+  round), a linkage reaches at most four letter heights and moves no pin
+  faster than 20 cranks a radian. Every letter at every setting drawn in
+  bpp, each pen as computed (`LW_ALL=1`). The bays after it moved on one;
+  the planimeter's covered bay moved before the Galton board. Three lectern
+  pages, a placard, a manual with figures. **Not seen by William in the
+  GUI yet.**
+- **Done (2026-11-28): Kempe's reversor and adder**, the linkages' fourth
+  way (Tab, `LN_WAY=kempe`): two crossed parallelograms of one shape (8
+  and 4; 4 and 2) turn the arm to twice the crank's angle, and a
+  parallelogram on the crank's end (6) and the arm's (3) carries a pen
+  that draws 6 e^(i th) + 3 e^(2 i th). Seven bars, ten pins; the crank
+  swept 20 to 160 degrees, clear of the flat shapes where a crossed
+  parallelogram can unfold. The arm within 0.06 degrees of 2 th, the pen
+  within 0.03 mm, at the hand's usual 40 degrees a second (the arm lags
+  in step with the hand: 0.22 at 120; the check allows 0.3). The third
+  lectern page tells William's cursive "Bill" by Kempe's method (about
+  340 bars and braces, built). FINDINGS 8, MANUAL 5, a figure.
+- **Next:** William's writing cam (30), when he has looked at his model.
 - **Settled (2026-10-21):** William has tried the Pascaline (the mouse and
   the keys) and it works well; the stylus collision he thought he saw
   wasn't one. Euler's Gallery keeps its own tables as they are; the exhibit
