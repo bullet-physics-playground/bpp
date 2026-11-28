@@ -375,10 +375,12 @@ local function addRoom()
   table.insert(roomObjs, rearBase)
 
   -- pipes at right wall: cylinders <197,0,130>..<197,290,130> and ..139, radius 3
-  -- center (197,145,z), length 290. bpp z negated.
+  -- Cylinder's local axis is Z: rotate it onto Y, then place its midpoint at
+  -- (197,145,z) in bpp space (z negated relative to the original .pov).
   for _, pz in ipairs({-130, -139}) do
     local pipe = Cylinder(3, 290, 0)
-    pipe.pos = btVector3(197, 145, pz)
+    pipe.trans = btTransform(common.quat(0, math.rad(-90), 0),
+                             btVector3(197, 145, pz))
     pipe.col = color.olive
     pipe.mass = 0
     pipe.sdl = [[
@@ -861,7 +863,7 @@ addColorChart()
 
 -- Camera: same location/look_at as the original .pov, z negated for bpp's
 -- POV export mirroring. angle 75 deg horizontal field of view.
-common.setCamera(btVector3(-8, 135, 236), btVector3(34, 128, 0), math.rad(75),
+common.setCamera(btVector3(-8, 135, 236), btVector3(34, 128, 0), math.rad(70),
                  { horizontal = true })
 
 common.setTiming(1 / 25)
