@@ -337,16 +337,7 @@ local function addRoom()
   v:add(rightBase)
   table.insert(roomObjs, rightBase)
 
-  -- left wall: box <-200,0,-250> <-210,300,250> => center (-205,150,0), size (10,300,500)
-  local leftWall = Cube(10, 300, 500, 0)
-  leftWall.pos = btVector3(-205, 150, 0)
-  leftWall.col = color.white
-  leftWall.mass = 0
-  leftWall.sdl = [[
-    texture { T_White_Wall }
-  ]]
-  v:add(leftWall)
-  table.insert(roomObjs, leftWall)
+  -- The left wall is added by addWindow() below, with the window opening cut out.
 
   -- left baseboard: box <-199,0,-250> <-200,4,250> => center (-199.5,2,0), size (1,4,500)
   local leftBase = Cube(1, 4, 500, 0)
@@ -419,19 +410,44 @@ local function addMondrian()
   table.insert(roomObjs, mondrianObj)
 end
 
--- Window in the left wall. Original POV Window object: frame box + glass
--- pane + daylight light source, rotate y*90 translate <-209,90,-60>.
--- bpp: translate (-209, 90, 60), rotate -y*90 (= +y*90 negated... rotate y*90
--- in POV becomes rotate -y*90 in bpp since rotation about Y is its own mirror
--- with opposite sign under Z-flip).
+-- Window in the left wall. The original cuts an opening through the wall
+-- (box <-200,0,-250>..<-210,300,250> minus box <-199,90,-110>..<-211,230,-10>)
+-- and puts a frame + glass pane in it, rotate y*90 translate <-209,90,-60>.
+-- Both the wall and the frame are hollow OpenSCAD meshes so daylight can pass
+-- through the glass instead of hitting solid geometry.
+local LEFT_WALL_SCAD = [===[
+scale([1, 1, -1]) {
+  difference() {
+    translate([-205, 150, 0]) cube([10, 300, 500], center = true);
+    translate([-205, 160, -60]) cube([12, 140, 100], center = true);
+  }
+}
+]===]
+
+local WINDOW_FRAME_SCAD = [===[
+scale([1, 1, -1]) {
+  difference() {
+    cube([100, 140, 1], center = true);
+    cube([80, 120, 2], center = true);
+  }
+}
+]===]
+
 local windowObj = nil
 local function addWindow()
-  -- window frame
-  windowObj = Cube(100, 140, 1, 0)
-  windowObj.pos = btVector3(-209, 160, 60)
+  -- left wall, with the window opening cut out
+  local leftWall = OpenSCAD(LEFT_WALL_SCAD, 0, false)
+  leftWall.col = color.white
+  leftWall.mass = 0
+  leftWall.sdl = [[ texture { T_White_Wall } ]]
+  v:add(leftWall)
+  table.insert(roomObjs, leftWall)
+
+  -- window frame: a 10-unit border around the 80x120 opening
+  windowObj = OpenSCAD(WINDOW_FRAME_SCAD, 0, false)
   windowObj.col = color.white
   windowObj.mass = 0
-  windowObj.trans = btTransform(common.quat(0, math.rad(-90), 0),
+  windowObj.trans = btTransform(common.quat(math.rad(90), 0, 0),
                                 btVector3(-209, 160, 60))
   windowObj.sdl = [[
     texture {
@@ -442,16 +458,19 @@ local function addWindow()
   v:add(windowObj)
   table.insert(roomObjs, windowObj)
 
-  -- glass pane
+  -- glass pane: transparent in the view and in the render. Like the original's
+  -- LD glass, it casts no shadow so the daylight reaches the room.
   local glass = Cube(80, 120, 0.1, 0)
-  glass.pos = btVector3(-209, 160, 60.5)
+  glass.pos = btVector3(-209, 160, 60)
   glass.col = color.white
   glass.mass = 0
-  glass.trans = btTransform(common.quat(0, math.rad(-90), 0),
-                            btVector3(-209, 160, 60.5))
+  glass.transparency = 0.6
+  glass.castShadow = false
+  glass.trans = btTransform(common.quat(math.rad(90), 0, 0),
+                            btVector3(-209, 160, 60))
   glass.sdl = [[
     texture {
-      pigment {rgbt <1,1,1,0.4>}
+      pigment {rgbt <1,1,1,0.6>}
       finish {diffuse 0.1 specular 0.4 roughness 0.05 reflection {0.1}}
     }
   ]]
