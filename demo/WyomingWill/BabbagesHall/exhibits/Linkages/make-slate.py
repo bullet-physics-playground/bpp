@@ -86,7 +86,7 @@ for way, says in SAYS.items():
 PX = 10
 
 
-def scale(name, w_mm, h_mm, marks, horizontal=True):
+def scale(name, w_mm, h_mm, marks, horizontal=True, ticks_left=False):
     """marks: (position mm from the strip's start, label or None, length):
     along the board from its left, across it from its back"""
     W, H = (w_mm * PX, h_mm * PX) if horizontal else (w_mm * PX, h_mm * PX)
@@ -102,8 +102,12 @@ def scale(name, w_mm, h_mm, marks, horizontal=True):
             # and a carriage moves toward you for larger numbers, so they
             # go down the strip)
             y = pos * PX
-            d.line([(W - ln * PX, y), (W, y)], fill=INK, width=3 if lab else 2)
-            if lab: d.text((W - ln * PX - 8, y), lab, font=sansb(52), fill=INK, anchor="rm")
+            if ticks_left:
+                d.line([(0, y), (ln * PX, y)], fill=INK, width=3 if lab else 2)
+                if lab: d.text((ln * PX + 8, y), lab, font=sansb(60), fill=INK, anchor="lm")
+            else:
+                d.line([(W - ln * PX, y), (W, y)], fill=INK, width=3 if lab else 2)
+                if lab: d.text((W - ln * PX - 8, y), lab, font=sansb(52), fill=INK, anchor="rm")
     im.save(f"{OUT}/{name}.png")
 
 
@@ -125,11 +129,13 @@ for t in range(-50, 51):
     if t % 5: continue
     marks.append((43 + t * 0.75, (f"{t // 10}" if t >= 0 else f"−{-t // 10}") if t % 10 == 0 else None, 6 if t % 10 == 0 else 3.5))
 scale("scale-b", 16, 86, marks, horizontal=False)
-# the product: along the bridge, 260 mm, a x b at 5 mm a unit, -25 .. 25
+# the product: fixed across the board at its right edge, 260 mm, a x b at
+# 5 mm a unit, -25 .. 25; the ticks on its left, where the cross carriage's
+# index rod comes to them
 marks = []
 for t in range(-25, 26):
-    marks.append((130 + t * 5.0, (f"{t}" if t >= 0 else f"−{-t}") if t % 5 == 0 else None, 5 if t % 5 == 0 else 2.5))
-scale("scale-product", 10, 260, marks, horizontal=False)
+    marks.append((130 + t * 5.0, (f"{t}" if t >= 0 else f"−{-t}") if t % 5 == 0 else None, 6 if t % 5 == 0 else 3))
+scale("scale-product", 20, 260, marks, horizontal=False, ticks_left=True)
 # the straight line's rule, and its label
 im = Image.new("RGB", (8, 2600), RED); im.save(f"{OUT}/rule.png")
 tile("label-the-line", 500, 90, ["the straight line"], [italic(56)], fill=RED, bg=PAPER)

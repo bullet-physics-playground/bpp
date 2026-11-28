@@ -45,7 +45,9 @@ about a fixed pin O. Across the board at 6 from O, the b carriage's pin
 rides the slot: set to b, it is 0.75 b across, so the lever's slope is
 0.75 b / 6. A bridge across the board, set at 4 a along it, carries the
 cross carriage, whose pin rides the slot too: it stands 4a × 0.75b / 6 =
-a b / 2 across, and its scale (marked double) reads a × b. Type a (2 to
+a b / 2 across. It grips an index rod that runs across the board to a
+scale at its right edge, clear of the lever and the bridge; the scale is
+marked double, so it reads a × b. Type a (2 to
 5), Space, b (−5 to 5), and Return. a = b squares.
 
     bpp -f linkages.lua                     (or walk to it in the hall)
@@ -91,7 +93,8 @@ The **operator** is the script: it moves the input carriages with a motor
 on their sliders (at the hand's speed, no more than 5 N) or turns the
 crank with a motor on its hinge (speeding up and slowing down over a
 third of a second), and reads the output from where the output pin is.
-The slate, the scales and the pen's dots are drawn.
+The slate, the scales, the pen's dots and the multiplier's index rod are
+drawn (the rod goes wherever the cross carriage is across the board).
 
 ## The parts
 
@@ -111,12 +114,15 @@ lie on the printer's bed (OpenSCAD); all are under 200 mm.
 | `bridge-0.stl`, `bridge-1.stl` | 1 each | the bridge, 270 mm, in halves; pegs under its feet run in the bridge's slots |
 | `knob.stl` | 4 | for the hand: on the inverter's carriage (or the crank), the b carriage and the bridge; and the red one on Q |
 
-Buy: 3 mm steel pins, 30 mm long, about 12.
+Buy: 3 mm steel pins, 30 mm long, about 12; for the multiplier's index, a
+3 mm rod 200 mm long, held at its left in a hole in the cross carriage's
+pin and resting at its right on the scale's edge, bent down at its tip.
 
 **The scales.** `slate/scale-inverter.png`, `scale-a.png`, `scale-b.png`
 and `scale-product.png`, and `rule.png` (the straight line's), are 10
 pixels a millimetre: print them at that size and glue them beside their
-slots (`linkages.lua` places each).
+slots (`linkages.lua` places each; the product's at the board's right
+edge, 106 mm from the board's middle).
 
 **Assembly.** Glue the quarters of a board on a flat surface. Pin O and
 the crank's pivot into their holes. Pin the bars together in order of

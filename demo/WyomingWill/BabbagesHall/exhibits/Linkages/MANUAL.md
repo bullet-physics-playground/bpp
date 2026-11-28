@@ -117,7 +117,9 @@ same shape as the triangle under it at the b carriage:
 
 Z / 4a = 0.75 b / 6, so **Z = a b / 2**.
 
-The cross carriage's scale is marked double: it reads **a × b**.
+The cross carriage grips a rod that runs across the board to a scale at
+its right edge, out from under the lever; the scale is marked double, so
+the rod's end reads **a × b**.
 Negative b tilts the lever the other way, and the product goes negative
 with it. Set a and b the same and it **squares**.
 

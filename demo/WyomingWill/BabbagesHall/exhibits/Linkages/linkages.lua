@@ -100,6 +100,7 @@ local G = {
   BOARD_T = 1.0, GAP = 0.7, THICK = 0.3, BAR_W = 0.8,
   OX = -13.0, L = 15.052, S = 11.25, C = 3.5,
   MOX = -15.0, MD = 6.0, LEVER_L = 25, BRIDGE_Z0 = -13.5, BRIDGE_Z1 = 13.5,
+  PSCALE_X = 10.6, INDEX_X0 = -8.2,   -- (the product's scale, and its index rod's left end)
   BX0 = -16.5, BX1 = 12.5,
 }
 G.K2 = G.L * G.L - G.S * G.S            -- 100.0
@@ -410,7 +411,19 @@ elseif WAY == "line" then
 else
   tile(14.8, 1.6, G.MOX + 14.0, BOARD_Y, 12.0, "scale-a", QUP)
   tile(1.6, 8.6, G.MOX + G.MD - 1.6, BOARD_Y, 0, "scale-b", QUP)
-  M.scaleTile = tile(1.0, 26.0, G.MOX + 12, planeY(1) + 0.21, 0, "scale-product", QUP)
+  -- (the product's scale is fixed at the board's right edge, clear of the
+  -- lever and the bridge; a rod rides across the board with the cross
+  -- carriage, as in the build, where the carriage grips a rod that slides
+  -- across in a guide at the edge, and its tip points at the product)
+  tile(1.8, 26.0, G.PSCALE_X + 0.9, BOARD_Y, 0, "scale-product", QUP)
+  M.indexRod = Cube(G.PSCALE_X - G.INDEX_X0, 0.15, 0.2, 0)
+  M.indexRod.collides = false; M.indexRod.col = "#7a2a1a"; v:add(M.indexRod)
+  -- (at the scale it drops to the paper, and a red line across the scale
+  -- marks the reading: read from above, the raised rod would be seen
+  -- against the wrong mark)
+  M.indexDrop = Cube(0.12, planeY(5) - BOARD_Y, 0.12, 0)
+  M.indexDrop.collides = false; M.indexDrop.col = "#7a2a1a"; v:add(M.indexDrop)
+  M.indexLine = tile(1.8, 0.05, G.PSCALE_X + 0.9, BOARD_Y + 0.003, 0, "rule", QUP)
 end
 
 -- ---------------------------------------------------------------------
@@ -466,9 +479,11 @@ local function placeKnobs()
   else
     local p = M.knobs[1](); knobFor(1).trans = btTransform(ident, btVector3(p.x, planeY(1) + 0.2, G.BRIDGE_Z1 - 0.6))
     p = M.knobs[2](); knobFor(2).trans = btTransform(ident, btVector3(p.x, planeY(0) + 0.4, p.z))
-    if M.scaleTile then
-      local bp = M.bridge.body:getCenterOfMassPosition()
-      M.scaleTile.trans = btTransform(QUP, btVector3(bp.x + 1.0, planeY(1) + 0.21, 0))
+    if M.indexRod then
+      local zp = M.zcar.body:getCenterOfMassPosition()
+      M.indexRod.trans = btTransform(ident, btVector3((G.INDEX_X0 + G.PSCALE_X) / 2, planeY(5), zp.z))
+      M.indexDrop.trans = btTransform(ident, btVector3(G.PSCALE_X - 0.06, (planeY(5) + BOARD_Y) / 2, zp.z))
+      M.indexLine.trans = btTransform(QUP, btVector3(G.PSCALE_X + 0.9, BOARD_Y + 0.003, zp.z))
     end
   end
   if M.Q then
@@ -650,7 +665,8 @@ end
 local touring, fails = nil, 0
 local function tourStart()
   touring, fails = 1, 0
-  print(string.format("\nLINKAGES THAT COMPUTE (%s) -- the tour: %d settings", WAY, #TOUR))
+  print(string.format("\nLINKAGES THAT COMPUTE (%s) -- the tour: %d %s", WAY, #TOUR,
+    WAY == "line" and (#TOUR == 1 and "sweep" or "sweeps") or "settings"))
 end
 local function tourNext()
   if not touring or not idle() then return end
@@ -813,5 +829,11 @@ if v.onHover then
   v:onHover(function(N, obj) local k = objectKey and objectKey(obj); return k and KEY[k] end)
 end
 
-common.setCamera(btVector3(-2, 31, 29), btVector3(-2, 5, -4))
+if WAY == "multiply" then
+  -- (higher, to see the whole board: the a scale at its front, the
+  -- product's at its right edge)
+  common.setCamera(btVector3(-1, 42, 33), btVector3(-1, 3, -4))
+else
+  common.setCamera(btVector3(-2, 31, 29), btVector3(-2, 5, -4))
+end
 holdStart()
