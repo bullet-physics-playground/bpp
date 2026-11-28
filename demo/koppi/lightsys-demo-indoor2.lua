@@ -459,24 +459,106 @@ local function addWindow()
   table.insert(roomObjs, glass)
 end
 
--- Simplified chairs (the original uses a complex superellipsoid + torus
--- union; a textured box stands in, at the same positions with z negated).
+-- The chairs from demo_indoor2.pov, generated from OpenSCAD: a bowl-cut
+-- superellipsoid seat, the clipped torus backrest with its spokes, and four
+-- tapered legs. The source below works in POV-Ray space and mirrors Z at the
+-- end, matching bpp's export. The three chairs share the same generated mesh.
 -- Original positions (POV): <-45,0,195> rot -y*15, <68,0,185> rot y*12,
 -- <150,0,170> rot y*30. bpp z negated, rotation sign negated about Y.
+local CHAIR_SCAD = [===[
+$fn = 24;
+R = 75;
+
+function unit(v) = v / sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+function rotY(p, a) = [
+  p[0]*cos(a) + p[2]*sin(a), p[1],
+  -p[0]*sin(a) + p[2]*cos(a)
+];
+
+// Half-space n . p < 0, for clipping the backrest to its front arc.
+module cut_negative(n) {
+  n = unit(n);
+  u = unit(cross([0, 0, 1], n));
+  w = cross(n, u);
+  L = 1000;
+  multmatrix([
+    [n[0], u[0], w[0], 0],
+    [n[1], u[1], w[1], 0],
+    [n[2], u[2], w[2], 0],
+    [0, 0, 0, 1]
+  ]) translate([-L/2, 0, 0]) cube([L, 2*L, 2*L], center = true);
+}
+
+// A capsule between two points (the original's sphere/cylinder/sphere rod).
+module rod(a, b, r) {
+  hull() {
+    translate(a) sphere(r);
+    translate(b) sphere(r);
+  }
+}
+
+module torus_y(r, rt) {
+  rotate([90, 0, 0]) rotate_extrude($fn = 48)
+    translate([r, 0, 0]) circle(rt, $fn = 12);
+}
+
+// superellipsoid <0.25,0.25> scale <25,2.5,25>, with its bowl cut out
+module seat() {
+  translate([0, 50, 0]) difference() {
+    minkowski() {
+      rotate([-90, 0, 0]) cylinder(h = 0.2, r = 22.6, center = true);
+      sphere(2.4, $fn = 12);
+    }
+    translate([0, 6.1, 0]) scale([33, 5, 33]) sphere(1, $fn = 24);
+  }
+}
+
+// Hollow, rounded band of the R=75 torus clipped to its +-18 degree front arc,
+// with the end caps and five spokes of the original.
+module backrest() {
+  difference() {
+    union() {
+      torus_y(R, 1.4);
+      rotate([-90, 0, 0]) cylinder(h = 6, r = R + 1.4);
+      translate([0, 6, 0]) torus_y(R, 1.4);
+    }
+    rotate([-90, 0, 0]) translate([0, 0, -0.1]) cylinder(h = 6.2, r = R - 1.4);
+    cut_negative([ cos(13)*cos(18),  sin(13), cos(13)*sin(18)]);
+    cut_negative([-cos(13)*cos(18), -sin(13), cos(13)*sin(18)]);
+  }
+
+  p1 = rotY([0, 0, R], -18);
+  p2 = rotY([0, 6, R], -19.2);
+  rod(p1, p2, 1.4);
+  rod([-p1[0], p1[1], p1[2]], [-p2[0], p2[1], p2[2]], 1.4);
+
+  for (a = [-6, -3, 0, 3, 6])
+    rotate([0, -(8/3)*a, 0]) rotate([0, 0, a])
+      translate([0, -50, R]) rotate([-90, 0, 0])
+        cylinder(h = 55, r = 1.3);
+}
+
+scale([1, 1, -1]) {
+  seat();
+  translate([0, 110, -R + 29.5]) rotate([7, 0, 0]) backrest();
+  for (x = [-21, 21]) for (z = [-21, 21])
+    translate([x, -1, z]) rotate([-90, 0, 0])
+      cylinder(h = 51, r1 = 1.9, r2 = 2.8);
+}
+]===]
+
 local chairObjs = {}
 local function addChairs()
   local chairs = {
-    { pos = btVector3(-45, 0, -195), col = color.yellow, rot =  15 }, -- -(-15)
-    { pos = btVector3( 68, 0, -185), col = color.blue,   rot = -12 }, -- -(12)
-    { pos = btVector3(150, 0, -170), col = color.red,    rot = -30 }, -- -(30)
+    { pos = btVector3(-80, 0, -195), col = color.yellow, rot =  15 },
+    { pos = btVector3( 50, 0, -185), col = color.blue,   rot = 0 },
+    { pos = btVector3(130, 0, -170), col = color.red,    rot = -30 },
   }
   for _, c in ipairs(chairs) do
     local r, g, b = color.col2rgb(c.col)
-    local ch = Cube(30, 6, 30, 0)
-    ch.pos = c.pos
+    local ch = OpenSCAD(CHAIR_SCAD, 0, false)
     ch.col = c.col
-    ch.mass = 0
-    ch.trans = btTransform(common.quat(0, math.rad(c.rot), 0), c.pos)
+    ch.trans = btTransform(common.quat(math.rad(c.rot), 0, 0), c.pos)
     ch.sdl = string.format([=[
       texture {
         pigment { color <%g,%g,%g> }
